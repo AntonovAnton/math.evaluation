@@ -9,7 +9,7 @@ internal sealed class ReflectionCalculator
         try
         {
             var i = 0;
-            var value = Calculate(expression, ref i);
+            var value = Calculate(expression.AsSpan(), ref i);
             return value;
         }
         catch (Exception exception)
@@ -20,7 +20,7 @@ internal sealed class ReflectionCalculator
         }
     }
 
-    private double Evaluate(string expression, ref int i, double value = 0d)
+    private double Calculate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -28,10 +28,54 @@ internal sealed class ReflectionCalculator
             {
                 case '(':
                     i++;
-                    value = Evaluate(expression, ref i);
+                    var parenthesesI = 0;
+                    value = Calculate(expression[i..], ref parenthesesI, value);
+                    i += parenthesesI;
                     break;
                 case ')':
                     i++;
+                    return value;
+                case >= '0' and <= '9' or '.':
+                    value = GetNumber(expression, ref i);
+                    break;
+                case '*':
+                    i++;
+                    value *= Evaluate(expression, ref i);
+                    break;
+                case '/':
+                    i++;
+                    value /= Evaluate(expression, ref i);
+                    break;
+                case '-':
+                    i++;
+                    value -= Evaluate(expression, ref i);
+                    break;
+                case '+':
+                    i++;
+                    value += Evaluate(expression, ref i);
+                    break;
+                default:
+                    i++;
+                    break;
+            }
+        }
+
+        return value;
+    }
+
+    private double Evaluate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
+    {
+        while (expression.Length > i)
+        {
+            switch (expression[i])
+            {
+                case '(':
+                    i++;
+                    var parenthesesI = 0;
+                    value = Calculate(expression[i..], ref parenthesesI, value);
+                    i += parenthesesI;
+                    break;
+                case ')':
                     return value;
                 case >= '0' and <= '9' or '.':
                     value = GetNumber(expression, ref i);
@@ -45,12 +89,8 @@ internal sealed class ReflectionCalculator
                     value /= Evaluate(expression, ref i);
                     return value;
                 case '+':
-                    i++;
-                    value += Calculate(expression, ref i);
                     return value;
                 case '-':
-                    i++;
-                    value -= Calculate(expression, ref i);
                     return value;
                 default:
                     i++;
@@ -61,37 +101,7 @@ internal sealed class ReflectionCalculator
         return value;
     }
 
-    private double Calculate(string expression, ref int i, double value = 0d)
-    {
-        while (expression.Length > i)
-        {
-            switch (expression[i])
-            {
-                case '(':
-                    i++;
-                    value = Evaluate(expression, ref i);
-                    break;
-                case >= '0' and <= '9' or '.':
-                    value = GetNumber(expression, ref i);
-                    break;
-                case '+':
-                    i++;
-                    value += Evaluate(expression, ref i);
-                    return value;
-                case '-':
-                    i++;
-                    value -= Evaluate(expression, ref i);
-                    return value;
-                default:
-                    i++;
-                    break;
-            }
-        }
-
-        return value;
-    }
-
-    private static double GetNumber(string expression, ref int i)
+    private static double GetNumber(ReadOnlySpan<char> expression, ref int i)
     {
         var start = i;
         i++;
@@ -107,7 +117,8 @@ internal sealed class ReflectionCalculator
             }
         }
 
-        var number = Convert.ToDouble(expression[start..i], CultureInfo.InvariantCulture);
-        return number;
+        var str = expression[start..i].ToString();
+        var value = Convert.ToDouble(str, CultureInfo.InvariantCulture);
+        return value;
     }
 }

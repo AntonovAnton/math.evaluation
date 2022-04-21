@@ -4,8 +4,11 @@ try
 {
     var calculator = new ReflectionCalculator();
 
-    var expression = "2 + (5 - 1)";
-    double result = calculator.Calculate(expression);
+    var expression = string.Empty;
+    var result = 0d;
+
+    expression = "2 + (5 - 1)";
+    result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
     expression = "4 * 0.1 - 2";
