@@ -83,14 +83,13 @@ internal sealed class ReflectionCalculator
                 case '*':
                     i++;
                     value *= Calculate(expression, ref i);
-                    return value;
+                    break;
                 case '/':
                     i++;
                     value /= Calculate(expression, ref i);
-                    return value;
-                case '+':
-                    return value;
+                    break;
                 case '-':
+                case '+':
                     return value;
                 default:
                     i++;

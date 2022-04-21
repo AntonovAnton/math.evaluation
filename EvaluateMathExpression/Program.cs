@@ -23,7 +23,7 @@ try
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
-    expression = "(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6";
+    expression = "(2.323 * 323 - 4 * 1 / (2 + 3.33)) - 6";
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
