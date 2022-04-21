@@ -9,7 +9,7 @@ internal sealed class ReflectionCalculator
         try
         {
             var i = 0;
-            var value = Calculate(expression.AsSpan(), ref i);
+            var value = Evaluate(expression.AsSpan(), ref i);
             return value;
         }
         catch (Exception exception)
@@ -18,49 +18,6 @@ internal sealed class ReflectionCalculator
             Console.WriteLine(exception.ToString());
             return double.NaN;
         }
-    }
-
-    private double Calculate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
-    {
-        while (expression.Length > i)
-        {
-            switch (expression[i])
-            {
-                case '(':
-                    i++;
-                    var parenthesesI = 0;
-                    value = Calculate(expression[i..], ref parenthesesI, value);
-                    i += parenthesesI;
-                    break;
-                case ')':
-                    i++;
-                    return value;
-                case >= '0' and <= '9' or '.':
-                    value = GetNumber(expression, ref i);
-                    break;
-                case '*':
-                    i++;
-                    value *= Evaluate(expression, ref i);
-                    break;
-                case '/':
-                    i++;
-                    value /= Evaluate(expression, ref i);
-                    break;
-                case '-':
-                    i++;
-                    value -= Evaluate(expression, ref i);
-                    break;
-                case '+':
-                    i++;
-                    value += Evaluate(expression, ref i);
-                    break;
-                default:
-                    i++;
-                    break;
-            }
-        }
-
-        return value;
     }
 
     private double Evaluate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
@@ -72,7 +29,50 @@ internal sealed class ReflectionCalculator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Calculate(expression[i..], ref parenthesesI, value);
+                    value = Evaluate(expression[i..], ref parenthesesI, value);
+                    i += parenthesesI;
+                    break;
+                case ')':
+                    i++;
+                    return value;
+                case >= '0' and <= '9' or '.':
+                    value = GetNumber(expression, ref i);
+                    break;
+                case '*':
+                    i++;
+                    value *= Calculate(expression, ref i);
+                    break;
+                case '/':
+                    i++;
+                    value /= Calculate(expression, ref i);
+                    break;
+                case '-':
+                    i++;
+                    value -= Calculate(expression, ref i);
+                    break;
+                case '+':
+                    i++;
+                    value += Calculate(expression, ref i);
+                    break;
+                default:
+                    i++;
+                    break;
+            }
+        }
+
+        return value;
+    }
+
+    private double Calculate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
+    {
+        while (expression.Length > i)
+        {
+            switch (expression[i])
+            {
+                case '(':
+                    i++;
+                    var parenthesesI = 0;
+                    value = Evaluate(expression[i..], ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
@@ -82,11 +82,11 @@ internal sealed class ReflectionCalculator
                     break;
                 case '*':
                     i++;
-                    value *= Evaluate(expression, ref i);
+                    value *= Calculate(expression, ref i);
                     return value;
                 case '/':
                     i++;
-                    value /= Evaluate(expression, ref i);
+                    value /= Calculate(expression, ref i);
                     return value;
                 case '+':
                     return value;
