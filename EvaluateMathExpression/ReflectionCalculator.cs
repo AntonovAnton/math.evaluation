@@ -1,13 +1,31 @@
 ﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace EvaluateMathExpression;
 
 internal sealed class ReflectionCalculator
 {
+    private static readonly Regex NumberInParenthesesRegex =
+        new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s)*\)", RegexOptions.Compiled);
+
+    /// <summary>
+    /// If you subtract a negative number, the two negatives should combine to make a positive
+    /// </summary>
+    private static readonly Regex
+        TwoNegativesRegex = new(@"[-]+\s*[-]+\s*(?<number>\d*[.]*\d+)", RegexOptions.Compiled);
+
+    private static readonly Regex DivisionBeforeMultiplicationRegex =
+        new(@"(?<division>((\s*\((.*)\))|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\((.*)\))))\s*\*",
+            RegexOptions.Compiled);
+
     public double Calculate(string expression)
     {
         try
         {
+            expression = NumberInParenthesesRegex.Replace(expression, "${number}");
+            expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
+            expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
+
             var i = 0;
             var value = Evaluate(expression.AsSpan(), ref i);
             return value;
