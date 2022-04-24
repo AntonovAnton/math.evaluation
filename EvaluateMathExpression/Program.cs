@@ -23,7 +23,7 @@ try
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
-    expression = "6 + -(4)";
+    expression = "6 + - ( 4)";
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
@@ -36,14 +36,6 @@ try
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
     expression = "1 - -1";
-    result = calculator.Calculate(expression);
-    Console.WriteLine($"Using recursive: {expression} = {result}");
-
-    expression = "6 + - (4 )";
-    result = calculator.Calculate(expression);
-    Console.WriteLine($"Using recursive: {expression} = {result}");
-
-    expression = "6 + -(- 4)";
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
