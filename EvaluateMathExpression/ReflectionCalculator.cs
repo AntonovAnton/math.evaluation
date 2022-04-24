@@ -6,7 +6,7 @@ namespace EvaluateMathExpression;
 internal sealed class ReflectionCalculator
 {
     private static readonly Regex NumberInParenthesesRegex =
-        new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s)*\)", RegexOptions.Compiled);
+        new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s*)\)", RegexOptions.Compiled);
 
     /// <summary>
     /// If you subtract a negative number, the two negatives should combine to make a positive

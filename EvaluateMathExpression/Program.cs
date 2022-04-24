@@ -35,7 +35,7 @@ try
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
-    expression = "6 + - (4)";
+    expression = "6 + - (4 )";
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
