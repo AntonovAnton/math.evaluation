@@ -14,8 +14,12 @@ internal sealed class ReflectionCalculator
     private static readonly Regex
         TwoNegativesRegex = new(@"[-]+\s*[-]+\s*(?<number>\d*[.]*\d+)", RegexOptions.Compiled);
 
+    private static readonly Regex TwoDivisionsRegex =
+        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\/",
+            RegexOptions.Compiled);
+
     private static readonly Regex DivisionBeforeMultiplicationRegex =
-        new(@"(?<division>((\s*\((.*)\))|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\((.*)\))))\s*\*",
+        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
     public double Calculate(string expression)
@@ -24,6 +28,16 @@ internal sealed class ReflectionCalculator
         {
             expression = NumberInParenthesesRegex.Replace(expression, "${number}");
             expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
+            Match match;
+            do
+            {
+                match = TwoDivisionsRegex.Match(expression);
+                if (match.Success)
+                {
+                    expression = TwoDivisionsRegex.Replace(expression, "(${division}) /");
+                }
+            } while (match.Success);
+
             expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
 
             var i = 0;

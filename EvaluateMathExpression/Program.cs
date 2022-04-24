@@ -7,6 +7,10 @@ try
     var expression = string.Empty;
     var result = 0d;
 
+    expression = "2 / 5 / 2 * 5";
+    result = calculator.Calculate(expression);
+    Console.WriteLine($"Using recursive: {expression} = {result}");
+
     expression = "2 + (5 - 1)";
     result = calculator.Calculate(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
