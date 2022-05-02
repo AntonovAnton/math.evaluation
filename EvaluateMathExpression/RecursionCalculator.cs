@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace EvaluateMathExpression;
 
-public sealed class ReflectionCalculator
+public sealed class RecursionCalculator
 {
     private static readonly Regex NumberInParenthesesRegex =
         new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s*)\)", RegexOptions.Compiled);

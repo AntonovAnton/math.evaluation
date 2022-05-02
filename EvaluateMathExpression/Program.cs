@@ -2,7 +2,7 @@
 
 try
 {
-    var calculator = new ReflectionCalculator();
+    var calculator = new RecursionCalculator();
 
     var expression = string.Empty;
     var result = 0d;
