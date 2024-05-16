@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using NUnit.Framework;
 
 namespace EvaluateMathExpression.Tests
@@ -9,7 +10,7 @@ namespace EvaluateMathExpression.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            // I don't know why but NUnit doesn't log class name or doesn't group tests to understand what service we are testing
+            // I don't know why but NUnit doesn't log class name or doesn't group tests
             // Also, Console.WriteLine doesn't work, and even TestContext.Out.WriteLine doesn't
             TestContext.Progress.WriteLine($"{nameof(RecursionCalculatorTests)}");
         }
@@ -25,7 +26,7 @@ namespace EvaluateMathExpression.Tests
         [TestCase("1 - -1", 2d)]
         public void RecursionCalculator_Calculate_ExpectedValue(string expression, double expectedValue)
         {
-            TestContext.Progress.WriteLine($"Using recursive: {expression} = {expectedValue}");
+            TestContext.Progress.WriteLine($"{expression} = {expectedValue}");
 
             var calculator = new RecursionCalculator();
             var stopwatch = Stopwatch.StartNew();
@@ -38,14 +39,16 @@ namespace EvaluateMathExpression.Tests
         }
 
         [Test]
-        [TestCase("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", 743.578530956848d)]
-        public void RecursionCalculator_CalculateNumbers_ExpectedValue(string expression, double expectedValue)
+        [TestCase("(22\u00a0888,323 \u00a4 * 323 - 1 / (2 + 22\u00a0888,323 \u00a4) * 4) - 6", "nn", 7392922.328825254d)]
+        public void RecursionCalculator_CalculateNumbers_ExpectedValue(string expression, string cultureName, double expectedValue)
         {
-            TestContext.Progress.WriteLine($"Using recursive: {expression} = {expectedValue}");
+            TestContext.Progress.WriteLine($"{expression} = {expectedValue}");
+
+            var cultureInfo = new CultureInfo(cultureName);
 
             var calculator = new RecursionCalculator();
             var stopwatch = Stopwatch.StartNew();
-            var value = calculator.Eval(expression);
+            var value = calculator.Eval(expression, cultureInfo);
             stopwatch.Stop();
 
             TestContext.Progress.WriteLine(
