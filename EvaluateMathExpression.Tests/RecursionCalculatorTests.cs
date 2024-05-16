@@ -29,7 +29,23 @@ namespace EvaluateMathExpression.Tests
 
             var calculator = new RecursionCalculator();
             var stopwatch = Stopwatch.StartNew();
-            var value = calculator.Calculate(expression);
+            var value = calculator.Eval(expression);
+            stopwatch.Stop();
+
+            TestContext.Progress.WriteLine(
+                $"Execution time: {stopwatch.Elapsed:g} ({stopwatch.ElapsedMilliseconds}ms)");
+            Assert.AreEqual(expectedValue, value, double.Epsilon);
+        }
+
+        [Test]
+        [TestCase("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", 743.578530956848d)]
+        public void RecursionCalculator_CalculateNumbers_ExpectedValue(string expression, double expectedValue)
+        {
+            TestContext.Progress.WriteLine($"Using recursive: {expression} = {expectedValue}");
+
+            var calculator = new RecursionCalculator();
+            var stopwatch = Stopwatch.StartNew();
+            var value = calculator.Eval(expression);
             stopwatch.Stop();
 
             TestContext.Progress.WriteLine(

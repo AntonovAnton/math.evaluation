@@ -22,10 +22,13 @@ public sealed class RecursionCalculator
         new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
-    public double Calculate(string expression)
+    public double Eval(string expression, CultureInfo? cultureInfo = null)
     {
         try
         {
+            cultureInfo ??= CultureInfo.CurrentCulture;
+            
+            expression = expression.Replace(cultureInfo.NumberFormat.CurrencySymbol, string.Empty);
             expression = NumberInParenthesesRegex.Replace(expression, "${number}");
             expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
             Match match;
@@ -41,7 +44,7 @@ public sealed class RecursionCalculator
             expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
 
             var i = 0;
-            var value = Evaluate(expression.AsSpan(), ref i);
+            var value = Calculate(expression.AsSpan(), cultureInfo ?? CultureInfo.CurrentCulture, ref i);
             return value;
         }
         catch (Exception exception)
@@ -52,7 +55,7 @@ public sealed class RecursionCalculator
         }
     }
 
-    private double Evaluate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
+    private double Calculate(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -61,30 +64,30 @@ public sealed class RecursionCalculator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Evaluate(expression[i..], ref parenthesesI, value);
+                    value = Calculate(expression[i..], cultureInfo, ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
                     i++;
                     return value;
-                case >= '0' and <= '9' or '.':
-                    value = GetNumber(expression, ref i);
+                case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
+                    value = GetNumber(expression, cultureInfo, ref i);
                     break;
                 case '*':
                     i++;
-                    value *= Calculate(expression, ref i);
+                    value *= Eval(expression, cultureInfo, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Calculate(expression, ref i);
+                    value /= Eval(expression, cultureInfo, ref i);
                     break;
                 case '-':
                     i++;
-                    value -= Calculate(expression, ref i);
+                    value -= Eval(expression, cultureInfo, ref i);
                     break;
                 case '+':
                     i++;
-                    value += Calculate(expression, ref i);
+                    value += Eval(expression, cultureInfo, ref i);
                     break;
                 default:
                     i++;
@@ -95,7 +98,7 @@ public sealed class RecursionCalculator
         return value;
     }
 
-    private double Calculate(ReadOnlySpan<char> expression, ref int i, double value = 0d)
+    private double Eval(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -104,21 +107,21 @@ public sealed class RecursionCalculator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Evaluate(expression[i..], ref parenthesesI, value);
+                    value = Calculate(expression[i..], cultureInfo, ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
                     return value;
-                case >= '0' and <= '9' or '.':
-                    value = GetNumber(expression, ref i);
+                case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
+                    value = GetNumber(expression, cultureInfo, ref i);
                     break;
                 case '*':
                     i++;
-                    value *= Calculate(expression, ref i);
+                    value *= Eval(expression, cultureInfo, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Calculate(expression, ref i);
+                    value /= Eval(expression, cultureInfo, ref i);
                     break;
                 case '-':
                 case '+':
@@ -132,13 +135,13 @@ public sealed class RecursionCalculator
         return value;
     }
 
-    private static double GetNumber(ReadOnlySpan<char> expression, ref int i)
+    private static double GetNumber(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i)
     {
         var start = i;
         i++;
         while (expression.Length > i)
         {
-            if (expression[i] is >= '0' and <= '9' or '.')
+            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁')
             {
                 i++;
             }
@@ -149,7 +152,7 @@ public sealed class RecursionCalculator
         }
 
         var str = expression[start..i].ToString();
-        var value = Convert.ToDouble(str, CultureInfo.InvariantCulture);
+        var value = Convert.ToDouble(str, cultureInfo);
         return value;
     }
 }
