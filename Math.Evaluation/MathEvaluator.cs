@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Math.Evaluation;
 
-public sealed class MathEvaluator
+public static class MathEvaluator
 {
     private static readonly Regex NumberInParenthesesRegex =
         new(@"\((?<number>\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*)\)", RegexOptions.Compiled);
@@ -23,13 +23,14 @@ public sealed class MathEvaluator
         new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
-    public double Evaluate(string expression, CultureInfo? cultureInfo = null)
+    public static double Evaluate(string expression, IFormatProvider? formatProvider = null)
     {
         try
         {
-            cultureInfo ??= CultureInfo.InvariantCulture;
+            formatProvider ??= CultureInfo.InvariantCulture;
+            var numberFormatInfo = NumberFormatInfo.GetInstance(formatProvider);
 
-            expression = expression.Replace(cultureInfo.NumberFormat.CurrencySymbol, string.Empty);
+            expression = expression.Replace(numberFormatInfo.CurrencySymbol, string.Empty);
             expression = NumberInParenthesesRegex.Replace(expression, "${number}");
             expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
             Match match;
@@ -45,7 +46,7 @@ public sealed class MathEvaluator
             expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
 
             var i = 0;
-            var value = Calculate(expression.AsSpan(), cultureInfo, ref i);
+            var value = Calculate(expression.AsSpan(), formatProvider, ref i);
             return value;
         }
         catch (Exception innerException)
@@ -56,13 +57,13 @@ public sealed class MathEvaluator
                 Data =
                 {
                     [nameof(expression)] = expression,
-                    [nameof(cultureInfo)] = cultureInfo
+                    [nameof(formatProvider)] = formatProvider
                 }
             };
         }
     }
 
-    private double Calculate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
+    private static double Calculate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -105,7 +106,7 @@ public sealed class MathEvaluator
         return value;
     }
 
-    private double Evaluate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
+    private static double Evaluate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -148,13 +149,9 @@ public sealed class MathEvaluator
         while (expression.Length > i)
         {
             if (expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁')
-            {
                 i++;
-            }
             else
-            {
                 break;
-            }
         }
 
         var value = double.Parse(expression[start..i], NumberStyles.Number, formatProvider);
