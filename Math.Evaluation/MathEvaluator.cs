@@ -1,9 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EvaluateMathExpression;
+namespace Math.Evaluation;
 
-public sealed class RecursionCalculator
+public sealed class MathEvaluator
 {
     private static readonly Regex NumberInParenthesesRegex =
         new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s*)\)", RegexOptions.Compiled);
@@ -22,12 +23,12 @@ public sealed class RecursionCalculator
         new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
-    public double Eval(string expression, CultureInfo? cultureInfo = null)
+    public double Evaluate(string expression, CultureInfo? cultureInfo = null)
     {
         try
         {
             cultureInfo ??= CultureInfo.CurrentCulture;
-            
+
             expression = expression.Replace(cultureInfo.NumberFormat.CurrencySymbol, string.Empty);
             expression = NumberInParenthesesRegex.Replace(expression, "${number}");
             expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
@@ -75,19 +76,19 @@ public sealed class RecursionCalculator
                     break;
                 case '*':
                     i++;
-                    value *= Eval(expression, cultureInfo, ref i);
+                    value *= Evaluate(expression, cultureInfo, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Eval(expression, cultureInfo, ref i);
+                    value /= Evaluate(expression, cultureInfo, ref i);
                     break;
                 case '-':
                     i++;
-                    value -= Eval(expression, cultureInfo, ref i);
+                    value -= Evaluate(expression, cultureInfo, ref i);
                     break;
                 case '+':
                     i++;
-                    value += Eval(expression, cultureInfo, ref i);
+                    value += Evaluate(expression, cultureInfo, ref i);
                     break;
                 default:
                     i++;
@@ -98,7 +99,7 @@ public sealed class RecursionCalculator
         return value;
     }
 
-    private double Eval(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
+    private double Evaluate(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -117,11 +118,11 @@ public sealed class RecursionCalculator
                     break;
                 case '*':
                     i++;
-                    value *= Eval(expression, cultureInfo, ref i);
+                    value *= Evaluate(expression, cultureInfo, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Eval(expression, cultureInfo, ref i);
+                    value /= Evaluate(expression, cultureInfo, ref i);
                     break;
                 case '-':
                 case '+':

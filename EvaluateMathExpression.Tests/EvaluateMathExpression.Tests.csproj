@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EvaluateMathExpression\EvaluateMathExpression.csproj" />
+    <ProjectReference Include="..\Math.Evaluation\Math.Evaluation.csproj" />
   </ItemGroup>
 
 </Project>
