@@ -7,27 +7,27 @@ namespace Math.Evaluation;
 public sealed class MathEvaluator
 {
     private static readonly Regex NumberInParenthesesRegex =
-        new(@"\((?<number>\s*[-]*\s*\d*[.]*\d+\s*)\)", RegexOptions.Compiled);
+        new(@"\((?<number>\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*)\)", RegexOptions.Compiled);
 
     /// <summary>
     /// If you subtract a negative number, the two negatives should combine to make a positive
     /// </summary>
     private static readonly Regex
-        TwoNegativesRegex = new(@"[-]+\s*[-]+\s*(?<number>\d*[.]*\d+)", RegexOptions.Compiled);
+        TwoNegativesRegex = new(@"[-]+\s*[-]+\s*(?<number>\d*[.|,| |٬|٫|’|⹁| ]*\d+)", RegexOptions.Compiled);
 
     private static readonly Regex TwoDivisionsRegex =
-        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\/",
+        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\/",
             RegexOptions.Compiled);
 
     private static readonly Regex DivisionBeforeMultiplicationRegex =
-        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.]*\d+\s*))\/+((\s*[-]*\s*\d*[.]*\d+)|(\s*\(.*\))))\s*\*",
+        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
     public double Evaluate(string expression, CultureInfo? cultureInfo = null)
     {
         try
         {
-            cultureInfo ??= CultureInfo.CurrentCulture;
+            cultureInfo ??= CultureInfo.InvariantCulture;
 
             expression = expression.Replace(cultureInfo.NumberFormat.CurrencySymbol, string.Empty);
             expression = NumberInParenthesesRegex.Replace(expression, "${number}");
@@ -45,18 +45,24 @@ public sealed class MathEvaluator
             expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
 
             var i = 0;
-            var value = Calculate(expression.AsSpan(), cultureInfo ?? CultureInfo.CurrentCulture, ref i);
+            var value = Calculate(expression.AsSpan(), cultureInfo, ref i);
             return value;
         }
-        catch (Exception exception)
+        catch (Exception innerException)
         {
-            Console.WriteLine($"An exception has occurred while evaluating mathematical expression: {expression}");
-            Console.WriteLine(exception.ToString());
-            return double.NaN;
+            const string message = "An exception has occurred while evaluating mathematical expression";
+            throw new ApplicationException(message, innerException)
+            {
+                Data =
+                {
+                    [nameof(expression)] = expression,
+                    [nameof(cultureInfo)] = cultureInfo
+                }
+            };
         }
     }
 
-    private double Calculate(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
+    private double Calculate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -65,30 +71,30 @@ public sealed class MathEvaluator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Calculate(expression[i..], cultureInfo, ref parenthesesI, value);
+                    value = Calculate(expression[i..], formatProvider, ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
                     i++;
                     return value;
                 case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
-                    value = GetNumber(expression, cultureInfo, ref i);
+                    value = GetNumber(expression, formatProvider, ref i);
                     break;
                 case '*':
                     i++;
-                    value *= Evaluate(expression, cultureInfo, ref i);
+                    value *= Evaluate(expression, formatProvider, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Evaluate(expression, cultureInfo, ref i);
+                    value /= Evaluate(expression, formatProvider, ref i);
                     break;
                 case '-':
                     i++;
-                    value -= Evaluate(expression, cultureInfo, ref i);
+                    value -= Evaluate(expression, formatProvider, ref i);
                     break;
                 case '+':
                     i++;
-                    value += Evaluate(expression, cultureInfo, ref i);
+                    value += Evaluate(expression, formatProvider, ref i);
                     break;
                 default:
                     i++;
@@ -99,7 +105,7 @@ public sealed class MathEvaluator
         return value;
     }
 
-    private double Evaluate(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i, double value = 0d)
+    private double Evaluate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
     {
         while (expression.Length > i)
         {
@@ -108,24 +114,23 @@ public sealed class MathEvaluator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Calculate(expression[i..], cultureInfo, ref parenthesesI, value);
+                    value = Calculate(expression[i..], formatProvider, ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
                     return value;
                 case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
-                    value = GetNumber(expression, cultureInfo, ref i);
+                    value = GetNumber(expression, formatProvider, ref i);
                     break;
                 case '*':
                     i++;
-                    value *= Evaluate(expression, cultureInfo, ref i);
+                    value *= Evaluate(expression, formatProvider, ref i);
                     break;
                 case '/':
                     i++;
-                    value /= Evaluate(expression, cultureInfo, ref i);
+                    value /= Evaluate(expression, formatProvider, ref i);
                     break;
-                case '-':
-                case '+':
+                case '-' or '+':
                     return value;
                 default:
                     i++;
@@ -136,7 +141,7 @@ public sealed class MathEvaluator
         return value;
     }
 
-    private static double GetNumber(ReadOnlySpan<char> expression, CultureInfo cultureInfo, ref int i)
+    private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i)
     {
         var start = i;
         i++;
@@ -152,7 +157,7 @@ public sealed class MathEvaluator
             }
         }
 
-        var value = double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, cultureInfo);
+        var value = double.Parse(expression[start..i], NumberStyles.Number, formatProvider);
         return value;
     }
 }
