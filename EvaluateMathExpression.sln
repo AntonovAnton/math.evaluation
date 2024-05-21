@@ -5,7 +5,13 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EvaluateMathExpression", "EvaluateMathExpression\EvaluateMathExpression.csproj", "{0D1435F4-F196-4A69-92C6-A0D4F6D79936}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluateMathExpression.Tests", "EvaluateMathExpression.Tests\EvaluateMathExpression.Tests.csproj", "{BAA7DA4A-3F43-4441-8302-CD89902FF6E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EvaluateMathExpression.Tests", "EvaluateMathExpression.Tests\EvaluateMathExpression.Tests.csproj", "{BAA7DA4A-3F43-4441-8302-CD89902FF6E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Math.Evaluation", "Math.Evaluation\Math.Evaluation.csproj", "{4C5614BF-1812-4B1E-82DB-1AFC8847EE0B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Math.Evaluation.Tests", "Math.Evaluation.Tests\Math.Evaluation.Tests.csproj", "{3B25C11F-B8F9-40AC-9105-9114B61132EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Math.Evaluation.Benchmarks", "Math.Evaluation.Benchmarks\Math.Evaluation.Benchmarks.csproj", "{3F1D2920-F9F7-4B50-A57E-A42F2A2110BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{BAA7DA4A-3F43-4441-8302-CD89902FF6E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAA7DA4A-3F43-4441-8302-CD89902FF6E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAA7DA4A-3F43-4441-8302-CD89902FF6E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C5614BF-1812-4B1E-82DB-1AFC8847EE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C5614BF-1812-4B1E-82DB-1AFC8847EE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C5614BF-1812-4B1E-82DB-1AFC8847EE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C5614BF-1812-4B1E-82DB-1AFC8847EE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B25C11F-B8F9-40AC-9105-9114B61132EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B25C11F-B8F9-40AC-9105-9114B61132EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B25C11F-B8F9-40AC-9105-9114B61132EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B25C11F-B8F9-40AC-9105-9114B61132EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F1D2920-F9F7-4B50-A57E-A42F2A2110BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F1D2920-F9F7-4B50-A57E-A42F2A2110BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F1D2920-F9F7-4B50-A57E-A42F2A2110BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F1D2920-F9F7-4B50-A57E-A42F2A2110BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

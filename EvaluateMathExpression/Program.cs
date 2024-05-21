@@ -38,20 +38,32 @@ try
     result = calculator.Eval(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
-    expression = "(22\u00a0888,32 \u00a4 * 323 - 1 / (2 + 122\u00a0888,32 \u00a4) * 4) - 6";
+    expression = "22\u00a0888,32 \u00a4 * 323 - 1 / (2 + 22\u00a0888,32 \u00a4) * 4 - 6";
     result = calculator.Eval(expression, new CultureInfo("nn"));
     Console.WriteLine($"Using recursive: {expression} = {result}");
 
     var cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
+    var hashSet = new HashSet<string>();
     foreach (var cultureInfo in cultureInfos)
     {
-        var s = $"22{cultureInfo.NumberFormat.NumberGroupSeparator}888{cultureInfo.NumberFormat.NumberDecimalSeparator}32 {cultureInfo.NumberFormat.CurrencySymbol}";
+        var s =
+            $"22{cultureInfo.NumberFormat.NumberGroupSeparator}888{cultureInfo.NumberFormat.NumberDecimalSeparator}32 {cultureInfo.NumberFormat.CurrencySymbol}";
+        bool isDifferent = false;
+        if (!hashSet.Contains(
+                $"22{cultureInfo.NumberFormat.NumberGroupSeparator}888{cultureInfo.NumberFormat.NumberDecimalSeparator}32"))
+        {
+            isDifferent = true;
+            hashSet.Add(
+                $"22{cultureInfo.NumberFormat.NumberGroupSeparator}888{cultureInfo.NumberFormat.NumberDecimalSeparator}32");
+        }
 
-        expression = $"({s} * 323 - 1 / (2 + {cultureInfo.NumberFormat.NumberNegativePattern}{s}) * 4) - 6";
+        expression = $"{s} * 30 / 323{cultureInfo.NumberFormat.NumberDecimalSeparator}34 / {cultureInfo.NumberFormat.NumberDecimalSeparator}5 - - 1 / (2 + {s}) * 4 - 6";
         result = calculator.Eval(expression, cultureInfo);
-        Console.WriteLine($"Using recursive, culture info {cultureInfo.Name}, NumberGroupSeparator {cultureInfo.NumberFormat.NumberGroupSeparator} NumberDecimalSeparator {cultureInfo.NumberFormat.NumberDecimalSeparator} NumberNegativePattern {cultureInfo.NumberFormat.NumberNegativePattern}: {expression} = {result}");
+        //if (isDifferent)
+            Console.WriteLine($"[InlineData(\"{expression}\", \"{cultureInfo.Name}\", 4241.2297164052907d)]");
+        //Console.WriteLine($"Using recursive, culture info {cultureInfo.Name}, NumberGroupSeparator {cultureInfo.NumberFormat.NumberGroupSeparator} NumberDecimalSeparator {cultureInfo.NumberFormat.NumberDecimalSeparator} NumberNegativePattern {cultureInfo.NumberFormat.NumberNegativePattern}: {expression} = {result}");
     }
-    
+
     expression = "2 - (5 * 10 / 2) - 1";
     result = calculator.Eval(expression);
     Console.WriteLine($"Using recursive: {expression} = {result}");
