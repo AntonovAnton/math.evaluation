@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Math.Evaluation;
 
-public static class MathEvaluator
+public class MathEvaluator
 {
     private static readonly Regex NumberInParenthesesRegex =
         new(@"\((?<number>\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*)\)", RegexOptions.Compiled);
@@ -23,7 +23,7 @@ public static class MathEvaluator
         new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\*",
             RegexOptions.Compiled);
 
-    public static double Evaluate(string expression, IFormatProvider? formatProvider = null)
+    public double Evaluate(string expression, IFormatProvider? formatProvider = null)
     {
         try
         {

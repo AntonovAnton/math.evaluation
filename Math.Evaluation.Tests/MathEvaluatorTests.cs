@@ -4,8 +4,17 @@ using Xunit.Abstractions;
 
 namespace Math.Evaluation.Tests;
 
-public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
+public class MathEvaluatorTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly MathEvaluator _mathEvaluator;
+
+    public MathEvaluatorTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+        _mathEvaluator = new MathEvaluator();
+    }
+
     [Theory]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
@@ -17,13 +26,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("1 - -1", 1 - -1)]
     public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        _testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var stopwatch = Stopwatch.StartNew();
-        var value = MathEvaluator.Evaluate(expression);
+        var value = _mathEvaluator.Evaluate(expression);
         stopwatch.Stop();
 
-        testOutputHelper.WriteLine(
+        _testOutputHelper.WriteLine(
             $"Execution time: {stopwatch.Elapsed:g} ({stopwatch.ElapsedMilliseconds}ms)");
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
@@ -43,15 +52,15 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     public void MathEvaluator_Evaluate_ExpressionHasNumbersInSpecificCulture_ExpectedValue(string expression, string? cultureName)
     {
         var expectedValue = 22888.32d * 30 / 323.34d / .5d - -1 / (2 + 22888.32d) * 4 - 6;
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        _testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
 
         var stopwatch = Stopwatch.StartNew();
-        var value = MathEvaluator.Evaluate(expression, cultureInfo);
+        var value = _mathEvaluator.Evaluate(expression, cultureInfo);
         stopwatch.Stop();
 
-        testOutputHelper.WriteLine(
+        _testOutputHelper.WriteLine(
             $"Execution time: {stopwatch.Elapsed:g} ({stopwatch.ElapsedMilliseconds}ms)");
 
         Assert.Equal(expectedValue, value, double.Epsilon);
