@@ -18,6 +18,9 @@ public class MathEvaluatorTests
     [Theory]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
+    [InlineData("2(5 - 1)", 2 * (5 - 1))]
+    [InlineData("(3 + 1) (5 - 1)", (3 + 1) * (5 - 1))]
+    [InlineData("2 + (5 * 2 - 1)", 2 + (5 * 2 - 1))]
     [InlineData("4 * 0.1 - 2", 4 * 0.1 - 2)]
     [InlineData("6 + -( -4)", 6 + -(-4))]
     [InlineData("6 + - ( 4)", 6 + -(4))]
@@ -63,6 +66,27 @@ public class MathEvaluatorTests
         _testOutputHelper.WriteLine(
             $"Execution time: {stopwatch.Elapsed:g} ({stopwatch.ElapsedMilliseconds}ms)");
 
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("π", System.Math.PI)]
+    [InlineData("(1/2)π", System.Math.PI / 2)]
+    [InlineData("-1/π", -1 / System.Math.PI)]
+    [InlineData("1 - -1/π", 1 + 1 / System.Math.PI)]
+    [InlineData("2π * 2 / 2 + π", System.Math.PI * 3)]
+    [InlineData("2π / π / 2 * π", System.Math.PI)]
+    [InlineData("ππ", System.Math.PI * System.Math.PI)]
+    public void MathEvaluator_EvaluateHasPi_ExpectedValue(string expression, double expectedValue)
+    {
+        _testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var stopwatch = Stopwatch.StartNew();
+        var value = _mathEvaluator.Evaluate(expression);
+        stopwatch.Stop();
+
+        _testOutputHelper.WriteLine(
+            $"Execution time: {stopwatch.Elapsed:g} ({stopwatch.ElapsedMilliseconds}ms)");
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
 }
