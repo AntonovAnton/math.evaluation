@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Benchmarks-20240521-194206</title>
+<title>Benchmarks-20240522-225307</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,24 +13,24 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3527/23H2/2023Update/SunValley3)
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3593/23H2/2023Update/SunValley3)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 8.0.204
-  [Host]   : .NET 6.0.29 (6.0.2924.17105), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.29 (6.0.2924.17105), X64 RyuJIT AVX2
-  .NET 8.0 : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 8.0.300
+  [Host]   : .NET 6.0.30 (6.0.3024.21525), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.30 (6.0.3024.21525), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method                                                                                      </th><th>Job</th><th>Runtime</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+<thead><tr><th>Method                                                                                     </th><th>Job</th><th>Runtime</th><th>Mean        </th><th>Error    </th><th>StdDev   </th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;MathEvaluator.Evaluate(&quot;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>18.24 &mu;s</td><td>0.212 &mu;s</td><td>0.188 &mu;s</td><td>0.0610</td><td>-</td><td>936 B</td>
-</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>18.11 &mu;s</td><td>0.084 &mu;s</td><td>0.079 &mu;s</td><td>0.0610</td><td>-</td><td>936 B</td>
-</tr><tr><td>&#39;CSharpScript.EvaluateAsync&lt;double&gt;(&quot;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>34,513.39 &mu;s</td><td>331.476 &mu;s</td><td>310.063 &mu;s</td><td>466.6667</td><td>133.3333</td><td>5977014 B</td>
-</tr><tr><td>&#39;MathEvaluator.Evaluate(&quot;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>10.32 &mu;s</td><td>0.030 &mu;s</td><td>0.027 &mu;s</td><td>0.0610</td><td>-</td><td>936 B</td>
-</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>10.37 &mu;s</td><td>0.117 &mu;s</td><td>0.098 &mu;s</td><td>0.0610</td><td>-</td><td>936 B</td>
-</tr><tr><td>&#39;CSharpScript.EvaluateAsync&lt;double&gt;(&quot;22888.32 * 30 / 323.34 / .5 - - 1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>36,749.56 &mu;s</td><td>707.060 &mu;s</td><td>661.385 &mu;s</td><td>500.0000</td><td>250.0000</td><td>7268383 B</td>
+</thead><tbody><tr><td>&#39;MathEvaluator.Evaluate(&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>7,412.7685 ns</td><td>98.6614 ns</td><td>92.2879 ns</td><td>0.2747</td><td>-</td><td>3512 B</td>
+</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>0.0177 ns</td><td>0.0049 ns</td><td>0.0038 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;CSharpScript.EvaluateAsync&lt;double&gt;(&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>36,255,712.5490 ns</td><td>722,726.1716 ns</td><td>742,186.5678 ns</td><td>466.6667</td><td>133.3333</td><td>5981029 B</td>
+</tr><tr><td>&#39;MathEvaluator.Evaluate(&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>5,394.2547 ns</td><td>63.8676 ns</td><td>59.7418 ns</td><td>0.2747</td><td>-</td><td>3512 B</td>
+</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>0.0000 ns</td><td>0.0000 ns</td><td>0.0000 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;CSharpScript.EvaluateAsync&lt;double&gt;(&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>36,868,325.0000 ns</td><td>606,053.6189 ns</td><td>566,902.9312 ns</td><td>500.0000</td><td>250.0000</td><td>7266087 B</td>
 </tr></tbody></table>
 </body>
 </html>

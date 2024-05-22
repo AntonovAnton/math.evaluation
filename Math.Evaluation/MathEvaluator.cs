@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Math.Evaluation;
 
 public class MathEvaluator
 {
-    private static readonly Regex NumberInParenthesesRegex =
-        new(@"\((?<number>\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*)\)", RegexOptions.Compiled);
-
     /// <summary>
     /// If you subtract a negative number, the two negatives should combine to make a positive
     /// </summary>
     private static readonly Regex
-        TwoNegativesRegex = new(@"[-]+\s*[-]+\s*(?<number>\d*[.|,| |٬|٫|’|⹁| ]*\d+)", RegexOptions.Compiled);
+        TwoNegativesRegex = new(@"[-]+\s*[-]+", RegexOptions.Compiled);
 
-    private static readonly Regex TwoDivisionsRegex =
-        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\/",
-            RegexOptions.Compiled);
-
-    private static readonly Regex DivisionBeforeMultiplicationRegex =
-        new(@"(?<division>((\s*\(.*\)\s*)|(\d*[.|,| |٬|٫|’|⹁| ]*\d+\s*))\/+((\s*[-]*\s*\d*[.|,| |٬|٫|’|⹁| ]*\d+)|(\s*\(.*\))))\s*\*",
+    private static readonly Regex DivisionBeforeEqualPrecedenceOperatorRegex =
+        new (@"(?<division>((\s*\(.*\)\s*)|[^\/()*%+-]*)\/((\s*\(.*\)\s*)|[^\/()*%+-]*))[\/*%]",
             RegexOptions.Compiled);
 
     public double Evaluate(string expression, IFormatProvider? formatProvider = null)
@@ -31,19 +25,19 @@ public class MathEvaluator
             var numberFormatInfo = NumberFormatInfo.GetInstance(formatProvider);
 
             expression = expression.Replace(numberFormatInfo.CurrencySymbol, string.Empty);
-            expression = NumberInParenthesesRegex.Replace(expression, "${number}");
-            expression = TwoNegativesRegex.Replace(expression, "+ ${number}");
+            expression = TwoNegativesRegex.Replace(expression, "+");
             Match match;
             do
             {
-                match = TwoDivisionsRegex.Match(expression);
-                if (match.Success)
+                match = DivisionBeforeEqualPrecedenceOperatorRegex.Match(expression);
+                var matchGroup = match.Groups["division"];
+                if (!matchGroup.Success || matchGroup.Value.Sum(c => c is '(' or ')' ? 1 : 0) % 2 != 0)
                 {
-                    expression = TwoDivisionsRegex.Replace(expression, "(${division}) /");
+                    break;
                 }
-            } while (match.Success);
 
-            expression = DivisionBeforeMultiplicationRegex.Replace(expression, "(${division}) *");
+                expression = expression.Replace(matchGroup.Value, $"({matchGroup.Value})");
+            } while (match.Success);
 
             var i = 0;
             var value = Calculate(expression.AsSpan(), formatProvider, ref i);
@@ -63,7 +57,7 @@ public class MathEvaluator
         }
     }
 
-    private static double Calculate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
+    private static double Calculate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = default)
     {
         while (expression.Length > i)
         {
@@ -72,7 +66,7 @@ public class MathEvaluator
                 case '(':
                     i++;
                     var parenthesesI = 0;
-                    value = Calculate(expression[i..], formatProvider, ref parenthesesI, value);
+                    value = (value == 0 ? 1 : value) * Calculate(expression[i..], formatProvider, ref parenthesesI, value);
                     i += parenthesesI;
                     break;
                 case ')':
@@ -97,6 +91,10 @@ public class MathEvaluator
                     i++;
                     value += Evaluate(expression, formatProvider, ref i);
                     break;
+                case 'π':
+                    i++;
+                    value = (value == 0 ? 1 : value) * System.Math.PI;
+                    break;
                 default:
                     i++;
                     break;
@@ -106,7 +104,7 @@ public class MathEvaluator
         return value;
     }
 
-    private static double Evaluate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = 0d)
+    private static double Evaluate(ReadOnlySpan<char> expression, IFormatProvider formatProvider, ref int i, double value = default)
     {
         while (expression.Length > i)
         {
@@ -133,6 +131,9 @@ public class MathEvaluator
                     break;
                 case '-' or '+':
                     return value;
+                case 'π':
+                    i++;
+                    return System.Math.PI;
                 default:
                     i++;
                     break;
