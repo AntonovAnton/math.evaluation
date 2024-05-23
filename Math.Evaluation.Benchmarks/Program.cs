@@ -7,8 +7,8 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 BenchmarkRunner.Run<Benchmarks>();
 
-[SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser(true)]
 public class Benchmarks
 {

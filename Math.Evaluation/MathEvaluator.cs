@@ -146,7 +146,8 @@ public static class MathEvaluator
                     return value;
                 default:
 
-                    if (expression[i..].StartsWith("pi", StringComparison.InvariantCultureIgnoreCase))
+                    const string pi = "pi";
+                    if (expression[i..].StartsWith(pi, StringComparison.InvariantCultureIgnoreCase))
                     {
                         i += 2;
                         value = (value == 0 ? 1 : value) * System.Math.PI;
