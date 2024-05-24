@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Xunit.Abstractions;
 
-namespace Math.Evaluation.Tests;
+namespace MathEvaluation.Tests;
 
 public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 {
