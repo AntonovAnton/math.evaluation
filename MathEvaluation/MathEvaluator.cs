@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Math.Evaluation;
+namespace MathEvaluation;
 
 public static class MathEvaluator
 {
@@ -140,7 +140,7 @@ public static class MathEvaluator
                     return value;
                 case 'π':
                     i++;
-                    value = (value == 0 ? 1 : value) * System.Math.PI;
+                    value = (value == 0 ? 1 : value) * Math.PI;
                     return value;
                 case ' ' or '*' or '/' or '-' or '+' or >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
                     return value;
@@ -150,7 +150,7 @@ public static class MathEvaluator
                     if (expression[i..].StartsWith(pi, StringComparison.InvariantCultureIgnoreCase))
                     {
                         i += 2;
-                        value = (value == 0 ? 1 : value) * System.Math.PI;
+                        value = (value == 0 ? 1 : value) * Math.PI;
                         return value;
                     }
 
