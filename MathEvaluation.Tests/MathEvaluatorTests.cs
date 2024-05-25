@@ -6,6 +6,7 @@ namespace MathEvaluation.Tests;
 public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
+    [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
     [InlineData("2(5 - 1)", 2 * (5 - 1))]
@@ -17,7 +18,9 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("6 + - ( 4)", 6 + -(4))]
     [InlineData("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", (2.323 * 323 - 1 / (2 + 3.33) * 4) - 6)]
     [InlineData("2 - 5 * 10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
+    [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", (3 * 2) / (5d * 2))]
     public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -51,20 +54,46 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("π", System.Math.PI)]
-    [InlineData("((5 - 1)π)", 4 * System.Math.PI)]
-    [InlineData("1/2π", 1 / (2 * System.Math.PI))]
-    [InlineData("1/(4 - 2)π", 1 / (2 * System.Math.PI))]
-    [InlineData("(1/2)π", System.Math.PI / 2)]
-    [InlineData("-1/π", -1 / System.Math.PI)]
-    [InlineData("1 - -1/π", 1 + 1 / System.Math.PI)]
-    [InlineData("2π * 2 / 2 + π", System.Math.PI * 3)]
-    [InlineData("2π / π / 2 * π", System.Math.PI)]
-    [InlineData("ππ", System.Math.PI * System.Math.PI)]
-    [InlineData("pi", System.Math.PI)]
-    [InlineData("((5 - 1)Pi)", 4 * System.Math.PI)]
-    [InlineData("1/2PI", 1 / (2 * System.Math.PI))]
+    [InlineData("π", Math.PI)]
+    [InlineData("((5 - 1)π)", 4 * Math.PI)]
+    [InlineData("1/2π", 1 / (2 * Math.PI))]
+    [InlineData("1/(4 - 2)π", 1 / (2 * Math.PI))]
+    [InlineData("(1/2)π", Math.PI / 2)]
+    [InlineData("-1/π", -1 / Math.PI)]
+    [InlineData("1 - -1/π", 1 + 1 / Math.PI)]
+    [InlineData("2π * 2 / 2 + π", Math.PI * 3)]
+    [InlineData("2π / π / 2 * π", Math.PI)]
+    [InlineData("ππ", Math.PI * Math.PI)]
+    [InlineData("+ππ", Math.PI * Math.PI)]
+    [InlineData("pi", Math.PI)]
+    [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
+    [InlineData("Pi()((5 - 1))", 4 * Math.PI)]
+    [InlineData("1/2PI", 1 / (2 * Math.PI))]
     public void MathEvaluator_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("3 ** 4", 81)]
+    [InlineData("-3 ** 4", -81)]
+    [InlineData("pow(3,4)", 81)]
+    [InlineData("power(3,4)", 81)]
+    [InlineData("power(3, 4)", 81)]
+    [InlineData("power(  +3, 4)", 81)]
+    [InlineData("power( -3, 4)", 81)]
+    [InlineData("power(-3, 3)", -27)]
+    [InlineData("power(-3, 0.5)", double.NaN)]
+    [InlineData("power(-2, (2 + 3))", -32)]
+    [InlineData("3 + 2power((2 + 3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3^4", 81)]
+    [InlineData("-3^4", -81)]
+    [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    public void MathEvaluator_Evaluate_HasPower_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
