@@ -21,9 +21,16 @@ public static class MathEvaluator
     }
 
     private static double EvaluateLowestBasic(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        double value = default)
+        char? fnParamsSeparator = null, double value = default)
     {
         while (expression.Length > i)
+        {
+            if (expression[i] == fnParamsSeparator)
+            {
+                i++;
+                return value;
+            }
+
             switch (expression[i])
             {
                 case '(':
@@ -35,53 +42,62 @@ public static class MathEvaluator
                     break;
                 case ')':
                     i++;
-                    if (i < expression.Length && expression[i] == '^')
+                    while (expression.Length > i && expression[i] is ' ')
+                        i++;
+
+                    if (expression.Length > i && expression[i] == '^')
                     {
                         i++;
-                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i));
+                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, fnParamsSeparator));
                         return value;
                     }
 
                     return value;
                 case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
-                    value = GetNumber(expression, provider, ref i);
+                    value = GetNumber(expression, provider, ref i, fnParamsSeparator);
+                    break;
+                case ' ':
+                    i++;
                     break;
                 case '-':
                     i++;
-                    while (expression.Length > i && expression[i] is ' ') i++;
+                    while (expression.Length > i && expression[i] is ' ')
+                        i++;
 
                     //two negatives should combine to make a positive
                     if (expression[i] is '-')
                     {
                         i++;
-                        value += EvaluateBasic(expression, provider, ref i);
+                        value += EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                     }
                     else
                     {
-                        value -= EvaluateBasic(expression, provider, ref i);
+                        value -= EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                     }
 
                     break;
                 case '+':
                     i++;
-                    value += EvaluateBasic(expression, provider, ref i);
-                    break;
-                case ' ':
-                    i++;
+                    value += EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                     break;
                 default:
-                    value = EvaluateBasic(expression, provider, ref i, false, value);
+                    value = EvaluateBasic(expression, provider, ref i, fnParamsSeparator, false, value);
                     break;
             }
+        }
 
         return value;
     }
 
     private static double EvaluateBasic(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        bool isEvaluatedFirst = false, double value = default)
+        char? fnParamsSeparator, bool isEvaluatedFirst = false, double value = default)
     {
         var start = i;
         while (expression.Length > i)
+        {
+            if (expression[i] == fnParamsSeparator)
+                return value;
+
             switch (expression[i])
             {
                 case '(':
@@ -94,7 +110,10 @@ public static class MathEvaluator
                 case ')':
                     return value;
                 case >= '0' and <= '9' or '.' or ',' or '٫' or '’' or '٬' or '⹁':
-                    value = GetNumber(expression, provider, ref i);
+                    value = GetNumber(expression, provider, ref i, fnParamsSeparator);
+                    break;
+                case ' ':
+                    i++;
                     break;
                 case '*':
                     if (isEvaluatedFirst)
@@ -103,11 +122,11 @@ public static class MathEvaluator
                     if (i < expression.Length && expression[i] == '*')
                     {
                         i++;
-                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i));
+                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, fnParamsSeparator));
                     }
                     else
                     {
-                        value *= EvaluateBasic(expression, provider, ref i);
+                        value *= EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                     }
 
                     break;
@@ -115,22 +134,25 @@ public static class MathEvaluator
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value *= EvaluateBasic(expression, provider, ref i);
+                    value *= EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                     break;
                 case '/' or '\u00f7':
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value /= EvaluateBasic(expression, provider, ref i, true);
+                    value /= EvaluateBasic(expression, provider, ref i, fnParamsSeparator, true);
                     break;
-                case ' ':
+                case '%':
+                    if (isEvaluatedFirst)
+                        return value;
                     i++;
+                    value %= EvaluateBasic(expression, provider, ref i, fnParamsSeparator, true);
                     break;
                 case '-':
                     if (start == i || expression[start..i].IsWhiteSpace())
                     {
                         i++;
-                        value = -EvaluateBasic(expression, provider, ref i);
+                        value = -EvaluateBasic(expression, provider, ref i, fnParamsSeparator);
                         break;
                     }
 
@@ -144,73 +166,39 @@ public static class MathEvaluator
 
                     return value;
                 default:
-                    value = EvaluateFnOrConstant(expression, provider, ref i, value);
+                    value = EvaluateFnOrConstant(expression, provider, ref i, fnParamsSeparator, value);
                     if (isEvaluatedFirst)
                         return value;
                     break;
             }
+        }
 
         return value;
     }
 
     private static double EvaluateFnOrConstant(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        double value = default)
+        char? fnParamsSeparator, double value = default)
     {
-        var start = i;
         while (expression.Length > i)
             switch (expression[i])
             {
-                case '(':
-                    i++;
-                    var parenthesesI = 0;
-                    value = (value == 0 ? 1 : value) *
-                            EvaluateLowestBasic(expression[i..], provider, ref parenthesesI);
-                    i += parenthesesI;
-                    break;
-                case ')':
-                    return value;
-                case >= '0' and <= '9' or '.':
-                    value = GetNumberParamOfFn(expression, ref i);
-                    break;
-                case '-':
-                    if (start == i || expression[start..i].IsWhiteSpace())
-                    {
-                        i++;
-                        value = -EvaluateFnOrConstant(expression, provider, ref i);
-                    }
-
-                    return value;
-                case '+':
-                    if (start == i || expression[start..i].IsWhiteSpace())
-                    {
-                        i++;
-                    }
-
-                    return EvaluateFnOrConstant(expression, provider, ref i);
-                case '*' or '/' or '\u00d7' or '·' or '\u00f7':
-                    return value;
-                case ' ':
-                    i++;
-                    break;
-                case ',': //is used for separating args of a function
-                    i++;
-                    return value;
                 case 'π':
                     i++;
                     value = (value == 0 ? 1 : value) * Math.PI;
                     return value;
                 case '^':
                     i++;
-                    value = Math.Pow(value, EvaluateFnOrConstant(expression, provider, ref i));
+                    value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, fnParamsSeparator));
                     return value;
                 default:
-                    return EvaluateFn(expression, provider, ref i, value);
+                    return EvaluateFn(expression, provider, ref i, fnParamsSeparator, value);
             }
 
         return value;
     }
 
-    private static double EvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, double value)
+    private static double EvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        char? fnParamsSeparator, double value)
     {
         const string pi = "pi";
         if (expression[i..].StartsWith(pi, StringComparison.InvariantCultureIgnoreCase))
@@ -243,9 +231,17 @@ public static class MathEvaluator
             else
                 throw new NotSupportedException($"'{expression[start..i].ToString()}' isn't supported");
 
-            var x = EvaluateFnOrConstant(expression, provider, ref i);
-            var y = EvaluateFnOrConstant(expression, provider, ref i);
+            var x = EvaluateLowestBasic(expression, provider, ref i, ',');
+            var y = EvaluateLowestBasic(expression, provider, ref i, ',');
             value = (value == 0 ? 1 : value) * Math.Pow(x, y);
+            return value;
+        }
+
+        //x mod y
+        if (expression[i..].StartsWith("mod", StringComparison.InvariantCultureIgnoreCase))
+        {
+            i += 3;
+            value %= EvaluateBasic(expression, provider, ref i, fnParamsSeparator, true);
             return value;
         }
 
@@ -255,29 +251,18 @@ public static class MathEvaluator
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported");
     }
 
-    private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i)
+    private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        char? fnParamsSeparator = null)
     {
         var start = i;
         i++;
         while (expression.Length > i)
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁')
+            if (expression[i] != fnParamsSeparator &&
+                expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁')
                 i++;
             else
                 break;
 
         return double.Parse(expression[start..i], NumberStyles.Number, provider);
-    }
-
-    private static double GetNumberParamOfFn(ReadOnlySpan<char> expression, ref int i)
-    {
-        var start = i;
-        i++;
-        while (expression.Length > i)
-            if (expression[i] is >= '0' and <= '9' or '.')
-                i++;
-            else
-                break;
-
-        return double.Parse(expression[start..i], NumberStyles.Number, CultureInfo.InvariantCulture);
     }
 }
