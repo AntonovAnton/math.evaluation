@@ -85,7 +85,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("power(3,4)", 81)]
     [InlineData("power(3, 4)", 81)]
     [InlineData("power(  +3, 4)", 81)]
-    [InlineData("power( -3, 4)", 81)]
+    [InlineData("power( -3 * 2, 4)", 1296)]
     [InlineData("power(-3, 3)", -27)]
     [InlineData("power(-3, 0.5)", double.NaN)]
     [InlineData("power(-2, (2 + 3))", -32)]
@@ -93,7 +93,23 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("3^4", 81)]
     [InlineData("-3^4", -81)]
     [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathEvaluator_Evaluate_HasPower_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("4 % 3", 1)]
+    [InlineData("4 mod 3", 1)]
+    [InlineData("4 mod 3 - 2", -1)]
+    [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
+    [InlineData("3 - 4.5 mod 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
+    public void MathEvaluator_Evaluate_HasModulus_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
