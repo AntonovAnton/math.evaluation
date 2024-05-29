@@ -14,13 +14,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("2 + (5 * 2 - 1)", 2 + (5 * 2 - 1))]
     [InlineData("4 * 0.1 - 2", 4 * 0.1 - 2)]
-    [InlineData("6 + -( -4)", 6 + -(-4))]
-    [InlineData("6 + - ( 4)", 6 + -(4))]
-    [InlineData("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", (2.323 * 323 - 1 / (2 + 3.33) * 4) - 6)]
+    [InlineData("6 + -( -4)", 6 + - -4)]
+    [InlineData("6 + - ( 4)", 6 + -4)]
+    [InlineData("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", 2.323 * 323 - 1 / (2 + 3.33) * 4 - 6)]
     [InlineData("2 - 5 * 10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
-    [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", (3 * 2) / (5d * 2))]
+    [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", 3 * 2 / (5d * 2))]
     public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -110,6 +110,25 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 4.5 mod 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathEvaluator_Evaluate_HasModulus_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("0.4e3", 0.4e3)]
+    [InlineData("0.4e-3", 0.4e-3)]
+    [InlineData("0.4E3", 0.4E3)]
+    [InlineData("0.4E-3", 0.4E-3)]
+    [InlineData("6.022e23", 6.022e23)] //Avogadro's number
+    [InlineData("6.626e-34", 6.626e-34)] //Planck's constant
+    [InlineData(".2E3 - 2", .2E3 - 2)]
+    [InlineData("3 - 0.4e3 / 3 * 2 + 4", 3 - 0.4e3 / 3 * 2 + 4)]
+    [InlineData(".1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3", .1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3)]
+    public void MathEvaluator_Evaluate_ExpNotationNumbers_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
