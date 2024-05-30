@@ -205,6 +205,9 @@ public static class MathEvaluator
         if (TryEvaluateSin(expression, provider, ref i, ref value))
             return value;
 
+        if (TryEvaluateCos(expression, provider, ref i, ref value))
+            return value;
+
         var bracketCharIndex = expression[start..].IndexOf('(') + start;
         var unknownSubstring = bracketCharIndex > i ? expression[start..bracketCharIndex] : expression[start..];
 
@@ -287,6 +290,24 @@ public static class MathEvaluator
 
         var a = EvaluateLowestBasic(expression, provider, ref i);
         value = (value == 0 ? 1 : value) * Math.Sin(a);
+        return true;
+    }
+
+    private static bool TryEvaluateCos(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        const string fn = "cos";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 3;
+        if (expression.Length > i && expression[i] == '(')
+            i++;
+        else
+            return false;
+
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+        value = (value == 0 ? 1 : value) * Math.Cos(a);
         return true;
     }
 

@@ -140,6 +140,10 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin( -3 * 2)", 0.27941549819892586d)]
     [InlineData("sin(-3)", -0.14112000805986721d)]
     [InlineData("3 + 2sin(PI)", 3.0000000000000004d)]
+    [InlineData("cos(60\u00b0)", 0.50000000000000011d)]
+    [InlineData("Cos(30° + 30°)", 0.50000000000000011d)]
+    [InlineData("COS((1/3)π)", 0.50000000000000011d)]
+    [InlineData("sin(30°) + cos(60°)", 1d)]
     public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
