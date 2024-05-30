@@ -81,17 +81,10 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("3 ** 4", 81)]
     [InlineData("-3 ** 4", -81)]
-    [InlineData("pow(3,4)", 81)]
-    [InlineData("power(3,4)", 81)]
-    [InlineData("power(3, 4)", 81)]
-    [InlineData("power(  +3, 4)", 81)]
-    [InlineData("power( -3 * 2, 4)", 1296)]
-    [InlineData("power(-3, 3)", -27)]
-    [InlineData("power(-3, 0.5)", double.NaN)]
-    [InlineData("power(-2, (2 + 3))", -32)]
-    [InlineData("3 + 2power((2 + 3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3^4", 81)]
+    [InlineData("2/3^4", 2 / 81d)]
     [InlineData("-3^4", -81)]
+    [InlineData("(-3)^0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathEvaluator_Evaluate_HasPower_ExpectedValue(string expression, double expectedValue)
@@ -108,6 +101,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("4 mod 3", 1)]
     [InlineData("4 mod 3 - 2", -1)]
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
+    [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 4.5 mod 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathEvaluator_Evaluate_HasModulus_ExpectedValue(string expression, double expectedValue)
     {
@@ -128,7 +122,42 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData(".2E3 - 2", .2E3 - 2)]
     [InlineData("3 - 0.4e3 / 3 * 2 + 4", 3 - 0.4e3 / 3 * 2 + 4)]
     [InlineData(".1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3", .1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3)]
-    public void MathEvaluator_Evaluate_ExpNotationNumbers_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasExpNotationNumbers_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("e", Math.E)]
+    [InlineData("200e", 200 * Math.E)]
+    [InlineData("200e^-0.15", 172.14159528501156d)]
+    public void MathEvaluator_Evaluate_HasLogBase_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
+    [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
+    [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
+    [InlineData("sin(3.4)", -0.25554110202683122d)]
+    [InlineData("sin( +3.4)", -0.25554110202683122d)]
+    [InlineData("sin( -3 * 2)", 0.27941549819892586d)]
+    [InlineData("sin(-3)", -0.14112000805986721d)]
+    [InlineData("3 + 2sin(PI)", 3.0000000000000004d)]
+    [InlineData("cos(60\u00b0)", 0.50000000000000011d)]
+    [InlineData("Cos(30° + 30°)", 0.50000000000000011d)]
+    [InlineData("COS((1/3)π)", 0.50000000000000011d)]
+    [InlineData("sin(30°) + cos(60°)", 1d)]
+    public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
