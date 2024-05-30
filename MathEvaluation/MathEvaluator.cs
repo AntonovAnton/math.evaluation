@@ -178,6 +178,9 @@ public static class MathEvaluator
                     i++;
                     value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
                     return value;
+                case '\u00b0': //degree symbol
+                    i++;
+                    return DegreesToRadians(value);
                 default:
                     return EvaluateFn(expression, provider, ref i, isFnParam, value);
             }
@@ -188,53 +191,22 @@ public static class MathEvaluator
     private static double EvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         bool isFnParam, double value)
     {
-        //x mod y
-        if (expression[i..].StartsWith("mod", StringComparison.InvariantCultureIgnoreCase))
-        {
-            i += 3;
-            value %= EvaluateBasic(expression, provider, ref i, isFnParam, true);
+        var start = i;
+
+        if (TryEvaluateModulus(expression, provider, ref i, isFnParam, ref value))
             return value;
-        }
 
-        const string pi = "pi";
-        if (expression[i..].StartsWith(pi, StringComparison.InvariantCultureIgnoreCase))
-        {
-            i += 2;
-            value = (value == 0 ? 1 : value) * Math.PI;
-            if (i < expression.Length - 1 && expression[i] == '(' && expression[i + 1] == ')') //PI()
-                i += 2;
-
+        if (TryEvaluatePi(expression, ref i, ref value))
             return value;
-        }
 
-        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
-        if (expression[i..].StartsWith(currencySymbol))
-        {
-            i += currencySymbol.Length;
+        if (TryEvaluateCurrencySymbol(expression, provider, ref i))
             return value;
-        }
 
-        //pow(x, y) or power(x, y)
-        if (expression[i..].StartsWith("pow", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var start = i;
-            i += 3;
-            if (expression[i..].StartsWith("er", StringComparison.InvariantCultureIgnoreCase))
-                i += 2;
-
-            if (i < expression.Length - 1 && expression[i] == '(')
-                i++;
-            else
-                throw new NotSupportedException($"'{expression[start..i].ToString()}' isn't supported");
-
-            var x = EvaluateLowestBasic(expression, provider, ref i, true);
-            var y = EvaluateLowestBasic(expression, provider, ref i, true);
-            value = (value == 0 ? 1 : value) * Math.Pow(x, y);
+        if (TryEvaluateSin(expression, provider, ref i, ref value))
             return value;
-        }
-        
-        var bracketCharIndex = expression[i..].IndexOf('(') + i;
-        var unknownSubstring = bracketCharIndex > i ? expression[i..bracketCharIndex] : expression[i..];
+
+        var bracketCharIndex = expression[start..].IndexOf('(') + start;
+        var unknownSubstring = bracketCharIndex > i ? expression[start..bracketCharIndex] : expression[start..];
 
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported");
     }
@@ -247,7 +219,9 @@ public static class MathEvaluator
         while (expression.Length > i)
             if (expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁' &&
                 (isFnParam == false || expression[i] != FnParamsSeparator))
+            {
                 i++;
+            }
             else
             {
                 if (expression[i] is 'e' or 'E')
@@ -257,9 +231,74 @@ public static class MathEvaluator
                         i++;
                 }
                 else
+                {
                     break;
+                }
             }
 
         return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }
+
+    private static double DegreesToRadians(double degrees)
+    {
+        return degrees * Math.PI / 180.0d;
+    }
+
+    #region private static TryEvaluateFn Methods
+
+    private static bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        bool isFnParam, ref double value)
+    {
+        const string fn = "mod";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 3;
+        value %= EvaluateBasic(expression, provider, ref i, isFnParam, true);
+        return true;
+    }
+
+    private static bool TryEvaluatePi(ReadOnlySpan<char> expression, ref int i, ref double value)
+    {
+        const string fn = "pi";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 2;
+        value = (value == 0 ? 1 : value) * Math.PI;
+        if (expression.Length - 1 > i && expression[i] == '(' && expression[i + 1] == ')') //PI()
+            i += 2;
+
+        return true;
+    }
+
+    private static bool TryEvaluateSin(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        const string fn = "sin";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 3;
+        if (expression.Length > i && expression[i] == '(')
+            i++;
+        else
+            return false;
+
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+        value = (value == 0 ? 1 : value) * Math.Sin(a);
+        return true;
+    }
+
+    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i)
+    {
+        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
+        if (!expression[i..].StartsWith(currencySymbol))
+            return false;
+
+        i += currencySymbol.Length;
+        return true;
+    }
+
+    #endregion
 }
