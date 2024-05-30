@@ -172,11 +172,17 @@ public static class MathEvaluator
             {
                 case 'π':
                     i++;
-                    value = (value == 0 ? 1 : value) * Math.PI;
+                    value = (value == 0 ? 1 : value) *
+                            EvaluateBasic(expression, provider, ref i, isFnParam, true, Math.PI);
                     return value;
                 case '^':
                     i++;
                     value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
+                    return value;
+                case 'e': //the natural logarithmic base
+                    i++;
+                    value = (value == 0 ? 1 : value) *
+                            EvaluateBasic(expression, provider, ref i, isFnParam, true, Math.E);
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
@@ -227,6 +233,7 @@ public static class MathEvaluator
             }
             else
             {
+                //an exponential notation number
                 if (expression[i] is 'e' or 'E')
                 {
                     i++;
@@ -238,6 +245,10 @@ public static class MathEvaluator
                     break;
                 }
             }
+
+        //if the last symbol is 'e' it's the natural logarithmic base
+        if (expression[i - 1] is 'e')
+            i--;
 
         return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }

@@ -132,6 +132,19 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("e", Math.E)]
+    [InlineData("200e", 200 * Math.E)]
+    [InlineData("200e^-0.15", 172.14159528501156d)]
+    public void MathEvaluator_Evaluate_HasLogBase_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
     [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
