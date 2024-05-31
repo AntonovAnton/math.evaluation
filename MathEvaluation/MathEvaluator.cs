@@ -214,6 +214,18 @@ public static class MathEvaluator
         if (TryEvaluateCos(expression, provider, ref i, ref value))
             return value;
 
+        if (TryEvaluateTan(expression, provider, ref i, ref value))
+            return value;
+
+        if (TryEvaluateCot(expression, provider, ref i, ref value))
+            return value;
+
+        if (TryEvaluateSec(expression, provider, ref i, ref value))
+            return value;
+
+        if (TryEvaluateCsc(expression, provider, ref i, ref value))
+            return value;
+
         var bracketCharIndex = expression[start..].IndexOf('(') + start;
         var unknownSubstring = bracketCharIndex > i ? expression[start..bracketCharIndex] : expression[start..];
 
@@ -246,7 +258,7 @@ public static class MathEvaluator
                 }
             }
 
-        //if the last symbol is 'e' it's the natural logarithmic base
+        //if the last symbol is 'e' it's the natural logarithmic base constant
         if (expression[i - 1] is 'e')
             i--;
 
@@ -286,19 +298,24 @@ public static class MathEvaluator
         return true;
     }
 
+    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i)
+    {
+        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
+        if (!expression[i..].StartsWith(currencySymbol))
+            return false;
+
+        i += currencySymbol.Length;
+        return true;
+    }
+
     private static bool TryEvaluateSin(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         ref double value)
     {
-        const string fn = "sin";
+        const string fn = "sin(";
         if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
-        i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-        else
-            return false;
-
+        i += 4;
         var a = EvaluateLowestBasic(expression, provider, ref i);
         value = (value == 0 ? 1 : value) * Math.Sin(a);
         return true;
@@ -307,28 +324,87 @@ public static class MathEvaluator
     private static bool TryEvaluateCos(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         ref double value)
     {
-        const string fn = "cos";
+        const string fn = "cos(";
         if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
-        i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-        else
-            return false;
-
+        i += 4;
         var a = EvaluateLowestBasic(expression, provider, ref i);
         value = (value == 0 ? 1 : value) * Math.Cos(a);
         return true;
     }
 
-    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i)
+    private static bool TryEvaluateTan(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
     {
-        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
-        if (!expression[i..].StartsWith(currencySymbol))
+        const string fn = "tan(";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
-        i += currencySymbol.Length;
+        i += 4;
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+
+        var cos = Math.Cos(a);
+        if (cos == 0d)
+            value = double.NaN;
+        else
+            value = (value == 0 ? 1 : value) * Math.Sin(a) / cos;
+
+        return true;
+    }
+
+    private static bool TryEvaluateCot(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        const string fn = "cot(";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 4;
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+        var sin = Math.Sin(a);
+        if (sin == 0d)
+            value = double.NaN;
+        else
+            value = (value == 0 ? 1 : value) * Math.Cos(a) / sin;
+
+        return true;
+    }
+
+    private static bool TryEvaluateSec(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        const string fn = "sec(";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 4;
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+
+        var cos = Math.Cos(a);
+        if (cos == 0d)
+            value = double.NaN;
+        else
+            value = (value == 0 ? 1 : value) / cos;
+
+        return true;
+    }
+
+    private static bool TryEvaluateCsc(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        const string fn = "csc(";
+        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        i += 4;
+        var a = EvaluateLowestBasic(expression, provider, ref i);
+        var sin = Math.Sin(a);
+        if (sin == 0d)
+            value = double.NaN;
+        else
+            value = (value == 0 ? 1 : value) / sin;
+
         return true;
     }
 
