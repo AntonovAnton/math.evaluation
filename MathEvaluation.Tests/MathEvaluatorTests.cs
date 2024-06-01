@@ -157,6 +157,15 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("Cos(30° + 30°)", 0.50000000000000011d)]
     [InlineData("COS((1/3)π)", 0.50000000000000011d)]
     [InlineData("sin(30°) + cos(60°)", 1d)]
+    [InlineData("tan(0°)", 0)]
+    [InlineData("Tan(45°)", 1d)]
+    [InlineData("cot(0°)", double.NaN)]
+    [InlineData("Cot(45°)", 1d)]
+    [InlineData("sec(0°)", 1d)]
+    [InlineData("Sec(60°)", 1.9999999999999996d)]
+    [InlineData("csc(0°)", double.NaN)]
+    [InlineData("Csc(30°)", 2.0000000000000004d)]
+    [InlineData("CSC(90°)", 1d)]
     public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -166,15 +175,16 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
 
-    [Fact]
-    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException()
+    [Theory]
+    [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]
+    [InlineData("p", "'p' isn't supported")]
+    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression, string errorMessage)
     {
-        var expression = "1 + ctng(3 + 4)";
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Contains("'ctng' isn't supported", ex.Message);
+        Assert.Contains(errorMessage, ex.Message);
     }
 
     [Fact]

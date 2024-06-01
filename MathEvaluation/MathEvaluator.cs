@@ -9,14 +9,19 @@ public static class MathEvaluator
 
     public static double Evaluate(string expression, IFormatProvider? provider = null)
     {
+        return Evaluate(expression.AsSpan(), provider);
+    }
+
+    public static double Evaluate(ReadOnlySpan<char> expression, IFormatProvider? provider)
+    {
         try
         {
             var i = 0;
-            return EvaluateLowestBasic(expression.AsSpan(), provider ?? CultureInfo.CurrentCulture, ref i);
+            return EvaluateLowestBasic(expression, provider ?? CultureInfo.CurrentCulture, ref i);
         }
         catch (Exception ex)
         {
-            ex.Data[nameof(expression)] = expression;
+            ex.Data[nameof(expression)] = expression.ToString();
             ex.Data[nameof(provider)] = provider;
             throw;
         }
@@ -186,7 +191,7 @@ public static class MathEvaluator
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
-                    return DegreesToRadians(value);
+                    return MathFunctions.DegreesToRadians(value);
                 default:
                     return EvaluateFn(expression, provider, ref i, isFnParam, value);
             }
@@ -208,10 +213,7 @@ public static class MathEvaluator
         if (TryEvaluateCurrencySymbol(expression, provider, ref i))
             return value;
 
-        if (TryEvaluateSin(expression, provider, ref i, ref value))
-            return value;
-
-        if (TryEvaluateCos(expression, provider, ref i, ref value))
+        if (TryEvaluateFn(expression, provider, ref i, ref value))
             return value;
 
         var bracketCharIndex = expression[start..].IndexOf('(') + start;
@@ -246,19 +248,15 @@ public static class MathEvaluator
                 }
             }
 
-        //if the last symbol is 'e' it's the natural logarithmic base
+        //if the last symbol is 'e' it's the natural logarithmic base constant
         if (expression[i - 1] is 'e')
             i--;
 
         return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }
 
-    private static double DegreesToRadians(double degrees)
-    {
-        return degrees * Math.PI / 180.0d;
-    }
 
-    #region private static TryEvaluateFn Methods
+    #region private static Try Evaluate Methods
 
     private static bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         bool isFnParam, ref double value)
@@ -274,51 +272,14 @@ public static class MathEvaluator
 
     private static bool TryEvaluatePi(ReadOnlySpan<char> expression, ref int i, ref double value)
     {
-        const string fn = "pi";
-        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
+        if (expression.Length <= i + 1 || expression[i] is not ('p' or 'P') || expression[i + 1] is not ('i' or 'I'))
             return false;
 
         i += 2;
-        value = (value == 0 ? 1 : value) * Math.PI;
         if (expression.Length - 1 > i && expression[i] == '(' && expression[i + 1] == ')') //PI()
             i += 2;
 
-        return true;
-    }
-
-    private static bool TryEvaluateSin(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        ref double value)
-    {
-        const string fn = "sin";
-        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
-            return false;
-
-        i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-        else
-            return false;
-
-        var a = EvaluateLowestBasic(expression, provider, ref i);
-        value = (value == 0 ? 1 : value) * Math.Sin(a);
-        return true;
-    }
-
-    private static bool TryEvaluateCos(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        ref double value)
-    {
-        const string fn = "cos";
-        if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
-            return false;
-
-        i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-        else
-            return false;
-
-        var a = EvaluateLowestBasic(expression, provider, ref i);
-        value = (value == 0 ? 1 : value) * Math.Cos(a);
+        value = (value == 0 ? 1 : value) * Math.PI;
         return true;
     }
 
@@ -330,6 +291,19 @@ public static class MathEvaluator
 
         i += currencySymbol.Length;
         return true;
+    }
+
+    private static bool TryEvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
+        ref double value)
+    {
+        if (MathFunctions.TryGetTrigonometricFn(expression, ref i, out var fn) && fn != null)
+        {
+            var a = EvaluateLowestBasic(expression, provider, ref i);
+            value = (value == 0 ? 1 : value) * fn(a);
+            return true;
+        }
+
+        return false;
     }
 
     #endregion
