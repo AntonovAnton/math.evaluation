@@ -175,15 +175,16 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
 
-    [Fact]
-    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException()
+    [Theory]
+    [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]
+    [InlineData("p", "'p' isn't supported")]
+    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression, string errorMessage)
     {
-        var expression = "1 + ctng(3 + 4)";
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Contains("'ctng' isn't supported", ex.Message);
+        Assert.Contains(errorMessage, ex.Message);
     }
 
     [Fact]

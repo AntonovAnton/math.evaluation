@@ -256,7 +256,7 @@ public static class MathEvaluator
     }
 
 
-    #region private static TryEvaluateFn Methods
+    #region private static Try Evaluate Methods
 
     private static bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         bool isFnParam, ref double value)
@@ -272,7 +272,7 @@ public static class MathEvaluator
 
     private static bool TryEvaluatePi(ReadOnlySpan<char> expression, ref int i, ref double value)
     {
-        if (expression[i] is not ('p' or 'P') || expression[i + 1] is not ('i' or 'I'))
+        if (expression.Length <= i + 1 || expression[i] is not ('p' or 'P') || expression[i + 1] is not ('i' or 'I'))
             return false;
 
         i += 2;
