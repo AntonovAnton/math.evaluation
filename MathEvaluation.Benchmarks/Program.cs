@@ -13,7 +13,7 @@ BenchmarkRunner.Run<Benchmarks>();
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    [Benchmark(Description = "MathEvaluator.Evaluate(\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\")")]
+    [Benchmark(Description = "\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\".Evaluate()")]
     public double MathEvaluator_Evaluate_ComplexExpression()
     {
         return "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
@@ -34,9 +34,9 @@ public class Benchmarks
         return 22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6;
     }
 
-    [Benchmark(Description = "MathEvaluator.Evaluate(\"sin(π/6) + cos(π/3)\")")]
+    [Benchmark(Description = "\"sin(PI/6) + cos(PI/3)\".Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_ComplexExpression()
     {
-        return "sin(π/6) + cos(π/3)".Evaluate();
+        return "sin(PI/6) + cos(PI/3)".Evaluate();
     }
 }

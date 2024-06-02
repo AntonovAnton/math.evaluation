@@ -199,7 +199,7 @@ public static class MathEvaluator
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
-                    return MathFunctions.DegreesToRadians(value);
+                    return MathFn.DegreesToRadians(value);
                 default:
                     return EvaluateFn(expression, provider, ref i, isFnParam, value);
             }
@@ -304,7 +304,7 @@ public static class MathEvaluator
     private static bool TryEvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         ref double value)
     {
-        if (MathFunctions.TryGetTrigonometricFn(expression, ref i, out var fn) && fn != null)
+        if (MathFn.TryGetTrigonometricFn(expression, ref i, out var fn) && fn != null)
         {
             var a = EvaluateLowestBasic(expression, provider, ref i);
             value = (value == 0 ? 1 : value) * fn(a);
