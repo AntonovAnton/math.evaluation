@@ -16,6 +16,9 @@ public static class MathEvaluator
     {
         try
         {
+            if (expression == null || expression.IsWhiteSpace())
+                return double.NaN;
+
             var i = 0;
             return EvaluateLowestBasic(expression, provider ?? CultureInfo.CurrentCulture, ref i);
         }
@@ -69,7 +72,7 @@ public static class MathEvaluator
                         i++;
 
                     //two negatives should combine to make a positive
-                    if (expression[i] is '-')
+                    if (expression.Length > i && expression[i] is '-')
                     {
                         i++;
                         value += EvaluateBasic(expression, provider, ref i, isFnParam);
@@ -113,7 +116,7 @@ public static class MathEvaluator
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    if (i < expression.Length && expression[i] == '*')
+                    if (expression.Length > i && expression[i] == '*')
                     {
                         i++;
                         value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
@@ -165,6 +168,11 @@ public static class MathEvaluator
                         return value;
                     break;
             }
+
+        if (value == 0d && expression[start..i].IsWhiteSpace())
+        {
+            return double.NaN;
+        }
 
         return value;
     }

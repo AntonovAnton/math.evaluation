@@ -10,13 +10,13 @@ BenchmarkRunner.Run<Benchmarks>();
 
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net60)]
-[MemoryDiagnoser()]
+[MemoryDiagnoser]
 public class Benchmarks
 {
     [Benchmark(Description = "MathEvaluator.Evaluate(\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\")")]
     public double MathEvaluator_Evaluate_ComplexExpression()
     {
-        return MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
+        return "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
     }
 
     [Benchmark(Description =
@@ -34,9 +34,9 @@ public class Benchmarks
         return 22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6;
     }
 
-    [Benchmark(Description = "MathEvaluator.Evaluate(\"sin(30°) + cos(60°)\")")]
+    [Benchmark(Description = "MathEvaluator.Evaluate(\"sin(π/6) + cos(π/3)\")")]
     public double MathEvaluator_EvaluateSinCos_ComplexExpression()
     {
-        return MathEvaluator.Evaluate("sin(π/6) + cos(π/3)");
+        return "sin(π/6) + cos(π/3)".Evaluate();
     }
 }

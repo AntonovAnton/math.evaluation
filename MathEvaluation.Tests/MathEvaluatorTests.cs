@@ -6,6 +6,11 @@ namespace MathEvaluation.Tests;
 public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
+    [InlineData(null, double.NaN)]
+    [InlineData("", double.NaN)]
+    [InlineData("   ", double.NaN)]
+    [InlineData("+", double.NaN)]
+    [InlineData("-", double.NaN)]
     [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
