@@ -6,6 +6,11 @@ namespace MathEvaluation.Tests;
 public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
+    [InlineData(null, double.NaN)]
+    [InlineData("", double.NaN)]
+    [InlineData("   ", double.NaN)]
+    [InlineData("+", double.NaN)]
+    [InlineData("-", double.NaN)]
     [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
@@ -21,11 +26,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", 3 * 2 / (5d * 2))]
-    public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression!);
 
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
@@ -146,6 +151,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
+    [InlineData("sin π/6", 0.49999999999999994d)]
+    [InlineData("cos1", 0.54030230586813977d)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
     [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
     [InlineData("sin(3.4)", -0.25554110202683122d)]
@@ -166,6 +173,17 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("csc(0°)", double.NaN)]
     [InlineData("Csc(30°)", 2.0000000000000004d)]
     [InlineData("CSC(90°)", 1d)]
+    [InlineData("Sinh(15° + 15°)", 0.54785347388803973d)]
+    [InlineData("COSH((1/3)π)", 1.6002868577023861d)]
+    [InlineData("sinh(30°) + cosh(60°)", 2.1481403315904259d)]
+    [InlineData("tanh(0°)", 0)]
+    [InlineData("Tanh(45°)", 0.6557942026326723d)]
+    [InlineData("coth(0°)", double.NaN)]
+    [InlineData("Coth(45°)", 1.5248686188220644d)]
+    [InlineData("sech(0°)", 1d)]
+    [InlineData("Sech(60°)", 0.62488796629608723d)]
+    [InlineData("csch 0°", double.NaN)]
+    [InlineData("CSCH(π)", 0.086589537530046959d)]
     public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

@@ -16,6 +16,9 @@ public static class MathEvaluator
     {
         try
         {
+            if (expression == null || expression.IsWhiteSpace())
+                return double.NaN;
+
             var i = 0;
             return EvaluateLowestBasic(expression, provider ?? CultureInfo.CurrentCulture, ref i);
         }
@@ -69,7 +72,7 @@ public static class MathEvaluator
                         i++;
 
                     //two negatives should combine to make a positive
-                    if (expression[i] is '-')
+                    if (expression.Length > i && expression[i] is '-')
                     {
                         i++;
                         value += EvaluateBasic(expression, provider, ref i, isFnParam);
@@ -113,7 +116,7 @@ public static class MathEvaluator
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    if (i < expression.Length && expression[i] == '*')
+                    if (expression.Length > i && expression[i] == '*')
                     {
                         i++;
                         value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
@@ -166,6 +169,11 @@ public static class MathEvaluator
                     break;
             }
 
+        if (value == 0d && expression[start..i].IsWhiteSpace())
+        {
+            return double.NaN;
+        }
+
         return value;
     }
 
@@ -191,7 +199,7 @@ public static class MathEvaluator
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
-                    return MathFunctions.DegreesToRadians(value);
+                    return MathFn.DegreesToRadians(value);
                 default:
                     return EvaluateFn(expression, provider, ref i, isFnParam, value);
             }
@@ -296,7 +304,7 @@ public static class MathEvaluator
     private static bool TryEvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         ref double value)
     {
-        if (MathFunctions.TryGetTrigonometricFn(expression, ref i, out var fn) && fn != null)
+        if (MathFn.TryGetTrigonometricFn(expression, ref i, out var fn) && fn != null)
         {
             var a = EvaluateLowestBasic(expression, provider, ref i);
             value = (value == 0 ? 1 : value) * fn(a);
