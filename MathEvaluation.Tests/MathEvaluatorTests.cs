@@ -173,6 +173,16 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("csc(0°)", double.NaN)]
     [InlineData("Csc(30°)", 2.0000000000000004d)]
     [InlineData("CSC(90°)", 1d)]
+    public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
     [InlineData("Sinh(15° + 15°)", 0.54785347388803973d)]
     [InlineData("COSH((1/3)π)", 1.6002868577023861d)]
     [InlineData("sinh(30°) + cosh(60°)", 2.1481403315904259d)]
@@ -184,7 +194,58 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("Sech(60°)", 0.62488796629608723d)]
     [InlineData("csch 0°", double.NaN)]
     [InlineData("CSCH(π)", 0.086589537530046959d)]
-    public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
+        double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("arcsin(-\u221e)", double.NaN)]
+    [InlineData("asin(\u221e)", double.NaN)]
+    [InlineData("ASIN(-2)", double.NaN)]
+    [InlineData("Arcsin(-1)", -Math.PI / 2)]
+    [InlineData("ARCSIN(0)", 0)]
+    [InlineData("Asin1", Math.PI / 2)]
+    [InlineData("arccos(-\u221e)", double.NaN)]
+    [InlineData("acos(\u221e)", double.NaN)]
+    [InlineData("ACOS(-2)", double.NaN)]
+    [InlineData("Arccos(-1)", Math.PI)]
+    [InlineData("ARCCOS(0)", Math.PI / 2)]
+    [InlineData("Acos1", 0)]
+    [InlineData("arctan(-\u221e)", -Math.PI / 2)]
+    [InlineData("atan(\u221e)", Math.PI / 2)]
+    [InlineData("Atan(-2)", -1.1071487177940904d)]
+    [InlineData("Arctan(-1)", -Math.PI / 4)]
+    [InlineData("ARCTAN(0)", 0)]
+    [InlineData("ATAN1", Math.PI / 4)]
+    [InlineData("arcsec(-\u221e)", Math.PI / 2)]
+    [InlineData("asec(\u221e)", Math.PI / 2)]
+    [InlineData("Asec(-2)", 2.0943951023931957d)]
+    [InlineData("Arcsec(-1)", Math.PI)]
+    [InlineData("ASEC(1/2)", double.NaN)]
+    [InlineData("ARCSEC(0)", double.NaN)]
+    [InlineData("arcsec1", 0)]
+    [InlineData("arccsc(-\u221e)", 0)]
+    [InlineData("acsc(\u221e)", 0)]
+    [InlineData("Acsc(-2)", -0.52359877559829893d)]
+    [InlineData("Arccsc(-1)", -Math.PI / 2)]
+    [InlineData("Arccsc(-1/2)", double.NaN)]
+    [InlineData("ARCCSC(0)", double.NaN)]
+    [InlineData("ACSC1", Math.PI / 2)]
+    [InlineData("arccsc(2)", 0.52359877559829893d)]
+    [InlineData("arccot(-\u221e)", Math.PI)]
+    [InlineData("acot(\u221e)", 0d)]
+    [InlineData("Arccot(-2)", 2.677945044588987d)]
+    [InlineData("ARCCOT(-1)", Math.PI - Math.PI / 4)]
+    [InlineData("Acot(0)", Math.PI / 2)]
+    [InlineData("acot1", Math.PI / 4)]
+    [InlineData("ACOT(2)", 0.46364760900080609d)]
+    public void MathEvaluator_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -196,7 +257,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]
     [InlineData("p", "'p' isn't supported")]
-    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression, string errorMessage)
+    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression,
+        string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");
 

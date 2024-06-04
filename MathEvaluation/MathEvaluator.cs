@@ -200,6 +200,9 @@ public static class MathEvaluator
                 case '\u00b0': //degree symbol
                     i++;
                     return MathFn.DegreesToRadians(value);
+                case '\u221e': //infinity symbol
+                    i++;
+                    return double.PositiveInfinity;
                 default:
                     return EvaluateFn(expression, provider, ref i, isFnParam, value);
             }
