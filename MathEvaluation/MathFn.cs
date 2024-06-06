@@ -257,6 +257,28 @@ internal static class MathFn
         return degrees * Math.PI / 180.0d;
     }
 
+    internal static bool TryGetAbsFn(ReadOnlySpan<char> expression, ref int i,
+        out Func<double, double>? fn)
+    {
+        fn = null;
+        if (expression.Length <= i + 2)
+            return false;
+
+        if (expression[i] is 'a' or 'A' && expression[i + 1] is 'b' or 'B' && expression[i + 2] is 's' or 'S')
+        {
+            fn = Math.Abs;
+        }
+
+        if (fn == null)
+            return false;
+
+        i += 3;
+        if (expression.Length > i && expression[i] == '(')
+            i++;
+
+        return true;
+    }
+
     internal static bool TryGetTrigonometricFn(ReadOnlySpan<char> expression, ref int i,
         out Func<double, double>? fn)
     {
