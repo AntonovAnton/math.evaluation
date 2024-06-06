@@ -8,6 +8,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData(null, double.NaN)]
     [InlineData("", double.NaN)]
+    [InlineData("undefined", double.NaN)]
     [InlineData("   ", double.NaN)]
     [InlineData("+", double.NaN)]
     [InlineData("-", double.NaN)]
@@ -57,32 +58,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
-
-    [Theory]
-    [InlineData("π", Math.PI)]
-    [InlineData("((5 - 1)π)", 4 * Math.PI)]
-    [InlineData("1/2π", 1 / (2 * Math.PI))]
-    [InlineData("1/(4 - 2)π", 1 / (2 * Math.PI))]
-    [InlineData("(1/2)π", Math.PI / 2)]
-    [InlineData("-1/π", -1 / Math.PI)]
-    [InlineData("1 - -1/π", 1 + 1 / Math.PI)]
-    [InlineData("2π * 2 / 2 + π", Math.PI * 3)]
-    [InlineData("2π / π / 2 * π", Math.PI)]
-    [InlineData("ππ", Math.PI * Math.PI)]
-    [InlineData("+ππ", Math.PI * Math.PI)]
-    [InlineData("pi", Math.PI)]
-    [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
-    [InlineData("Pi()((5 - 1))", 4 * Math.PI)]
-    [InlineData("1/2PI", 1 / (2 * Math.PI))]
-    public void MathEvaluator_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.Evaluate(expression);
-
-        Assert.Equal(expectedValue, value, double.Epsilon);
-    }
-
+    
     [Theory]
     [InlineData("3 ** 4", 81)]
     [InlineData("-3 ** 4", -81)]
@@ -141,6 +117,52 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("200e", 200 * Math.E)]
     [InlineData("200e^-0.15", 172.14159528501156d)]
     public void MathEvaluator_Evaluate_HasLogBase_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("π", Math.PI)]
+    [InlineData("((5 - 1)π)", 4 * Math.PI)]
+    [InlineData("1/2π", 1 / (2 * Math.PI))]
+    [InlineData("1/(4 - 2)π", 1 / (2 * Math.PI))]
+    [InlineData("(1/2)π", Math.PI / 2)]
+    [InlineData("-1/π", -1 / Math.PI)]
+    [InlineData("1 - -1/π", 1 + 1 / Math.PI)]
+    [InlineData("2π * 2 / 2 + π", Math.PI * 3)]
+    [InlineData("2π / π / 2 * π", Math.PI)]
+    [InlineData("ππ", Math.PI * Math.PI)]
+    [InlineData("+ππ", Math.PI * Math.PI)]
+    [InlineData("pi", Math.PI)]
+    [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
+    [InlineData("Pi()((5 - 1))", 4 * Math.PI)]
+    [InlineData("1/2PI", 1 / (2 * Math.PI))]
+    public void MathEvaluator_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("τ", Math.Tau)]
+    [InlineData("((5 - 1)τ)", 4 * Math.Tau)]
+    [InlineData("1/2τ", 1 / (2 * Math.Tau))]
+    [InlineData("1/(4 - 2)τ", 1 / (2 * Math.Tau))]
+    [InlineData("(1/2)τ", Math.Tau / 2)]
+    [InlineData("-1/τ", -1 / Math.Tau)]
+    [InlineData("1 - -1/τ", 1 + 1 / Math.Tau)]
+    [InlineData("2τ * 2 / 2 + τ", Math.Tau * 3)]
+    [InlineData("2τ / τ / 2 * τ", Math.Tau)]
+    [InlineData("ττ", Math.Tau * Math.Tau)]
+    [InlineData("+ττ", Math.Tau * Math.Tau)]
+    public void MathEvaluator_Evaluate_HasTau_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -246,6 +268,70 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("acot1", Math.PI / 4)]
     [InlineData("ACOT(2)", 0.46364760900080609d)]
     public void MathEvaluator_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("arsinh(0)", 0)]
+    [InlineData("asinh(0.5)", 0.48121182505960347d)]
+    [InlineData("Arsinh(1)", 0.88137358701954305d)]
+    [InlineData("Asinh(2)", 1.4436354751788103d)]
+    [InlineData("ARSINH(∞)", double.PositiveInfinity)]
+    [InlineData("ASINH -0.5", -0.48121182505960347d)]
+    [InlineData("Asinh-1", -0.88137358701954305d)]
+    [InlineData("arsinh(-2)", -1.4436354751788103d)]
+    [InlineData("asinh(-∞)", double.NegativeInfinity)]
+    [InlineData("arcosh(0)", double.NaN)]
+    [InlineData("acosh(0.5)", double.NaN)]
+    [InlineData("Arcosh(1)", 0)]
+    [InlineData("Acosh(2)", 1.3169578969248166d)]
+    [InlineData("ARCOSH(∞)", double.PositiveInfinity)]
+    [InlineData("ACOSH -0.5", double.NaN)]
+    [InlineData("Acosh-1", double.NaN)]
+    [InlineData("arcosh(-2)", double.NaN)]
+    [InlineData("acosh(-∞)", double.NaN)]
+    [InlineData("artanh(0)", 0)]
+    [InlineData("atanh(0.5)", 0.54930614433405489d)]
+    [InlineData("Artanh(1)", double.PositiveInfinity)]
+    [InlineData("Atanh(2)", double.NaN)]
+    [InlineData("ARTANH(∞)", double.NaN)]
+    [InlineData("ATANH -0.5", -0.54930614433405489d)]
+    [InlineData("Atanh-1", double.NegativeInfinity)]
+    [InlineData("artanh(-2)", double.NaN)]
+    [InlineData("atanh(-∞)", double.NaN)]
+    [InlineData("arcoth(0)", double.NaN)]
+    [InlineData("acoth(0.5)", double.NaN)]
+    [InlineData("Arcoth(1)", double.NaN)]
+    [InlineData("Acoth(2)", 0.54930614433405489d)]
+    [InlineData("ARCOTH(∞)", 0)]
+    [InlineData("ACOTH -0.5", double.NaN)]
+    [InlineData("Acoth-1", double.NaN)]
+    [InlineData("arcoth(-2)", -0.54930614433405489d)]
+    [InlineData("acoth(-∞)", 0)]
+    [InlineData("arsech(0)", double.NaN)]
+    [InlineData("asech(0.5)", 1.3169578969248166d)]
+    [InlineData("Arsech(1)", 0)]
+    [InlineData("Asech(2)", double.NaN)]
+    [InlineData("ARSECH(∞)", double.NaN)]
+    [InlineData("ASECH -0.5", double.NaN)]
+    [InlineData("Asech-1", double.NaN)]
+    [InlineData("arsech(-2)", double.NaN)]
+    [InlineData("asech(-∞)", double.NaN)]
+    [InlineData("arcsch(0)", double.NaN)]
+    [InlineData("acsch(0.5)", 1.4436354751788103d)]
+    [InlineData("Arcsch(1)", 0.88137358701954294d)]
+    [InlineData("Acsch(2)", 0.48121182505960347d)]
+    [InlineData("ARCSCH(∞)", 0)]
+    [InlineData("ACSCH -0.5", -1.4436354751788099d)]
+    [InlineData("Acsch-1", -0.88137358701954283d)]
+    [InlineData("arcsch(-2)", -0.48121182505960336d)]
+    [InlineData("acsch(-∞)", 0)]
+    public void MathEvaluator_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 

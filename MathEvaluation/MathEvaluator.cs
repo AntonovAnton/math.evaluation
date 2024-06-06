@@ -169,10 +169,7 @@ public static class MathEvaluator
                     break;
             }
 
-        if (value == 0d && expression[start..i].IsWhiteSpace())
-        {
-            return double.NaN;
-        }
+        if (value == 0d && expression[start..i].IsWhiteSpace()) return double.NaN;
 
         return value;
     }
@@ -183,19 +180,24 @@ public static class MathEvaluator
         while (expression.Length > i)
             switch (expression[i])
             {
+                case '^':
+                    i++;
+                    value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
+                    return value;
                 case 'π':
                     i++;
                     value = (value == 0 ? 1 : value) *
                             EvaluateBasic(expression, provider, ref i, isFnParam, true, Math.PI);
                     return value;
-                case '^':
-                    i++;
-                    value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam));
-                    return value;
                 case 'e': //the natural logarithmic base
                     i++;
                     value = (value == 0 ? 1 : value) *
                             EvaluateBasic(expression, provider, ref i, isFnParam, true, Math.E);
+                    return value;
+                case 'τ':
+                    i++;
+                    value = (value == 0 ? 1 : value) *
+                            EvaluateBasic(expression, provider, ref i, isFnParam, true, Math.PI * 2);
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
@@ -314,8 +316,16 @@ public static class MathEvaluator
             return true;
         }
 
+        const string undefinedStr = "undefined";
+        if (expression[i..].StartsWith(undefinedStr, StringComparison.InvariantCultureIgnoreCase))
+        {
+            i += undefinedStr.Length;
+            value = double.NaN;
+            return true;
+        }
+
         return false;
     }
-
+    
     #endregion
 }
