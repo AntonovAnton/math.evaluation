@@ -58,7 +58,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
-    
+
     [Theory]
     [InlineData("3 ** 4", 81)]
     [InlineData("-3 ** 4", -81)]
@@ -336,6 +336,32 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("|-20.3|", 20.3d)]
+    [InlineData("-|20.3|", -20.3d)]
+    [InlineData("3|-5|", 15d)]
+    [InlineData("2 / |-5| / 2 * 5", 2d / 5 / 2 * 5)]
+    [InlineData("|2 + (5 - 1)|", 2 + (5 - 1))]
+    [InlineData("2(5 - |-1|)", 2 * (5 - 1))]
+    [InlineData("|-(5 - 1)|(3 + 1)", (3 + 1) * (5 - 1))]
+    [InlineData("(3 + 1)*|-(5 - 1)|", (3 + 1) * (5 - 1))]
+    [InlineData("6 + |( -4)|", 6 + 4)]
+    [InlineData("6 + - |4|", 6 - 4)]
+    [InlineData("2 - 5 * |-10| / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("3abs-5", 15d)]
+    [InlineData("3 * Abs(  -5)", 15d)]
+    [InlineData("3 / ABS(  -(9/3))", 1d)]
+    [InlineData("abs(sin(-3))", 0.14112000805986721d)]
+    [InlineData("|sin-3|", 0.14112000805986721d)]
+    public void MathEvaluator_Evaluate_HasAbs_ExpectedValue(string? expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression!);
 
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
