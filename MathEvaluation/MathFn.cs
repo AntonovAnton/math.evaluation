@@ -143,12 +143,10 @@ internal static class MathFn
         return Math.Asin(d);
     }
 
-
     public static double Arccos(double d)
     {
         return Math.Acos(d);
     }
-
 
     public static double Arctan(double d)
     {
@@ -198,6 +196,62 @@ internal static class MathFn
 
     #endregion
 
+    #region Inverse Hyperbolic Trigonometric Functions
+
+    public static double Arsinh(double d)
+    {
+        return Math.Asinh(d);
+    }
+
+    public static double Arcosh(double d)
+    {
+        return Math.Acosh(d);
+    }
+
+    public static double Artanh(double d)
+    {
+        return Math.Atanh(d);
+    }
+
+    /// <summary>
+    ///     Inverse Hyperbolic Cosecant
+    /// </summary>
+    /// <param name="d"></param>
+    /// <returns></returns>
+    public static double Arcsch(double d)
+    {
+        if (d == 0d)
+            return double.NaN;
+
+        return Math.Log(1 / d + Math.Sqrt(1 / Math.Pow(d, 2) + 1));
+    }
+
+    /// <summary>
+    ///     Inverse Hyperbolic Secant
+    /// </summary>
+    /// <param name="d"></param>
+    /// <returns></returns>
+    public static double Arsech(double d)
+    {
+        if (d is <= 0 or > 1)
+            return double.NaN;
+
+        return Math.Log(1 / d + Math.Sqrt(1 / Math.Pow(d, 2) - 1));
+    }
+
+    public static double Arcoth(double d)
+    {
+        if (double.IsInfinity(d))
+            return 0;
+
+        if (Math.Abs(d) <= 1)
+            return double.NaN;
+
+        return Math.Log((d + 1) / (d - 1)) / 2;
+    }
+
+    #endregion
+
     public static double DegreesToRadians(double degrees)
     {
         return degrees * Math.PI / 180.0d;
@@ -206,14 +260,25 @@ internal static class MathFn
     internal static bool TryGetTrigonometricFn(ReadOnlySpan<char> expression, ref int i,
         out Func<double, double>? fn)
     {
-        if (expression.Length > i + 5 && expression[i] is 'a' or 'A' &&
-            expression[i + 1] is 'r' or 'R' && expression[i + 2] is 'c' or 'C')
-            return TryGetInverseTrigonometricFn(expression, ref i, out fn, 3);
+        if (expression.Length > i + 5)
+            if (expression[i] is 'a' or 'A' && expression[i + 1] is 'r' or 'R')
+            {
+                if (expression[i + 5] is 'h' or 'H')
+                    return TryGetInverseHyperbolicFn(expression, ref i, out fn, 2);
+
+                if (expression[i + 2] is 'c' or 'C')
+                    return TryGetInverseTrigonometricFn(expression, ref i, out fn, 3);
+            }
 
         if (expression.Length > i + 3)
         {
             if (expression[i] is 'a' or 'A')
+            {
+                if (expression.Length > i + 4 && expression[i + 4] is 'h' or 'H')
+                    return TryGetInverseHyperbolicFn(expression, ref i, out fn, 1);
+
                 return TryGetInverseTrigonometricFn(expression, ref i, out fn, 1);
+            }
 
             if (expression[i + 3] is 'h' or 'H')
                 return TryGetHyperbolicFn(expression, ref i, out fn);
@@ -322,6 +387,42 @@ internal static class MathFn
             return false;
 
         i = i + 3 + indexShift;
+        if (expression.Length > i && expression[i] == '(')
+            i++;
+
+        return true;
+    }
+
+    private static bool TryGetInverseHyperbolicFn(ReadOnlySpan<char> expression, ref int i,
+        out Func<double, double>? fn, int indexShift)
+    {
+        fn = expression[i + indexShift] switch
+        {
+            's' or 'S' => expression[i + indexShift + 1] switch
+            {
+                'i' or 'I' when expression[i + indexShift + 2] is 'n' or 'N' => Arsinh,
+                'e' or 'E' when expression[i + indexShift + 2] is 'c' or 'C' => Arsech,
+                _ => null
+            },
+            'c' or 'C' => expression[i + indexShift + 1] switch
+            {
+                'o' or 'O' when expression[i + indexShift + 2] is 's' or 'S' => Arcosh,
+                'o' or 'O' when expression[i + indexShift + 2] is 't' or 'T' => Arcoth,
+                's' or 'S' when expression[i + indexShift + 2] is 'c' or 'C' => Arcsch,
+                _ => null
+            },
+            't' or 'T' => expression[i + indexShift + 1] switch
+            {
+                'a' or 'A' when expression[i + indexShift + 2] is 'n' or 'N' => Artanh,
+                _ => null
+            },
+            _ => null
+        };
+
+        if (fn == null)
+            return false;
+
+        i = i + 4 + indexShift;
         if (expression.Length > i && expression[i] == '(')
             i++;
 
