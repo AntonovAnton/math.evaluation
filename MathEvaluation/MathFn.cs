@@ -273,9 +273,6 @@ internal static class MathFn
             return false;
 
         i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-
         return true;
     }
 
@@ -337,9 +334,6 @@ internal static class MathFn
             return false;
 
         i += 3;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-
         return true;
     }
 
@@ -373,9 +367,6 @@ internal static class MathFn
             return false;
 
         i += 4;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-
         return true;
     }
 
@@ -409,9 +400,6 @@ internal static class MathFn
             return false;
 
         i = i + 3 + indexShift;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-
         return true;
     }
 
@@ -445,9 +433,6 @@ internal static class MathFn
             return false;
 
         i = i + 4 + indexShift;
-        if (expression.Length > i && expression[i] == '(')
-            i++;
-
         return true;
     }
 }

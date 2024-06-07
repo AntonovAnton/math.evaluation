@@ -122,7 +122,7 @@ public static class MathEvaluator
                     if (expression.Length > i && expression[i] == '*')
                     {
                         i++;
-                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam, isAbs));
+                        value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true));
                     }
                     else
                     {
@@ -157,14 +157,39 @@ public static class MathEvaluator
                     if (start != i && !expression[start..i].IsWhiteSpace())
                         return value;
                     i++;
-                    value = -EvaluateBasic(expression, provider, ref i, isFnParam, isAbs);
+                    value = -EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
                     break;
+                case '^':
+                    i++;
+                    value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true));
+                    return value;
                 case '|' when isAbs:
                     return value;
                 case '|':
                     i++;
                     value = (value == 0 ? 1 : value) *
                             Math.Abs(EvaluateLowestBasic(expression, provider, ref i, false, true));
+                    return value;
+                case '\u221a': //square root symbol
+                    if (isEvaluatedFirst && start != i)
+                        return value;
+                    i++;
+                    value = (value == 0 ? 1 : value) *
+                            Math.Sqrt(EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true));
+                    return value;
+                case '\u221b': //cube root symbol
+                    if (isEvaluatedFirst && start != i)
+                        return value;
+                    i++;
+                    value = (value == 0 ? 1 : value) *
+                            Math.Pow(EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true), 1 / 3d);
+                    return value;
+                case '\u221c': //fourth root symbol
+                    if (isEvaluatedFirst && start != i)
+                        return value;
+                    i++;
+                    value = (value == 0 ? 1 : value) *
+                            Math.Pow(EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true), 1 / 4d);
                     return value;
                 default:
                     value = EvaluateFnOrConstant(expression, provider, ref i, isFnParam, isAbs, value);
@@ -185,10 +210,6 @@ public static class MathEvaluator
         while (expression.Length > i)
             switch (expression[i])
             {
-                case '^':
-                    i++;
-                    value = Math.Pow(value, EvaluateBasic(expression, provider, ref i, isFnParam, isAbs));
-                    return value;
                 case 'π':
                     i++;
                     value = (value == 0 ? 1 : value) *
@@ -272,7 +293,7 @@ public static class MathEvaluator
 
         return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }
-    
+
     #region private static Try Evaluate Methods
 
     private static bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
@@ -315,14 +336,14 @@ public static class MathEvaluator
     {
         if (MathFn.TryGetTrigonometricFn(expression, ref i, out var trigFn) && trigFn != null)
         {
-            var a = EvaluateLowestBasic(expression, provider, ref i, isFnParam, isAbs);
+            var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
             value = (value == 0 ? 1 : value) * trigFn(a);
             return true;
         }
 
         if (MathFn.TryGetAbsFn(expression, ref i, out var absFn) && absFn != null)
         {
-            var a = EvaluateLowestBasic(expression, provider, ref i, isFnParam, isAbs);
+            var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
             value = (value == 0 ? 1 : value) * absFn(a);
             return true;
         }

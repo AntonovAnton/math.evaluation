@@ -25,6 +25,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", 2.323 * 323 - 1 / (2 + 3.33) * 4 - 6)]
     [InlineData("2 - 5 * 10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", 3 * 2 / (5d * 2))]
     public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
@@ -63,7 +64,10 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 ** 4", 81)]
     [InlineData("-3 ** 4", -81)]
     [InlineData("3^4", 81)]
+    [InlineData("3^4^2", 81 * 81 * 81 * 81)]
     [InlineData("2/3^4", 2 / 81d)]
+    [InlineData("0.5^2*3", 0.75d)]
+    [InlineData("0.5**2*3", 0.75d)]
     [InlineData("-3^4", -81)]
     [InlineData("(-3)^0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
@@ -173,7 +177,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
-    [InlineData("sin π/6", 0.49999999999999994d)]
+    [InlineData("sin 0.5π", 1d)]
+    [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
     [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
@@ -182,12 +187,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin( -3 * 2)", 0.27941549819892586d)]
     [InlineData("sin(-3)", -0.14112000805986721d)]
     [InlineData("3 + 2sin(PI)", 3.0000000000000004d)]
-    [InlineData("cos(60\u00b0)", 0.50000000000000011d)]
+    [InlineData("cos(60°)", 0.50000000000000011d)]
     [InlineData("Cos(30° + 30°)", 0.50000000000000011d)]
     [InlineData("COS((1/3)π)", 0.50000000000000011d)]
     [InlineData("sin(30°) + cos(60°)", 1d)]
     [InlineData("tan(0°)", 0)]
     [InlineData("Tan(45°)", 1d)]
+    [InlineData("Tan45°", 1d)]
     [InlineData("cot(0°)", double.NaN)]
     [InlineData("Cot(45°)", 1d)]
     [InlineData("sec(0°)", 1d)]
@@ -195,6 +201,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("csc(0°)", double.NaN)]
     [InlineData("Csc(30°)", 2.0000000000000004d)]
     [InlineData("CSC(90°)", 1d)]
+    [InlineData("sin0 + 3", 3d)]
+    [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -358,6 +366,31 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("abs(sin(-3))", 0.14112000805986721d)]
     [InlineData("|sin-3|", 0.14112000805986721d)]
     public void MathEvaluator_Evaluate_HasAbs_ExpectedValue(string? expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression!);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("\u221a25", 5)]
+    [InlineData("√0.25", 0.5)]
+    [InlineData("√0", 0)]
+    [InlineData("√-25", double.NaN)]
+    [InlineData("√(9*9)", 9)]
+    [InlineData("√9√9", 9)]
+    [InlineData("√9/√9", 1)]
+    [InlineData("√1", 1)]
+    [InlineData("1/√9", 1 / 3d)]
+    [InlineData("∛8", 2)]
+    [InlineData("∛-8", double.NaN)]
+    [InlineData("∛8∛8", 4)]
+    [InlineData("∜16", 2)]
+    [InlineData("∜-16", double.NaN)]
+    [InlineData("∜16∜16", 4)]
+    public void MathEvaluator_Evaluate_HasSquareRoot_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
