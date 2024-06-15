@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using MathTrigonometric;
 
 namespace MathEvaluation;
 
@@ -36,11 +37,11 @@ public static class MathEvaluator
         while (expression.Length > i)
             switch (expression[i])
             {
-                case '(':
+                case '(' or '[':
                     i++;
                     value = (value == 0 ? 1 : value) * EvaluateLowestBasic(expression, provider, ref i);
                     break;
-                case ')':
+                case ')' or ']':
                     i++;
                     while (expression.Length > i && expression[i] is ' ')
                         i++;
@@ -101,11 +102,11 @@ public static class MathEvaluator
         while (expression.Length > i)
             switch (expression[i])
             {
-                case '(':
+                case '(' or '[':
                     i++;
                     value = (value == 0 ? 1 : value) * EvaluateLowestBasic(expression, provider, ref i);
                     break;
-                case ')':
+                case ')' or ']':
                     return value;
                 case FnParamsSeparator when isFnParam:
                     return value;
@@ -227,7 +228,7 @@ public static class MathEvaluator
                     return value;
                 case '\u00b0': //degree symbol
                     i++;
-                    return MathFn.DegreesToRadians(value);
+                    return MathTrig.DegreesToRadians(value);
                 case '\u221e': //infinity symbol
                     i++;
                     return double.PositiveInfinity;
@@ -255,7 +256,7 @@ public static class MathEvaluator
         if (TryEvaluateFn(expression, provider, ref i, isFnParam, isAbs, ref value))
             return value;
 
-        var bracketCharIndex = expression[start..].IndexOf('(') + start;
+        var bracketCharIndex = expression[start..].IndexOfAny('(', '[') + start;
         var unknownSubstring = bracketCharIndex > i ? expression[start..bracketCharIndex] : expression[start..];
 
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported");
@@ -334,14 +335,14 @@ public static class MathEvaluator
     private static bool TryEvaluateFn(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
         bool isFnParam, bool isAbs, ref double value)
     {
-        if (MathFn.TryGetTrigonometricFn(expression, ref i, out var trigFn) && trigFn != null)
+        if (MathFnEvaluator.TryGetTrigonometricFn(expression, ref i, out var trigFn) && trigFn != null)
         {
             var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
             value = (value == 0 ? 1 : value) * trigFn(a);
             return true;
         }
 
-        if (MathFn.TryGetAbsFn(expression, ref i, out var absFn) && absFn != null)
+        if (MathFnEvaluator.TryGetAbsFn(expression, ref i, out var absFn) && absFn != null)
         {
             var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
             value = (value == 0 ? 1 : value) * absFn(a);
