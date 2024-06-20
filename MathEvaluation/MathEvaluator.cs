@@ -342,6 +342,13 @@ public static class MathEvaluator
             return true;
         }
 
+        if (MathFnEvaluator.TryGetLogarithmFn(expression, ref i, out var logFn) && logFn != null)
+        {
+            var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);
+            value = (value == 0 ? 1 : value) * logFn(a);
+            return true;
+        }
+
         if (MathFnEvaluator.TryGetAbsFn(expression, ref i, out var absFn) && absFn != null)
         {
             var a = EvaluateBasic(expression, provider, ref i, isFnParam, isAbs, true);

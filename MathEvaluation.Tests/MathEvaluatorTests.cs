@@ -416,6 +416,32 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("log(0)", double.NegativeInfinity)]
+    [InlineData("Log(1)", 0d)]
+    [InlineData("LOG(10)", 1d)]
+    [InlineData("LOG(e)", 0.43429448190325182d)]
+    [InlineData("log100", 2d)]
+    [InlineData("log(-100)", double.NaN)]
+    [InlineData("log(∞)", double.PositiveInfinity)]
+    [InlineData("ln(0)", double.NegativeInfinity)]
+    [InlineData("Ln(1)", 0d)]
+    [InlineData("LN(10)", 2.3025850929940459d)]
+    [InlineData("LNe", 1d)]
+    [InlineData("ln100", 4.6051701859880918d)]
+    [InlineData("ln-100", double.NaN)]
+    [InlineData("ln(∞)", double.PositiveInfinity)]
+    [InlineData("-2ln[1/0.5 + √(1/0.5^2 + 1)]", -2 * 1.4436354751788103d)]
+    public void MathEvaluator_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+
+    [Theory]
     [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]
     [InlineData("p", "'p' isn't supported")]
     public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression,
