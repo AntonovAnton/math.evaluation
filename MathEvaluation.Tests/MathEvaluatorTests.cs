@@ -440,6 +440,55 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(expectedValue, value, double.Epsilon);
     }
 
+    [Theory]
+    [InlineData("⌊-20.3⌋", -21d)]
+    [InlineData("-⌊20.3⌋", -20d)]
+    [InlineData("-⌊0⌋", 0d)]
+    [InlineData("⌊-0.1⌋", -1d)]
+    [InlineData("3⌊-5⌋", -15d)]
+    [InlineData("2 / ⌊-5⌋ / 2 * 5", 2d / -5 / 2 * 5)]
+    [InlineData("⌊2 + (5 - 1)⌋", 2 + (5 - 1))]
+    [InlineData("2(5 - ⌊-1⌋)", 2 * (5 + 1))]
+    [InlineData("⌊-(5 - 1)⌋(3 + 1)", -(3 + 1) * (5 - 1))]
+    [InlineData("(3 + 1)*⌊-(5 - 1)⌋", (3 + 1) * -(5 - 1))]
+    [InlineData("6 + ⌊( -4)⌋", 6 - 4)]
+    [InlineData("6 + - ⌊4⌋", 6 - 4)]
+    [InlineData("2 - 5 * ⌊-10⌋ / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("⌊sin3⌋", 0d)]
+    [InlineData("⌊sin-3⌋", -1d)]
+    public void MathEvaluator_Evaluate_HasFloor_ExpectedValue(string? expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression!);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
+
+    [Theory]
+    [InlineData("⌈-20.3⌉", -20d)]
+    [InlineData("-⌈20.3⌉", -21d)]
+    [InlineData("-⌈0⌉", 0d)]
+    [InlineData("⌈-0.1⌉", 0d)]
+    [InlineData("3⌈-5⌉", -15d)]
+    [InlineData("2 / ⌈-5⌉ / 2 * 5", 2d / -5 / 2 * 5)]
+    [InlineData("⌈2 + (5 - 1)⌉", 2 + (5 - 1))]
+    [InlineData("2(5 - ⌈-1⌉)", 2 * (5 + 1))]
+    [InlineData("⌈-(5 - 1)⌉(3 + 1)", -(3 + 1) * (5 - 1))]
+    [InlineData("(3 + 1)*⌈-(5 - 1)⌉", (3 + 1) * -(5 - 1))]
+    [InlineData("6 + ⌈( -4)⌉", 6 - 4)]
+    [InlineData("6 + - ⌈4⌉", 6 - 4)]
+    [InlineData("2 - 5 * ⌈-10⌉ / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("⌈sin3⌉", 1d)]
+    [InlineData("⌈sin-3⌉", 0d)]
+    public void MathEvaluator_Evaluate_HasCeiling_ExpectedValue(string? expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression!);
+
+        Assert.Equal(expectedValue, value, double.Epsilon);
+    }
 
     [Theory]
     [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]

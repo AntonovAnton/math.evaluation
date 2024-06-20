@@ -28,9 +28,7 @@ internal static class MathFnEvaluator
         fn = null;
 
         if (expression.Length <= i + 1 || expression[i] is not ('l' or 'L'))
-        {
             return fn != null;
-        }
 
         if (expression[i + 1] is 'n' or 'N')
         {
