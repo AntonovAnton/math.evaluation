@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Benchmarks-20240615-150001</title>
+<title>Benchmarks-20240620-165027</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -25,14 +25,14 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3737/23H2/2023Update/SunValley3
 <table>
 <thead><tr><th>Method                                                                                                                                 </th><th>Job</th><th>Runtime</th><th>Mean </th><th>Error</th><th>StdDev</th><th>Median</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>508.3290 ns</td><td>3.6492 ns</td><td>3.4135 ns</td><td>508.0180 ns</td><td>-</td>
-</tr><tr><td>&#39;Parse(&quot;22888.32&quot;) * Parse(&quot;30&quot;) / Parse(&quot;323.34&quot;) / Parse(&quot;.5&quot;) - Parse(&quot;-1&quot;) / (Parse(&quot;2&quot;) + Parse(&quot;22888.32&quot;)) * Parse(&quot;4&quot;) - Parse(&quot;6&quot;))&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>281.4396 ns</td><td>1.9442 ns</td><td>1.8186 ns</td><td>282.0523 ns</td><td>-</td>
-</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>0.0000 ns</td><td>0.0000 ns</td><td>0.0000 ns</td><td>0.0000 ns</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(PI/6) + cos(PI/3)&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>303.8210 ns</td><td>0.8157 ns</td><td>0.7231 ns</td><td>303.7688 ns</td><td>-</td>
-</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>475.4835 ns</td><td>1.6893 ns</td><td>1.5801 ns</td><td>475.5266 ns</td><td>-</td>
-</tr><tr><td>&#39;Parse(&quot;22888.32&quot;) * Parse(&quot;30&quot;) / Parse(&quot;323.34&quot;) / Parse(&quot;.5&quot;) - Parse(&quot;-1&quot;) / (Parse(&quot;2&quot;) + Parse(&quot;22888.32&quot;)) * Parse(&quot;4&quot;) - Parse(&quot;6&quot;))&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>296.3365 ns</td><td>1.9506 ns</td><td>1.7291 ns</td><td>295.4354 ns</td><td>-</td>
-</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>0.0095 ns</td><td>0.0102 ns</td><td>0.0095 ns</td><td>0.0074 ns</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(PI/6) + cos(PI/3)&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>217.1120 ns</td><td>0.4514 ns</td><td>0.4222 ns</td><td>217.1214 ns</td><td>-</td>
+</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>506.9898 ns</td><td>1.2269 ns</td><td>1.0876 ns</td><td>506.8174 ns</td><td>-</td>
+</tr><tr><td>&#39;Parse(&quot;22888.32&quot;) * Parse(&quot;30&quot;) / Parse(&quot;323.34&quot;) / Parse(&quot;.5&quot;) - Parse(&quot;-1&quot;) / (Parse(&quot;2&quot;) + Parse(&quot;22888.32&quot;)) * Parse(&quot;4&quot;) - Parse(&quot;6&quot;))&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>280.2264 ns</td><td>1.9487 ns</td><td>1.8228 ns</td><td>279.6674 ns</td><td>-</td>
+</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>0.0004 ns</td><td>0.0018 ns</td><td>0.0015 ns</td><td>0.0000 ns</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(PI/6) + cos(PI/3)&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>311.7839 ns</td><td>3.6885 ns</td><td>3.4503 ns</td><td>312.9354 ns</td><td>-</td>
+</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>515.4397 ns</td><td>1.5688 ns</td><td>1.3100 ns</td><td>515.1299 ns</td><td>-</td>
+</tr><tr><td>&#39;Parse(&quot;22888.32&quot;) * Parse(&quot;30&quot;) / Parse(&quot;323.34&quot;) / Parse(&quot;.5&quot;) - Parse(&quot;-1&quot;) / (Parse(&quot;2&quot;) + Parse(&quot;22888.32&quot;)) * Parse(&quot;4&quot;) - Parse(&quot;6&quot;))&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>288.4155 ns</td><td>4.6633 ns</td><td>4.3620 ns</td><td>285.6955 ns</td><td>-</td>
+</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>0.0224 ns</td><td>0.0236 ns</td><td>0.0221 ns</td><td>0.0172 ns</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(PI/6) + cos(PI/3)&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>201.3048 ns</td><td>0.5640 ns</td><td>0.5276 ns</td><td>201.4421 ns</td><td>-</td>
 </tr></tbody></table>
 </body>
 </html>

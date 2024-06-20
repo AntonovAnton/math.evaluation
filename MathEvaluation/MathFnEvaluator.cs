@@ -22,6 +22,30 @@ internal static class MathFnEvaluator
         return true;
     }
 
+    internal static bool TryGetLogarithmFn(ReadOnlySpan<char> expression, ref int i,
+        out Func<double, double>? fn)
+    {
+        fn = null;
+
+        if (expression.Length <= i + 1 || expression[i] is not ('l' or 'L'))
+        {
+            return fn != null;
+        }
+
+        if (expression[i + 1] is 'n' or 'N')
+        {
+            fn = Math.Log;
+            i += 2;
+        }
+        else if (expression.Length > i + 2 && expression[i + 1] is 'o' or 'O' && expression[i + 2] is 'g' or 'G')
+        {
+            i += 3;
+            fn = Math.Log10;
+        }
+
+        return fn != null;
+    }
+
     internal static bool TryGetTrigonometricFn(ReadOnlySpan<char> expression, ref int i,
         out Func<double, double>? fn)
     {
