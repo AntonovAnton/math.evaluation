@@ -35,7 +35,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression!);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -58,7 +58,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
         var value = MathEvaluator.Evaluate(expression, cultureInfo);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -79,7 +79,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -95,7 +95,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -114,7 +114,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -127,7 +127,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -152,7 +152,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -173,7 +173,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -182,7 +182,9 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
+    [InlineData("Sin(π/12 + π/12)", 0.49999999999999994d)]
     [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
+    [InlineData("sin(1 + 2.4)", -0.25554110202683122d)]
     [InlineData("sin(3.4)", -0.25554110202683122d)]
     [InlineData("sin( +3.4)", -0.25554110202683122d)]
     [InlineData("sin( -3 * 2)", 0.27941549819892586d)]
@@ -210,7 +212,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -247,7 +249,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -297,7 +299,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -361,7 +363,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -381,13 +383,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 / ABS(  -(9/3))", 1d)]
     [InlineData("abs(sin(-3))", 0.14112000805986721d)]
     [InlineData("|sin-3|", 0.14112000805986721d)]
-    public void MathEvaluator_Evaluate_HasAbs_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasAbs_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!);
+        var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -406,13 +408,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("∜16", 2)]
     [InlineData("∜-16", double.NaN)]
     [InlineData("∜16∜16", 4)]
-    public void MathEvaluator_Evaluate_HasSquareRoot_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasSquareRoot_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!);
+        var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -437,7 +439,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -456,13 +458,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * ⌊-10⌋ / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("⌊sin3⌋", 0d)]
     [InlineData("⌊sin-3⌋", -1d)]
-    public void MathEvaluator_Evaluate_HasFloor_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasFloor_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!);
+        var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -481,13 +483,47 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * ⌈-10⌉ / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("⌈sin3⌉", 1d)]
     [InlineData("⌈sin-3⌉", 0d)]
-    public void MathEvaluator_Evaluate_HasCeiling_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasCeiling_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!);
+        var value = MathEvaluator.Evaluate(expression);
 
-        Assert.Equal(expectedValue, value, double.Epsilon);
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("x", "x", 0.5, 0.5d)]
+    [InlineData("2x", "x", 0.5, 1d)]
+    [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
+    [InlineData("2 * Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, 2 * Math.PI)]
+    public void MathEvaluator_Evaluate_HasVariable_ExpectedValue(string expression, string varName,
+        double varValue, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{varName} = {varValue}");
+
+        var value = expression
+            .BindVariable(varValue, varName)
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("ln[1/-x1 + √(1/x2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
+    public void MathEvaluator_Evaluate_HasVariables_ExpectedValue(string expression,
+        double x1, double x2, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
+
+        var value = expression
+            .Bind(new { x1, x2 })
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
