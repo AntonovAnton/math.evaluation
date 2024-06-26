@@ -3,6 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using MathEvaluation;
+using MathEvaluation.Context;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -15,6 +16,8 @@ public class Benchmarks
 {
     private const double a = Math.PI / 6;
     private const double b = Math.PI / 3;
+
+    private IMathContext _scientificContext = new ScientificMathContext();
 
     [Benchmark(Description = "\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\".Evaluate()")]
     public double MathEvaluator_Evaluate_ComplexExpression()
@@ -37,15 +40,15 @@ public class Benchmarks
         return 22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6;
     }
 
-    [Benchmark(Description = "\"sin(PI/6) + cos(PI/3)\".Evaluate()")]
+    [Benchmark(Description = "\"sin(PI/6) + cos(PI/3)\".SetContext(_scientificContext).Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_ComplexExpression()
     {
-        return "sin(PI/6) + cos(PI/3)".Evaluate();
+        return "sin(PI/6) + cos(PI/3)".SetContext(_scientificContext).Evaluate();
     }
 
-    [Benchmark(Description = "\"sin(a) + cos(b)\".Bind(new { a, b }).Evaluate()")]
+    [Benchmark(Description = "\"sin(a) + cos(b)\".SetContext(_scientificContext).Bind(new { a, b }).Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_HasVariables_ComplexExpression()
     {
-        return "sin(a) + cos(b)".Bind(new { a, b }).Evaluate();
+        return "sin(a) + cos(b)".SetContext(_scientificContext).Bind(new { a, b }).Evaluate();
     }
 }

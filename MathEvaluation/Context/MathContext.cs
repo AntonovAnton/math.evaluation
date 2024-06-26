@@ -34,23 +34,9 @@ public class MathContext : IMathContext
         _mathContextTrie.AddMathOperand(new MathOperand(name, value));
     }
 
-
-    private static bool IsNumericType(Type type)
+    protected virtual bool TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
+        bool isAbs, bool isEvaluatedFirst, ref double value)
     {
-        return Type.GetTypeCode(type) switch
-        {
-            TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
-                or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double or TypeCode.Decimal => true,
-            _ => false
-        };
-    }
-
-    #region explicit IMathContext implementation
-
-    bool IMathContext.TryEvaluateMathOperand(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator, bool isAbs, out double value)
-    {
-        value = 0;
-
         var operand = _mathContextTrie.FindMathOperand(expression[i..]);
         if (operand == null)
         {
@@ -58,8 +44,23 @@ public class MathContext : IMathContext
         }
 
         i += operand.Name.Length;
-        value = operand.Value;
+        value = (value == 0 ? 1 : value) * operand.Value;
         return true;
+    }
+
+    private static bool IsNumericType(Type type) => Type.GetTypeCode(type) switch
+    {
+        TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
+            or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double or TypeCode.Decimal => true,
+        _ => false
+    };
+
+    #region explicit IMathContext
+
+    bool IMathContext.TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
+        bool isAbs, bool isEvaluatedFirst, ref double value)
+    {
+        return TryEvaluate(expression, provider, ref i, separator, isAbs, isEvaluatedFirst, ref value);
     }
 
     #endregion

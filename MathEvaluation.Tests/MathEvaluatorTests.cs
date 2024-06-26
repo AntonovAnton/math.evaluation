@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using MathEvaluation.Context;
+using System.Globalization;
 using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests;
@@ -8,7 +9,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData(null, double.NaN)]
     [InlineData("", double.NaN)]
-    [InlineData("undefined", double.NaN)]
+    [InlineData("0/0", double.NaN)]
     [InlineData("   ", double.NaN)]
     [InlineData("+", double.NaN)]
     [InlineData("-", double.NaN)]
@@ -18,7 +19,6 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2(5 - 1)", 2 * (5 - 1))]
     [InlineData("(3 + 1) (5 - 1)", (3 + 1) * (5 - 1))]
     [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("2 + (5 * 2 - 1)", 2 + (5 * 2 - 1))]
     [InlineData("4 * 0.1 - 2", 4 * 0.1 - 2)]
     [InlineData("6 + -( -4)", 6 + - -4)]
@@ -28,12 +28,23 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
-    [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", 3 * 2 / (5d * 2))]
     public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var value = MathEvaluator.Evaluate(expression!);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 · 2)\u00f7(5 \u00d7 2)", 3 * 2 / (5d * 2))]
+    public void MathEvaluator_Evaluate_HasScientificNotation_ExpectedValue(string? expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression!, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -62,17 +73,14 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("3 ** 4", 81)]
-    [InlineData("-3 ** 4", -81)]
-    [InlineData("3^4", 81)]
-    [InlineData("3^4^2", 81 * 81 * 81 * 81)]
-    [InlineData("2/3^4", 2 / 81d)]
-    [InlineData("0.5^2*3", 0.75d)]
+    [InlineData("3**4", 81)]
+    [InlineData("3**4**2", 81 * 81 * 81 * 81)]
+    [InlineData("2/3**4", 2 / 81d)]
     [InlineData("0.5**2*3", 0.75d)]
-    [InlineData("-3^4", -81)]
-    [InlineData("(-3)^0.5", double.NaN)]
-    [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("-3**4", -81)]
+    [InlineData("(-3)**0.5", double.NaN)]
+    [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathEvaluator_Evaluate_HasPower_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -83,17 +91,46 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("3^4", 81)]
+    [InlineData("3^4^2", 81 * 81 * 81 * 81)]
+    [InlineData("2/3^4", 2 / 81d)]
+    [InlineData("0.5^2*3", 0.75d)]
+    [InlineData("-3^4", -81)]
+    [InlineData("(-3)^0.5", double.NaN)]
+    [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    public void MathEvaluator_Evaluate_HasScientificPower_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("4 % 3", 1)]
-    [InlineData("4 mod 3", 1)]
-    [InlineData("4 mod 3 - 2", -1)]
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
-    [InlineData("3 - 4.5 mod 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathEvaluator_Evaluate_HasModulus_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var value = MathEvaluator.Evaluate(expression);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("4 mod 3", 1)]
+    [InlineData("4 modulo 3 - 2", -1)]
+    [InlineData("3 - 4.5 Modulo 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
+    [InlineData("3 - 2 / 4.5 MOD 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
+    public void MathEvaluator_Evaluate_HasScientificModulus_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -125,7 +162,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -144,13 +181,13 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("+ππ", Math.PI * Math.PI)]
     [InlineData("pi", Math.PI)]
     [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
-    [InlineData("Pi()((5 - 1))", 4 * Math.PI)]
+    [InlineData("Pi((5 - 1))", 4 * Math.PI)]
     [InlineData("1/2PI", 1 / (2 * Math.PI))]
     public void MathEvaluator_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -171,7 +208,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -210,7 +247,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -247,7 +284,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -297,7 +334,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -361,7 +398,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -387,7 +424,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -412,7 +449,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -437,7 +474,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -462,7 +499,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -487,7 +524,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, new ScientificMathContext());
 
         Assert.Equal(expectedValue, value);
     }
@@ -505,6 +542,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{varName} = {varValue}");
 
         var value = expression
+            .SetContext(new ScientificMathContext())
             .BindVariable(varValue, varName)
             .Evaluate();
 
@@ -520,6 +558,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
         var value = expression
+            .SetContext(new ScientificMathContext())
             .Bind(new { x1, x2 })
             .Evaluate();
 
@@ -542,12 +581,12 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void MathEvaluator_Evaluate_HasIncorrectNumberFormat_ThrowFormatException()
     {
-        var expression = "’888.32 CHF";
+        var expression = "888,32 CHF";
         var cultureInfo = new CultureInfo("de-CH");
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, cultureInfo));
         Assert.IsType<FormatException>(ex);
-        Assert.Contains("The input string '’888.32' was not in a correct format", ex.Message);
+        Assert.Contains("The input string '888,32' was not in a correct format", ex.Message);
     }
 }

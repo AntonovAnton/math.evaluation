@@ -6,25 +6,33 @@ namespace MathEvaluation;
 
 public static class StringExtensions
 {
+    public static MathEvaluator SetContext(this string expression, IMathContext context)
+    {
+        return new MathEvaluator(expression)
+        {
+            Context = context
+        };
+    }
+
     public static MathEvaluator Bind(this string expression, object variables)
     {
-        var mathContext = new MathContext();
-        mathContext.Bind(variables);
+        var context = new MathContext();
+        context.Bind(variables);
 
         return new MathEvaluator(expression)
         {
-            Context = mathContext
+            Context = context
         };
     }
 
     public static MathEvaluator BindVariable(this string expression, double value, [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        var mathContext = new MathContext();
-        mathContext.BindVariable(value, name);
+        var context = new MathContext();
+        context.BindVariable(value, name);
 
         return new MathEvaluator(expression)
         {
-            Context = mathContext
+            Context = context
         };
     }
 
