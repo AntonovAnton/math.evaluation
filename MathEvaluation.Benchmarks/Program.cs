@@ -40,10 +40,10 @@ public class Benchmarks
         return 22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6;
     }
 
-    [Benchmark(Description = "\"sin(PI/6) + cos(PI/3)\".SetContext(_scientificContext).Evaluate()")]
+    [Benchmark(Description = "\"sin(pi/6) + cos(pi/3)\".SetContext(_scientificContext).Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_ComplexExpression()
     {
-        return "sin(PI/6) + cos(PI/3)".SetContext(_scientificContext).Evaluate();
+        return "sin(pi/6) + cos(pi/3)".SetContext(_scientificContext).Evaluate();
     }
 
     [Benchmark(Description = "\"sin(a) + cos(b)\".SetContext(_scientificContext).Bind(new { a, b }).Evaluate()")]

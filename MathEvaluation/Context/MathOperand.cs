@@ -1,8 +1,16 @@
-﻿namespace MathEvaluation.Context;
+﻿using System;
 
-internal class MathOperand(string name, double value)
+namespace MathEvaluation.Context;
+
+internal class MathOperand<T> : IMathOperand
 {
-    public string Name { get; } = name;
+    public string Name { get; }
 
-    public double Value { get; } = value;
+    public MathOperand(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentNullException(nameof(name));
+
+        Name = name;
+    }
 }

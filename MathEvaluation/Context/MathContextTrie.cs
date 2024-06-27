@@ -12,17 +12,17 @@ internal sealed class MathContextTrie
 {
     private TrieNode _rootNode = new();
 
-    public void AddMathOperand(MathOperand operand)
+    public void AddMathOperand(IMathOperand operand)
     {
         AddMathOperand(_rootNode, operand.Name.AsSpan(), operand);
     }
 
-    public MathOperand? FindMathOperand(ReadOnlySpan<char> expression)
+    public IMathOperand? FindMathOperand(ReadOnlySpan<char> expression)
     {
         return FindMathOperand(_rootNode, expression);
     }
 
-    private void AddMathOperand(TrieNode trieNode, ReadOnlySpan<char> name, MathOperand operand)
+    private void AddMathOperand(TrieNode trieNode, ReadOnlySpan<char> name, IMathOperand operand)
     {
         if (name.IsEmpty)
         {
@@ -65,15 +65,11 @@ internal sealed class MathContextTrie
         }
     }
 
-    private MathOperand? FindMathOperand(TrieNode trieNode, ReadOnlySpan<char> expression)
+    private IMathOperand? FindMathOperand(TrieNode trieNode, ReadOnlySpan<char> expression)
     {
         if (!expression.IsEmpty && trieNode.Children.TryGetValue(expression[0], out var childTreeNode))
         {
-            var findedOperand = FindMathOperand(childTreeNode, expression[1..]);
-            if (findedOperand == null)
-                return childTreeNode.Operand;
-
-            return findedOperand;
+            return FindMathOperand(childTreeNode, expression[1..]);
         }
 
         if (expression.StartsWith(trieNode.RemainingKey))
@@ -86,13 +82,13 @@ internal sealed class MathContextTrie
 
     #region private nested class TrieNode
 
-    private class TrieNode(string remainingKey = "", MathOperand? operand = null)
+    private class TrieNode(string remainingKey = "", IMathOperand? operand = null)
     {
         public Dictionary<char, TrieNode> Children { get; } = new();
 
         public string RemainingKey { get; internal set; } = remainingKey;
 
-        public MathOperand? Operand { get; internal set; } = operand;
+        public IMathOperand? Operand { get; internal set; } = operand;
     }
 
     #endregion

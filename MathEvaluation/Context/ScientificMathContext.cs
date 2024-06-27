@@ -5,36 +5,166 @@ namespace MathEvaluation.Context
 {
     public class ScientificMathContext : MathContext, IScientificMathContext
     {
-        protected override bool TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
-            bool isAbs, bool isEvaluatedFirst, ref double value)
+        public ScientificMathContext()
         {
-            if (base.TryEvaluate(expression, provider, ref i, separator, isAbs, isEvaluatedFirst, ref value))
+            BindConstant(Math.PI, "π");
+            BindConstant(Math.PI, "pi");
+            BindConstant(Math.PI, "Pi");
+            BindConstant(Math.PI, "PI");
+            BindConstant(Math.E, "e");
+            BindConstant(Math.PI * 2, "τ");
+            BindConstant(double.PositiveInfinity, "\u221e"); //infinity symbol
+
+            BindFunction(Math.Abs, '|', '|');
+            BindFunction(Math.Ceiling, '⌈', '⌉');
+            BindFunction(Math.Floor, '⌊', '⌋');
+            BindFunction(value => value, '[', ']');
+
+            BindFunction(Math.Abs, "abs");
+            BindFunction(Math.Abs, "Abs");
+            BindFunction(Math.Abs, "ABS");
+            BindFunction(Math.Log, "ln");
+            BindFunction(Math.Log, "Ln");
+            BindFunction(Math.Log, "LN");
+            BindFunction(Math.Log10, "log");
+            BindFunction(Math.Log10, "Log");
+            BindFunction(Math.Log10, "LOG");
+
+            #region trigonometric functions
+
+            BindConverter(MathTrig.DegreesToRadians, "\u00b0"); //degree symbol
+
+            BindFunction(MathTrig.Sin, "sin");
+            BindFunction(MathTrig.Sin, "Sin");
+            BindFunction(MathTrig.Sin, "SIN");
+            BindFunction(MathTrig.Cos, "cos");
+            BindFunction(MathTrig.Cos, "Cos");
+            BindFunction(MathTrig.Cos, "COS");
+            BindFunction(MathTrig.Tan, "tan");
+            BindFunction(MathTrig.Tan, "Tan");
+            BindFunction(MathTrig.Tan, "TAN");
+            BindFunction(MathTrig.Sec, "sec");
+            BindFunction(MathTrig.Sec, "Sec");
+            BindFunction(MathTrig.Sec, "SEC");
+            BindFunction(MathTrig.Csc, "csc");
+            BindFunction(MathTrig.Csc, "Csc");
+            BindFunction(MathTrig.Csc, "CSC");
+            BindFunction(MathTrig.Cot, "cot");
+            BindFunction(MathTrig.Cot, "Cot");
+            BindFunction(MathTrig.Cot, "COT");
+
+            BindFunction(MathTrig.Sinh, "sinh");
+            BindFunction(MathTrig.Sinh, "Sinh");
+            BindFunction(MathTrig.Sinh, "SINH");
+            BindFunction(MathTrig.Cosh, "cosh");
+            BindFunction(MathTrig.Cosh, "Cosh");
+            BindFunction(MathTrig.Cosh, "COSH");
+            BindFunction(MathTrig.Tanh, "tanh");
+            BindFunction(MathTrig.Tanh, "Tanh");
+            BindFunction(MathTrig.Tanh, "TANH");
+            BindFunction(MathTrig.Sech, "sech");
+            BindFunction(MathTrig.Sech, "Sech");
+            BindFunction(MathTrig.Sech, "SECH");
+            BindFunction(MathTrig.Csch, "csch");
+            BindFunction(MathTrig.Csch, "Csch");
+            BindFunction(MathTrig.Csch, "CSCH");
+            BindFunction(MathTrig.Coth, "coth");
+            BindFunction(MathTrig.Coth, "Coth");
+            BindFunction(MathTrig.Coth, "COTH");
+
+            BindFunction(MathTrig.Asin, "asin");
+            BindFunction(MathTrig.Asin, "Asin");
+            BindFunction(MathTrig.Asin, "ASIN");
+            BindFunction(MathTrig.Acos, "acos");
+            BindFunction(MathTrig.Acos, "Acos");
+            BindFunction(MathTrig.Acos, "ACOS");
+            BindFunction(MathTrig.Atan, "atan");
+            BindFunction(MathTrig.Atan, "Atan");
+            BindFunction(MathTrig.Atan, "ATAN");
+            BindFunction(MathTrig.Asec, "asec");
+            BindFunction(MathTrig.Asec, "Asec");
+            BindFunction(MathTrig.Asec, "ASEC");
+            BindFunction(MathTrig.Acsc, "acsc");
+            BindFunction(MathTrig.Acsc, "Acsc");
+            BindFunction(MathTrig.Acsc, "ACSC");
+            BindFunction(MathTrig.Acot, "acot");
+            BindFunction(MathTrig.Acot, "Acot");
+            BindFunction(MathTrig.Acot, "ACOT");
+
+            BindFunction(MathTrig.Asinh, "asinh");
+            BindFunction(MathTrig.Asinh, "Asinh");
+            BindFunction(MathTrig.Asinh, "ASINH");
+            BindFunction(MathTrig.Acosh, "acosh");
+            BindFunction(MathTrig.Acosh, "Acosh");
+            BindFunction(MathTrig.Acosh, "ACOSH");
+            BindFunction(MathTrig.Atanh, "atanh");
+            BindFunction(MathTrig.Atanh, "Atanh");
+            BindFunction(MathTrig.Atanh, "ATANH");
+            BindFunction(MathTrig.Asech, "asech");
+            BindFunction(MathTrig.Asech, "Asech");
+            BindFunction(MathTrig.Asech, "ASECH");
+            BindFunction(MathTrig.Acsch, "acsch");
+            BindFunction(MathTrig.Acsch, "Acsch");
+            BindFunction(MathTrig.Acsch, "ACSCH");
+            BindFunction(MathTrig.Acoth, "acoth");
+            BindFunction(MathTrig.Acoth, "Acoth");
+            BindFunction(MathTrig.Acoth, "ACOTH");
+
+            BindFunction(MathTrig.Asin, "arcsin");
+            BindFunction(MathTrig.Asin, "Arcsin");
+            BindFunction(MathTrig.Asin, "ARCSIN");
+            BindFunction(MathTrig.Acos, "arccos");
+            BindFunction(MathTrig.Acos, "Arccos");
+            BindFunction(MathTrig.Acos, "ARCCOS");
+            BindFunction(MathTrig.Atan, "arctan");
+            BindFunction(MathTrig.Atan, "Arctan");
+            BindFunction(MathTrig.Atan, "ARCTAN");
+            BindFunction(MathTrig.Asec, "arcsec");
+            BindFunction(MathTrig.Asec, "Arcsec");
+            BindFunction(MathTrig.Asec, "ARCSEC");
+            BindFunction(MathTrig.Acsc, "arccsc");
+            BindFunction(MathTrig.Acsc, "Arccsc");
+            BindFunction(MathTrig.Acsc, "ARCCSC");
+            BindFunction(MathTrig.Acot, "arccot");
+            BindFunction(MathTrig.Acot, "Arccot");
+            BindFunction(MathTrig.Acot, "ARCCOT");
+
+            BindFunction(MathTrig.Asinh, "arsinh");
+            BindFunction(MathTrig.Asinh, "Arsinh");
+            BindFunction(MathTrig.Asinh, "ARSINH");
+            BindFunction(MathTrig.Acosh, "arcosh");
+            BindFunction(MathTrig.Acosh, "Arcosh");
+            BindFunction(MathTrig.Acosh, "ARCOSH");
+            BindFunction(MathTrig.Atanh, "artanh");
+            BindFunction(MathTrig.Atanh, "Artanh");
+            BindFunction(MathTrig.Atanh, "ARTANH");
+            BindFunction(MathTrig.Asech, "arsech");
+            BindFunction(MathTrig.Asech, "Arsech");
+            BindFunction(MathTrig.Asech, "ARSECH");
+            BindFunction(MathTrig.Acsch, "arcsch");
+            BindFunction(MathTrig.Acsch, "Arcsch");
+            BindFunction(MathTrig.Acsch, "ARCSCH");
+            BindFunction(MathTrig.Acoth, "arcoth");
+            BindFunction(MathTrig.Acoth, "Arcoth");
+            BindFunction(MathTrig.Acoth, "ARCOTH");
+
+            #endregion
+        }
+
+        protected override bool TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
+            bool isEvaluatedFirst, ref double value)
+        {
+            if (base.TryEvaluate(expression, provider, ref i, separator, isEvaluatedFirst, ref value))
                 return true;
 
-            if (TryEvaluateModulus(expression, provider, ref i, separator, isAbs, isEvaluatedFirst, ref value))
+            if (TryEvaluateModulus(expression, provider, ref i, separator, isEvaluatedFirst, ref value))
                 return true;
-
-            if (TryEvaluatePi(expression, ref i, ref value))
-                return true;
-
-            if (!TryGetTrigonometricFn(expression, ref i, out var fn))
-                if (TryGetLogarithmFn(expression, ref i, out var logFn))
-                    fn = logFn;
-                else if (TryGetAbsFn(expression, ref i, out var absFn))
-                    fn = absFn;
-
-            if (fn != null)
-            {
-                var a = MathEvaluator.EvaluateBasic(expression, this, provider, ref i, separator, isAbs, true);
-                value = (value == 0 ? 1 : value) * fn(a);
-                return true;
-            }
 
             return false;
         }
 
         private bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
-            bool isAbs, bool isEvaluatedFirst, ref double value)
+            bool isEvaluatedFirst, ref double value)
         {
             const string fn = "mod";
             if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
@@ -49,216 +179,7 @@ namespace MathEvaluation.Context
             if (expression[i..].StartsWith("ulo", StringComparison.InvariantCultureIgnoreCase))
                 i += 3;
 
-            value %= MathEvaluator.EvaluateBasic(expression, this, provider, ref i, separator, isAbs, true);
-            return true;
-        }
-
-        private static bool TryEvaluatePi(ReadOnlySpan<char> expression, ref int i, ref double value)
-        {
-            if (expression.Length <= i + 1 || expression[i] is not ('p' or 'P') || expression[i + 1] is not ('i' or 'I'))
-                return false;
-
-            i += 2;
-            value = (value == 0 ? 1 : value) * Math.PI;
-            return true;
-        }
-
-        private static bool TryGetAbsFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn)
-        {
-            fn = null;
-            if (expression.Length <= i + 2)
-                return false;
-
-            if (expression[i] is 'a' or 'A' && expression[i + 1] is 'b' or 'B' && expression[i + 2] is 's' or 'S')
-                fn = Math.Abs;
-
-            if (fn == null)
-                return false;
-
-            i += 3;
-            return true;
-        }
-
-        private static bool TryGetLogarithmFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn)
-        {
-            fn = null;
-
-            if (expression.Length <= i + 1 || expression[i] is not ('l' or 'L'))
-                return fn != null;
-
-            if (expression[i + 1] is 'n' or 'N')
-            {
-                i += 2;
-                fn = Math.Log;
-            }
-            else if (expression.Length > i + 2 && expression[i + 1] is 'o' or 'O' && expression[i + 2] is 'g' or 'G')
-            {
-                i += 3;
-                fn = Math.Log10;
-            }
-
-            return fn != null;
-        }
-
-        private static bool TryGetTrigonometricFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn)
-        {
-            if (expression.Length > i + 5)
-                if (expression[i] is 'a' or 'A' && expression[i + 1] is 'r' or 'R')
-                {
-                    if (expression[i + 5] is 'h' or 'H')
-                        return TryGetInverseHyperbolicFn(expression, ref i, out fn, 2);
-
-                    if (expression[i + 2] is 'c' or 'C')
-                        return TryGetInverseTrigonometricFn(expression, ref i, out fn, 3);
-                }
-
-            if (expression.Length > i + 3)
-            {
-                if (expression[i] is 'a' or 'A')
-                {
-                    if (expression.Length > i + 4 && expression[i + 4] is 'h' or 'H')
-                        return TryGetInverseHyperbolicFn(expression, ref i, out fn, 1);
-
-                    return TryGetInverseTrigonometricFn(expression, ref i, out fn, 1);
-                }
-
-                if (expression[i + 3] is 'h' or 'H')
-                    return TryGetHyperbolicFn(expression, ref i, out fn);
-            }
-
-            fn = null;
-            if (expression.Length <= i + 2)
-                return false;
-
-            fn = expression[i] switch
-            {
-                's' or 'S' => expression[i + 1] switch
-                {
-                    'i' or 'I' when expression[i + 2] is 'n' or 'N' => MathTrig.Sin,
-                    'e' or 'E' when expression[i + 2] is 'c' or 'C' => MathTrig.Sec,
-                    _ => null
-                },
-                'c' or 'C' => expression[i + 1] switch
-                {
-                    'o' or 'O' when expression[i + 2] is 's' or 'S' => MathTrig.Cos,
-                    'o' or 'O' when expression[i + 2] is 't' or 'T' => MathTrig.Cot,
-                    's' or 'S' when expression[i + 2] is 'c' or 'C' => MathTrig.Csc,
-                    _ => null
-                },
-                't' or 'T' => expression[i + 1] switch
-                {
-                    'a' or 'A' when expression[i + 2] is 'n' or 'N' => MathTrig.Tan,
-                    _ => null
-                },
-                _ => null
-            };
-
-            if (fn == null)
-                return false;
-
-            i += 3;
-            return true;
-        }
-
-        private static bool TryGetHyperbolicFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn)
-        {
-            fn = expression[i] switch
-            {
-                's' or 'S' => expression[i + 1] switch
-                {
-                    'i' or 'I' when expression[i + 2] is 'n' or 'N' => MathTrig.Sinh,
-                    'e' or 'E' when expression[i + 2] is 'c' or 'C' => MathTrig.Sech,
-                    _ => null
-                },
-                'c' or 'C' => expression[i + 1] switch
-                {
-                    'o' or 'O' when expression[i + 2] is 's' or 'S' => MathTrig.Cosh,
-                    'o' or 'O' when expression[i + 2] is 't' or 'T' => MathTrig.Coth,
-                    's' or 'S' when expression[i + 2] is 'c' or 'C' => MathTrig.Csch,
-                    _ => null
-                },
-                't' or 'T' => expression[i + 1] switch
-                {
-                    'a' or 'A' when expression[i + 2] is 'n' or 'N' => MathTrig.Tanh,
-                    _ => null
-                },
-                _ => null
-            };
-
-            if (fn == null)
-                return false;
-
-            i += 4;
-            return true;
-        }
-
-        private static bool TryGetInverseTrigonometricFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn, int indexShift)
-        {
-            fn = expression[i + indexShift] switch
-            {
-                's' or 'S' => expression[i + indexShift + 1] switch
-                {
-                    'i' or 'I' when expression[i + indexShift + 2] is 'n' or 'N' => MathTrig.Asin,
-                    'e' or 'E' when expression[i + indexShift + 2] is 'c' or 'C' => MathTrig.Asec,
-                    _ => null
-                },
-                'c' or 'C' => expression[i + indexShift + 1] switch
-                {
-                    'o' or 'O' when expression[i + indexShift + 2] is 's' or 'S' => MathTrig.Acos,
-                    'o' or 'O' when expression[i + indexShift + 2] is 't' or 'T' => MathTrig.Acot,
-                    's' or 'S' when expression[i + indexShift + 2] is 'c' or 'C' => MathTrig.Acsc,
-                    _ => null
-                },
-                't' or 'T' => expression[i + indexShift + 1] switch
-                {
-                    'a' or 'A' when expression[i + indexShift + 2] is 'n' or 'N' => MathTrig.Atan,
-                    _ => null
-                },
-                _ => null
-            };
-
-            if (fn == null)
-                return false;
-
-            i = i + 3 + indexShift;
-            return true;
-        }
-
-        private static bool TryGetInverseHyperbolicFn(ReadOnlySpan<char> expression, ref int i,
-            out Func<double, double>? fn, int indexShift)
-        {
-            fn = expression[i + indexShift] switch
-            {
-                's' or 'S' => expression[i + indexShift + 1] switch
-                {
-                    'i' or 'I' when expression[i + indexShift + 2] is 'n' or 'N' => MathTrig.Asinh,
-                    'e' or 'E' when expression[i + indexShift + 2] is 'c' or 'C' => MathTrig.Asech,
-                    _ => null
-                },
-                'c' or 'C' => expression[i + indexShift + 1] switch
-                {
-                    'o' or 'O' when expression[i + indexShift + 2] is 's' or 'S' => MathTrig.Acosh,
-                    'o' or 'O' when expression[i + indexShift + 2] is 't' or 'T' => MathTrig.Acoth,
-                    's' or 'S' when expression[i + indexShift + 2] is 'c' or 'C' => MathTrig.Acsch,
-                    _ => null
-                },
-                't' or 'T' => expression[i + indexShift + 1] switch
-                {
-                    'a' or 'A' when expression[i + indexShift + 2] is 'n' or 'N' => MathTrig.Atanh,
-                    _ => null
-                },
-                _ => null
-            };
-
-            if (fn == null)
-                return false;
-
-            i = i + 4 + indexShift;
+            value %= MathEvaluator.EvaluateBasic(expression, this, provider, ref i, separator, true);
             return true;
         }
     }
