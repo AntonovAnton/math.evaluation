@@ -9,6 +9,8 @@ public interface IMathContext
 
     void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? name = null);
 
+    void BindFunction(Func<double, double> value, [CallerArgumentExpression(nameof(value))] string? name = null);
+
     internal bool TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i,
-        char? separator, bool isAbs, bool isEvaluatedFirst, ref double value);
+        char? separator, bool isEvaluatedFirst, ref double value);
 }

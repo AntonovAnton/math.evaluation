@@ -50,7 +50,7 @@ public class MathEvaluator(string expression)
     }
 
     internal static double EvaluateLowestBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator = null, bool isAbs = false, double value = default)
+        ref int i, char? separator = null, double value = default)
     {
         while (expression.Length > i)
         {
@@ -68,40 +68,9 @@ public class MathEvaluator(string expression)
                 case ' ':
                     i++;
                     break;
-                case '(':
-                case '[' when context is IScientificMathContext:
-                    i++;
-                    value = (value == 0 ? 1 : value) * EvaluateLowestBasic(expression, context, provider, ref i);
-                    break;
-                case ')' or ']' when context is IScientificMathContext:
-                    i++;
-                    while (expression.Length > i && expression[i] is ' ')
-                        i++;
-
-                    if (expression.Length > i && expression[i] == '^') //Exponentiation
-                    {
-                        i++;
-                        value = Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, isAbs));
-                        return value;
-                    }
-
-                    return value;
-                case ')':
-                    i++;
-                    while (expression.Length > i && expression[i] is ' ')
-                        i++;
-
-                    if (expression.Length > i + 1 && expression[i] == '*' && expression[i + 1] == '*') //Exponentiation
-                    {
-                        i += 2;
-                        value = Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, isAbs));
-                        return value;
-                    }
-
-                    return value;
                 case '+':
                     i++;
-                    value += EvaluateBasic(expression, context, provider, ref i, separator, isAbs);
+                    value += EvaluateBasic(expression, context, provider, ref i, separator);
                     break;
                 case '-':
                     i++;
@@ -112,20 +81,16 @@ public class MathEvaluator(string expression)
                     if (expression.Length > i && expression[i] is '-')
                     {
                         i++;
-                        value += EvaluateBasic(expression, context, provider, ref i, separator, isAbs);
+                        value += EvaluateBasic(expression, context, provider, ref i, separator);
                     }
                     else
                     {
-                        value -= EvaluateBasic(expression, context, provider, ref i, separator, isAbs);
+                        value -= EvaluateBasic(expression, context, provider, ref i, separator);
                     }
 
                     break;
-                case '|' when isAbs && context is IScientificMathContext:
-                case '⌉' or '⌋' when context is IScientificMathContext:
-                    i++;
-                    return value;
                 default:
-                    value = EvaluateBasic(expression, context, provider, ref i, separator, isAbs, false, value);
+                    value = EvaluateBasic(expression, context, provider, ref i, separator, false, value);
                     break;
             }
         }
@@ -134,7 +99,7 @@ public class MathEvaluator(string expression)
     }
 
     internal static double EvaluateBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, bool isAbs, bool isEvaluatedFirst = false, double value = default)
+        ref int i, char? separator, bool isEvaluatedFirst = false, double value = default)
     {
         var start = i;
         while (expression.Length > i)
@@ -144,35 +109,29 @@ public class MathEvaluator(string expression)
 
             switch (expression[i])
             {
+                case '(':
+                    i++;
+                    var result = EvaluateLowestBasic(expression, context, provider, ref i, ')');
+                    value = (value == 0 ? 1 : value) * EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    break;
                 case ' ':
                     i++;
                     break;
-                case '(':
-                case '[' when context is IScientificMathContext:
-                    i++;
-                    value = (value == 0 ? 1 : value) * EvaluateLowestBasic(expression, context, provider, ref i);
-                    break;
-                case ')':
-                    return value;
                 case '/':
-                case '\u00f7' when context is IScientificMathContext:
+                case '÷' when context is IScientificMathContext:
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value /= EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true);
+                    value /= EvaluateBasic(expression, context, provider, ref i, separator, true);
                     break;
                 case '*':
-                    if (context is not IScientificMathContext && expression.Length > i + 1 && expression[i + 1] == '*')
-                    {
-                        i += 2;
-                        value = Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true));
-                        return value;
-                    }
+                    if (expression.Length > i + 1 && expression[i + 1] == '*')
+                        return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
 
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value *= EvaluateBasic(expression, context, provider, ref i, separator, isAbs);
+                    value *= EvaluateBasic(expression, context, provider, ref i, separator);
                     break;
                 case '+':
                     if (start != i && !expression[start..i].IsWhiteSpace())
@@ -183,62 +142,51 @@ public class MathEvaluator(string expression)
                     if (start != i && !expression[start..i].IsWhiteSpace())
                         return value;
                     i++;
-                    value = -EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true);
+                    value = -EvaluateBasic(expression, context, provider, ref i, separator, true);
                     break;
                 case > (char)43 and < (char)58 or '٫': // ,-./0123456789٫
                     value = GetNumber(expression, provider, ref i, separator);
                     break;
-                case '\u00d7' or '·' when context is IScientificMathContext: //Addition
+                case '×' or '·' when context is IScientificMathContext: //Addition
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value *= EvaluateBasic(expression, context, provider, ref i, separator, isAbs);
+                    value *= EvaluateBasic(expression, context, provider, ref i, separator);
                     break;
                 case '%' when context is not IScientificMathContext:
                     if (isEvaluatedFirst)
                         return value;
                     i++;
-                    value %= EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true);
+                    value %= EvaluateBasic(expression, context, provider, ref i, separator, true);
                     break;
                 case '^' when context is IScientificMathContext:
-                    i++;
-                    value = Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true));
-                    return value;
-                case '|' when isAbs && context is IScientificMathContext:
-                case ']' or '⌉' or '⌋' when context is IScientificMathContext:
-                    return value;
-                case '|' when context is IScientificMathContext:
-                    i++;
-                    value = (value == 0 ? 1 : value) * Math.Abs(EvaluateLowestBasic(expression, context, provider, ref i, null, true));
-                    return value;
-                case '⌈' when context is IScientificMathContext:
-                    i++;
-                    value = (value == 0 ? 1 : value) * Math.Ceiling(EvaluateLowestBasic(expression, context, provider, ref i, null, true));
-                    return value;
-                case '⌊' when context is IScientificMathContext:
-                    i++;
-                    value = (value == 0 ? 1 : value) * Math.Floor(EvaluateLowestBasic(expression, context, provider, ref i, null, true));
-                    return value;
+                    return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
                 case '\u221a' when context is IScientificMathContext: //square root symbol
                     if (isEvaluatedFirst && start != i)
                         return value;
                     i++;
-                    value = (value == 0 ? 1 : value) * Math.Sqrt(EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true));
-                    return value;
+                    result = Math.Sqrt(EvaluateBasic(expression, context, provider, ref i, separator, true));
+                    value = (value == 0 ? 1 : value) *
+                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    break;
                 case '\u221b' when context is IScientificMathContext: //cube root symbol
                     if (isEvaluatedFirst && start != i)
                         return value;
                     i++;
-                    value = (value == 0 ? 1 : value) * Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true), 1 / 3d);
-                    return value;
+                    result = Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, true), 1 / 3d);
+                    value = (value == 0 ? 1 : value) *
+                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    break;
                 case '\u221c' when context is IScientificMathContext: //fourth root symbol
                     if (isEvaluatedFirst && start != i)
                         return value;
                     i++;
-                    value = (value == 0 ? 1 : value) * Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true), 1 / 4d);
-                    return value;
+                    result = Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, true), 0.25d);
+                    value = (value == 0 ? 1 : value) *
+                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    break;
                 default:
-                    value = EvaluateFnOrConstant(expression, context, provider, ref i, separator, isAbs, isEvaluatedFirst, value);
+                    value = EvaluateFnOrConstant(expression, context, provider, ref i, separator, isEvaluatedFirst, value);
                     if (isEvaluatedFirst)
                         return value;
                     break;
@@ -251,49 +199,33 @@ public class MathEvaluator(string expression)
         return value;
     }
 
-    private static double EvaluateFnOrConstant(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, bool isAbs, bool isEvaluatedFirst, double value)
+    internal static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator = null, double value = default)
     {
-        if (context is not ScientificMathContext)
-            return EvaluateFn(expression, context, provider, ref i, separator, isAbs, isEvaluatedFirst, value);
+        while (expression.Length > i && expression[i] is ' ')
+            i++;
 
-        while (expression.Length > i)
-            switch (expression[i])
-            {
-                case 'π':
-                    i++;
-                    value = (value == 0 ? 1 : value) *
-                            EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true, Math.PI);
-                    return value;
-                case 'e': //the natural logarithmic base
-                    i++;
-                    value = (value == 0 ? 1 : value) *
-                            EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true, Math.E);
-                    return value;
-                case 'τ':
-                    i++;
-                    value = (value == 0 ? 1 : value) *
-                            EvaluateBasic(expression, context, provider, ref i, separator, isAbs, true, Math.PI * 2);
-                    return value;
-                case '\u00b0': //degree symbol
-                    i++;
-                    return MathTrig.DegreesToRadians(value);
-                case '\u221e': //infinity symbol
-                    i++;
-                    return double.PositiveInfinity;
-                default:
-                    return EvaluateFn(expression, context, provider, ref i, separator, isAbs, isEvaluatedFirst, value);
-            }
+        //exponentiation
+        if ((context is IScientificMathContext && expression.Length > i && expression[i] == '^') ||
+            (context is not IScientificMathContext && expression.Length > i + 1 && expression[i] == '*' && expression[i + 1] == '*'))
+        {
+            i++;
+            if (expression[i] == '*')
+                i++;
+
+
+            return Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, true));
+        }
 
         return value;
     }
 
-    private static double EvaluateFn(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, bool isAbs, bool isEvaluatedFirst, double value)
+    private static double EvaluateFnOrConstant(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator, bool isEvaluatedFirst, double value)
     {
         var start = i;
 
-        if (context?.TryEvaluate(expression, provider, ref i, separator, isAbs, isEvaluatedFirst, ref value) == true)
+        if (context?.TryEvaluate(expression, provider, ref i, separator, isEvaluatedFirst, ref value) == true)
             return value;
 
         if (TryEvaluateCurrencySymbol(expression, provider, ref i))
@@ -303,6 +235,17 @@ public class MathEvaluator(string expression)
         var unknownSubstring = end > start ? expression[start..end] : expression[start..];
 
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported");
+    }
+
+    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider,
+        ref int i)
+    {
+        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
+        if (!expression[i..].StartsWith(currencySymbol))
+            return false;
+
+        i += currencySymbol.Length;
+        return true;
     }
 
     private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider,
@@ -337,19 +280,4 @@ public class MathEvaluator(string expression)
 
         return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }
-
-    #region private static Try Evaluate Methods
-
-    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider,
-        ref int i)
-    {
-        var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
-        if (!expression[i..].StartsWith(currencySymbol))
-            return false;
-
-        i += currencySymbol.Length;
-        return true;
-    }
-
-    #endregion
 }

@@ -25,7 +25,8 @@ public static class StringExtensions
         };
     }
 
-    public static MathEvaluator BindVariable(this string expression, double value, [CallerArgumentExpression(nameof(value))] string? name = null)
+    public static MathEvaluator BindVariable(this string expression, double value,
+        [CallerArgumentExpression(nameof(value))] string? name = null)
     {
         var context = new MathContext();
         context.BindVariable(value, name);
