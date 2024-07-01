@@ -26,10 +26,10 @@ public static class StringExtensions
     }
 
     public static MathEvaluator BindVariable(this string expression, double value,
-        [CallerArgumentExpression(nameof(value))] string? name = null)
+        [CallerArgumentExpression(nameof(value))] string? key = null)
     {
         var context = new MathContext();
-        context.BindVariable(value, name);
+        context.BindVariable(value, key);
 
         return new MathEvaluator(expression)
         {

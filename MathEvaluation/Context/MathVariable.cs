@@ -1,7 +1,7 @@
 ﻿namespace MathEvaluation.Context;
 
-internal class MathNumber(string? name, double value)
-    : MathOperand<double>(name)
+internal class MathVariable(string? key, double value)
+    : MathOperand(key)
 {
     public double Value { get; } = value;
 }

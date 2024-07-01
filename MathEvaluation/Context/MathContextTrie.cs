@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace MathEvaluation.Context;
 
@@ -10,71 +10,84 @@ namespace MathEvaluation.Context;
 /// </summary>
 internal sealed class MathContextTrie
 {
-    private TrieNode _rootNode = new();
+    private readonly TrieNode _rootNode = new();
 
-    public void AddMathOperand(IMathOperand operand)
+    public void AddMathEntity(IMathEntity entity)
     {
-        AddMathOperand(_rootNode, operand.Name.AsSpan(), operand);
+        AddMathEntity(_rootNode, entity.Key.AsSpan(), entity);
     }
 
-    public IMathOperand? FindMathOperand(ReadOnlySpan<char> expression)
+    public IMathEntity? FindMathEntity(ReadOnlySpan<char> expression)
     {
-        return FindMathOperand(_rootNode, expression);
+        return FindMathEntity(_rootNode, expression);
     }
 
-    private void AddMathOperand(TrieNode trieNode, ReadOnlySpan<char> name, IMathOperand operand)
+    private void AddMathEntity(TrieNode trieNode, ReadOnlySpan<char> key, IMathEntity entity)
     {
-        if (name.IsEmpty)
+        if (key.IsEmpty)
         {
             if (string.IsNullOrEmpty(trieNode.RemainingKey))
             {
-                trieNode.Operand = operand;
+                trieNode.Entity = entity;
                 return;
             }
             else
             {
-                trieNode.Children.Add(trieNode.RemainingKey[0], new TrieNode(trieNode.RemainingKey[1..], trieNode.Operand));
-                trieNode.RemainingKey = string.Empty;
-                trieNode.Operand = operand;
-                return;
+                var newChild = new TrieNode(trieNode.RemainingKey[1..], trieNode.Entity);
+                if (trieNode.Children.TryAdd(trieNode.RemainingKey[0], newChild))
+                {
+                    trieNode.RemainingKey = string.Empty;
+                    trieNode.Entity = entity;
+                }
+                else
+                {
+                    var message = $"An entity with the same key has already been added. Key: {key.ToString()}";
+                    throw new ArgumentException(message, nameof(key));
+                }
             }
         }
 
-        if (name == trieNode.RemainingKey)
+        if (key == trieNode.RemainingKey)
         {
-            trieNode.Operand = operand;
+            trieNode.Entity = entity;
             return;
         }
 
-        if (!trieNode.Children.TryGetValue(name[0], out var childTreeNode))
+        if (!trieNode.Children.TryGetValue(key[0], out var childTreeNode))
         {
-            trieNode.Children.Add(name[0], new TrieNode(name[1..].ToString(), operand));
+            trieNode.Children.TryAdd(key[0], new TrieNode(key[1..].ToString(), entity));
         }
         else
         {
             if (!string.IsNullOrEmpty(childTreeNode.RemainingKey))
             {
-                var newChild = new TrieNode(childTreeNode.RemainingKey[1..], childTreeNode.Operand);
-                childTreeNode.Children.Add(childTreeNode.RemainingKey[0], newChild);
-                childTreeNode.RemainingKey = string.Empty;
-                childTreeNode.Operand = null;
-
+                var newChild = new TrieNode(childTreeNode.RemainingKey[1..], childTreeNode.Entity);
+                if (childTreeNode.Children.TryAdd(childTreeNode.RemainingKey[0], newChild))
+                {
+                    childTreeNode.RemainingKey = string.Empty;
+                    childTreeNode.Entity = null;
+                }
+                else
+                {
+                    var message = $"An entity with the same key has already been added. Key: {key.ToString()}";
+                    throw new ArgumentException(message, nameof(key));
+                }
             }
 
-            AddMathOperand(childTreeNode, name[1..], operand);
+            AddMathEntity(childTreeNode, key[1..], entity);
         }
     }
 
-    private IMathOperand? FindMathOperand(TrieNode trieNode, ReadOnlySpan<char> expression)
+    private IMathEntity? FindMathEntity(TrieNode trieNode, ReadOnlySpan<char> expression)
     {
         if (!expression.IsEmpty && trieNode.Children.TryGetValue(expression[0], out var childTreeNode))
         {
-            return FindMathOperand(childTreeNode, expression[1..]);
+            return FindMathEntity(childTreeNode, expression[1..]);
         }
 
         if (expression.StartsWith(trieNode.RemainingKey))
         {
-            return trieNode.Operand;
+            return trieNode.Entity;
         }
 
         return null;
@@ -82,13 +95,13 @@ internal sealed class MathContextTrie
 
     #region private nested class TrieNode
 
-    private class TrieNode(string remainingKey = "", IMathOperand? operand = null)
+    private class TrieNode(string remainingKey = "", IMathEntity? entity = null)
     {
-        public Dictionary<char, TrieNode> Children { get; } = new();
+        public ConcurrentDictionary<char, TrieNode> Children { get; } = new();
 
-        public string RemainingKey { get; internal set; } = remainingKey;
+        public string RemainingKey { get; set; } = remainingKey;
 
-        public IMathOperand? Operand { get; internal set; } = operand;
+        public IMathEntity? Entity { get; set; } = entity;
     }
 
     #endregion
