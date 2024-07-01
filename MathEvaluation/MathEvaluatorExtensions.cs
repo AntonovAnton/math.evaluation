@@ -13,10 +13,10 @@ public static class MathEvaluatorExtensions
     }
 
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, double value,
-        [CallerArgumentExpression(nameof(value))] string? name = null)
+        [CallerArgumentExpression(nameof(value))] string? key = null)
     {
         evaluator.Context ??= new MathContext();
-        evaluator.Context.BindVariable(value, name);
+        evaluator.Context.BindVariable(value, key);
         return evaluator;
     }
 }

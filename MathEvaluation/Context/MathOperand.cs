@@ -2,15 +2,12 @@
 
 namespace MathEvaluation.Context;
 
-internal class MathOperand<T> : IMathOperand
+internal abstract class MathOperand : IMathEntity
 {
-    public string Name { get; }
+    public string Key { get; }
 
-    public MathOperand(string? name)
+    protected MathOperand(string? key)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentNullException(nameof(name));
-
-        Name = name;
+        Key = key ?? throw new ArgumentNullException(nameof(key));
     }
 }

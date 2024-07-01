@@ -15,10 +15,28 @@ namespace MathEvaluation.Context
             BindConstant(Math.PI * 2, "τ");
             BindConstant(double.PositiveInfinity, "\u221e"); //infinity symbol
 
+            static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
+            BindOperator(modFn, "mod");
+            BindOperator(modFn, "Mod");
+            BindOperator(modFn, "MOD");
+            BindOperator(modFn, "modulo");
+            BindOperator(modFn, "Modulo");
+            BindOperator(modFn, "MODULO");
+
+            static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
+            BindOperator(divisionFn, "÷");
+
+            static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
+            BindOperator(multiplicationFn, "×");
+            BindOperator(multiplicationFn, "·");
+
+            BindFunction(value => value, '[', ']');
             BindFunction(Math.Abs, '|', '|');
             BindFunction(Math.Ceiling, '⌈', '⌉');
             BindFunction(Math.Floor, '⌊', '⌋');
-            BindFunction(value => value, '[', ']');
+            BindFunction(Math.Sqrt, "\u221a"); //square root symbol
+            BindFunction(value => Math.Pow(value, 1/3d), "\u221b"); //cube root symbol
+            BindFunction(value => Math.Pow(value, 0.25d), "\u221c"); //fourth root symbol
 
             BindFunction(Math.Abs, "abs");
             BindFunction(Math.Abs, "Abs");
@@ -149,38 +167,6 @@ namespace MathEvaluation.Context
             BindFunction(MathTrig.Acoth, "ARCOTH");
 
             #endregion
-        }
-
-        protected override bool TryEvaluate(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
-            bool isEvaluatedFirst, ref double value)
-        {
-            if (base.TryEvaluate(expression, provider, ref i, separator, isEvaluatedFirst, ref value))
-                return true;
-
-            if (TryEvaluateModulus(expression, provider, ref i, separator, isEvaluatedFirst, ref value))
-                return true;
-
-            return false;
-        }
-
-        private bool TryEvaluateModulus(ReadOnlySpan<char> expression, IFormatProvider provider, ref int i, char? separator,
-            bool isEvaluatedFirst, ref double value)
-        {
-            const string fn = "mod";
-            if (!expression[i..].StartsWith(fn, StringComparison.InvariantCultureIgnoreCase))
-                return false;
-
-            if (isEvaluatedFirst)
-            {
-                return true;
-            }
-
-            i += 3;
-            if (expression[i..].StartsWith("ulo", StringComparison.InvariantCultureIgnoreCase))
-                i += 3;
-
-            value %= MathEvaluator.EvaluateBasic(expression, this, provider, ref i, separator, true);
-            return true;
         }
     }
 }

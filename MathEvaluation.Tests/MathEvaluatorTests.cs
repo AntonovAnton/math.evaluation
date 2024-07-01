@@ -40,14 +40,27 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
-    [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
-    public void MathEvaluator_Evaluate_HasScientificNotation_ExpectedValue(string? expression, double expectedValue)
+    [InlineData("(3 · 2)//(2 × 2)", 1d)]
+    [InlineData("(3 * 2)//(2 * 2)", 1d)]
+    [InlineData("6//-10", -1d)]
+    public void MathEvaluator_Evaluate_HasFloorDivision_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!, _scientificContext);
+        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
+    [InlineData("(3 + 1)[5 + 2(5 - 1)]^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
+    public void MathEvaluator_Evaluate_HasScientificNotation_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression, _scientificContext);
 
         Assert.Equal(expectedValue, value);
     }
@@ -94,13 +107,14 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("3^4", 81)]
-    [InlineData("3^4^2", 81 * 81 * 81 * 81)]
+    [InlineData("3^4", 81d)]
+    [InlineData("3^4^2", 81d * 81 * 81 * 81)]
     [InlineData("2/3^4", 2 / 81d)]
     [InlineData("0.5^2*3", 0.75d)]
-    [InlineData("-3^4", -81)]
+    [InlineData("-3^4", -81d)]
+    [InlineData("-3^4sin(-PI/2)", 81d)]
     [InlineData("(-3)^0.5", double.NaN)]
-    [InlineData("3 + 2(2 + 3.5)^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathEvaluator_Evaluate_HasScientificPower_ExpectedValue(string expression, double expectedValue)
     {
@@ -160,7 +174,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("e", Math.E)]
     [InlineData("200e", 200 * Math.E)]
-    [InlineData("200e^-0.15", 172.14159528501156d)]
+    [InlineData("200e^- 0.15", 172.14159528501156d)]
     public void MathEvaluator_Evaluate_HasLogBase_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -221,6 +235,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin 0.5π", 1d)]
     [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
+    [InlineData("cos1(1 + 2)", 0.54030230586813977d * 3)]
+    [InlineData("cos1(1 + 2) mod cos1+0.5", 0.5d)]
+    [InlineData("sin-3/cos1", -0.14112000805986721d / 0.54030230586813977d)]
+    [InlineData("sin-3cos1", -0.14112000805986721d * 0.54030230586813977d)]
+    [InlineData("cos1^4", 0.54030230586813977d)]
     [InlineData("cos1^4/2", 0.54030230586813977d / 2)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
     [InlineData("Sin(π/12 + π/12)", 0.49999999999999994d)]
@@ -435,22 +454,22 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("\u221a25", 5)]
-    [InlineData("√0.25", 0.5)]
-    [InlineData("√0", 0)]
+    [InlineData("\u221a25", 5d)]
+    [InlineData("√0", 0d)]
     [InlineData("√-25", double.NaN)]
-    [InlineData("√(9*9)", 9)]
-    [InlineData("√9√9", 9)]
-    [InlineData("√9/√9", 1)]
-    [InlineData("√1", 1)]
+    [InlineData("√(9*9)", 9d)]
+    [InlineData("√9√9", 9d)]
+    [InlineData("√9(1 + 2)", 9d)]
+    [InlineData("√9/√9", 1d)]
+    [InlineData("√1", 1d)]
     [InlineData("1/√9", 1 / 3d)]
     [InlineData("∛8", 2)]
     [InlineData("∛-8", double.NaN)]
-    [InlineData("∛8∛8", 4)]
-    [InlineData("√9∛8", 6)]
-    [InlineData("∜16", 2)]
+    [InlineData("∛8∛8", 4d)]
+    [InlineData("√9∛8", 6d)]
+    [InlineData("∜16", 2d)]
     [InlineData("∜-16", double.NaN)]
-    [InlineData("∜16∜16", 4)]
+    [InlineData("∜16∜16", 4d)]
     [InlineData("1/√9^2", 1 / 9d)]
     public void MathEvaluator_Evaluate_HasSquareRoot_ExpectedValue(string expression, double expectedValue)
     {

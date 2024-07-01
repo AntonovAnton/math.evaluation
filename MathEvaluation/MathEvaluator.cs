@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using MathEvaluation.Context;
-using MathTrigonometric;
 
 namespace MathEvaluation;
 
@@ -49,7 +48,7 @@ public class MathEvaluator(string expression)
         }
     }
 
-    internal static double EvaluateLowestBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+    private static double EvaluateLowestBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator = null, double value = default)
     {
         while (expression.Length > i)
@@ -98,7 +97,7 @@ public class MathEvaluator(string expression)
         return value;
     }
 
-    internal static double EvaluateBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+    private static double EvaluateBasic(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, bool isEvaluatedFirst = false, double value = default)
     {
         var start = i;
@@ -118,15 +117,25 @@ public class MathEvaluator(string expression)
                     i++;
                     break;
                 case '/':
-                case '÷' when context is IScientificMathContext:
                     if (isEvaluatedFirst)
                         return value;
+
+                    if (expression.Length > i + 1 && expression[i + 1] == '/')
+                    {
+                        i += 2;
+                        value = Math.Floor(value / EvaluateOperand(expression, context, provider, ref i, separator));
+                        break;
+                    }
+
                     i++;
                     value /= EvaluateBasic(expression, context, provider, ref i, separator, true);
                     break;
                 case '*':
                     if (expression.Length > i + 1 && expression[i + 1] == '*')
-                        return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
+                    {
+                        value = EvaluateExponentiation(expression, context, provider, ref i, separator, value);
+                        break;
+                    }
 
                     if (isEvaluatedFirst)
                         return value;
@@ -147,12 +156,6 @@ public class MathEvaluator(string expression)
                 case > (char)43 and < (char)58 or '٫': // ,-./0123456789٫
                     value = GetNumber(expression, provider, ref i, separator);
                     break;
-                case '×' or '·' when context is IScientificMathContext: //Addition
-                    if (isEvaluatedFirst)
-                        return value;
-                    i++;
-                    value *= EvaluateBasic(expression, context, provider, ref i, separator);
-                    break;
                 case '%' when context is not IScientificMathContext:
                     if (isEvaluatedFirst)
                         return value;
@@ -160,30 +163,7 @@ public class MathEvaluator(string expression)
                     value %= EvaluateBasic(expression, context, provider, ref i, separator, true);
                     break;
                 case '^' when context is IScientificMathContext:
-                    return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
-                case '\u221a' when context is IScientificMathContext: //square root symbol
-                    if (isEvaluatedFirst && start != i)
-                        return value;
-                    i++;
-                    result = Math.Sqrt(EvaluateBasic(expression, context, provider, ref i, separator, true));
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
-                    break;
-                case '\u221b' when context is IScientificMathContext: //cube root symbol
-                    if (isEvaluatedFirst && start != i)
-                        return value;
-                    i++;
-                    result = Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, true), 1 / 3d);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
-                    break;
-                case '\u221c' when context is IScientificMathContext: //fourth root symbol
-                    if (isEvaluatedFirst && start != i)
-                        return value;
-                    i++;
-                    result = Math.Pow(EvaluateBasic(expression, context, provider, ref i, separator, true), 0.25d);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    value = EvaluateExponentiation(expression, context, provider, ref i, separator, value);
                     break;
                 default:
                     value = EvaluateFnOrConstant(expression, context, provider, ref i, separator, isEvaluatedFirst, value);
@@ -199,13 +179,12 @@ public class MathEvaluator(string expression)
         return value;
     }
 
-    internal static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+    private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator = null, double value = default)
     {
         while (expression.Length > i && expression[i] is ' ')
             i++;
 
-        //exponentiation
         if ((context is IScientificMathContext && expression.Length > i && expression[i] == '^') ||
             (context is not IScientificMathContext && expression.Length > i + 1 && expression[i] == '*' && expression[i + 1] == '*'))
         {
@@ -213,28 +192,119 @@ public class MathEvaluator(string expression)
             if (expression[i] == '*')
                 i++;
 
-
-            return Math.Pow(value, EvaluateBasic(expression, context, provider, ref i, separator, true));
+            var power = EvaluateOperand(expression, context, provider, ref i, separator);
+            return Math.Pow(value, power);
         }
 
         return value;
     }
 
+    private static double EvaluateOperand(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator)
+    {
+        while (expression.Length > i && expression[i] is ' ')
+            i++;
+
+        switch (expression[i])
+        {
+            case '(':
+                i++;
+                var value = EvaluateLowestBasic(expression, context, provider, ref i, ')');
+                return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
+            case > '0' and <= '9' or '.' or '0' or ',' or '٫':
+                value = GetNumber(expression, provider, ref i, separator);
+                var entity = context?.FindMathEntity(expression[i..]);
+                if (entity is MathVariable mathVariable)
+                {
+                    i += entity.Key.Length;
+                    value = (value == 0 ? 1 : value) * mathVariable.Value;
+                }
+                if (entity is MathConstant mathConstant)
+                {
+                    i += entity.Key.Length;
+                    value = (value == 0 ? 1 : value) * mathConstant.Value;
+                }
+                if (entity is MathOperandConverter mathConverter)
+                {
+                    i += entity.Key.Length;
+                    var fn = mathConverter.Fn;
+                    value = fn(value);
+                }
+                return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
+            case '-':
+                i++;
+                return -EvaluateOperand(expression, context, provider, ref i, separator);
+            default:
+                value = EvaluateFnOrConstant(expression, context, provider, ref i, separator, true, 0d);
+                return EvaluateExponentiation(expression, context, provider, ref i, separator, value);
+        }
+    }
+
     private static double EvaluateFnOrConstant(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, bool isEvaluatedFirst, double value)
     {
-        var start = i;
-
-        if (context?.TryEvaluate(expression, provider, ref i, separator, isEvaluatedFirst, ref value) == true)
+        if (context != null && TryEvaluateContext(expression, context, provider, ref i, separator, isEvaluatedFirst, ref value))
             return value;
 
         if (TryEvaluateCurrencySymbol(expression, provider, ref i))
             return value;
 
-        var end = expression[start..].IndexOfAny("([ |") + start;
-        var unknownSubstring = end > start ? expression[start..end] : expression[start..];
+        var end = expression[i..].IndexOfAny("([ |") + i;
+        var unknownSubstring = end > i ? expression[i..end] : expression[i..];
 
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported");
+    }
+
+    private static bool TryEvaluateContext(ReadOnlySpan<char> expression, IMathContext context, IFormatProvider provider,
+        ref int i, char? separator, bool isEvaluatedFirst, ref double value)
+    {
+        var entity = context.FindMathEntity(expression[i..]);
+        switch (entity)
+        {
+            case MathVariable mathVariable:
+                i += entity.Key.Length;
+                value = (value == 0 ? 1 : value) *
+                    EvaluateExponentiation(expression, context, provider, ref i, separator, mathVariable.Value);
+                return true;
+            case MathConstant mathConstant:
+                i += entity.Key.Length;
+                value = (value == 0 ? 1 : value) *
+                    EvaluateExponentiation(expression, context, provider, ref i, separator, mathConstant.Value);
+                return true;
+            case MathOperandConverter mathConverter:
+                {
+                    i += entity.Key.Length;
+                    var fn = mathConverter.Fn;
+                    var result = fn(value);
+                    value = EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    return true;
+                }
+            case MathFunction mathFunction:
+                {
+                    i += entity.Key.Length;
+                    var fn = mathFunction.Fn;
+                    var result = mathFunction.Separator.HasValue
+                        ? fn(EvaluateLowestBasic(expression, context, provider, ref i, mathFunction.Separator))
+                        : fn(EvaluateOperand(expression, context, provider, ref i, separator));
+                    value = (value == 0 ? 1 : value) *
+                        EvaluateExponentiation(expression, context, provider, ref i, separator, result);
+                    return true;
+                }
+            case MathOperator mathOperator:
+                {
+                    if (isEvaluatedFirst)
+                        return true;
+
+                    i += entity.Key.Length;
+                    var fn = mathOperator.Fn;
+                    var rightOperand = EvaluateOperand(expression, context, provider, ref i, separator);
+                    EvaluateExponentiation(expression, context, provider, ref i, separator, rightOperand);
+                    value = fn(value, rightOperand);
+                    return true;
+                }
+            default:
+                return false;
+        }
     }
 
     private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider,
