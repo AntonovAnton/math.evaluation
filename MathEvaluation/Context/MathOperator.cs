@@ -2,18 +2,14 @@
 
 namespace MathEvaluation.Context;
 
-internal class MathOperator : IMathEntity
+internal class MathOperator<T> : MathEntity
+    where T : struct
 {
-    public string Key { get; }
+    public Func<T, T, T> Fn { get; }
 
-    public Func<double, double, double> Fn { get; }
-
-    public MathOperator(string? key, Func<double, double, double> fn)
+    public MathOperator(string? key, Func<T, T, T> fn)
+        : base(key)
     {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentNullException(nameof(key));
-
-        Key = key;
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
     }
 }

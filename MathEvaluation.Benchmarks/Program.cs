@@ -46,7 +46,7 @@ public class Benchmarks
         return "sin(pi/6) + cos(pi/3)".SetContext(_scientificContext).Evaluate();
     }
 
-    [Benchmark(Description = "\"sin(a) + cos(b)\".SetContext(_scientificContext).Bind(new { a, b }).Evaluate()")]
+    [Benchmark(Description = "\"sin(a) + cos(b)\".SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_HasVariables_ComplexExpression()
     {
         return "sin(a) + cos(b)".SetContext(_scientificContext).Bind(new { a, b }).Evaluate();
