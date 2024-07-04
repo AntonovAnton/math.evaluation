@@ -2,11 +2,11 @@
 
 namespace MathEvaluation.Context;
 
-internal abstract class MathOperand : IMathEntity
+internal abstract class MathEntity : IMathEntity
 {
     public string Key { get; }
 
-    protected MathOperand(string? key)
+    protected MathEntity(string? key)
     {
         Key = key ?? throw new ArgumentNullException(nameof(key));
     }

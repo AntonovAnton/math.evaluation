@@ -7,6 +7,7 @@ namespace MathEvaluation.Tests;
 public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 {
     private IMathContext _scientificContext = new ScientificMathContext();
+    private IMathContext _programmingContext = new ProgrammingMathContext();
 
     [Theory]
     [InlineData(null, double.NaN)]
@@ -97,11 +98,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("(-3)**0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathEvaluator_Evaluate_HasPower_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasProgrammingPower_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, _programmingContext);
 
         Assert.Equal(expectedValue, value);
     }
@@ -129,11 +130,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("4 % 3", 1)]
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
-    public void MathEvaluator_Evaluate_HasModulus_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasProgrammingModulus_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression);
+        var value = MathEvaluator.Evaluate(expression, _programmingContext);
 
         Assert.Equal(expectedValue, value);
     }
@@ -175,7 +176,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("e", Math.E)]
     [InlineData("200e", 200 * Math.E)]
     [InlineData("200e^- 0.15", 172.14159528501156d)]
-    public void MathEvaluator_Evaluate_HasLogBase_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasLnBase_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -471,7 +472,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("∜-16", double.NaN)]
     [InlineData("∜16∜16", 4d)]
     [InlineData("1/√9^2", 1 / 9d)]
-    public void MathEvaluator_Evaluate_HasSquareRoot_ExpectedValue(string expression, double expectedValue)
+    public void MathEvaluator_Evaluate_HasRoot_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -579,24 +580,87 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("ln[1/-x1 + √(1/x2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
-    public void MathEvaluator_Evaluate_HasVariables_ExpectedValue(string expression,
+    [InlineData("getX1 + getX2", 0.5, 0.2, 0.5 + 0.2)]
+    [InlineData("ln[1/-getX1 + √(1/getX2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
+    public void MathEvaluator_Evaluate_HasGetVariableFns_ExpectedValue(string expression,
         double x1, double x2, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
+        var getX1 = () => x1;
+        var getX2 = () => x2;
         var value = expression
             .SetContext(_scientificContext)
-            .Bind(new { x1, x2 })
+            .Bind(new { getX1, getX2 })
             .Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported")]
-    [InlineData("p", "'p' isn't supported")]
+    [InlineData("ln100 + x1 + x2", -1, 1, 4.6051701859880918d)]
+    [InlineData("ln(1/-x1 + sqrt(1/(x2*x2) + 1))", -0.5, 0.5, 1.4436354751788103d)]
+    public void MathEvaluator_Evaluate_HasVariablesAndCustomLnSqrtFns_ExpectedValue(string expression,
+        double x1, double x2, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
+
+        var sqrt = Math.Sqrt;
+        Func<double, double> ln = Math.Log;
+        var value = expression
+            .Bind(new { x1, x2, sqrt, ln })
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("1 + min(2, 1, 0.5, 4)", 1 + 0.5)]
+    [InlineData("2min(-1, 1, 0.5, 4, 9999)", -2d)]
+    public void MathEvaluator_Evaluate_HasCustomMinFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var min = (double[] args) =>
+        {
+            var minValue = args[0];
+            for (var i = 1; args.Length > i; i++)
+            {
+                if (args[i] < minValue)
+                    minValue = args[i];
+            }
+            return minValue;
+        };
+        var value = expression
+            .Bind(new { min })
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Fact]
+    public void MathEvaluator_Bind_HasNotSupportedCustomSystemFunc_ThrowNotSupportedException()
+    {
+        Func<double, double, double, double, double, double, double> min = (a, b, c, d, e, v) => 0d;
+        var ex = Record.Exception(() => "min(3, 4)".Bind(new { min }));
+        Assert.IsType<NotSupportedException>(ex);
+        Assert.Equal("System.Func`7[System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double] isn't supported, you can use Func<T[], T> istead.", ex.Message);
+    }
+
+    [Fact]
+    public void MathEvaluator_Bind_HasNotSupportedSystemString_ThrowNotSupportedException()
+    {
+        var min = "3";
+        var ex = Record.Exception(() => "min(3, 4)".Bind(new { min }));
+        Assert.IsType<NotSupportedException>(ex);
+        Assert.Equal("System.String isn't supported.", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported.")]
+    [InlineData("p", "'p' isn't supported.")]
     public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression,
         string errorMessage)
     {
@@ -604,7 +668,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Contains(errorMessage, ex.Message);
+        Assert.Equal(errorMessage, ex.Message);
     }
 
     [Fact]
@@ -616,6 +680,6 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, cultureInfo));
         Assert.IsType<FormatException>(ex);
-        Assert.Contains("The input string '888,32' was not in a correct format", ex.Message);
+        Assert.Equal("The input string '888,32' was not in a correct format.", ex.Message);
     }
 }

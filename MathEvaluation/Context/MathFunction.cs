@@ -2,16 +2,23 @@
 
 namespace MathEvaluation.Context;
 
-internal class MathFunction : MathOperand
+internal class MathFunction<T> : MathEntity
+    where T : struct
 {
-    public Func<double, double> Fn { get; }
+    public Func<T[], T> Fn { get; }
 
-    public char? Separator { get; }
+    public char OpenningSymbol { get; }
 
-    public MathFunction(string? key, Func<double, double> fn, char? separator = null)
+    public char Separator { get; }
+
+    public char ClosingSymbol { get; }
+
+    public MathFunction(string? key, Func<T[], T> fn, char openningSymbol, char separator, char closingSymbol)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
-        Separator= separator;
+        Separator = separator;
+        OpenningSymbol = openningSymbol;
+        ClosingSymbol = closingSymbol;
     }
 }

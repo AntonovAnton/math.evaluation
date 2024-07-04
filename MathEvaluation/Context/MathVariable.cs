@@ -1,7 +1,7 @@
 ﻿namespace MathEvaluation.Context;
 
-internal class MathVariable(string? key, double value)
-    : MathOperand(key)
+internal class MathVariable<T>(string? key, T value) : MathEntity(key)
+    where T : struct
 {
-    public double Value { get; } = value;
+    public T Value { get; } = value;
 }

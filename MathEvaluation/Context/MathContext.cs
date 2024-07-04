@@ -17,32 +17,96 @@ public class MathContext : IMathContext
                      .GetType()
                      .GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            if (!propertyInfo.CanRead || !IsNumericType(propertyInfo.PropertyType))
+            if (!propertyInfo.CanRead)
                 continue;
 
             var key = propertyInfo.Name;
-            var value = Convert.ToDouble(propertyInfo.GetValue(args, null));
-            _mathContextTrie.AddMathEntity(new MathVariable(key, value));
+            var value = propertyInfo.GetValue(args, null);
+            if (IsNumericType(propertyInfo.PropertyType))
+            {
+                BindVariable(Convert.ToDouble(value), key);
+            }
+            else if (value is Func<double> fn1)
+                BindVariable(fn1, key);
+            else if (value is Func<double, double> fn2)
+                BindFunction(fn2, key);
+            else if (value is Func<double, double, double> fn3)
+                BindFunction(fn3, key);
+            else if (value is Func<double, double, double, double> fn4)
+                BindFunction(fn4, key);
+            else if (value is Func<double, double, double, double, double> fn5)
+                BindFunction(fn5, key);
+            else if (value is Func<double, double, double, double, double, double> fn6)
+                BindFunction(fn6, key);
+            else if (value is Func<double[], double> fns)
+                BindFunction(fns, key);
+            else
+            {
+                if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
+
+                throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
+            }
         }
     }
 
+    public void BindVariable(double value, char key)
+        => _mathContextTrie.AddMathEntity(new MathVariable<double>(key.ToString(), value));
+
     public void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathVariable(key, value));
+        => _mathContextTrie.AddMathEntity(new MathVariable<double>(key, value));
+
+    public void BindVariable(Func<double> getValue, char key)
+        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key.ToString(), getValue));
+
+    public void BindVariable(Func<double> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key, getValue));
+
+    public void BindFunction(Func<double, double> fn, char key)
+        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key.ToString(), fn));
 
     public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathFunction(key, fn));
+        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key, fn));
 
-    protected void BindConstant(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathConstant(key, value));
+    public void BindFunction(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
+        char closingSymbol = IMathContext.DefaultClosingSymbol)
+        => BindFunction((double[] args) => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
 
-    protected void BindFunction(Func<double, double> fn, char openingSymbol, char closureSymbol)
-        => _mathContextTrie.AddMathEntity(new MathFunction(openingSymbol.ToString(), fn, closureSymbol));
+    public void BindFunction(Func<double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
+        char closingSymbol = IMathContext.DefaultClosingSymbol)
+        => BindFunction((double[] args) => fn(args[0], args[1], args[3]), key, openingSymbol, separator, closingSymbol);
+
+    public void BindFunction(Func<double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
+        char closingSymbol = IMathContext.DefaultClosingSymbol)
+        => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+
+    public void BindFunction(Func<double, double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
+        char closingSymbol = IMathContext.DefaultClosingSymbol)
+        => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4], args[5]), key, openingSymbol, separator, closingSymbol);
+
+    public void BindFunction(Func<double[], double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
+        char closingSymbol = IMathContext.DefaultClosingSymbol)
+        => _mathContextTrie.AddMathEntity(new MathFunction<double>(key, fn, openingSymbol, separator, closingSymbol));
+
+    protected void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
+        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(openingSymbol.ToString(), fn, closingSymbol));
+
+    protected void BindConverter(Func<double, double> fn, char key)
+        => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key.ToString(), fn));
 
     protected void BindConverter(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathOperandConverter(key, fn));
+        => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key, fn));
+
+    protected void BindOperator(Func<double, double, double> fn, char key)
+        => _mathContextTrie.AddMathEntity(new MathOperator<double>(key.ToString(), fn));
 
     protected void BindOperator(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathOperator(key, fn));
+        => _mathContextTrie.AddMathEntity(new MathOperator<double>(key, fn));
 
     private static bool IsNumericType(Type type) => Type.GetTypeCode(type) switch
     {
@@ -54,9 +118,7 @@ public class MathContext : IMathContext
     #region explicit IMathContext
 
     IMathEntity? IMathContext.FindMathEntity(ReadOnlySpan<char> expression)
-    {
-        return _mathContextTrie.FindMathEntity(expression);
-    }
+        => _mathContextTrie.FindMathEntity(expression);
 
     #endregion
 }
