@@ -44,6 +44,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("(3 · 2)//(2 × 2)", 1d)]
     [InlineData("(3 * 2)//(2 * 2)", 1d)]
     [InlineData("6//-10", -1d)]
+    [InlineData("4π // (3)π", 1d)]
     public void MathEvaluator_Evaluate_HasFloorDivision_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -113,6 +114,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2/3^4", 2 / 81d)]
     [InlineData("0.5^2*3", 0.75d)]
     [InlineData("-3^4", -81d)]
+    [InlineData("2^3pi", 687.29133511454552d)]
     [InlineData("-3^4sin(-PI/2)", 81d)]
     [InlineData("(-3)^0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
@@ -141,6 +143,10 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("4 mod 3", 1)]
+    [InlineData("4π mod 3π", Math.PI)]
+    [InlineData("4π mod 3 * π", 1.7793057612799139d)]
+    [InlineData("4π mod (3)π", Math.PI)]
+    [InlineData("4π mod (3 - 1)π", 0d)]
     [InlineData("4 modulo 3 - 2", -1)]
     [InlineData("3 - 4.5 Modulo 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 MOD 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
@@ -315,45 +321,45 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("arcsin(-\u221e)", double.NaN)]
-    [InlineData("asin(\u221e)", double.NaN)]
-    [InlineData("ASIN(-2)", double.NaN)]
+    [InlineData("sin^-1(\u221e)", double.NaN)]
+    [InlineData("SIN^-1(-2)", double.NaN)]
     [InlineData("Arcsin(-1)", -Math.PI / 2)]
     [InlineData("ARCSIN(0)", 0)]
-    [InlineData("Asin1", Math.PI / 2)]
+    [InlineData("Sin^-11", Math.PI / 2)]
     [InlineData("arccos(-\u221e)", double.NaN)]
-    [InlineData("acos(\u221e)", double.NaN)]
-    [InlineData("ACOS(-2)", double.NaN)]
+    [InlineData("Cos^-1(\u221e)", double.NaN)]
+    [InlineData("COS^-1(-2)", double.NaN)]
     [InlineData("Arccos(-1)", Math.PI)]
     [InlineData("ARCCOS(0)", Math.PI / 2)]
-    [InlineData("Acos1", 0)]
+    [InlineData("Cos^-11", 0)]
     [InlineData("arctan(-\u221e)", -Math.PI / 2)]
-    [InlineData("atan(\u221e)", Math.PI / 2)]
-    [InlineData("Atan(-2)", -1.1071487177940904d)]
+    [InlineData("tan^-1(\u221e)", Math.PI / 2)]
+    [InlineData("Tan^-1(-2)", -1.1071487177940904d)]
     [InlineData("Arctan(-1)", -Math.PI / 4)]
     [InlineData("ARCTAN(0)", 0)]
-    [InlineData("ATAN1", Math.PI / 4)]
+    [InlineData("TAN^-11", Math.PI / 4)]
     [InlineData("arcsec(-\u221e)", Math.PI / 2)]
-    [InlineData("asec(\u221e)", Math.PI / 2)]
-    [InlineData("Asec(-2)", 2.0943951023931957d)]
+    [InlineData("sec^-1(\u221e)", Math.PI / 2)]
+    [InlineData("Sec^-1(-2)", 2.0943951023931957d)]
     [InlineData("Arcsec(-1)", Math.PI)]
-    [InlineData("ASEC(1/2)", double.NaN)]
+    [InlineData("SEC^-1(1/2)", double.NaN)]
     [InlineData("ARCSEC(0)", double.NaN)]
     [InlineData("arcsec1", 0)]
     [InlineData("arccsc(-\u221e)", 0)]
-    [InlineData("acsc(\u221e)", 0)]
-    [InlineData("Acsc(-2)", -0.52359877559829893d)]
+    [InlineData("csc^-1(\u221e)", 0)]
+    [InlineData("Csc^-1(-2)", -0.52359877559829893d)]
     [InlineData("Arccsc(-1)", -Math.PI / 2)]
     [InlineData("Arccsc(-1/2)", double.NaN)]
     [InlineData("ARCCSC(0)", double.NaN)]
-    [InlineData("ACSC1", Math.PI / 2)]
+    [InlineData("CSC^-11", Math.PI / 2)]
     [InlineData("arccsc(2)", 0.52359877559829893d)]
     [InlineData("arccot(-\u221e)", Math.PI)]
-    [InlineData("acot(\u221e)", 0d)]
+    [InlineData("Cot^-1(\u221e)", 0d)]
     [InlineData("Arccot(-2)", 2.677945044588987d)]
     [InlineData("ARCCOT(-1)", Math.PI - Math.PI / 4)]
-    [InlineData("Acot(0)", Math.PI / 2)]
-    [InlineData("acot1", Math.PI / 4)]
-    [InlineData("ACOT(2)", 0.46364760900080609d)]
+    [InlineData("Cot^-1(0)", Math.PI / 2)]
+    [InlineData("cot^-11", Math.PI / 4)]
+    [InlineData("COT^-1(2)", 0.46364760900080609d)]
     public void MathEvaluator_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -365,59 +371,59 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("arsinh(0)", 0)]
-    [InlineData("asinh(0.5)", 0.48121182505960347d)]
+    [InlineData("sinh^-1(0.5)", 0.48121182505960347d)]
     [InlineData("Arsinh(1)", 0.88137358701954294d)]
-    [InlineData("Asinh(2)", 1.4436354751788103d)]
+    [InlineData("Sinh^-1(2)", 1.4436354751788103d)]
     [InlineData("ARSINH(∞)", double.PositiveInfinity)]
-    [InlineData("ASINH -0.5", -0.48121182505960347d)]
-    [InlineData("Asinh-1", -0.88137358701954294d)]
+    [InlineData("SINH^-1 -0.5", -0.48121182505960347d)]
+    [InlineData("Sinh^-1-1", -0.88137358701954294d)]
     [InlineData("arsinh(-2)", -1.4436354751788103d)]
-    [InlineData("asinh(-∞)", double.NegativeInfinity)]
+    [InlineData("Sinh^-1(-∞)", double.NegativeInfinity)]
     [InlineData("arcosh(0)", double.NaN)]
-    [InlineData("acosh(0.5)", double.NaN)]
+    [InlineData("Cosh^-1(0.5)", double.NaN)]
     [InlineData("Arcosh(1)", 0)]
-    [InlineData("Acosh(2)", 1.3169578969248166d)]
+    [InlineData("Cosh^-1(2)", 1.3169578969248166d)]
     [InlineData("ARCOSH(∞)", double.PositiveInfinity)]
-    [InlineData("ACOSH -0.5", double.NaN)]
-    [InlineData("Acosh-1", double.NaN)]
+    [InlineData("COSH^-1 -0.5", double.NaN)]
+    [InlineData("Cosh^-1-1", double.NaN)]
     [InlineData("arcosh(-2)", double.NaN)]
-    [InlineData("acosh(-∞)", double.NaN)]
+    [InlineData("Cosh^-1(-∞)", double.NaN)]
     [InlineData("artanh(0)", 0)]
-    [InlineData("atanh(0.5)", 0.54930614433405489d)]
+    [InlineData("tanh^-1(0.5)", 0.54930614433405489d)]
     [InlineData("Artanh(1)", double.PositiveInfinity)]
-    [InlineData("Atanh(2)", double.NaN)]
+    [InlineData("Tanh^-1(2)", double.NaN)]
     [InlineData("ARTANH(∞)", double.NaN)]
-    [InlineData("ATANH -0.5", -0.54930614433405489d)]
-    [InlineData("Atanh-1", double.NegativeInfinity)]
+    [InlineData("TANH^-1 -0.5", -0.54930614433405489d)]
+    [InlineData("Tanh^-1-1", double.NegativeInfinity)]
     [InlineData("artanh(-2)", double.NaN)]
-    [InlineData("atanh(-∞)", double.NaN)]
+    [InlineData("Tanh^-1(-∞)", double.NaN)]
     [InlineData("arcoth(0)", double.NaN)]
-    [InlineData("acoth(0.5)", double.NaN)]
+    [InlineData("Coth^-1(0.5)", double.NaN)]
     [InlineData("Arcoth(1)", double.NaN)]
-    [InlineData("Acoth(2)", 0.54930614433405489d)]
+    [InlineData("Coth^-1(2)", 0.54930614433405489d)]
     [InlineData("ARCOTH(∞)", 0)]
-    [InlineData("ACOTH -0.5", double.NaN)]
-    [InlineData("Acoth-1", double.NaN)]
+    [InlineData("COTH^-1 -0.5", double.NaN)]
+    [InlineData("Coth^-1-1", double.NaN)]
     [InlineData("arcoth(-2)", -0.54930614433405489d)]
-    [InlineData("acoth(-∞)", 0)]
+    [InlineData("Coth^-1(-∞)", 0)]
     [InlineData("arsech(0)", double.NaN)]
-    [InlineData("asech(0.5)", 1.3169578969248166d)]
+    [InlineData("Sech^-1(0.5)", 1.3169578969248166d)]
     [InlineData("Arsech(1)", 0)]
-    [InlineData("Asech(2)", double.NaN)]
+    [InlineData("Sech^-1(2)", double.NaN)]
     [InlineData("ARSECH(∞)", double.NaN)]
-    [InlineData("ASECH -0.5", double.NaN)]
-    [InlineData("Asech-1", double.NaN)]
+    [InlineData("SECH^-1 -0.5", double.NaN)]
+    [InlineData("Sech^-1-1", double.NaN)]
     [InlineData("arsech(-2)", double.NaN)]
-    [InlineData("asech(-∞)", double.NaN)]
+    [InlineData("Sech^-1(-∞)", double.NaN)]
     [InlineData("arcsch(0)", double.NaN)]
-    [InlineData("acsch(0.5)", 1.4436354751788103d)]
+    [InlineData("Csch^-1(0.5)", 1.4436354751788103d)]
     [InlineData("Arcsch(1)", 0.88137358701954294d)]
-    [InlineData("Acsch(2)", 0.48121182505960347d)]
+    [InlineData("Csch^-1(2)", 0.48121182505960347d)]
     [InlineData("ARCSCH(∞)", 0)]
-    [InlineData("ACSCH -0.5", -1.4436354751788103d)]
-    [InlineData("Acsch-1", -0.88137358701954294d)]
+    [InlineData("CSCH^-1 -0.5", -1.4436354751788103d)]
+    [InlineData("Csch^-1-1", -0.88137358701954294d)]
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
-    [InlineData("acsch(-∞)", 0)]
+    [InlineData("csch^-1(-∞)", 0)]
     public void MathEvaluator_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -560,6 +566,24 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("(4-1)!", 6d)]
+    [InlineData("2/2!^3", 0.25d)]
+    [InlineData("3! mod 2!", 0d)]
+    [InlineData("5!/(2!(5 - 2)!)", 10d)]
+    [InlineData("cos1!^3", 0.54030230586813977d)]
+    [InlineData("cos(0)!^3", 1d)]
+    [InlineData("2!^(3)!", 64d)]
+    [InlineData("2!^(3)!^2!", 64d * 64d)]
+    public void MathEvaluator_Evaluate_HasFactorial_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
@@ -656,6 +680,17 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var ex = Record.Exception(() => "min(3, 4)".Bind(new { min }));
         Assert.IsType<NotSupportedException>(ex);
         Assert.Equal("System.String isn't supported.", ex.Message);
+    }
+
+    [Fact]
+    public void MathEvaluator_Evaluate_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
+    {
+        var expression = "0.2!";
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, _scientificContext));
+        Assert.IsType<ArgumentException>(ex);
+        Assert.Equal("Not integer number 0.2 isn't supported by the factorial function.", ex.Message);
     }
 
     [Theory]
