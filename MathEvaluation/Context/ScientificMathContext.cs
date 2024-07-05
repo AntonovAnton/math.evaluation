@@ -48,6 +48,8 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
+        BindConverter(n => Factorial(n), '!');
+
         #region trigonometric functions
 
         BindConverter(MathTrig.DegreesToRadians, "\u00b0"); //degree symbol
@@ -90,43 +92,43 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindFunction(MathTrig.Coth, "Coth");
         BindFunction(MathTrig.Coth, "COTH");
 
-        BindFunction(MathTrig.Asin, "asin");
-        BindFunction(MathTrig.Asin, "Asin");
-        BindFunction(MathTrig.Asin, "ASIN");
-        BindFunction(MathTrig.Acos, "acos");
-        BindFunction(MathTrig.Acos, "Acos");
-        BindFunction(MathTrig.Acos, "ACOS");
-        BindFunction(MathTrig.Atan, "atan");
-        BindFunction(MathTrig.Atan, "Atan");
-        BindFunction(MathTrig.Atan, "ATAN");
-        BindFunction(MathTrig.Asec, "asec");
-        BindFunction(MathTrig.Asec, "Asec");
-        BindFunction(MathTrig.Asec, "ASEC");
-        BindFunction(MathTrig.Acsc, "acsc");
-        BindFunction(MathTrig.Acsc, "Acsc");
-        BindFunction(MathTrig.Acsc, "ACSC");
-        BindFunction(MathTrig.Acot, "acot");
-        BindFunction(MathTrig.Acot, "Acot");
-        BindFunction(MathTrig.Acot, "ACOT");
+        BindFunction(MathTrig.Asin, "sin^-1");
+        BindFunction(MathTrig.Asin, "Sin^-1");
+        BindFunction(MathTrig.Asin, "SIN^-1");
+        BindFunction(MathTrig.Acos, "cos^-1");
+        BindFunction(MathTrig.Acos, "Cos^-1");
+        BindFunction(MathTrig.Acos, "COS^-1");
+        BindFunction(MathTrig.Atan, "tan^-1");
+        BindFunction(MathTrig.Atan, "Tan^-1");
+        BindFunction(MathTrig.Atan, "TAN^-1");
+        BindFunction(MathTrig.Asec, "sec^-1");
+        BindFunction(MathTrig.Asec, "Sec^-1");
+        BindFunction(MathTrig.Asec, "SEC^-1");
+        BindFunction(MathTrig.Acsc, "csc^-1");
+        BindFunction(MathTrig.Acsc, "Csc^-1");
+        BindFunction(MathTrig.Acsc, "CSC^-1");
+        BindFunction(MathTrig.Acot, "cot^-1");
+        BindFunction(MathTrig.Acot, "Cot^-1");
+        BindFunction(MathTrig.Acot, "COT^-1");
 
-        BindFunction(MathTrig.Asinh, "asinh");
-        BindFunction(MathTrig.Asinh, "Asinh");
-        BindFunction(MathTrig.Asinh, "ASINH");
-        BindFunction(MathTrig.Acosh, "acosh");
-        BindFunction(MathTrig.Acosh, "Acosh");
-        BindFunction(MathTrig.Acosh, "ACOSH");
-        BindFunction(MathTrig.Atanh, "atanh");
-        BindFunction(MathTrig.Atanh, "Atanh");
-        BindFunction(MathTrig.Atanh, "ATANH");
-        BindFunction(MathTrig.Asech, "asech");
-        BindFunction(MathTrig.Asech, "Asech");
-        BindFunction(MathTrig.Asech, "ASECH");
-        BindFunction(MathTrig.Acsch, "acsch");
-        BindFunction(MathTrig.Acsch, "Acsch");
-        BindFunction(MathTrig.Acsch, "ACSCH");
-        BindFunction(MathTrig.Acoth, "acoth");
-        BindFunction(MathTrig.Acoth, "Acoth");
-        BindFunction(MathTrig.Acoth, "ACOTH");
+        BindFunction(MathTrig.Asinh, "sinh^-1");
+        BindFunction(MathTrig.Asinh, "Sinh^-1");
+        BindFunction(MathTrig.Asinh, "SINH^-1");
+        BindFunction(MathTrig.Acosh, "cosh^-1");
+        BindFunction(MathTrig.Acosh, "Cosh^-1");
+        BindFunction(MathTrig.Acosh, "COSH^-1");
+        BindFunction(MathTrig.Atanh, "tanh^-1");
+        BindFunction(MathTrig.Atanh, "Tanh^-1");
+        BindFunction(MathTrig.Atanh, "TANH^-1");
+        BindFunction(MathTrig.Asech, "sech^-1");
+        BindFunction(MathTrig.Asech, "Sech^-1");
+        BindFunction(MathTrig.Asech, "SECH^-1");
+        BindFunction(MathTrig.Acsch, "csch^-1");
+        BindFunction(MathTrig.Acsch, "Csch^-1");
+        BindFunction(MathTrig.Acsch, "CSCH^-1");
+        BindFunction(MathTrig.Acoth, "coth^-1");
+        BindFunction(MathTrig.Acoth, "Coth^-1");
+        BindFunction(MathTrig.Acoth, "COTH^-1");
 
         BindFunction(MathTrig.Asin, "arcsin");
         BindFunction(MathTrig.Asin, "Arcsin");
@@ -167,5 +169,24 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindFunction(MathTrig.Acoth, "ARCOTH");
 
         #endregion
+    }
+
+    private static long Factorial(double n)
+    {
+        if (n < 0.0)
+            throw new ArgumentException($"Negative number {n} isn't allowed by the factorial function.");
+
+        if (n % 1.0 > double.Epsilon)
+            throw new ArgumentException($"Not integer number {n} isn't supported by the factorial function.");
+
+        var i = (long)n;
+        var result = 1L;
+        while (i > 0)
+        {
+            result = result * i;
+            i--;
+        }
+
+        return result;
     }
 }
