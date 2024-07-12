@@ -5,7 +5,7 @@ namespace MathEvaluation.Tests;
 
 public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
 {
-    private IMathContext _context = new DotNetStandartMathContext();
+    private readonly DotNetStandartMathContext _context = new();
 
     [Theory]
     [InlineData("double.NaN", double.NaN)]
@@ -34,7 +34,10 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Single.MaxValue", float.MaxValue)]
     [InlineData("-20.3d", -20.3d)]
     [InlineData("2D / 5m / 2f * 5F", 2d / 5 / 2 * 5)]
+    [InlineData("2ul / 5d / 2UL * 5Ul", 2d / 5 / 2 * 5)]
+    [InlineData("2u / 5d / 2U * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
+    [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
     public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

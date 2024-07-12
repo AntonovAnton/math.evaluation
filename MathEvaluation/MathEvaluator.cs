@@ -5,7 +5,7 @@ using MathEvaluation.Context;
 
 namespace MathEvaluation;
 
-public class MathEvaluator(string expression)
+public partial class MathEvaluator(string expression)
 {
     public string Expression { get; } = expression;
 
@@ -219,32 +219,44 @@ public class MathEvaluator(string expression)
         }
     }
 
-    private static double EvaluateVariableOrConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value)
+    private static double EvaluateVariableOrConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value,
+        IMathEntity? entity = null)
     {
-        var entity = context?.FindMathEntity(expression[i..]);
+        entity = entity ?? context?.FindMathEntity(expression[i..]);
         if (entity is MathVariable<double> mathVariable)
         {
             i += entity.Key.Length;
             var result = EvaluateConverter(expression, context, ref i, mathVariable.Value);
             value = (value == 0 ? 1 : value) * result;
         }
+        else if (entity is MathOperandConverter<double> mathConverter)
+        {
+            i += entity.Key.Length;
+            var fn = mathConverter.Fn;
+            value = fn(value);
+        }
+        else if (entity is MathVariable<decimal> or MathOperandConverter<decimal>)
+        {
+            var decimalValue = EvaluateVariableOrConverterDecimal(expression, context, ref i, (decimal)value, entity);
+            return (double)decimalValue;
+        }
+        return value;
+    }
+
+    private static double EvaluateConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value,
+        IMathEntity? entity = null)
+    {
+        entity = entity ?? context?.FindMathEntity(expression[i..]);
         if (entity is MathOperandConverter<double> mathConverter)
         {
             i += entity.Key.Length;
             var fn = mathConverter.Fn;
             value = fn(value);
         }
-        return value;
-    }
-
-    private static double EvaluateConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value)
-    {
-        var entity = context?.FindMathEntity(expression[i..]);
-        if (entity is MathOperandConverter<double> mathConverter)
+        else if (entity is MathOperandConverter<decimal>)
         {
-            i += entity.Key.Length;
-            var fn = mathConverter.Fn;
-            value = fn(value);
+            var decimalValue = EvaluateConverterDecimal(expression, context, ref i, (decimal)value, entity);
+            return (double)decimalValue;
         }
         return value;
     }
@@ -257,6 +269,10 @@ public class MathEvaluator(string expression)
 
         if (TryEvaluateCurrencySymbol(expression, provider, ref i))
             return value;
+
+        var decimalValue = (decimal)value;
+        if (context != null && TryEvaluateContextDecimal(expression, context, provider, ref i, separator, closingSymbol, isEvaluatedFirst, ref decimalValue))
+            return (double)decimalValue;
 
         var end = expression[i..].IndexOfAny("([ |") + i;
         var unknownSubstring = end > i ? expression[i..end] : expression[i..];
@@ -357,6 +373,12 @@ public class MathEvaluator(string expression)
     private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol)
     {
+        var str = GetNumberString(expression, ref i, separator, closingSymbol);
+        return double.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, provider);
+    }
+
+    private static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, ref int i, char? separator, char? closingSymbol)
+    {
         var start = i;
         i++;
         while (expression.Length > i)
@@ -385,6 +407,6 @@ public class MathEvaluator(string expression)
         if (expression[i - 1] is 'e')
             i--;
 
-        return double.Parse(expression[start..i], NumberStyles.Number | NumberStyles.AllowExponent, provider);
+        return expression[start..i];
     }
 }

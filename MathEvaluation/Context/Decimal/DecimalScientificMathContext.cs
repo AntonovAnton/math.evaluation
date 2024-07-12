@@ -1,11 +1,11 @@
 ﻿using System;
 using MathTrigonometric;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Context.Decimal;
 
-public class ScientificMathContext : MathContext, IScientificMathContext
+public class DecimalScientificMathContext : MathContext, IScientificMathContext
 {
-    public ScientificMathContext()
+    public DecimalScientificMathContext()
     {
         BindVariable(Math.PI, 'π');
         BindVariable(Math.PI, "pi");
@@ -15,7 +15,7 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindVariable(Math.PI * 2, 'τ');
         BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
 
-        static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
+        static decimal modFn(decimal leftOperand, decimal rigntOperand) => leftOperand % rigntOperand;
         BindOperator(modFn, "mod");
         BindOperator(modFn, "Mod");
         BindOperator(modFn, "MOD");
@@ -23,24 +23,24 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindOperator(modFn, "Modulo");
         BindOperator(modFn, "MODULO");
 
-        static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
+        static decimal divisionFn(decimal leftOperand, decimal rigntOperand) => leftOperand / rigntOperand;
         BindOperator(divisionFn, '÷');
 
-        static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
+        static decimal multiplicationFn(decimal leftOperand, decimal rigntOperand) => leftOperand * rigntOperand;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        BindFunction((double value) => value, '[', ']');
-        BindFunction((double value) => Math.Abs(value), '|', '|');
-        BindFunction((double value) => Math.Ceiling(value), '⌈', '⌉');
-        BindFunction((double value) => Math.Floor(value), '⌊', '⌋');
+        BindFunction((decimal value) => value, '[', ']');
+        BindFunction((decimal value) => Math.Abs(value), '|', '|');
+        BindFunction((decimal value) => Math.Ceiling(value), '⌈', '⌉');
+        BindFunction((decimal value) => Math.Floor(value), '⌊', '⌋');
         BindFunction(Math.Sqrt, '\u221a'); //square root symbol
-        BindFunction(value => Math.Pow(value, 1/3d), '\u221b'); //cube root symbol
+        BindFunction(value => Math.Pow(value, 1 / 3d), '\u221b'); //cube root symbol
         BindFunction(value => Math.Pow(value, 0.25d), '\u221c'); //fourth root symbol
 
-        BindFunction((double value) => Math.Abs(value), "abs");
-        BindFunction((double value) => Math.Abs(value), "Abs");
-        BindFunction((double value) => Math.Abs(value), "ABS");
+        BindFunction((decimal value) => Math.Abs(value), "abs");
+        BindFunction((decimal value) => Math.Abs(value), "Abs");
+        BindFunction((decimal value) => Math.Abs(value), "ABS");
         BindFunction(Math.Log, "ln");
         BindFunction(Math.Log, "Ln");
         BindFunction(Math.Log, "LN");
@@ -171,12 +171,12 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         #endregion
     }
 
-    private static long Factorial(double n)
+    private static long Factorial(decimal n)
     {
-        if (n < 0.0)
+        if (n < 0.0m)
             throw new ArgumentException($"Negative number {n} isn't allowed by the factorial function.");
 
-        if (n % 1.0 > double.Epsilon)
+        if (n % 1.0m > 0m)
             throw new ArgumentException($"Not integer number {n} isn't supported by the factorial function.");
 
         var i = (long)n;
