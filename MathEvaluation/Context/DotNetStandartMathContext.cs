@@ -34,7 +34,7 @@ public class DotNetStandartMathContext : ProgrammingMathContext
         BindFunction(Math.Atan);
         BindFunction(Math.Atan2);
         BindFunction(Math.Atanh);
-        BindFunction((double[] args) => Math.BigMul((int)args[0], (int)args[1]), "Math.BigMul");
+        BindFunction((double a, double b) => Math.BigMul((int)a, (int)b), "Math.BigMul");
         BindFunction(Math.Cbrt);
         BindFunction((double value) => Math.Ceiling(value), "Math.Ceiling");
         BindFunction((double value, double min, double max) => Math.Clamp(value, min, max), "Math.Clamp");

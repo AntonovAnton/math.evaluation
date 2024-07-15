@@ -1,0 +1,321 @@
+﻿using Xunit.Abstractions;
+using MathEvaluation.Context.Decimal;
+
+namespace MathEvaluation.Tests;
+
+public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
+{
+    private readonly DecimalDotNetStandartMathContext _context = new();
+
+    [Theory]
+    [InlineData("double.Epsilon", double.Epsilon)]
+    [InlineData("float.Epsilon", float.Epsilon)]
+    [InlineData("Single.Epsilon", float.Epsilon)]
+    [InlineData("Double.Epsilon", double.Epsilon)]
+    [InlineData("decimal.One", (double)decimal.One)]
+    [InlineData("decimal.Zero", (double)decimal.Zero)]
+    [InlineData("decimal.MinusOne", (double)decimal.MinusOne)]
+    [InlineData("-20.3m", -20.3d)]
+    [InlineData("2D / 5d / 2f * 5m", 2d / 5 / 2 * 5)]
+    [InlineData("2ul / 5d / 2UL * 5Ul", 2d / 5 / 2 * 5)]
+    [InlineData("2u / 5d / 2M * 5lU", 2d / 5 / 2 * 5)]
+    [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
+    [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
+    public void MathEvaluator_EvaluateDecimal_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.E", Math.E)]
+    [InlineData("200 * Math.E", 543.656365691808d)]
+    public void MathEvaluator_EvaluateDecimal_HasLnBase_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.PI", Math.PI)]
+    public void MathEvaluator_EvaluateDecimal_HasMathPI_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Sin(Math.PI / 6)", 0.49999999999999994d)]
+    [InlineData("Math.Sin(0.5 * Math.PI)", 1d)]
+    [InlineData("Math.Cos(1)", 0.54030230586813977d)]
+    [InlineData("Math.Cos(1)*(1 + 2)", 0.54030230586813977d * 3)]
+    [InlineData("(Math.Cos(1)*(1 + 2)) % Math.Cos(1)+0.5", 0.5d)]
+    [InlineData("Math.Cos(Math.Pow(1,4))", 0.54030230586813977d)]
+    [InlineData("Math.Cos(Math.Pow(1,4))/2", 0.54030230586813977d / 2)]
+    [InlineData("Math.Sin(Math.PI/12 + Math.PI/12)", 0.49999999999999994d)]
+    [InlineData("Math.Sin((1/6)*Math.PI)", 0.49999999999999994d)]
+    [InlineData("Math.Sin(1 + 2.4)", -0.25554110202683122d)]
+    [InlineData("Math.Sin(3.4)", -0.25554110202683122d)]
+    [InlineData("Math.Sin( +3.4)", -0.25554110202683122d)]
+    [InlineData("Math.Sin( -3 * 2)", 0.27941549819892586d)]
+    [InlineData("Math.Sin(-3)", -0.14112000805986721d)]
+    [InlineData("Math.Cos(Math.PI/3)", 0.50000000000000011d)]
+    [InlineData("Math.Cos(Math.PI/6 + Math.PI/6)", 0.50000000000000011d)]
+    [InlineData("Math.Cos((1/3)*Math.PI)", 0.50000000000000011d)]
+    [InlineData("Math.Sin(Math.PI/6) + Math.Cos(Math.PI/3)", 1d)]
+    [InlineData("Math.Tan(0)", 0)]
+    [InlineData("Math.Tan(Math.PI/4)", 0.99999999999999989d)]
+    [InlineData("Math.Sin(0) + 3", 3d)]
+    [InlineData("Math.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
+    public void MathEvaluator_EvaluateDecimal_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Sinh(0)", 0d)]
+    [InlineData("Math.Sinh(0.88137358701954305)", 1d)]
+    [InlineData("Math.Sinh( -0.48121182505960347)", -0.5d)]
+    [InlineData("Math.Sinh(-0.88137358701954305)", -1d)]
+    [InlineData("Math.Cosh(0)", 1d)]
+    [InlineData("Math.Cosh(1.3169578969248166)", 1.9999999999999998d)]
+    [InlineData("Math.Tanh(0)", 0)]
+    [InlineData("Math.Tanh( -0.54930614433405489)", -0.5d)]
+    [InlineData("Math.Tanh(double.NegativeInfinity)", -1d)]
+    public void MathEvaluator_EvaluateDecimal_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
+        double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Asin(-1)", -Math.PI / 2)]
+    [InlineData("Math.Acos(-1)", Math.PI)]
+    [InlineData("Math.Atan(-double.PositiveInfinity)", -Math.PI / 2)]
+    [InlineData("Math.Atan(-2)", -1.1071487177940904d)]
+    public void MathEvaluator_EvaluateDecimal_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Asinh(0)", 0)]
+    [InlineData("Math.Asinh(0.5)", 0.48121182505960347d)]
+    [InlineData("Math.Asinh(2)", 1.4436354751788103d)]
+    [InlineData("Math.Asinh(-2)", -1.4436354751788103d)]
+    [InlineData("Math.Acosh(1)", 0)]
+    [InlineData("Math.Acosh(2)", 1.3169578969248166d)]
+    [InlineData("Math.Atanh(0)", 0)]
+    [InlineData("Math.Atanh(0.5)", 0.54930614433405489d)]
+    public void MathEvaluator_EvaluateDecimal_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("3 * Math.Abs-5", 15d)]
+    [InlineData("3 * Math.Abs(  -5)", 15d)]
+    [InlineData("3 / Math.Abs(  -(9/3))", 1d)]
+    [InlineData("Math.Abs(Math.Sin(-3))", 0.14112000805986721d)]
+    [InlineData("3 + 2* Math.Pow(Math.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    public void MathEvaluator_EvaluateDecimal_HasAbs_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Sqrt(25)", 5d)]
+    [InlineData("Math.Sqrt(0)", 0d)]
+    [InlineData("Math.Sqrt(9*9)", 9d)]
+    [InlineData("Math.Sqrt(9)*Math.Sqrt(9)", 9d)]
+    [InlineData("Math.Sqrt(9)*(1 + 2)", 9d)]
+    [InlineData("Math.Sqrt(9)/Math.Sqrt(9)", 1d)]
+    [InlineData("Math.Sqrt(1)", 1d)]
+    [InlineData("Math.Pow(8, 1/3)", 2)]
+    [InlineData("Math.Pow(Math.Pow(8, 1/3), 2)", 4d)]
+    [InlineData("Math.Sqrt(9) * Math.Pow(8, 1/3)", 6d)]
+    [InlineData("Math.Pow(16, 0.25)", 2d)]
+    public void MathEvaluator_EvaluateDecimal_HasRoot_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Log10(1)", 0d)]
+    [InlineData("Math.Log10(10)", 1d)]
+    [InlineData("Math.Log10(Math.E)", 0.43429448190325182d)]
+    [InlineData("Math.Log10(100)", 2d)]
+    [InlineData("Math.Log(1)", 0d)]
+    [InlineData("Math.Log(10)", 2.3025850929940459d)]
+    [InlineData("Math.Log(10, Math.E)", 2.3025850929940459d)]
+    [InlineData("Math.Log(Math.E)", 1d)]
+    [InlineData("Math.Log(100)", 4.6051701859880918d)]
+    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt((1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
+    public void MathEvaluator_EvaluateDecimal_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Floor(-20.3)", -21d)]
+    [InlineData("-Math.Floor(20.3)", -20d)]
+    [InlineData("-Math.Floor(0)", 0d)]
+    [InlineData("Math.Floor(-0.1)", -1d)]
+    [InlineData("3*Math.Floor(-5)", -15d)]
+    [InlineData("2 / Math.Floor(-5) / 2 * 5", 2d / -5 / 2 * 5)]
+    [InlineData("Math.Floor(2 + (5 - 1))", 2 + (5 - 1))]
+    [InlineData("2*(5 - Math.Floor(-1))", 2 * (5 + 1))]
+    [InlineData("Math.Floor(-(5 - 1))(3 + 1)", -(3 + 1) * (5 - 1))]
+    [InlineData("(3 + 1)*Math.Floor(-(5 - 1))", (3 + 1) * -(5 - 1))]
+    [InlineData("6 + Math.Floor(( -4))", 6 - 4)]
+    [InlineData("6 + - Math.Floor(4)", 6 - 4)]
+    [InlineData("2 - 5 * Math.Floor(-10) / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("Math.Floor(Math.Sin(3))", 0d)]
+    [InlineData("Math.Floor(Math.Sin(-3))", -1d)]
+    [InlineData("3 + 2*Math.Pow(Math.Floor(2 + 3.5) , 2)", 3 + 2 * 25d)]
+    public void MathEvaluator_EvaluateDecimal_HasFloor_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Ceiling(-20.3)", -20d)]
+    [InlineData("-Math.Ceiling(20.3)", -21d)]
+    [InlineData("-Math.Ceiling(0)", 0d)]
+    [InlineData("Math.Ceiling(-0.1)", 0d)]
+    [InlineData("3*Math.Ceiling(-5)", -15d)]
+    [InlineData("2 / Math.Ceiling(-5) / 2 * 5", 2d / -5 / 2 * 5)]
+    [InlineData("Math.Ceiling(2 + (5 - 1))", 2 + (5 - 1))]
+    [InlineData("2*(5 - Math.Ceiling(-1))", 2 * (5 + 1))]
+    [InlineData("Math.Ceiling(-(5 - 1))*(3 + 1)", -(3 + 1) * (5 - 1))]
+    [InlineData("(3 + 1)*Math.Ceiling(-(5 - 1))", (3 + 1) * -(5 - 1))]
+    [InlineData("6 + Math.Ceiling(( -4))", 6 - 4)]
+    [InlineData("6 + - Math.Ceiling(4)", 6 - 4)]
+    [InlineData("2 - 5 * Math.Ceiling(-10) / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("Math.Ceiling(Math.Sin(3))", 1d)]
+    [InlineData("Math.Ceiling(Math.Sin(-3))", 0d)]
+    [InlineData("Math.Ceiling(2 + 3.5)", 6d)]
+    [InlineData("3 + 2*Math.Ceiling(2 + 3.5)", 3 + 2 * 6d)]
+    public void MathEvaluator_EvaluateDecimal_HasCeiling_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Log(1/x + Math.Sqrt((1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("x", "x", 0.5, 0.5d)]
+    [InlineData("2x", "x", 0.5, 1d)]
+    [InlineData("PI", $"{nameof(Math.PI)}", Math.PI, Math.PI)]
+    public void MathEvaluator_EvaluateDecimal_HasVariable_ExpectedValue(string expression, string varName,
+        double varValue, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{varName} = {varValue}");
+
+        var value = expression
+            .SetContext(_context)
+            .BindVariable(varValue, varName)
+            .EvaluateDecimal();
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("double.NaN")]
+    [InlineData("double.PositiveInfinity")]
+    [InlineData("double.NegativeInfinity")]
+    [InlineData("double.MinValue")]
+    [InlineData("double.MaxValue")]
+    [InlineData("Double.NaN")]
+    [InlineData("Double.PositiveInfinity")]
+    [InlineData("Double.NegativeInfinity")]
+    [InlineData("Double.MinValue")]
+    [InlineData("Double.MaxValue")]
+    [InlineData("float.NaN")]
+    [InlineData("float.PositiveInfinity")]
+    [InlineData("float.NegativeInfinity")]
+    [InlineData("float.MinValue")]
+    [InlineData("float.MaxValue")]
+    [InlineData("Single.NaN")]
+    [InlineData("Single.PositiveInfinity")]
+    [InlineData("Single.NegativeInfinity")]
+    [InlineData("Single.MinValue")]
+    [InlineData("Single.MaxValue")]
+    [InlineData("Math.Sinh(float.PositiveInfinity)")]
+    [InlineData("Math.Sinh(double.NegativeInfinity)")]
+    [InlineData("Math.Cosh(double.PositiveInfinity)")]
+    [InlineData("Math.Asinh(double.PositiveInfinity)")]
+    [InlineData("Math.Asinh(float.NegativeInfinity)")]
+    [InlineData("Math.Acosh(0)")]
+    [InlineData("Math.Acosh(0.5)")]
+    [InlineData("Math.Acosh(-2)")]
+    [InlineData("Math.Acosh(double.NegativeInfinity)")]
+    [InlineData("Math.Atanh(1)")]
+    [InlineData("Math.Atanh(2)")]
+    [InlineData("Math.Atanh(double.PositiveInfinity)")]
+    [InlineData("Math.Atanh(-2)")]
+    [InlineData("Math.Asin(Double.NegativeInfinity)")]
+    [InlineData("Math.Asin(Double.PositiveInfinity)")]
+    [InlineData("Math.Asin(-2)")]
+    [InlineData("Math.Acos(-2)")]
+    [InlineData("Math.Sqrt(-25)")]
+    [InlineData("Math.Pow(-8, 1/3)")]
+    [InlineData("Math.Log10(0)")]
+    [InlineData("Math.Log10(-100)")]
+    [InlineData("Math.Log10(double.PositiveInfinity)")]
+    [InlineData("Math.Log(0)")]
+    [InlineData("Math.Log(-100)")]
+    [InlineData("Math.Log(double.PositiveInfinity)")]
+    public void MathEvaluator_EvaluateDecimal_ReturnsNanOrInfinity_ThrowOverflowException(string expression)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.EvaluateDecimal(expression, _context));
+        Assert.IsType<OverflowException>(ex);
+    }
+}

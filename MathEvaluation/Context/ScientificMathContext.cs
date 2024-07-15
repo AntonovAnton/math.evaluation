@@ -52,7 +52,7 @@ public class ScientificMathContext : MathContext, IScientificMathContext
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, "\u00b0"); //degree symbol
+        BindConverter(MathTrig.DegreesToRadians, '\u00b0'); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");

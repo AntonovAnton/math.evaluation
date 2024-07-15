@@ -26,7 +26,6 @@ public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
         BindVariable(Math.PI);
         BindVariable(Math.E);
 
-
         BindFunction((decimal value) => Math.Abs(value), "Math.Abs");
         BindFunction(Math.Acos);
         BindFunction(Math.Acosh);
@@ -35,7 +34,7 @@ public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
         BindFunction(Math.Atan);
         BindFunction(Math.Atan2);
         BindFunction(Math.Atanh);
-        BindFunction((decimal[] args) => Math.BigMul((int)args[0], (int)args[1]), "Math.BigMul");
+        BindFunction((decimal a, decimal b) => Math.BigMul((int)a, (int)b), "Math.BigMul");
         BindFunction(Math.Cbrt);
         BindFunction((decimal value) => Math.Ceiling(value), "Math.Ceiling");
         BindFunction((decimal value, decimal min, decimal max) => Math.Clamp(value, min, max), "Math.Clamp");
@@ -108,18 +107,19 @@ public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
         BindVariable((decimal)long.MinValue, "Int64.MinValue");
         BindVariable((decimal)ulong.MaxValue, "UInt64.MaxValue");
         BindVariable((decimal)ulong.MinValue, "UInt64.MinValue");
-        BindVariable(float.NaN);
-        BindVariable(float.Epsilon);
-        BindVariable(float.PositiveInfinity);
-        BindVariable(float.NegativeInfinity);
-        BindVariable(float.MaxValue);
-        BindVariable(float.MinValue);
-        BindVariable(double.NaN);
-        BindVariable(double.Epsilon);
-        BindVariable(double.PositiveInfinity);
-        BindVariable(double.NegativeInfinity);
-        BindVariable(double.MaxValue);
-        BindVariable(double.MinValue);
+
+        BindVariable(Single.NaN);
+        BindVariable(Single.Epsilon);
+        BindVariable(Single.PositiveInfinity);
+        BindVariable(Single.NegativeInfinity);
+        BindVariable(Single.MaxValue);
+        BindVariable(Single.MinValue);
+        BindVariable(Double.NaN);
+        BindVariable(Double.Epsilon);
+        BindVariable(Double.PositiveInfinity);
+        BindVariable(Double.NegativeInfinity);
+        BindVariable(Double.MaxValue);
+        BindVariable(Double.MinValue);
     }
 }
 
