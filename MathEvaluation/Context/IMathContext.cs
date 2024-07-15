@@ -38,5 +38,32 @@ public interface IMathContext
     void BindFunction(Func<double[], double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
 
+    void BindVariable(decimal value, char key);
+
+    void BindVariable(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null);
+
+    void BindVariable(Func<decimal> getValue, char key);
+
+    void BindVariable(Func<decimal> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null);
+
+    void BindFunction(Func<decimal, decimal> value, char key);
+
+    void BindFunction(Func<decimal, decimal> value, [CallerArgumentExpression(nameof(value))] string? key = null);
+
+    void BindFunction(Func<decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
+
+    void BindFunction(Func<decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
+
+    void BindFunction(Func<decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
+
+    void BindFunction(Func<decimal, decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
+
+    void BindFunction(Func<decimal[], decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = DefaultOpeningSymbol, char separator = DefaultParamsSeparator, char closingSymbol = DefaultClosingSymbol);
+
     internal IMathEntity? FindMathEntity(ReadOnlySpan<char> expression);
 }

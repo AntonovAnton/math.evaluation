@@ -17,7 +17,7 @@ public class Benchmarks
     private const double a = Math.PI / 6;
     private const double b = Math.PI / 3;
 
-    private IMathContext _scientificContext = new ScientificMathContext();
+    private readonly IMathContext _scientificContext = new ScientificMathContext();
 
     [Benchmark(Description = "\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\".Evaluate()")]
     public double MathEvaluator_Evaluate_ComplexExpression()
