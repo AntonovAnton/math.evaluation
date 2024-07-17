@@ -220,28 +220,28 @@ public class MathContext : IMathContext
     protected void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(openingSymbol.ToString(), fn, closingSymbol));
 
-    /// <summary>Binds the converter.</summary>
+    /// <summary>Binds the converter function that converts the value of the math operand on the left.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<double, double> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key.ToString(), fn));
 
-    /// <summary>Binds the converter.</summary>
+    /// <summary>Binds the converter function that converts the value of the math operand on the left.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key, fn));
 
-    /// <summary>Binds the operator.</summary>
+    /// <summary>Binds the math operator that processes the left and right math operands.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<double, double, double> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperator<double>(key.ToString(), fn));
 
-    /// <summary>Binds the operator.</summary>
+    /// <summary>Binds the math operator that processes the left and right math operands.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
@@ -256,28 +256,28 @@ public class MathContext : IMathContext
     protected void BindFunction(Func<decimal, decimal> fn, char openingSymbol, char closingSymbol)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(openingSymbol.ToString(), fn, closingSymbol));
 
-    /// <summary>Binds the converter.</summary>
+    /// <summary>Binds the converter function that converts the value of the math operand on the left.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<decimal, decimal> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key.ToString(), fn));
 
-    /// <summary>Binds the converter.</summary>
+    /// <summary>Binds the converter function that converts the value of the math operand on the left.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key, fn));
 
-    /// <summary>Binds the operator.</summary>
+    /// <summary>Binds the math operator that processes the left and right math operands.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<decimal, decimal, decimal> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn));
 
-    /// <summary>Binds the operator.</summary>
+    /// <summary>Binds the math operator that processes the left and right math operands.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="System.ArgumentException">key</exception>

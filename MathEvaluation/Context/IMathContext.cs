@@ -9,17 +9,17 @@ namespace MathEvaluation.Context;
 public interface IMathContext
 {
     /// <summary>
-    /// The default function parameters separator is ','.
+    /// The default function parameters separator.
     /// </summary>
     public const char DefaultParamsSeparator = ',';
 
     /// <summary>
-    /// The default function opening symbol is '('.
+    /// The default function opening symbol.
     /// </summary>
     public const char DefaultOpeningSymbol = '(';
 
     /// <summary>
-    /// The default function closing symbol is ')'.
+    /// The default function closing symbol.
     /// </summary>
     public const char DefaultClosingSymbol = ')';
 
