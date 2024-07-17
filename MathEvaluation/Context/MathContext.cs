@@ -4,10 +4,25 @@ using System.Runtime.CompilerServices;
 
 namespace MathEvaluation.Context;
 
+/// <summary>
+/// The base implementation of the <see cref="IMathContext"/> allows for the use of custom variables and functions.
+/// It uses a prefix tree, also known as a trie (pronounced "try"), 
+/// for efficient searching of the variables and functions by their keys (names). 
+/// Performance is improved by using <see cref="ReadOnlySpan{T}"/> for comparing strings. 
+/// For more details, refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
+/// </summary>
+/// <seealso cref="MathEvaluation.Context.IMathContext" />
 public class MathContext : IMathContext
 {
     private readonly MathContextTrie _mathContextTrie = new();
 
+    /// <inheritdoc/>
+    public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
+        => _mathContextTrie.FirstMathEntity(expression);
+
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentNullException">args</exception>
+    /// <exception cref="System.NotSupportedException"></exception>
     public void Bind(object args)
     {
         if (args == null)
@@ -67,119 +82,205 @@ public class MathContext : IMathContext
         }
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(double value, char key)
         => _mathContextTrie.AddMathEntity(new MathVariable<double>(key.ToString(), value));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathVariable<double>(key, value));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(Func<double> getValue, char key)
         => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key.ToString(), getValue));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(Func<double> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key, getValue));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double> fn, char key)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key.ToString(), fn));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key, fn));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((double[] args) => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((double[] args) => fn(args[0], args[1], args[3]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4], args[5]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double[], double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => _mathContextTrie.AddMathEntity(new MathFunction<double>(key, fn, openingSymbol, separator, closingSymbol));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(decimal value, char key)
         => _mathContextTrie.AddMathEntity(new MathVariable<decimal>(key.ToString(), value));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathVariable<decimal>(key, value));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(Func<decimal> getValue, char key)
         => _mathContextTrie.AddMathEntity(new MathVariableFunction<decimal>(key.ToString(), getValue));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindVariable(Func<decimal> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathVariableFunction<decimal>(key, getValue));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal> fn, char key)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(key.ToString(), fn));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(key, fn));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((decimal[] args) => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((decimal[] args) => fn(args[0], args[1], args[3]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((decimal[] args) => fn(args[0], args[1], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => BindFunction((decimal[] args) => fn(args[0], args[1], args[3], args[4], args[5]), key, openingSymbol, separator, closingSymbol);
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal[], decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => _mathContextTrie.AddMathEntity(new MathFunction<decimal>(key, fn, openingSymbol, separator, closingSymbol));
 
+    /// <summary>Binds the function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(openingSymbol.ToString(), fn, closingSymbol));
 
+    /// <summary>Binds the converter.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<double, double> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key.ToString(), fn));
 
+    /// <summary>Binds the converter.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key, fn));
 
+    /// <summary>Binds the operator.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<double, double, double> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperator<double>(key.ToString(), fn));
 
+    /// <summary>Binds the operator.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperator<double>(key, fn));
 
+    /// <summary>Binds the function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindFunction(Func<decimal, decimal> fn, char openingSymbol, char closingSymbol)
         => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(openingSymbol.ToString(), fn, closingSymbol));
 
+    /// <summary>Binds the converter.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<decimal, decimal> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key.ToString(), fn));
 
+    /// <summary>Binds the converter.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindConverter(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key, fn));
 
+    /// <summary>Binds the operator.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<decimal, decimal, decimal> fn, char key)
         => _mathContextTrie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn));
 
+    /// <summary>Binds the operator.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
     protected void BindOperator(Func<decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _mathContextTrie.AddMathEntity(new MathOperator<decimal>(key, fn));
 
@@ -191,11 +292,4 @@ public class MathContext : IMathContext
     };
 
     private static bool IsDecimalType(Type type) => Type.GetTypeCode(type) == TypeCode.Decimal;
-
-    #region explicit IMathContext
-
-    IMathEntity? IMathContext.FindMathEntity(ReadOnlySpan<char> expression)
-        => _mathContextTrie.FindMathEntity(expression);
-
-    #endregion
 }

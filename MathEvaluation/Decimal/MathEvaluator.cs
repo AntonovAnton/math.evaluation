@@ -7,26 +7,31 @@ namespace MathEvaluation;
 
 public partial class MathEvaluator
 {
+    /// <inheritdoc cref="Evaluate(IFormatProvider?)"/>
     public decimal EvaluateDecimal(IFormatProvider? provider = null)
     {
         return EvaluateDecimal(Expression.AsSpan(), Context, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(string expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), null, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression, null, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), context, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
         try
@@ -221,7 +226,7 @@ public partial class MathEvaluator
     private static decimal EvaluateVariableOrConverterDecimal(ReadOnlySpan<char> expression, IMathContext? context, ref int i, decimal value,
         IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FindMathEntity(expression[i..]);
+        entity = entity ?? context?.FirstMathEntity(expression[i..]);
         if (entity is MathVariable<decimal> mathVariable)
         {
             i += entity.Key.Length;
@@ -245,7 +250,7 @@ public partial class MathEvaluator
     private static decimal EvaluateConverterDecimal(ReadOnlySpan<char> expression, IMathContext? context, ref int i, decimal value,
         IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FindMathEntity(expression[i..]);
+        entity = entity ?? context?.FirstMathEntity(expression[i..]);
         if (entity is MathOperandConverter<decimal> mathConverter)
         {
             i += entity.Key.Length;
@@ -284,7 +289,7 @@ public partial class MathEvaluator
     private static bool TryEvaluateContextDecimal(ReadOnlySpan<char> expression, IMathContext context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, bool isEvaluatedFirst, ref decimal value)
     {
-        var entity = context.FindMathEntity(expression[i..]);
+        var entity = context.FirstMathEntity(expression[i..]);
         switch (entity)
         {
             case MathVariable<decimal> mathVariable:

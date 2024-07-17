@@ -1,4 +1,9 @@
-# Evaluate mathematical expression
+# Math expression evaluator in .NET
 
-Solution of the evaluate mathematical expression task
-https://www.codewars.com/kata/52a78825cdfc2cfc87000005
+MathEvaluator is a .NET library that allows you to evaluate mathematical expressions from a string dynamically. It supports various mathematical operations and functions, making it a versatile tool for applications requiring dynamic expression evaluation.
+
+## Features
+- Evaluate basic arithmetic operations: addition, subtraction, multiplication, division
+- Support for mathematical functions: sin, cos, tan, sqrt, etc.
+- Variable support within expressions
+- Extensible with custom functions

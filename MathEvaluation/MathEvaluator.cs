@@ -5,32 +5,59 @@ using MathEvaluation.Context;
 
 namespace MathEvaluation;
 
+/// <summary>
+/// Fast and comprehensive evaluator for dynamically evaluating mathematical expressions from strings.
+/// </summary>
 public partial class MathEvaluator(string expression)
 {
+    /// <summary>Gets the math expression.</summary>
+    /// <value>The math expression.</value>
     public string Expression { get; } = expression;
 
+    /// <summary>Gets the math context.</summary>
+    /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
     public IMathContext? Context { get; internal set; }
 
+    /// <summary>Evaluates the <see cref="Expression">math expression</see>.</summary>
+    /// <param name="provider">The specified format provider.</param>
+    /// <returns>Value of the math expression.</returns>
+    /// <exception cref="FormatException"></exception>
+    /// <exception cref="NotSupportedException"></exception>
     public double Evaluate(IFormatProvider? provider = null)
     {
         return Evaluate(Expression.AsSpan(), Context, provider);
     }
 
+    /// <summary>Evaluates the math <paramref name="expression" />.</summary>
+    /// <param name="expression">The math expression.</param>
+    /// <param name="provider">The specified format provider.</param>
+    /// <returns>Value of the math expression.</returns>
+    /// <exception cref="FormatException"></exception>
+    /// <exception cref="NotSupportedException"></exception>
     public static double Evaluate(string expression, IFormatProvider? provider = null)
     {
         return Evaluate(expression.AsSpan(), null, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
     public static double Evaluate(ReadOnlySpan<char> expression, IFormatProvider? provider = null)
     {
         return Evaluate(expression, null, provider);
     }
 
+    /// <summary>Evaluates the math <paramref name="expression" />.</summary>
+    /// <param name="expression">The math expression.</param>
+    /// <param name="context">The specified math context.</param>
+    /// <param name="provider">The specified format provider.</param>
+    /// <returns>Value of the math expression.</returns>
+    /// <exception cref="FormatException"></exception>
+    /// <exception cref="NotSupportedException"></exception>
     public static double Evaluate(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return Evaluate(expression.AsSpan(), context, provider);
     }
 
+    /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     public static double Evaluate(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
         try
@@ -222,7 +249,7 @@ public partial class MathEvaluator(string expression)
     private static double EvaluateVariableOrConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value,
         IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FindMathEntity(expression[i..]);
+        entity = entity ?? context?.FirstMathEntity(expression[i..]);
         if (entity is MathVariable<double> mathVariable)
         {
             i += entity.Key.Length;
@@ -246,7 +273,7 @@ public partial class MathEvaluator(string expression)
     private static double EvaluateConverter(ReadOnlySpan<char> expression, IMathContext? context, ref int i, double value,
         IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FindMathEntity(expression[i..]);
+        entity = entity ?? context?.FirstMathEntity(expression[i..]);
         if (entity is MathOperandConverter<double> mathConverter)
         {
             i += entity.Key.Length;
@@ -283,7 +310,7 @@ public partial class MathEvaluator(string expression)
     private static bool TryEvaluateContext(ReadOnlySpan<char> expression, IMathContext context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, bool isEvaluatedFirst, ref double value)
     {
-        var entity = context.FindMathEntity(expression[i..]);
+        var entity = context.FirstMathEntity(expression[i..]);
         switch (entity)
         {
             case MathVariable<double> mathVariable:

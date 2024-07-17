@@ -1,13 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Title>Math expression evaluator</Title>
+        <Authors>Anton Antonov</Authors>
+        <Description>This .NET library offers a fast and straightforward evaluator for dynamically evaluating mathematical expressions from strings. It supports a wide range of operations and allows for the use of custom variables and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <Copyright>Copyright © 2024 Anton Antonov</Copyright>
+        <PackageProjectUrl>https://github.com/AntonovAnton/math.evaluation</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AntonovAnton/math.evaluation</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>math; math-expressions; evaluation; evaluator; mathematical-expressions; math-library; eval; expression-evaluator; math-parser; evaluate-expressions; math-expression-evaluator; math-expression-parser; mathexpression; math-eval-calc; csharp-maths; math-evaluator; math-evaluation;</PackageTags>
+        <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.</PackageReleaseNotes>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <Version>1.0.0</Version>
+        <PackageId>MathEvaluator</PackageId>
+        <Product>MathEvaluator</Product>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MathTrigonometric" Version="1.0.7" />
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <WarningLevel>9999</WarningLevel>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <WarningLevel>9999</WarningLevel>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MathTrigonometric" Version="1.0.7" />
+    </ItemGroup>
 
 </Project>
