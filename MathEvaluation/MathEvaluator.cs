@@ -8,7 +8,7 @@ namespace MathEvaluation;
 /// <summary>
 /// Fast and comprehensive evaluator for dynamically evaluating mathematical expressions from strings.
 /// </summary>
-public partial class MathEvaluator(string expression)
+public partial class MathEvaluator(string expression, IMathContext? context = null)
 {
     /// <summary>Gets the math expression.</summary>
     /// <value>The math expression.</value>
@@ -16,7 +16,7 @@ public partial class MathEvaluator(string expression)
 
     /// <summary>Gets the math context.</summary>
     /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
-    public IMathContext? Context { get; internal set; }
+    public IMathContext? Context { get; internal set; } = context;
 
     /// <summary>Evaluates the <see cref="Expression">math expression</see>.</summary>
     /// <param name="provider">The specified format provider.</param>

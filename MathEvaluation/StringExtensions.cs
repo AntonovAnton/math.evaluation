@@ -15,10 +15,7 @@ public static class StringExtensions
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator SetContext(this string expression, IMathContext context)
     {
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -32,10 +29,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.Bind(args);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -61,10 +55,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindVariable(value, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -90,10 +81,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindVariable(getValue, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -119,10 +107,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -143,10 +128,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -167,10 +149,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -191,10 +170,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -215,10 +191,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -239,10 +212,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -268,10 +238,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindVariable(value, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -297,10 +264,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindVariable(getValue, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -326,10 +290,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -350,10 +311,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -374,10 +332,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -398,10 +353,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -422,10 +374,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <summary>
@@ -446,10 +395,7 @@ public static class StringExtensions
         var context = new MathContext();
         context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
 
-        return new MathEvaluator(expression)
-        {
-            Context = context
-        };
+        return new MathEvaluator(expression, context);
     }
 
     /// <inheritdoc cref="MathEvaluator.Evaluate(string, IFormatProvider?)"/>
