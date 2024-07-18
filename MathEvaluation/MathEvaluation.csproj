@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Title>Math expression evaluator</Title>
         <Authors>Anton Antonov</Authors>
-        <Description>This .NET library offers a fast and straightforward evaluator for dynamically evaluating mathematical expressions from strings. It supports a wide range of operations and allows for the use of custom variables and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
+        <Description>This .NET library offers a fast and comprehensive evaluator for dynamically evaluating mathematical expressions from strings. It supports a wide range of operations and allows for the use of custom variables and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Copyright>Copyright © 2024 Anton Antonov</Copyright>
         <PackageProjectUrl>https://github.com/AntonovAnton/math.evaluation</PackageProjectUrl>
@@ -15,7 +15,11 @@
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>math; math-expressions; evaluation; evaluator; mathematical-expressions; math-library; eval; expression-evaluator; math-parser; evaluate-expressions; math-expression-evaluator; math-expression-parser; mathexpression; math-eval-calc; csharp-maths; math-evaluator; math-evaluation;</PackageTags>
-        <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.</PackageReleaseNotes>
+        <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
+Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
+Evaluates to double or decimal.
+Provides variable support within expressions.
+Extensible with custom functions.</PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <Version>1.0.0</Version>
         <PackageId>MathEvaluator</PackageId>
