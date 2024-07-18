@@ -111,7 +111,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
         var value = MathEvaluator.EvaluateDecimal(expression, cultureInfo);
 
-        Assert.Equal((decimal)expectedValue, value);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]

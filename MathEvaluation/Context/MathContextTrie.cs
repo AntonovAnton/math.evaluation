@@ -17,72 +17,90 @@ internal sealed class MathContextTrie
         AddMathEntity(_rootNode, entity.Key.AsSpan(), entity);
     }
 
-    public IMathEntity? FindMathEntity(ReadOnlySpan<char> expression)
+    public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
     {
-        return FindMathEntity(_rootNode, expression);
+        return FirstMathEntity(_rootNode, expression);
     }
 
     private void AddMathEntity(TrieNode trieNode, ReadOnlySpan<char> key, IMathEntity entity)
     {
-        if (key.IsEmpty)
+        lock (_rootNode)
         {
-            if (string.IsNullOrEmpty(trieNode.RemainingKey))
+            if (key.IsEmpty)
             {
+                if (string.IsNullOrEmpty(trieNode.RemainingKey))
+                {
+                    if (trieNode.Entity != null)
+                        ThrowArgumentException(entity);
+
+                    trieNode.Entity = entity;
+                    return;
+                }
+                else
+                {
+                    var newChild = new TrieNode(trieNode.RemainingKey[1..], trieNode.Entity);
+                    if (trieNode.Children.TryAdd(trieNode.RemainingKey[0], newChild))
+                    {
+                        trieNode.RemainingKey = string.Empty;
+                        trieNode.Entity = entity;
+                    }
+                    else
+                    {
+                        ThrowArgumentException(entity);
+                    }
+                }
+            }
+
+            if (key == trieNode.RemainingKey)
+            {
+                if (trieNode.Entity != null)
+                    ThrowArgumentException(entity);
+
                 trieNode.Entity = entity;
                 return;
             }
+
+            if (!trieNode.Children.TryGetValue(key[0], out var childTreeNode))
+            {
+                trieNode.Children.TryAdd(key[0], new TrieNode(key[1..].ToString(), entity));
+            }
             else
             {
-                var newChild = new TrieNode(trieNode.RemainingKey[1..], trieNode.Entity);
-                if (trieNode.Children.TryAdd(trieNode.RemainingKey[0], newChild))
+                if (!string.IsNullOrEmpty(childTreeNode.RemainingKey))
                 {
-                    trieNode.RemainingKey = string.Empty;
-                    trieNode.Entity = entity;
+                    if (key[1..].SequenceEqual(childTreeNode.RemainingKey))
+                    {
+                        ThrowArgumentException(entity);
+                    }
+
+                    var newChild = new TrieNode(childTreeNode.RemainingKey[1..], childTreeNode.Entity);
+                    if (childTreeNode.Children.TryAdd(childTreeNode.RemainingKey[0], newChild))
+                    {
+                        childTreeNode.RemainingKey = string.Empty;
+                        childTreeNode.Entity = null;
+                    }
+                    else
+                    {
+                        ThrowArgumentException(entity);
+                    }
                 }
-                else
-                {
-                    var message = $"An entity with the same key has already been added. Key: {key.ToString()}";
-                    throw new ArgumentException(message, nameof(key));
-                }
+
+                AddMathEntity(childTreeNode, key[1..], entity);
             }
         }
 
-        if (key == trieNode.RemainingKey)
+        static void ThrowArgumentException(IMathEntity entity)
         {
-            trieNode.Entity = entity;
-            return;
-        }
-
-        if (!trieNode.Children.TryGetValue(key[0], out var childTreeNode))
-        {
-            trieNode.Children.TryAdd(key[0], new TrieNode(key[1..].ToString(), entity));
-        }
-        else
-        {
-            if (!string.IsNullOrEmpty(childTreeNode.RemainingKey))
-            {
-                var newChild = new TrieNode(childTreeNode.RemainingKey[1..], childTreeNode.Entity);
-                if (childTreeNode.Children.TryAdd(childTreeNode.RemainingKey[0], newChild))
-                {
-                    childTreeNode.RemainingKey = string.Empty;
-                    childTreeNode.Entity = null;
-                }
-                else
-                {
-                    var message = $"An entity with the same key has already been added. Key: {key.ToString()}";
-                    throw new ArgumentException(message, nameof(key));
-                }
-            }
-
-            AddMathEntity(childTreeNode, key[1..], entity);
+            var message = $"An entity with the same key has already been added. Key: {entity.Key}";
+            throw new ArgumentException(message, "key");
         }
     }
 
-    private IMathEntity? FindMathEntity(TrieNode trieNode, ReadOnlySpan<char> expression)
+    private IMathEntity? FirstMathEntity(TrieNode trieNode, ReadOnlySpan<char> expression)
     {
         if (!expression.IsEmpty && trieNode.Children.TryGetValue(expression[0], out var childTreeNode))
         {
-            return FindMathEntity(childTreeNode, expression[1..]);
+            return FirstMathEntity(childTreeNode, expression[1..]);
         }
 
         if (expression.StartsWith(trieNode.RemainingKey))

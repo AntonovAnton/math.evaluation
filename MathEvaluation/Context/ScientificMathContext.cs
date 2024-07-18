@@ -3,8 +3,15 @@ using MathTrigonometric;
 
 namespace MathEvaluation.Context;
 
+/// <summary>
+/// The base scientific math context supports all trigonometric functions, logarithms, other scientific math functions, and constants. 
+/// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
+/// </summary>
+/// <seealso cref="MathEvaluation.Context.MathContext" />
+/// <seealso cref="MathEvaluation.Context.IScientificMathContext" />
 public class ScientificMathContext : MathContext, IScientificMathContext
 {
+    /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>
     public ScientificMathContext()
     {
         BindVariable(Math.PI, 'π');

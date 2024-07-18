@@ -2,8 +2,15 @@
 
 namespace MathEvaluation.Context.Decimal;
 
+/// <summary>
+/// The .NET Standart 2.1 programming math context 
+/// supports all constants and functions provided by <see cref="System.Math" /> class.
+/// Provides evaluating C# math expressions.
+/// </summary>
+/// <seealso cref="MathEvaluation.Context.Decimal.DecimalProgrammingMathContext" />
 public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
 {
+    /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandartMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()
         : base()
     {
