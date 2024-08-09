@@ -14,6 +14,51 @@ public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
     public DecimalDotNetStandartMathContext()
         : base()
     {
+        BindVariable(1m, "true");
+        BindVariable(0m, "false");
+
+        static decimal modFn(decimal leftOperand, decimal rigntOperand) => leftOperand % rigntOperand;
+        BindOperator(modFn, '%');
+
+        static decimal equalToFn(decimal leftOperand, decimal rigntOperand) => leftOperand == rigntOperand ? 1.0m : default;
+        BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality);
+
+        static decimal notEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand != rigntOperand ? 1.0m : default;
+        BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality);
+
+        static decimal greaterThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand > rigntOperand ? 1.0m : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+
+        static decimal lessThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand < rigntOperand ? 1.0m : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+
+        static decimal greaterThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand >= rigntOperand ? 1.0m : default;
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
+
+        static decimal lessThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand <= rigntOperand ? 1.0m : default;
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
+
+        static decimal andFn(decimal leftOperand, decimal rigntOperand) => leftOperand != default && rigntOperand != default ? 1.0m : default;
+        BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd);
+
+        static decimal orFn(decimal leftOperand, decimal rigntOperand) => leftOperand != default || rigntOperand != default ? 1.0m : default;
+        BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr);
+
+        static decimal logicalNegationFn(decimal rigntOperand) => rigntOperand == default ? 1.0m : default;
+        BindConverter(logicalNegationFn, '!');
+
+        static decimal logicalAndFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand & (long)rigntOperand;
+        BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd);
+
+        static decimal logicalOrFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand | (long)rigntOperand;
+        BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr);
+
+        static decimal logicalExclusiveOrFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand ^ (long)rigntOperand;
+        BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor);
+
+        static decimal bitwiseComplementFn(decimal rigntOperand) => ~(long)rigntOperand;
+        BindConverter(bitwiseComplementFn, '~');
+
         BindVariable(1m, 'f');
         BindVariable(1m, 'd');
         BindVariable(1m, 'm');

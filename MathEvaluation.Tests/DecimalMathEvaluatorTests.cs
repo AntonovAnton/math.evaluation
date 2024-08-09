@@ -65,6 +65,33 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("false = true", false)]
+    [InlineData("not(False)", true)]
+    [InlineData("FALSE <> True", true)]
+    [InlineData("false or TRUE", true)]
+    [InlineData("True xor True", false)]
+    [InlineData("200 >= 2.4", 200 >= 2.4)]
+    [InlineData("200 <= 2.4", 200 <= 2.4)]
+    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
+    [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
+    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("2 ** 3 = 8", true)]
+    [InlineData("3 % 2 <> 1.1", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    public void MathEvaluator_EvaluateDecimal_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _programmingContext);
+
+        Assert.Equal(expectedValue, value == 1.0m);
+    }
+
+    [Theory]
     [InlineData("(3 · 2)//(2 × 2)", 1d)]
     [InlineData("(3 * 2)//(2 * 2)", 1d)]
     [InlineData("6//-10", -1d)]
@@ -105,7 +132,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("22’888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22’888,32 ¤) * 4 - 6", "wae")]
     public void MathEvaluator_EvaluateDecimal_HasNumbersInSpecificCulture_ExpectedValue(string expression, string? cultureName)
     {
-        var expectedValue = 4241.2297164052905320749348369m;
+        var expectedValue = 22888.32m * 30 / 323.34m / .5m - -1 / (2 + 22888.32m) * 4 - 6;
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
@@ -504,7 +531,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("cos1!^3", 0.54030230586813977d)]
     [InlineData("cos(0)!^3", 1d)]
     [InlineData("2!^(3)!", 64d)]
-    [InlineData("2!^(3)!^2!", 64d * 64d)]
+    [InlineData("2!^(3)!^2!", 68719476736d)]
     public void MathEvaluator_EvaluateDecimal_HasFactorial_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

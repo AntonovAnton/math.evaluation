@@ -23,19 +23,22 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
 
         static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
-        BindOperator(modFn, "mod");
-        BindOperator(modFn, "Mod");
-        BindOperator(modFn, "MOD");
-        BindOperator(modFn, "modulo");
-        BindOperator(modFn, "Modulo");
-        BindOperator(modFn, "MODULO");
+        BindOperator(modFn, "mod", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "Mod", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "MOD", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "modulo", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "Modulo", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "MODULO", (int)EvalPrecedence.Basic);
 
         static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
-        BindOperator(divisionFn, '÷');
+        BindOperator(divisionFn, '÷', (int)EvalPrecedence.Basic);
+
+        static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
+        BindOperator(floorDivisionFn, "//");
 
         static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
-        BindOperator(multiplicationFn, '×');
-        BindOperator(multiplicationFn, '·');
+        BindOperator(multiplicationFn, '×', (int)EvalPrecedence.Basic);
+        BindOperator(multiplicationFn, '·', (int)EvalPrecedence.Basic);
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');
@@ -55,11 +58,11 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
-        BindConverter(n => Factorial(n), '!');
+        BindConverter(n => Factorial(n), '!', true);
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, '\u00b0'); //degree symbol
+        BindConverter(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");
