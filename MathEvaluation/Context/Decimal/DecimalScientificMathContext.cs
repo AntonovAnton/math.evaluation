@@ -33,6 +33,9 @@ public class DecimalScientificMathContext : MathContext, IScientificMathContext
         static decimal divisionFn(decimal leftOperand, decimal rigntOperand) => leftOperand / rigntOperand;
         BindOperator(divisionFn, '÷');
 
+        static decimal floorDivisionFn(decimal leftOperand, decimal rigntOperand) => Math.Floor(leftOperand / rigntOperand);
+        BindOperator(floorDivisionFn, "//");
+
         static decimal multiplicationFn(decimal leftOperand, decimal rigntOperand) => leftOperand * rigntOperand;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
@@ -55,11 +58,11 @@ public class DecimalScientificMathContext : MathContext, IScientificMathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
-        BindConverter(n => Factorial(n), '!');
+        BindConverter(n => Factorial(n), '!', true);
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, '\u00b0'); //degree symbol
+        BindConverter(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");

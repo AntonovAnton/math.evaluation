@@ -25,6 +25,9 @@ public class MathFunction<T> : MathEntity
     /// <value>The closing symbol.</value>
     public char ClosingSymbol { get; }
 
+    /// <inheritdoc />
+    public override int Precedence => (int)EvalPrecedence.FuncOrVar;
+
     /// <summary>Initializes a new instance of the <see cref="MathFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>
     /// <param name="fn">The function.</param>
