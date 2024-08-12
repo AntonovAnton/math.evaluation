@@ -23,22 +23,22 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
 
         static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
-        BindOperator(modFn, "mod", (int)EvalPrecedence.Basic);
-        BindOperator(modFn, "Mod", (int)EvalPrecedence.Basic);
-        BindOperator(modFn, "MOD", (int)EvalPrecedence.Basic);
-        BindOperator(modFn, "modulo", (int)EvalPrecedence.Basic);
-        BindOperator(modFn, "Modulo", (int)EvalPrecedence.Basic);
-        BindOperator(modFn, "MODULO", (int)EvalPrecedence.Basic);
+        BindOperator(modFn, "mod");
+        BindOperator(modFn, "Mod");
+        BindOperator(modFn, "MOD");
+        BindOperator(modFn, "modulo");
+        BindOperator(modFn, "Modulo");
+        BindOperator(modFn, "MODULO");
 
         static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
-        BindOperator(divisionFn, '÷', (int)EvalPrecedence.Basic);
+        BindOperator(divisionFn, '÷');
 
         static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
         BindOperator(floorDivisionFn, "//");
 
         static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
-        BindOperator(multiplicationFn, '×', (int)EvalPrecedence.Basic);
-        BindOperator(multiplicationFn, '·', (int)EvalPrecedence.Basic);
+        BindOperator(multiplicationFn, '×');
+        BindOperator(multiplicationFn, '·');
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');

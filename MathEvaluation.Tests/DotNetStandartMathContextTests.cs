@@ -79,6 +79,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 | 3", 3)]
     [InlineData("2 & 3 ^ 2 | 3", 3)]
     [InlineData("2 & 3 ^ (2 | 3)", 1)]
+    [InlineData("2 & ~1 ^ 3 | 4", 5)]
     [InlineData("2345345345345345344L ^ 3", 2345345345345345344L ^ 3)]
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345344UL ^ 3)]
     public void MathEvaluator_Evaluate_HasBitwiseBooleanLogic_ExpectedValue(string expression, long expectedValue)

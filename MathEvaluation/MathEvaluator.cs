@@ -152,6 +152,9 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     i++;
                     value /= Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     break;
+                case '\n' or '\r': //LF or CR
+                    i++;
+                    break;
                 case '^' when context is IScientificMathContext:
                     value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, value);
                     break;
@@ -239,7 +242,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             var fn = mathConverter.Fn;
             var result = mathConverter.IsConvertingLeftOperand
                 ? fn(value)
-                : fn(Evaluate(expression, context, provider, ref i, null, null, (int)EvalPrecedence.Basic));
+                : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
             value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
         }
         else if (entity is MathVariable<decimal> or MathOperandConverter<decimal>)
@@ -260,7 +263,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             var fn = mathConverter.Fn;
             var result = mathConverter.IsConvertingLeftOperand
                 ? fn(value)
-                : fn(Evaluate(expression, context, provider, ref i, null, null, (int)EvalPrecedence.Basic));
+                : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
             value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
         }
         else if (entity is MathOperandConverter<decimal>)
@@ -318,7 +321,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     var fn = mathConverter.Fn;
                     var result = mathConverter.IsConvertingLeftOperand
                         ? fn(value)
-                        : fn(Evaluate(expression, context, provider, ref i, null, null, (int)EvalPrecedence.Basic));
+                        : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
                     value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;
                 }

@@ -34,6 +34,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / +2 / - 2 - 1", 2 - 5 * -10d / 2 / -2 - 1)]
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
+    [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
     public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

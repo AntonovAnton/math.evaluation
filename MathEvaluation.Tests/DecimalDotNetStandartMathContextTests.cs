@@ -62,6 +62,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("2 | 3", 3)]
     [InlineData("2 & 3 ^ 2 | 3", 3)]
     [InlineData("2 & 3 ^ (2 | 3)", 1)]
+    [InlineData("2 & ~1 ^ 3 | 4", 5)]
     [InlineData("2345345345345345344L ^ 3", 2345345345345345347)]
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345347)]
     public void MathEvaluator_EvaluateDecimal_HasBitwiseBooleanLogic_ExpectedValue(string expression, long expectedValue)
