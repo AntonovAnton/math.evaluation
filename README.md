@@ -149,6 +149,30 @@ Example of using custom context:
 | Parentheses  | ( ) |
 | Currency symbol  | depends on culture info |
 
+#### Programming Math Context (using ProgrammingMathContext class):
+|          | Notation |
+|--------- |--------- |
+| Addition | + |
+| Subtraction, Negativity | - |
+| Multiplication  | * |
+| Division  | / |
+| Parentheses  | ( ) |
+| Currency symbol  | depends on culture info |
+| Exponentiation | ** |
+| Modulus | % |
+| Floor Division  | // |
+| Logical constants  | true, false, True, False, TRUE, FALSE |
+| Equality  | = |
+| Inequality  | \<> |
+| Less than  | \< |
+| Greater than  | > |
+| Less than or equal  | \<= |
+| Greater than or equal  | >= |
+| Logical negation  | not, Not, NOT |
+| Logical AND  | and, And, AND |
+| Logical exclusive OR  | xor, Xor, XOR |
+| Logical OR  | or, Or, OR |
+
 #### Scientific Math Context (using ScientificMathContext class):
 
 |          | Notation |
@@ -198,30 +222,6 @@ Example of using custom context:
 | Inverse Hyperbolic secant | arsech, Arsech, ARSECH, sech\^-1, Sech\^-1, SECH\^-1 |
 | Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 |
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 |
-
-#### Programming Math Context (using ProgrammingMathContext class):
-|          | Notation |
-|--------- |--------- |
-| Addition | + |
-| Subtraction, Negativity | - |
-| Multiplication  | * |
-| Division  | / |
-| Parentheses  | ( ) |
-| Currency symbol  | depends on culture info |
-| Exponentiation | ** |
-| Modulus | % |
-| Floor Division  | // |
-| Logical constants  | true, false, True, False, TRUE, FALSE |
-| Equality  | = |
-| Inequality  | \<> |
-| Less than  | \< |
-| Greater than  | > |
-| Less than or equal  | \<= |
-| Greater than or equal  | >= |
-| Logical negation  | not, Not, NOT |
-| Logical AND  | and, And, AND |
-| Logical exclusive OR  | xor, Xor, XOR |
-| Logical OR  | or, Or, OR |
 
 #### How to evaluate C# math string expression
 DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class, and supports equlity, comparision, logical boolean operators.
