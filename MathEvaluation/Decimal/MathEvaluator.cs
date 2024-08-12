@@ -233,7 +233,7 @@ public partial class MathEvaluator
     private static decimal EvaluateConverterDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, decimal value, IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FirstMathEntity(expression[i..]);
+        entity = entity ?? (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
         if (entity is MathOperandConverter<decimal> mathConverter)
         {
             i += entity.Key.Length;
@@ -321,6 +321,7 @@ public partial class MathEvaluator
                     if (mathFunction.ClosingSymbol.HasValue)
                         i++;
 
+                    result = EvaluateConverterDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) *
                         EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;
@@ -350,6 +351,7 @@ public partial class MathEvaluator
                     }
 
                     var result = mathFunction.Fn([.. args]);
+                    result = EvaluateConverterDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) *
                         EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;

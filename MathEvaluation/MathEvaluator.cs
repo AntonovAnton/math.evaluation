@@ -256,7 +256,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     private static double EvaluateConverter(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, double value, IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FirstMathEntity(expression[i..]);
+        entity = entity ?? (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
         if (entity is MathOperandConverter<double> mathConverter)
         {
             i += entity.Key.Length;
@@ -344,6 +344,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     if (mathFunction.ClosingSymbol.HasValue)
                         i++;
 
+                    result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) *
                         EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;
@@ -373,6 +374,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     }
 
                     var result = mathFunction.Fn([.. args]);
+                    result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) *
                         EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;
