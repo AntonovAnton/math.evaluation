@@ -90,9 +90,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _programmingContext);
+        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
 
-        Assert.Equal(expectedValue, value == 1.0m);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]

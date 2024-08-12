@@ -429,4 +429,20 @@ public static class StringExtensions
     /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, IMathContext?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(this ReadOnlySpan<char> span, IMathContext? context, IFormatProvider? provider = null) =>
         MathEvaluator.EvaluateDecimal(span, context, provider);
+
+    /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this string expression, IFormatProvider? provider = null) =>
+        MathEvaluator.EvaluateBoolean(expression, provider);
+
+    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this string expression, IMathContext? context, IFormatProvider? provider = null) =>
+        MathEvaluator.EvaluateBoolean(expression, context, provider);
+
+    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this ReadOnlySpan<char> span, IFormatProvider? provider = null) =>
+        MathEvaluator.EvaluateBoolean(span, provider);
+
+    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this ReadOnlySpan<char> span, IMathContext? context, IFormatProvider? provider = null) =>
+        MathEvaluator.EvaluateBoolean(span, context, provider);
 }

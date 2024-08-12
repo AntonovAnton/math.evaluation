@@ -64,6 +64,8 @@ Examples of using string extentions:
     
     "4 mod 3".EvaluateDecimal(new DecimalScientificMathContext());
 
+    "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
+
 Examples of using static methods:
         
     MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
@@ -86,6 +88,8 @@ Examples of using static methods:
     
     MathEvaluator.EvaluateDecimal("4 mod 3", new DecimalScientificMathContext());
 
+    MathEvaluator.EvaluateBoolean("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext());
+
 Examples of using an instance of the MathEvaluator class:
         
     new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
@@ -107,6 +111,8 @@ Examples of using an instance of the MathEvaluator class:
     new MathEvaluator("4 % 3", new ProgrammingMathContext()).Evaluate();
     
     new MathEvaluator("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
+
+    new MathEvaluator("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
 Examples of using custom variables or functions:
         

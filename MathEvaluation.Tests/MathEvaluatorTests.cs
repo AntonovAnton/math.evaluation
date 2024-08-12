@@ -66,9 +66,9 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _programmingContext);
+        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
 
-        Assert.Equal(expectedValue, value == 1.0);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
