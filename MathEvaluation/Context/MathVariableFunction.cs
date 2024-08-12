@@ -14,7 +14,7 @@ public class MathVariableFunction<T> : MathEntity
     public Func<T> GetValue { get; }
 
     /// <inheritdoc />
-    public override int Precedence => (int)EvalPrecedence.FuncOrVar;
+    public override int Precedence => (int)EvalPrecedence.Variable;
 
     /// <summary>Initializes a new instance of the <see cref="MathVariableFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>

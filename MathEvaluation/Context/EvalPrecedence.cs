@@ -68,9 +68,14 @@ namespace MathEvaluation.Context
         Basic = 100,
 
         /// <summary>
-        /// The precedence of a math function and a variable.
+        /// The precedence of a math function.
         /// </summary>
-        FuncOrVar = 200,
+        Funcion = 200,
+
+        /// <summary>
+        /// The precedence of a variable.
+        /// </summary>
+        Variable = 250,
 
         /// <summary>
         /// The precedence of the exponentiation operation.
