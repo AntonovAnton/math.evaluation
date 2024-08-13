@@ -8,8 +8,7 @@ namespace MathEvaluation.Context;
 /// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IScientificMathContext" />
-public class ScientificMathContext : MathContext, IScientificMathContext
+public class ScientificMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>
     public ScientificMathContext()
@@ -39,6 +38,9 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
+
+        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
+        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');

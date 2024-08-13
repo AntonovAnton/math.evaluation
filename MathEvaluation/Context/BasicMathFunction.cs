@@ -18,7 +18,7 @@ public class BasicMathFunction<T> : MathEntity
     public char? ClosingSymbol { get; }
 
     /// <inheritdoc />
-    public override int Precedence => (int)EvalPrecedence.Funcion;
+    public override int Precedence => (int)EvalPrecedence.Function;
 
     /// <summary>Initializes a new instance of the <see cref="BasicMathFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>

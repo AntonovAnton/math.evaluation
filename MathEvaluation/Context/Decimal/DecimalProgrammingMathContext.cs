@@ -6,8 +6,7 @@ namespace MathEvaluation.Context.Decimal;
 /// The base programming math context supports floor division '//', uses '**' notation for exponentiation, and '%' for modulo operation.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IProgrammingMathContext" />
-public class DecimalProgrammingMathContext : MathContext, IProgrammingMathContext
+public class DecimalProgrammingMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalProgrammingMathContext" /> class.</summary>
     public DecimalProgrammingMathContext()
@@ -21,10 +20,13 @@ public class DecimalProgrammingMathContext : MathContext, IProgrammingMathContex
         BindVariable(0m, "FALSE");
 
         static decimal modFn(decimal leftOperand, decimal rigntOperand) => leftOperand % rigntOperand;
-        BindOperator(modFn, '%', (int)EvalPrecedence.Basic);
+        BindOperator(modFn, '%');
 
         static decimal floorDivisionFn(decimal leftOperand, decimal rigntOperand) => Math.Floor(leftOperand / rigntOperand);
         BindOperator(floorDivisionFn, "//");
+
+        static decimal exponentiationFn(decimal leftOperand, decimal rigntOperand) => (decimal)Math.Pow((double)leftOperand, (double)rigntOperand);
+        BindOperandOperator(exponentiationFn, "**", (int)EvalPrecedence.Exponentiation);
 
         static decimal equalToFn(decimal leftOperand, decimal rigntOperand) => leftOperand == rigntOperand ? 1.0m : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);

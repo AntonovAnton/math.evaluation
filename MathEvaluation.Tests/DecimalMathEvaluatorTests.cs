@@ -265,6 +265,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
     [InlineData("sin 0.5π", 1d)]
     [InlineData("cos1", 0.54030230586813977d)]
+    [InlineData("cos(1)^2", 0.54030230586813977d * 0.54030230586813977d)]
     [InlineData("cos1^4", 0.54030230586813977d)]
     [InlineData("cos1^4/2", 0.54030230586813977d / 2)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]

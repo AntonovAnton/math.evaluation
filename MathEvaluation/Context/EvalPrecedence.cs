@@ -70,7 +70,7 @@ namespace MathEvaluation.Context
         /// <summary>
         /// The precedence of a math function.
         /// </summary>
-        Funcion = 200,
+        Function = 200,
 
         /// <summary>
         /// The precedence of a variable.

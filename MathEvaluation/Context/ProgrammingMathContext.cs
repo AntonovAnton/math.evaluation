@@ -7,8 +7,7 @@ namespace MathEvaluation.Context;
 /// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IProgrammingMathContext" />
-public class ProgrammingMathContext : MathContext, IProgrammingMathContext
+public class ProgrammingMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ProgrammingMathContext" /> class.</summary>
     public ProgrammingMathContext()
@@ -22,10 +21,13 @@ public class ProgrammingMathContext : MathContext, IProgrammingMathContext
         BindVariable(0d, "FALSE");
 
         static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
-        BindOperator(modFn, '%', (int)EvalPrecedence.Basic);
+        BindOperator(modFn, '%');
 
         static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
         BindOperator(floorDivisionFn, "//");
+
+        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
+        BindOperandOperator(exponentiationFn, "**", (int)EvalPrecedence.Exponentiation);
 
         static double equalToFn(double leftOperand, double rigntOperand) => leftOperand == rigntOperand ? 1.0 : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);

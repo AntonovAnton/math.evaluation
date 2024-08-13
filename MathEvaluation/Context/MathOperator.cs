@@ -3,7 +3,7 @@
 namespace MathEvaluation.Context;
 
 /// <summary>
-/// The math operator processes the left and right math operands.
+/// The math operator processes the left and right expressions.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathOperator<T> : MathEntity

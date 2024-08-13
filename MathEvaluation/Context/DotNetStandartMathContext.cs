@@ -8,8 +8,7 @@ namespace MathEvaluation.Context;
 /// Provides evaluating C# math expressions.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IProgrammingMathContext" />
-public class DotNetStandartMathContext : MathContext, IProgrammingMathContext
+public class DotNetStandartMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DotNetStandartMathContext" /> class.</summary>
     public DotNetStandartMathContext()
