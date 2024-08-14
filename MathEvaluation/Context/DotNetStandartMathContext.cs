@@ -7,13 +7,58 @@ namespace MathEvaluation.Context;
 /// supports all constants and functions provided by <see cref="System.Math" /> class.
 /// Provides evaluating C# math expressions.
 /// </summary>
-/// <seealso cref="MathEvaluation.Context.ProgrammingMathContext" />
-public class DotNetStandartMathContext : ProgrammingMathContext
+/// <seealso cref="MathEvaluation.Context.MathContext" />
+public class DotNetStandartMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DotNetStandartMathContext" /> class.</summary>
     public DotNetStandartMathContext()
         : base()
     {
+        BindVariable(1d, "true");
+        BindVariable(0d, "false");
+
+        static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
+        BindOperator(modFn, '%', (int)EvalPrecedence.Basic);
+
+        static double equalToFn(double leftOperand, double rigntOperand) => leftOperand == rigntOperand ? 1.0 : default;
+        BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality);
+
+        static double notEqualToFn(double leftOperand, double rigntOperand) => leftOperand != rigntOperand ? 1.0 : default;
+        BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality);
+
+        static double greaterThanFn(double leftOperand, double rigntOperand) => leftOperand > rigntOperand ? 1.0 : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+
+        static double lessThanFn(double leftOperand, double rigntOperand) => leftOperand < rigntOperand ? 1.0 : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+
+        static double greaterThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand >= rigntOperand ? 1.0 : default;
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
+
+        static double lessThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand <= rigntOperand ? 1.0 : default;
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
+
+        static double andFn(double leftOperand, double rigntOperand) => leftOperand != default && rigntOperand != default ? 1.0 : default;
+        BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd);
+
+        static double orFn(double leftOperand, double rigntOperand) => leftOperand != default || rigntOperand != default ? 1.0 : default;
+        BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr);
+
+        static double logicalNegationFn(double rigntOperand) => rigntOperand == default ? 1.0 : default;
+        BindConverter(logicalNegationFn, '!');
+
+        static double logicalAndFn(double leftOperand, double rigntOperand) => (long)leftOperand & (long)rigntOperand;
+        BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd);
+
+        static double logicalOrFn(double leftOperand, double rigntOperand) => (long)leftOperand | (long)rigntOperand;
+        BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr);
+
+        static double logicalExclusiveOrFn(double leftOperand, double rigntOperand) => (long)leftOperand ^ (long)rigntOperand;
+        BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor);
+
+        static double bitwiseComplementFn(double rigntOperand) => ~(long)rigntOperand;
+        BindConverter(bitwiseComplementFn, '~');
+
         BindVariable(1d, 'f');
         BindVariable(1d, 'd');
         BindVariable(1d, 'm');

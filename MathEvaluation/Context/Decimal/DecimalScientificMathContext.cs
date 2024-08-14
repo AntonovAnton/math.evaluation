@@ -8,8 +8,7 @@ namespace MathEvaluation.Context.Decimal;
 /// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IScientificMathContext" />
-public class DecimalScientificMathContext : MathContext, IScientificMathContext
+public class DecimalScientificMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalScientificMathContext" /> class.</summary>
     public DecimalScientificMathContext()
@@ -33,9 +32,15 @@ public class DecimalScientificMathContext : MathContext, IScientificMathContext
         static decimal divisionFn(decimal leftOperand, decimal rigntOperand) => leftOperand / rigntOperand;
         BindOperator(divisionFn, '÷');
 
+        static decimal floorDivisionFn(decimal leftOperand, decimal rigntOperand) => Math.Floor(leftOperand / rigntOperand);
+        BindOperator(floorDivisionFn, "//");
+
         static decimal multiplicationFn(decimal leftOperand, decimal rigntOperand) => leftOperand * rigntOperand;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
+
+        static decimal exponentiationFn(decimal leftOperand, decimal rigntOperand) => (decimal)Math.Pow((double)leftOperand, (double)rigntOperand);
+        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((decimal value) => value, '[', ']');
         BindFunction((decimal value) => Math.Abs(value), '|', '|');
@@ -55,11 +60,11 @@ public class DecimalScientificMathContext : MathContext, IScientificMathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
-        BindConverter(n => Factorial(n), '!');
+        BindConverter(n => Factorial(n), '!', true);
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, '\u00b0'); //degree symbol
+        BindConverter(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");

@@ -31,6 +31,50 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
+    [InlineData("false == Math.E", false)]
+    [InlineData("!false", true)]
+    [InlineData("false != Math.E", true)]
+    [InlineData("false || Math.E", true)]
+    [InlineData("true ^ true", false)]
+    [InlineData("200 >= 2.4", 200 >= 2.4)]
+    [InlineData("200 <= 2.4", 200 <= 2.4)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
+    [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
+    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("Math.Sin(0) == Math.Tan(0)", true)]
+    [InlineData("Math.Sin(0) != Math.Cos(1)", true)]
+    [InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    public void MathEvaluator_EvaluateDecimal_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal(expectedValue, value == 1.0m);
+    }
+
+    [Theory]
+    [InlineData("2 ^ 3", 1)]
+    [InlineData("2 & 3", 2)]
+    [InlineData("2 | 3", 3)]
+    [InlineData("2 & 3 ^ 2 | 3", 3)]
+    [InlineData("2 & 3 ^ (2 | 3)", 1)]
+    [InlineData("2 & ~1 ^ 3 | 4", 5)]
+    [InlineData("2345345345345345344L ^ 3", 2345345345345345347)]
+    [InlineData("2345345345345345344UL ^ 3", 2345345345345345347)]
+    public void MathEvaluator_EvaluateDecimal_HasBitwiseBooleanLogic_ExpectedValue(string expression, long expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("Math.E", Math.E)]
     [InlineData("200 * Math.E", 543.656365691808d)]
     public void MathEvaluator_EvaluateDecimal_HasLnBase_ExpectedValue(string expression, double expectedValue)

@@ -52,9 +52,13 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("6 + -( -4)", 6 + - -4)]
     [InlineData("6 + - ( 4)", 6 + -4)]
     [InlineData("2 - 5 * 10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("2 - 5 * +10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("2 - 5 * -10 / - -2 / - 2 - 1", 2 - 5 * -10d / 2 / -2 - 1)]
+    [InlineData("2 - 5 * -10 / +2 / - 2 - 1", 2 - 5 * -10d / 2 / -2 - 1)]
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
+    [InlineData("2 + \n(5 - 1) - \n\r 3", 2 + (5 - 1) - 3)]
     public void MathEvaluator_EvaluateDecimal_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -62,6 +66,33 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var value = MathEvaluator.EvaluateDecimal(expression!);
 
         Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("false = true", false)]
+    [InlineData("not(False)", true)]
+    [InlineData("FALSE <> True", true)]
+    [InlineData("false or TRUE", true)]
+    [InlineData("True xor True", false)]
+    [InlineData("200 >= 2.4", 200 >= 2.4)]
+    [InlineData("200 <= 2.4", 200 <= 2.4)]
+    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
+    [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
+    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("2 ** 3 = 8", true)]
+    [InlineData("3 % 2 <> 1.1", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    public void MathEvaluator_EvaluateDecimal_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
+
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]
@@ -105,7 +136,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("22’888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22’888,32 ¤) * 4 - 6", "wae")]
     public void MathEvaluator_EvaluateDecimal_HasNumbersInSpecificCulture_ExpectedValue(string expression, string? cultureName)
     {
-        var expectedValue = 4241.2297164052905320749348369m;
+        var expectedValue = 22888.32m * 30 / 323.34m / .5m - -1 / (2 + 22888.32m) * 4 - 6;
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
@@ -234,6 +265,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
     [InlineData("sin 0.5π", 1d)]
     [InlineData("cos1", 0.54030230586813977d)]
+    [InlineData("cos(1)^2", 0.54030230586813977d * 0.54030230586813977d)]
     [InlineData("cos1^4", 0.54030230586813977d)]
     [InlineData("cos1^4/2", 0.54030230586813977d / 2)]
     [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
@@ -504,7 +536,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("cos1!^3", 0.54030230586813977d)]
     [InlineData("cos(0)!^3", 1d)]
     [InlineData("2!^(3)!", 64d)]
-    [InlineData("2!^(3)!^2!", 64d * 64d)]
+    [InlineData("2!^(3)!^2!", 68719476736d)]
+    [InlineData("2!^3^2!", 512d)]
+    [InlineData("2!^(3)^2!", 512d)]
     public void MathEvaluator_EvaluateDecimal_HasFactorial_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

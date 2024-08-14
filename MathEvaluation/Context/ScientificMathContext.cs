@@ -8,8 +8,7 @@ namespace MathEvaluation.Context;
 /// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-/// <seealso cref="MathEvaluation.Context.IScientificMathContext" />
-public class ScientificMathContext : MathContext, IScientificMathContext
+public class ScientificMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>
     public ScientificMathContext()
@@ -33,9 +32,15 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
         BindOperator(divisionFn, '÷');
 
+        static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
+        BindOperator(floorDivisionFn, "//");
+
         static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
+
+        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
+        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');
@@ -55,11 +60,11 @@ public class ScientificMathContext : MathContext, IScientificMathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
-        BindConverter(n => Factorial(n), '!');
+        BindConverter(n => Factorial(n), '!', true);
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, '\u00b0'); //degree symbol
+        BindConverter(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");

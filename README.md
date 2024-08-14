@@ -6,18 +6,18 @@ MathEvaluator is a .NET library that allows you to evaluate any mathematical exp
 
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
-- Evaluates to double or decimal.
+- Evaluates to double, boolean, or decimal.
 - Provides variable support within expressions.
 - Extensible with custom functions.
 - Fast and comprehensive. More than 1000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Installation
 
-        dotnet add package MathEvaluator
+    dotnet add package MathEvaluator
 
 Alternatively, you can install the package using the NuGet Package Manager Console:
 
-        Install-Package MathEvaluator
+    Install-Package MathEvaluator
 
 ## Perfomance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher. 
@@ -30,7 +30,7 @@ The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for e
 
 Let's compare, for example, performance of calculating the mathematical expression:
 
-        22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
+    22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
 
 Below are the results of the comparison with the NCalc library: 
 
@@ -44,99 +44,105 @@ Below are the results of the comparison with the NCalc library:
 ## How to use
 Examples of using string extentions:
 
-        "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
+    "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
 
-        "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".EvaluateDecimal();
+    "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".EvaluateDecimal();
 
-        "$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6".Evaluate(new CultureInfo("en-US"));
+    "$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6".Evaluate(new CultureInfo("en-US"));
 
-        "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(new CultureInfo("de-CH"));
+    "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(new CultureInfo("de-CH"));
 
-        "ln[1/-0.5 + √(1/(0.5^2) + 1)]".Evaluate(new ScientificMathContext());
-        
-        "ln[1/-0,5 + √(1/(0,5^2) + 1)]".Evaluate(new ScientificMathContext(), new CultureInfo("fr"));
-        
-        "ln[1/-0.5 + √(1/(0.5^2) + 1)]".EvaluateDecimal(new ScientificMathContext());
-        
-        "ln[1/-0,5 + √(1/(0,5^2) + 1)]".EvaluateDecimal(new ScientificMathContext(), new CultureInfo("fr"));
-        
-        "4 % 3".Evaluate(new ProgrammingMathContext());
-        
-        "4 mod 3".EvaluateDecimal(new ScientificMathContext());
+    "ln[1/-0.5 + √(1/(0.5^2) + 1)]".Evaluate(new ScientificMathContext());
+    
+    "ln[1/-0,5 + √(1/(0,5^2) + 1)]".Evaluate(new ScientificMathContext(), new CultureInfo("fr"));
+    
+    "ln[1/-0.5 + √(1/(0.5^2) + 1)]".EvaluateDecimal(new DecimalScientificMathContext());
+    
+    "ln[1/-0,5 + √(1/(0,5^2) + 1)]".EvaluateDecimal(new DecimalScientificMathContext(), new CultureInfo("fr"));
+    
+    "4 % 3".Evaluate(new ProgrammingMathContext());
+    
+    "4 mod 3".EvaluateDecimal(new DecimalScientificMathContext());
+
+    "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
 Examples of using static methods:
         
-        MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
+    MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
 
-        MathEvaluator.EvaluateDecimal("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
+    MathEvaluator.EvaluateDecimal("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
 
-        MathEvaluator.Evaluate("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", new CultureInfo("en-US"));
+    MathEvaluator.Evaluate("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", new CultureInfo("en-US"));
 
-        MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", new CultureInfo("de-CH"));
-        
-        MathEvaluator.Evaluate("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext());
-        
-        MathEvaluator.Evaluate("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext(), new CultureInfo("fr"));
-        
-        MathEvaluator.EvaluateDecimal("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext());
-        
-        MathEvaluator.EvaluateDecimal("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext(), new CultureInfo("fr"));
-        
-        MathEvaluator.Evaluate("4 % 3", new ProgrammingMathContext());
-        
-        MathEvaluator.EvaluateDecimal("4 mod 3", new ScientificMathContext());
+    MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", new CultureInfo("de-CH"));
+    
+    MathEvaluator.Evaluate("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext());
+    
+    MathEvaluator.Evaluate("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext(), new CultureInfo("fr"));
+    
+    MathEvaluator.EvaluateDecimal("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new DecimalScientificMathContext());
+    
+    MathEvaluator.EvaluateDecimal("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new DecimalScientificMathContext(), new CultureInfo("fr"));
+    
+    MathEvaluator.Evaluate("4 % 3", new ProgrammingMathContext());
+    
+    MathEvaluator.EvaluateDecimal("4 mod 3", new DecimalScientificMathContext());
+
+    MathEvaluator.EvaluateBoolean("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext());
 
 Examples of using an instance of the MathEvaluator class:
         
-        new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
+    new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
 
-        new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").EvaluateDecimal();
+    new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").EvaluateDecimal();
 
-        new MathEvaluator("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6").Evaluate(new CultureInfo("en-US"));
+    new MathEvaluator("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6").Evaluate(new CultureInfo("en-US"));
 
-        new MathEvaluator("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6").EvaluateDecimal(new CultureInfo("de-CH"));
-        
-        new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext()).Evaluate();
-        
-        new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext()).Evaluate(new CultureInfo("fr"));
-        
-        new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext()).EvaluateDecimal();
-        
-        new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext()).EvaluateDecimal(new CultureInfo("fr"));
-        
-        new MathEvaluator("4 % 3", new ProgrammingMathContext()).Evaluate();
-        
-        new MathEvaluator("4 mod 3", new ScientificMathContext()).EvaluateDecimal();
+    new MathEvaluator("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6").EvaluateDecimal(new CultureInfo("de-CH"));
+    
+    new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext()).Evaluate();
+    
+    new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext()).Evaluate(new CultureInfo("fr"));
+    
+    new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new DecimalScientificMathContext()).EvaluateDecimal();
+    
+    new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new DecimalScientificMathContext()).EvaluateDecimal(new CultureInfo("fr"));
+    
+    new MathEvaluator("4 % 3", new ProgrammingMathContext()).Evaluate();
+    
+    new MathEvaluator("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
+
+    new MathEvaluator("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
 Examples of using custom variables or functions:
         
-        var x1 = 0.5;
-        var x2 = -0.5;
-        var sqrt = Math.Sqrt;
-        Func<double, double> ln = Math.Log;
+    var x1 = 0.5;
+    var x2 = -0.5;
+    var sqrt = Math.Sqrt;
+    Func<double, double> ln = Math.Log;
 
-        var value1 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1))"
-            .Bind(new { x1, x2, sqrt, ln })
-            .Evaluate();
+    var value1 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1))"
+        .Bind(new { x1, x2, sqrt, ln })
+        .Evaluate();
 
-        var value2 = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
-            .BindVariable(0.5, "x1")
-            .BindVariable(-0.5, "x2")
-            .BindFunction(Math.Sqrt)
-            .BindFunction(Math.Log, "ln")
-            .Evaluate();
+    var value2 = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
+        .BindVariable(0.5, "x1")
+        .BindVariable(-0.5, "x2")
+        .BindFunction(Math.Sqrt)
+        .BindFunction(Math.Log, "ln")
+        .Evaluate();
 
 Example of using custom context:
 
-        var context = new MathContext();
-        context.BindVariable(0.5, "x1");
-        context.BindVariable(-0.5, "x2");
-        context.BindFunction(Math.Sqrt);
-        context.BindFunction(Math.Log, "ln");
+    var context = new MathContext();
+    context.BindVariable(0.5, "x1");
+    context.BindVariable(-0.5, "x2");
+    context.BindFunction(Math.Sqrt);
+    context.BindFunction(Math.Log, "ln");
 
-        "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
-            .SetContext(context)
-            .Evaluate();
+    "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
+        .SetContext(context)
+        .Evaluate();
 
 ## Supported math functions, operators, and constants
 
@@ -148,6 +154,30 @@ Example of using custom context:
 | Division  | / |
 | Parentheses  | ( ) |
 | Currency symbol  | depends on culture info |
+
+#### Programming Math Context (using ProgrammingMathContext class):
+|          | Notation |
+|--------- |--------- |
+| Addition | + |
+| Subtraction, Negativity | - |
+| Multiplication  | * |
+| Division  | / |
+| Parentheses  | ( ) |
+| Currency symbol  | depends on culture info |
+| Exponentiation | ** |
+| Modulus | % |
+| Floor Division  | // |
+| Logical constants  | true, false, True, False, TRUE, FALSE |
+| Equality  | = |
+| Inequality  | \<> |
+| Less than  | \< |
+| Greater than  | > |
+| Less than or equal  | \<= |
+| Greater than or equal  | >= |
+| Logical negation  | not, Not, NOT |
+| Logical AND  | and, And, AND |
+| Logical exclusive OR  | xor, Xor, XOR |
+| Logical OR  | or, Or, OR |
 
 #### Scientific Math Context (using ScientificMathContext class):
 
@@ -199,25 +229,12 @@ Example of using custom context:
 | Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 |
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 |
 
-#### Programming Math Context (using ProgrammingMathContext class):
-|          | Notation |
-|--------- |--------- |
-| Addition | + |
-| Subtraction, Negativity | - |
-| Multiplication  | * |
-| Division  | / |
-| Parentheses  | ( ) |
-| Currency symbol  | depends on culture info |
-| Exponentiation | ** |
-| Modulus | % |
-| Floor Division  | // |
-
 #### How to evaluate C# math string expression
-DotNetStandartMathContext (inherits the ProgrammingMathContext class) is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class.
+DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class, and supports equlity, comparision, logical boolean operators.
 
 Example of evaluating C# expression:
 
-        "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L)".Evaluate(new DotNetStandartMathContext());
+    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L)".Evaluate(new DotNetStandartMathContext());
 
 *NOTE: More math functions could be added to the math expression evaluator based on user needs.*
 

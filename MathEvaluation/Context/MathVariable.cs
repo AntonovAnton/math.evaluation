@@ -7,6 +7,9 @@
 public class MathVariable<T>(string? key, T value) : MathEntity(key)
     where T : struct
 {
+    /// <inheritdoc />
+    public override int Precedence => (int)EvalPrecedence.Variable;
+
     /// <summary>Gets the value.</summary>
     /// <value>The value.</value>
     public T Value { get; } = value;

@@ -28,14 +28,45 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("6 + - ( 4)", 6 + -4)]
     [InlineData("(2.323 * 323 - 1 / (2 + 3.33) * 4) - 6", 2.323 * 323 - 1 / (2 + 3.33) * 4 - 6)]
     [InlineData("2 - 5 * 10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("2 - 5 * +10 / 2 - 1", 2 - 5 * 10 / 2 - 1)]
     [InlineData("2 - 5 * -10 / 2 - 1", 2 - 5 * -10 / 2 - 1)]
+    [InlineData("2 - 5 * -10 / - -2 / - 2 - 1", 2 - 5 * -10d / 2 / -2 - 1)]
+    [InlineData("2 - 5 * -10 / +2 / - 2 - 1", 2 - 5 * -10d / 2 / -2 - 1)]
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
+    [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
     public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var value = MathEvaluator.Evaluate(expression!);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("false = true", false)]
+    [InlineData("not(False)", true)]
+    [InlineData("FALSE <> True", true)]
+    [InlineData("false or TRUE", true)]
+    [InlineData("True xor True", false)]
+    [InlineData("200 >= 2.4", 200 >= 2.4)]
+    [InlineData("200 <= 2.4", 200 <= 2.4)]
+    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
+    [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
+    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("2 ** 3 = 8", true)]
+    [InlineData("3 % 2 <> 1.1", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
+    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    public void MathEvaluator_Evaluate_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
 
         Assert.Equal(expectedValue, value);
     }
@@ -131,6 +162,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("4 % 3", 1)]
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
+    [InlineData("3 - 4.5 % 3.1 * 3 * 2 + 4", 3 - 4.5 % 3.1 * 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathEvaluator_Evaluate_HasProgrammingModulus_ExpectedValue(string expression, double expectedValue)
     {
@@ -242,6 +274,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("sin 0.5π", 1d)]
     [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
+    [InlineData("cos(1)^2", 0.54030230586813977d * 0.54030230586813977d)]
     [InlineData("cos1(1 + 2)", 0.54030230586813977d * 3)]
     [InlineData("cos1(1 + 2) mod cos1+0.5", 0.5d)]
     [InlineData("sin-3/cos1", -0.14112000805986721d / 0.54030230586813977d)]
@@ -373,6 +406,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("arsinh(0)", 0)]
     [InlineData("sinh^-1(0.5)", 0.48121182505960347d)]
     [InlineData("Arsinh(1)", 0.88137358701954294d)]
+    [InlineData("Arsinh(1)^2", 0.88137358701954294d * 0.88137358701954294d)]
     [InlineData("Sinh^-1(2)", 1.4436354751788103d)]
     [InlineData("ARSINH(∞)", double.PositiveInfinity)]
     [InlineData("SINH^-1 -0.5", -0.48121182505960347d)]
@@ -498,6 +532,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("ln(0)", double.NegativeInfinity)]
     [InlineData("Ln(1)", 0d)]
     [InlineData("LN(10)", 2.3025850929940459d)]
+    [InlineData("LN(10)^2", 2.3025850929940459d * 2.3025850929940459d)]
+    [InlineData("LN[10]^2", 2.3025850929940459d * 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
     [InlineData("ln-100", double.NaN)]
@@ -573,7 +609,9 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("cos1!^3", 0.54030230586813977d)]
     [InlineData("cos(0)!^3", 1d)]
     [InlineData("2!^(3)!", 64d)]
-    [InlineData("2!^(3)!^2!", 64d * 64d)]
+    [InlineData("2!^(3)!^2!", 68719476736d)]
+    [InlineData("2!^3^2!", 512d)]
+    [InlineData("2!^(3)^2!", 512d)]
     public void MathEvaluator_Evaluate_HasFactorial_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
