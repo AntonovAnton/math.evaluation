@@ -95,9 +95,8 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     i++;
                     var result = Evaluate(expression, context, provider, ref i, null, ')', (int)EvalPrecedence.Unknown);
                     i++;
-                    result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    result = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    value = (value == 0 ? 1 : value) * result;
                     break;
                 case > '0' and <= '9' or '.' or '0' or ',' or '٫':
                     value = GetNumber(expression, provider, ref i, separator, closingSymbol);
@@ -115,7 +114,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         return value;
 
                     i++;
-                    while (expression.Length > i && expression[i] is ' ')
+                    while (expression.Length > i && expression[i] is ' ' or '\n' or '\r')
                         i++;
 
                     //two negatives should combine to make a positive
@@ -153,10 +152,10 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     var entity = context?.FirstMathEntity(expression[i..]);
 
                     //highest precedence is evaluating first
-                    if (precedence != (int)EvalPrecedence.Unknown && precedence >= entity?.Precedence)
+                    if (precedence >= entity?.Precedence)
                         return value;
 
-                    value = EvaluateFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, precedence, value, entity);
+                    value = EvaluateFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, precedence, value, false, entity);
                     break;
             }
         }
@@ -164,29 +163,6 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         if (value == 0d && expression[start..i].IsWhiteSpace())
             return double.NaN;
 
-        return value;
-    }
-
-    private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, double value, IMathEntity? entity = null)
-    {
-        while (expression.Length > i && expression[i] is ' ')
-            i++;
-
-        entity = entity ?? (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
-        if (entity is MathOperandOperator<double> mathOperator)
-        {
-            i += entity.Key.Length;
-            var fn = mathOperator.Fn;
-            var rightOperand = EvaluateOperand(expression, context, provider, ref i, separator, closingSymbol);
-            rightOperand = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
-            value = fn(value, rightOperand);
-        }
-        else if (entity is MathOperandOperator<decimal>)
-        {
-            var decimalValue = EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, (decimal)value, entity);
-            return (double)decimalValue;
-        }
         return value;
     }
 
@@ -211,43 +187,22 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 i++;
                 return -EvaluateOperand(expression, context, provider, ref i, separator, closingSymbol);
             default:
-                return EvaluateFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, 0d);
+                return EvaluateFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, 0d, true);
         }
-    }
-
-    private static double EvaluateConverter(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, double value, IMathEntity? entity = null)
-    {
-        entity = entity ?? (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
-        if (entity is MathOperandConverter<double> mathConverter)
-        {
-            i += entity.Key.Length;
-            var fn = mathConverter.Fn;
-            var result = mathConverter.IsConvertingLeftOperand
-                ? fn(value)
-                : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
-            value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
-        }
-        else if (entity is MathOperandConverter<decimal>)
-        {
-            var decimalValue = EvaluateConverterDecimal(expression, context, provider, ref i, separator, closingSymbol, (decimal)value, entity);
-            return (double)decimalValue;
-        }
-        return value;
     }
 
     private static double EvaluateFuncOrVar(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity = null)
+        ref int i, char? separator, char? closingSymbol, int precedence, double value, bool isOperand, IMathEntity? entity = null)
     {
-        entity = entity ?? context?.FirstMathEntity(expression[i..]);
+        entity ??= context?.FirstMathEntity(expression[i..]);
         if (entity?.Precedence < precedence)
             return value;
 
-        if (entity != null && TryEvaluateContext(expression, context!, entity, provider, ref i, separator, closingSymbol, ref value))
+        if (entity != null && TryEvaluateContext(expression, context!, entity, provider, ref i, separator, closingSymbol, ref value, isOperand))
             return value;
 
         var decimalValue = (decimal)value;
-        if (entity != null && TryEvaluateContextDecimal(expression, context!, entity, provider, ref i, separator, closingSymbol, ref decimalValue))
+        if (entity != null && TryEvaluateContextDecimal(expression, context!, entity, provider, ref i, separator, closingSymbol, ref decimalValue, isOperand))
             return (double)decimalValue;
 
         if (TryEvaluateCurrencySymbol(expression, provider, ref i))
@@ -259,27 +214,15 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported.");
     }
 
-    private static bool TryEvaluateContext(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, ref double value)
+    private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator, char? closingSymbol, double value, IMathEntity? entity = null)
     {
+        while (expression.Length > i && expression[i] is ' ')
+            i++;
+
+        entity ??= (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
         switch (entity)
         {
-            case MathVariable<double> mathVariable:
-                {
-                    i += entity.Key.Length;
-                    var result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, mathVariable.Value);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
-                    return true;
-                }
-            case MathVariableFunction<double> mathVariable:
-                {
-                    i += entity.Key.Length;
-                    var result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, mathVariable.GetValue());
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
-                    return true;
-                }
             case MathOperandConverter<double> mathConverter:
                 {
                     i += entity.Key.Length;
@@ -288,6 +231,51 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         ? fn(value)
                         : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
                     value = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    break;
+                }
+            case MathOperandOperator<double> mathOperator:
+                {
+                    i += entity.Key.Length;
+                    var fn = mathOperator.Fn;
+                    var rightOperand = EvaluateOperand(expression, context, provider, ref i, separator, closingSymbol);
+                    rightOperand = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
+                    value = fn(value, rightOperand);
+                    break;
+                }
+            case MathOperandConverter<decimal> or MathOperandOperator<decimal>:
+                value = (double)EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, (decimal)value, entity);
+                break;
+        }
+
+        return value;
+    }
+
+    private static bool TryEvaluateContext(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, IFormatProvider provider,
+        ref int i, char? separator, char? closingSymbol, ref double value, bool isOperand)
+    {
+        switch (entity)
+        {
+            case MathVariable<double> mathVariable:
+                {
+                    i += entity.Key.Length;
+                    var result = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, mathVariable.Value);
+                    value = (value == 0 ? 1 : value) * result;
+                    return true;
+                }
+            case MathVariableFunction<double> mathVariable:
+                {
+                    i += entity.Key.Length;
+                    var result = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, mathVariable.GetValue());
+                    value = (value == 0 ? 1 : value) * result;
+                    return true;
+                }
+            case MathOperandConverter<double> mathConverter:
+                {
+                    i += entity.Key.Length;
+                    var fn = mathConverter.Fn;
+                    value = mathConverter.IsConvertingLeftOperand
+                        ? fn(value)
+                        : fn(Evaluate(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic));
                     return true;
                 }
             case MathOperandOperator<double> mathOperator:
@@ -295,7 +283,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     i += entity.Key.Length;
                     var fn = mathOperator.Fn;
                     var rightOperand = EvaluateOperand(expression, context, provider, ref i, separator, closingSymbol);
-                    rightOperand = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
+                    rightOperand = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
                     value = fn(value, rightOperand);
                     return true;
                 }
@@ -318,9 +306,10 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     if (mathFunction.ClosingSymbol.HasValue)
                         i++;
 
-                    result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    if (!isOperand)
+                        result = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+
+                    value = (value == 0 ? 1 : value) * result;
                     return true;
                 }
             case MathFunction<double> mathFunction:
@@ -348,9 +337,10 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     }
 
                     var result = mathFunction.Fn([.. args]);
-                    result = EvaluateConverter(expression, context, provider, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) *
-                        EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    if (!isOperand)
+                        result = EvaluateExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+
+                    value = (value == 0 ? 1 : value) * result;
                     return true;
                 }
             default:

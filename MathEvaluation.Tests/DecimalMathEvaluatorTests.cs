@@ -537,6 +537,8 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("cos(0)!^3", 1d)]
     [InlineData("2!^(3)!", 64d)]
     [InlineData("2!^(3)!^2!", 68719476736d)]
+    [InlineData("2!^3^2!", 512d)]
+    [InlineData("2!^(3)^2!", 512d)]
     public void MathEvaluator_EvaluateDecimal_HasFactorial_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

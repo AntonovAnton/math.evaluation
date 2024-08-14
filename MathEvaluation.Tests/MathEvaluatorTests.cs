@@ -532,6 +532,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("ln(0)", double.NegativeInfinity)]
     [InlineData("Ln(1)", 0d)]
     [InlineData("LN(10)", 2.3025850929940459d)]
+    [InlineData("LN(10)^2", 2.3025850929940459d * 2.3025850929940459d)]
+    [InlineData("LN[10]^2", 2.3025850929940459d * 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
     [InlineData("ln-100", double.NaN)]
@@ -608,6 +610,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("cos(0)!^3", 1d)]
     [InlineData("2!^(3)!", 64d)]
     [InlineData("2!^(3)!^2!", 68719476736d)]
+    [InlineData("2!^3^2!", 512d)]
+    [InlineData("2!^(3)^2!", 512d)]
     public void MathEvaluator_Evaluate_HasFactorial_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
