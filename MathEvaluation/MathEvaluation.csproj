@@ -22,7 +22,7 @@ Evaluates to double, boolean, or decimal.
 Provides variable support within expressions.
 Extensible with custom functions.</PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>1.1.0</Version>
+        <Version>1.1.1</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>
