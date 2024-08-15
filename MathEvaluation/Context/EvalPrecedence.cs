@@ -14,6 +14,24 @@ namespace MathEvaluation.Context
         Unknown = int.MinValue,
 
         /// <summary>
+        /// The precedence of the congruence or equivalence operator ≡. 
+        /// It can indicate that two expressions are equivalent in a specific context (e.g., modulo arithmetic, logical equivalence).
+        /// </summary>
+        Equivalence = -1000,
+
+        /// <summary>
+        /// The precedence of the biconditional logical equivalence operator ⇔. 
+        /// It can indicate that both sides imply each other; if one is true, the other must be true, and vice versa.
+        /// </summary>
+        BiconditionalLogicalEquivalence = -900,
+
+        /// <summary>
+        /// The precedence of the logical implication operator → or ←. 
+        /// It returns false only if the first operand (antecedent) is true and the second operand (consequent) is false; otherwise, it returns true.
+        /// </summary>
+        LogicalImplication = -800,
+
+        /// <summary>
         /// The precedence of the logical conditional OR operator ||.
         /// </summary>
         LogicalConditionalOr = -700,
@@ -75,17 +93,17 @@ namespace MathEvaluation.Context
         /// <summary>
         /// The precedence of a variable.
         /// </summary>
-        Variable = 250,
+        Variable = 300,
 
         /// <summary>
         /// The precedence of the exponentiation operation.
         /// </summary>
-        Exponentiation = 300,
+        Exponentiation = 400,
 
         /// <summary>
         /// The precedence of converting a math operand to another value 
         /// (for example, converting degrees to radians).
         /// </summary>
-        Convertation = 400,
+        Convertation = 500,
     }
 }

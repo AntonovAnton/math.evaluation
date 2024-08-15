@@ -16,12 +16,13 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>math; math-expressions; evaluation; evaluator; mathematical-expressions; math-library; eval; expression-evaluator; math-parser; evaluate-expressions; math-expression-evaluator; math-expression-parser; mathexpression; math-eval-calc; csharp-maths; math-evaluator; math-evaluation;</PackageTags>
         <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
+Supports Boolean logic.
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
-Evaluates to double or decimal.
+Evaluates to double, boolean, or decimal.
 Provides variable support within expressions.
 Extensible with custom functions.</PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>1.0.0</Version>
+        <Version>1.1.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>

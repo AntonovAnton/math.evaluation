@@ -3,7 +3,7 @@
 namespace MathEvaluation.Context;
 
 /// <summary>
-/// The math function converts the value of the math operand on the left. 
+/// The math function converts the value of the math operand. 
 /// For example, degrees or factorial.
 /// </summary>
 /// <typeparam name="T"></typeparam>
