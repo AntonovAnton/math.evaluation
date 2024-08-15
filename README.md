@@ -209,11 +209,11 @@ Example of using custom context:
 | Infinity | ∞ | 300 |
 | Logical constants  | true, false, True, False, TRUE, FALSE, T, F, ⊤, ⊥ | 300 |
 | Equality  | = | -100 |
-| Inequality  | ≠, <> | -100 |
+| Inequality  | ≠ | -100 |
 | Less than  | \< | -100 |
 | Greater than  | > | -100 |
-| Less than or equal  | ≤, ⪯, \<= | -100 |
-| Greater than or equal  | ≥, ⪰, >= | -100 |
+| Less than or equal  | ≤, ⪯ | -100 |
+| Greater than or equal  | ≥, ⪰ | -100 |
 | Logical negation  | ¬, not, Not, NOT | 500 for ¬, -200 |
 | Logical AND  | ∧, and, And, AND | -300 |
 | Logical exclusive OR  | ⊕, xor, Xor, XOR | -400 |
