@@ -77,16 +77,32 @@ public class DecimalScientificMathContext : MathContext
         BindVariable(0d, '⊥');
 
         static decimal equalToFn(decimal leftOperand, decimal rigntOperand) => leftOperand == rigntOperand ? 1.0m : default;
+        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);
         BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equivalence);
         BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static decimal notEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand != rigntOperand ? 1.0m : default;
+        BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equality);
         BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equivalence);
         BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
+
+        static decimal greaterThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand > rigntOperand ? 1.0m : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+
+        static decimal lessThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand < rigntOperand ? 1.0m : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+
+        static decimal greaterThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand >= rigntOperand ? 1.0m : default;
+        BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.Comparison);
+        BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.Comparison);
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
+
+        static decimal lessThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand <= rigntOperand ? 1.0m : default;
+        BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.Comparison);
+        BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.Comparison);
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
 
         static decimal implicationFn(decimal leftOperand, decimal rigntOperand) => leftOperand == default || rigntOperand != default ? 1.0m : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
