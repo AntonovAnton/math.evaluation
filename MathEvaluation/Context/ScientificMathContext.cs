@@ -97,12 +97,10 @@ public class ScientificMathContext : MathContext
         static double greaterThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand >= rigntOperand ? 1.0 : default;
         BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.Comparison);
         BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.Comparison);
-        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
 
         static double lessThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand <= rigntOperand ? 1.0 : default;
         BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.Comparison);
         BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.Comparison);
-        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
 
         static double implicationFn(double leftOperand, double rigntOperand) => leftOperand == default || rigntOperand != default ? 1.0 : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);

@@ -101,18 +101,18 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("FALSE ≠ True", true)]
     [InlineData("false or TRUE", true)]
     [InlineData("True xor True", false)]
-    [InlineData("200 >= 2.4", 200 >= 2.4)]
-    [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("200 ≥ 2.4", 200 >= 2.4)]
+    [InlineData("200 ≤ 2.4", 200 <= 2.4)]
+    [InlineData("1.0 ⪯ 0.1 and 5.4 ≤ 5.4", 1.0 <= 0.1 && 5.4 <= 5.4)]
     [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
-    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("1.0 - 1.95 ⪰ 0.1", 1.0 - 1.95 >= 0.1)]
     [InlineData("2^3 = 8", true)]
     [InlineData("3 mod 2 ≠ 1.1", true)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
+    [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
+    [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
     public void MathEvaluator_EvaluateDecimal_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -171,8 +171,8 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("F ∨ T ∧ ¬T ⊕ ¬(F ⇎ F)", true)]
     [InlineData("¬F∧T∨¬T→¬T ≡ F∨T∧¬T⊕¬(F ↮ F) ↔ F", true)]
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
-    [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F >= F", true)]
-    [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
+    [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
     public void MathEvaluator_EvaluateDecimal_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
