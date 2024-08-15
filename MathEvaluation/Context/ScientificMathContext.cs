@@ -77,16 +77,32 @@ public class ScientificMathContext : MathContext
         BindVariable(0d, '⊥');
 
         static double equalToFn(double leftOperand, double rigntOperand) => leftOperand == rigntOperand ? 1.0 : default;
+        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);
         BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equivalence);
         BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static double notEqualToFn(double leftOperand, double rigntOperand) => leftOperand != rigntOperand ? 1.0 : default;
+        BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equality);
         BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equivalence);
         BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
+
+        static double greaterThanFn(double leftOperand, double rigntOperand) => leftOperand > rigntOperand ? 1.0 : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+
+        static double lessThanFn(double leftOperand, double rigntOperand) => leftOperand < rigntOperand ? 1.0 : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+
+        static double greaterThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand >= rigntOperand ? 1.0 : default;
+        BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.Comparison);
+        BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.Comparison);
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
+
+        static double lessThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand <= rigntOperand ? 1.0 : default;
+        BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.Comparison);
+        BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.Comparison);
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
 
         static double implicationFn(double leftOperand, double rigntOperand) => leftOperand == default || rigntOperand != default ? 1.0 : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);

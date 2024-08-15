@@ -208,6 +208,12 @@ Example of using custom context:
 | Factorial | ! | 500 |
 | Infinity | ∞ | 300 |
 | Logical constants  | true, false, True, False, TRUE, FALSE, T, F, ⊤, ⊥ | 300 |
+| Equality  | = | -100 |
+| Inequality  | ≠, <> | -100 |
+| Less than  | \< | -100 |
+| Greater than  | > | -100 |
+| Less than or equal  | ≤, ⪯, \<= | -100 |
+| Greater than or equal  | ≥, ⪰, >= | -100 |
 | Logical negation  | ¬, not, Not, NOT | 500 for ¬, -200 |
 | Logical AND  | ∧, and, And, AND | -300 |
 | Logical exclusive OR  | ⊕, xor, Xor, XOR | -400 |
@@ -215,8 +221,8 @@ Example of using custom context:
 | Logical implication  | →, ⇒, ←, ⟸ | -800 |
 | Logical biconditional equivalence  | ↔, ⇔ | -900 |
 | Logical biconditional inequivalence  | ↮, ⇎ | -900 |
-| Logical equivalence  | ≡, = | -1000 |
-| Logical inequivalence  | ≢, ≠ | -1000 |
+| Logical equivalence  | ≡ | -1000 |
+| Logical inequivalence  | ≢ | -1000 |
 | Degree | ° | 500 |
 | Pi constant | π, pi, Pi, PI | 300 |
 | Tau constant | τ | 300 |
