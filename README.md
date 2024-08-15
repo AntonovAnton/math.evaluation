@@ -9,7 +9,7 @@ MathEvaluator is a .NET library that allows you to evaluate any mathematical exp
 - Evaluates to double, boolean, or decimal.
 - Provides variable support within expressions.
 - Extensible with custom functions.
-- Fast and comprehensive. More than 1000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 1200 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Installation
 
@@ -24,7 +24,7 @@ This math expression evaluator is designed for exceptional performance by levera
 
 This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, avoidance of regular expressions, and reliance on static methods. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
 
-The evaluator uses recursive method calls to handle mathematical operations based on operator precedence and rules. This approach avoids the overhead associated with stack or queue data structures.
+The evaluator uses recursive method calls to handle mathematical operations based on operator precedence and rules, an operator with highest precedence is evaluating first. This approach avoids the overhead associated with stack or queue data structures.
 
 The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables and functions by their keys (names) when providing a specific mathematical context or adding custom variables and functions is required.
 
@@ -66,6 +66,8 @@ Examples of using string extentions:
 
     "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
+    "¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥".EvaluateBoolean(new ScientificMathContext());
+
 Examples of using static methods:
         
     MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
@@ -90,6 +92,8 @@ Examples of using static methods:
 
     MathEvaluator.EvaluateBoolean("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext());
 
+    MathEvaluator.EvaluateBoolean("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥", new ScientificMathContext());
+
 Examples of using an instance of the MathEvaluator class:
         
     new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
@@ -113,6 +117,8 @@ Examples of using an instance of the MathEvaluator class:
     new MathEvaluator("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
 
     new MathEvaluator("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
+
+    new MathEvaluator("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥", new ScientificMathContext()).EvaluateBoolean();
 
 Examples of using custom variables or functions:
         
@@ -146,88 +152,104 @@ Example of using custom context:
 
 ## Supported math functions, operators, and constants
 
-|          | Notation |
-|--------- |--------- |
-| Addition | + |
-| Subtraction, Negativity | - |
-| Multiplication  | * |
-| Division  | / |
-| Parentheses  | ( ) |
-| Currency symbol  | depends on culture info |
+|          | Notation | Precedence |
+|--------- |--------- | --------- |
+| Addition | + | 0 |
+| Subtraction, Negativity | - | 0 |
+| Multiplication  | * | 100 |
+| Division  | / | 100 |
+| Parentheses  | ( ) | 200 |
+| Currency symbol  | depends on culture info | |
 
 #### Programming Math Context (using ProgrammingMathContext class):
-|          | Notation |
-|--------- |--------- |
-| Addition | + |
-| Subtraction, Negativity | - |
-| Multiplication  | * |
-| Division  | / |
-| Parentheses  | ( ) |
-| Currency symbol  | depends on culture info |
-| Exponentiation | ** |
-| Modulus | % |
-| Floor Division  | // |
-| Logical constants  | true, false, True, False, TRUE, FALSE |
-| Equality  | = |
-| Inequality  | \<> |
-| Less than  | \< |
-| Greater than  | > |
-| Less than or equal  | \<= |
-| Greater than or equal  | >= |
-| Logical negation  | not, Not, NOT |
-| Logical AND  | and, And, AND |
-| Logical exclusive OR  | xor, Xor, XOR |
-| Logical OR  | or, Or, OR |
+|          | Notation | Precedence |
+|--------- |--------- |--------- |
+| Addition | + | 0 |
+| Subtraction, Negativity | - | 0 |
+| Multiplication  | * | 100 |
+| Division  | / | 100 |
+| Parentheses  | ( ) | 200 |
+| Currency symbol  | depends on culture info | |
+| Exponentiation | ** | 400 |
+| Modulus | % | 100 |
+| Floor Division  | // | 100 |
+| Logical constants  | true, false, True, False, TRUE, FALSE | 300 |
+| Equality  | = | -100 |
+| Inequality  | \<> | -100 |
+| Less than  | \< | -100 |
+| Greater than  | > | -100 |
+| Less than or equal  | \<= | -100 |
+| Greater than or equal  | >= | -100 |
+| Logical negation  | not, Not, NOT | -200 |
+| Logical AND  | and, And, AND | -300 |
+| Logical exclusive OR  | xor, Xor, XOR | -400 |
+| Logical OR  | or, Or, OR | -500 |
 
 #### Scientific Math Context (using ScientificMathContext class):
 
-|          | Notation |
-|--------- |--------- |
-| Addition | + |
-| Subtraction, Negativity | - |
-| Multiplication  | *, ×, or · |
-| Division  | / or ÷ |
-| Parentheses, Square brackets | ( ) or [ ] |
-| Currency symbol  | depends on culture info |
-| Exponentiation | ^ |
-| Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO |
-| Floor Division  | // |
-| Absolute  | \| \|, abs, Abs, ABS |
-| Ceiling | ⌈ ⌉ |
-| Floor | ⌊ ⌋ |
-| Square root, cube root, fourth root | √, ∛, ∜ |
-| Natural logarithmic base | e |
-| Natural logarithm | ln, Ln, LN |
-| Common logarithm (base 10) | log, Log, LOG |
-| Factorial | ! |
-| Infinity | ∞ |
-| Degree | ° |
-| Pi constant | π, pi, Pi, PI |
-| Tau constant | τ |
-| Sine | sin, Sin, SIN |
-| Cosine | cos, Cos, COS |
-| Tangent | tan, Tan, TAN |
-| Secant | sec, Sec, SEC |
-| Cosecant | csc, Csc, CSC |
-| Cotangent | cot, Cot, COT |
-| Hyperbolic sine | sinh, Sinh, SINH |
-| Hyperbolic cosine | cosh, Cosh, COSH |
-| Hyperbolic tangent | tanh, Tanh, TANH |
-| Hyperbolic secant | sech, Sech, SECH |
-| Hyperbolic cosecant | csch, Csch, CSCH |
-| Hyperbolic cotangent | coth, Coth, COTH |
-| Inverse sine | arcsin, Arcsin, ARCSIN, sin\^-1, Sin\^-1, SIN\^-1 |
-| Inverse cosine | arccos, Arccos, ARCCOS, cos\^-1, Cos\^-1, COS\^-1 |
-| Inverse tangent | arctan, Arctan, ARCTAN, tan\^-1, Tan\^-1, TAN\^-1 |
-| Inverse secant | arcsec, Arcsec, ARCSEC, sec\^-1, Sec\^-1, SEC\^-1 |
-| Inverse cosecant | arccsc, Arccsc, ARCCSC, csc\^-1, Csc\^-1, CSC\^-1 |
-| Inverse cotangent | arccot, Arccot, ARCCOT, cot\^-1, Cot\^-1, COT\^-1 |
-| Inverse Hyperbolic sine | arsinh, Arsinh, ARSINH, sinh\^-1, Sinh\^-1, SINH\^-1 |
-| Inverse Hyperbolic cosine | arcosh, Arcosh, ARCOSH, cosh\^-1, Cosh\^-1, COSH\^-1 |
-| Inverse Hyperbolic tangent | artanh, Artanh, ARTANH, tanh\^-1, Tanh\^-1, TANH\^-1 |
-| Inverse Hyperbolic secant | arsech, Arsech, ARSECH, sech\^-1, Sech\^-1, SECH\^-1 |
-| Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 |
-| Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 |
+|          | Notation | Precedence |
+|--------- |--------- | --------- |
+| Addition | + | 0 |
+| Subtraction, Negativity | - | 0 |
+| Multiplication  | *, ×, or · | 100 |
+| Division  | / or ÷ | 100 |
+| Parentheses, Square brackets | ( ) or [ ] | 200 |
+| Currency symbol  | depends on culture info | |
+| Exponentiation | ^ | 400 |
+| Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO | 100 |
+| Floor Division  | // | 100 |
+| Absolute  | \| \|, abs, Abs, ABS | 200 |
+| Ceiling | ⌈ ⌉ | 200 |
+| Floor | ⌊ ⌋ | 200 |
+| Square root, cube root, fourth root | √, ∛, ∜ | 200 |
+| Natural logarithmic base | e | 300 |
+| Natural logarithm | ln, Ln, LN | 200 |
+| Common logarithm (base 10) | log, Log, LOG | 200 |
+| Factorial | ! | 500 |
+| Infinity | ∞ | 300 |
+| Logical constants  | true, false, True, False, TRUE, FALSE, T, F, ⊤, ⊥ | 300 |
+| Equality  | = | -100 |
+| Inequality  | ≠, <> | -100 |
+| Less than  | \< | -100 |
+| Greater than  | > | -100 |
+| Less than or equal  | ≤, ⪯, \<= | -100 |
+| Greater than or equal  | ≥, ⪰, >= | -100 |
+| Logical negation  | ¬, not, Not, NOT | 500 for ¬, -200 |
+| Logical AND  | ∧, and, And, AND | -300 |
+| Logical exclusive OR  | ⊕, xor, Xor, XOR | -400 |
+| Logical OR  | ∨, or, Or, OR | -500 |
+| Logical implication  | →, ⇒, ←, ⟸ | -800 |
+| Logical biconditional equivalence  | ↔, ⇔ | -900 |
+| Logical biconditional inequivalence  | ↮, ⇎ | -900 |
+| Logical equivalence  | ≡ | -1000 |
+| Logical inequivalence  | ≢ | -1000 |
+| Degree | ° | 500 |
+| Pi constant | π, pi, Pi, PI | 300 |
+| Tau constant | τ | 300 |
+| Sine | sin, Sin, SIN | 200 |
+| Cosine | cos, Cos, COS | 200 |
+| Tangent | tan, Tan, TAN | 200 |
+| Secant | sec, Sec, SEC | 200 |
+| Cosecant | csc, Csc, CSC | 200 |
+| Cotangent | cot, Cot, COT | 200 |
+| Hyperbolic sine | sinh, Sinh, SINH | 200 |
+| Hyperbolic cosine | cosh, Cosh, COSH | 200 |
+| Hyperbolic tangent | tanh, Tanh, TANH | 200 |
+| Hyperbolic secant | sech, Sech, SECH | 200 |
+| Hyperbolic cosecant | csch, Csch, CSCH | 200 |
+| Hyperbolic cotangent | coth, Coth, COTH | 200 |
+| Inverse sine | arcsin, Arcsin, ARCSIN, sin\^-1, Sin\^-1, SIN\^-1 | 200 |
+| Inverse cosine | arccos, Arccos, ARCCOS, cos\^-1, Cos\^-1, COS\^-1 | 200 |
+| Inverse tangent | arctan, Arctan, ARCTAN, tan\^-1, Tan\^-1, TAN\^-1 | 200 |
+| Inverse secant | arcsec, Arcsec, ARCSEC, sec\^-1, Sec\^-1, SEC\^-1 | 200 |
+| Inverse cosecant | arccsc, Arccsc, ARCCSC, csc\^-1, Csc\^-1, CSC\^-1 | 200 |
+| Inverse cotangent | arccot, Arccot, ARCCOT, cot\^-1, Cot\^-1, COT\^-1 | 200 |
+| Inverse Hyperbolic sine | arsinh, Arsinh, ARSINH, sinh\^-1, Sinh\^-1, SINH\^-1 | 200 |
+| Inverse Hyperbolic cosine | arcosh, Arcosh, ARCOSH, cosh\^-1, Cosh\^-1, COSH\^-1 | 200 |
+| Inverse Hyperbolic tangent | artanh, Artanh, ARTANH, tanh\^-1, Tanh\^-1, TANH\^-1 | 200 |
+| Inverse Hyperbolic secant | arsech, Arsech, ARSECH, sech\^-1, Sech\^-1, SECH\^-1 | 200 |
+| Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 | 200 |
+| Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate C# math string expression
 DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class, and supports equlity, comparision, logical boolean operators.
