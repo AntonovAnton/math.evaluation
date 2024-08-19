@@ -64,13 +64,13 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Sin(0) != Math.Cos(1)", true)]
     [InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_Evaluate_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathEvaluator_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _context);
+        var value = MathEvaluator.EvaluateBoolean(expression, _context);
 
-        Assert.Equal(expectedValue, value == 1.0);
+        Assert.Equal(expectedValue, value);
     }
 
     [Theory]

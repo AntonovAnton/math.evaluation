@@ -90,9 +90,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
+        var value = MathEvaluator.EvaluateDecimal(expression, _programmingContext);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
@@ -117,9 +117,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
@@ -177,9 +177,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]

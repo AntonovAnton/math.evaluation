@@ -72,6 +72,8 @@ public class MathContext : IMathContext
                 BindFunction(decimalFn6, key);
             else if (value is Func<decimal[], decimal> decimalFns)
                 BindFunction(decimalFns, key);
+            else if (value is Func<bool> boolFn1)
+                BindVariable(boolFn1, key);
             else
             {
                 if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
@@ -212,6 +214,26 @@ public class MathContext : IMathContext
         char closingSymbol = IMathContext.DefaultClosingSymbol)
         => _mathContextTrie.AddMathEntity(new MathFunction<decimal>(key, fn, openingSymbol, separator, closingSymbol));
 
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
+    public void BindVariable(bool value, char key)
+        => _mathContextTrie.AddMathEntity(new MathVariable<double>(key.ToString(), Convert.ToDouble(value)));
+
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
+    public void BindVariable(bool value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathVariable<double>(key, Convert.ToDouble(value)));
+
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
+    public void BindVariable(Func<bool> getValue, char key)
+        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key.ToString(), () => Convert.ToDouble(getValue())));
+
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentException">key</exception>
+    public void BindVariable(Func<bool> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key, () => Convert.ToDouble(getValue())));
+
     /// <summary>Binds the function.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
@@ -293,7 +315,8 @@ public class MathContext : IMathContext
     private static bool IsNumericType(Type type) => Type.GetTypeCode(type) switch
     {
         TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
-            or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double or TypeCode.Decimal => true,
+            or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double
+            or TypeCode.Decimal or TypeCode.Boolean => true,
         _ => false
     };
 
