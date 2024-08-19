@@ -32,13 +32,7 @@ public static class MathEvaluatorExtensions
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, double value, char key)
         => BindVariable(evaluator, value, key.ToString());
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, double value,
         [CallerArgumentExpression(nameof(value))] string? key = null)
     {
@@ -57,13 +51,7 @@ public static class MathEvaluatorExtensions
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<double> getValue, char key)
         => BindVariable(evaluator, getValue, key.ToString());
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="getValue">The get value function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<double> getValue,
         [CallerArgumentExpression(nameof(getValue))] string? key = null)
     {
@@ -82,13 +70,7 @@ public static class MathEvaluatorExtensions
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double> fn, char key)
         => BindFunction(evaluator, fn, key.ToString());
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
@@ -117,16 +99,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double, double, double> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -137,16 +110,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double, double, double, double> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -157,16 +121,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double, double, double, double, double> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -177,16 +132,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double[], double> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -197,23 +143,11 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, decimal value, char key)
         => BindVariable(evaluator, value, key.ToString());
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, double, string?)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, decimal value,
         [CallerArgumentExpression(nameof(value))] string? key = null)
     {
@@ -222,23 +156,11 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="getValue">The get value function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<decimal> getValue, char key)
         => BindVariable(evaluator, getValue, key.ToString());
 
-    /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="getValue">The get value function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, string?)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<decimal> getValue,
         [CallerArgumentExpression(nameof(getValue))] string? key = null)
     {
@@ -247,23 +169,11 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal> fn, char key)
         => BindFunction(evaluator, fn, key.ToString());
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, string?)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
@@ -272,16 +182,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal, decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -292,16 +193,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal, decimal, decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -312,16 +204,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal, decimal, decimal, decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -332,16 +215,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double, double, double, double, double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal, decimal, decimal, decimal, decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -352,16 +226,7 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
-    /// </summary>
-    /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <returns><see cref="MathEvaluator"/> instance</returns>
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double[], double}, string?, char, char, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal[], decimal> fn,
         [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
@@ -369,6 +234,32 @@ public static class MathEvaluatorExtensions
     {
         evaluator.Context ??= new MathContext();
         evaluator.Context.BindFunction(fn, key, openingSymbol, separator, closingSymbol);
+        return evaluator;
+    }
+
+    /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
+    public static MathEvaluator BindVariable(this MathEvaluator evaluator, bool value, char key)
+        => BindVariable(evaluator, value, key.ToString());
+
+    /// <inheritdoc cref="BindVariable(MathEvaluator, double, string?)"/>
+    public static MathEvaluator BindVariable(this MathEvaluator evaluator, bool value,
+        [CallerArgumentExpression(nameof(value))] string? key = null)
+    {
+        evaluator.Context ??= new MathContext();
+        evaluator.Context.BindVariable(value, key);
+        return evaluator;
+    }
+
+    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
+    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<bool> getValue, char key)
+        => BindVariable(evaluator, getValue, key.ToString());
+
+    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, string?)"/>
+    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<bool> getValue,
+        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    {
+        evaluator.Context ??= new MathContext();
+        evaluator.Context.BindVariable(getValue, key);
         return evaluator;
     }
 }
