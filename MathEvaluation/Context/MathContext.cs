@@ -126,21 +126,21 @@ public class MathContext : IMathContext
     public void BindFunction(Func<double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((double[] args) => fn(args[0], args[1], args[3]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((double[] args) => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((double[] args) => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((double[] args) => fn(args[0], args[1], args[3], args[4], args[5]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((double[] args) => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
@@ -191,21 +191,21 @@ public class MathContext : IMathContext
     public void BindFunction(Func<decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((decimal[] args) => fn(args[0], args[1], args[3]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((decimal[] args) => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((decimal[] args) => fn(args[0], args[1], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((decimal[] args) => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = IMathContext.DefaultOpeningSymbol, char separator = IMathContext.DefaultParamsSeparator,
         char closingSymbol = IMathContext.DefaultClosingSymbol)
-        => BindFunction((decimal[] args) => fn(args[0], args[1], args[3], args[4], args[5]), key, openingSymbol, separator, closingSymbol);
+        => BindFunction((decimal[] args) => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>

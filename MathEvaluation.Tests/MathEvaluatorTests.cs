@@ -76,6 +76,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("A or not B and C", true, false, true, true)]
     [InlineData("A or not B and C", false, true, true, false)]
     [InlineData("A or not B and C", true, false, false, true)]
+    [InlineData("A or not B and (C or B)", true, false, true, true)]
+    [InlineData("A or not B and (C or B)", false, true, false, false)]
     public void MathEvaluator_EvaluateBoolean_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -84,6 +86,24 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var value = expression
             .SetContext(_programmingContext)
             .Bind(new { A = a, B = b, C = getC })
+            .EvaluateBoolean();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("if(3 % a = 1, true, false)", 2d, true)]
+    [InlineData("if(3 % a = 1, true, false)", 1d, false)]
+    public void MathEvaluator_EvaluateBoolean_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var context = new ProgrammingMathContext();
+        context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
+
+        var value = expression
+            .SetContext(context)
+            .BindVariable(a)
             .EvaluateBoolean();
 
         Assert.Equal(expectedValue, value);
