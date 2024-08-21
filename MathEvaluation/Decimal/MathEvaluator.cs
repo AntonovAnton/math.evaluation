@@ -32,6 +32,8 @@ public partial class MathEvaluator
     }
 
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
+    /// <exception cref="System.ArgumentNullException">expression</exception>
+    /// <exception cref="System.ArgumentException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
         try
@@ -48,6 +50,7 @@ public partial class MathEvaluator
         catch (Exception ex)
         {
             ex.Data[nameof(expression)] = expression.ToString();
+            ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
             throw;
         }

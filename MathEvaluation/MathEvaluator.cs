@@ -71,6 +71,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         catch (Exception ex)
         {
             ex.Data[nameof(expression)] = expression.ToString();
+            ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
             throw;
         }
