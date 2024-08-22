@@ -185,7 +185,7 @@ public partial class MathEvaluator
         if (entity != null && TryEvaluateContext(expression, context!, entity, provider, ref i, separator, closingSymbol, ref doubleValue, isOperand))
             return (decimal)doubleValue;
 
-        if (TryEvaluateCurrencySymbol(expression, provider, ref i))
+        if (TryParseCurrencySymbol(expression, provider, ref i))
             return value;
 
         var end = expression[i..].IndexOfAny("([ |") + i;

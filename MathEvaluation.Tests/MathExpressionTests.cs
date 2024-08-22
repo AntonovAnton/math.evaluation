@@ -35,12 +35,57 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
-    public void MathExpression_EvaluateWithPreCompilation_ExpectedValue(string? expression, double expectedValue)
+    public void MathExpression_CompileThenEvaluate_ExpectedValue(string? expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var mathExpression = new MathExpression(expression!);
         mathExpression.Compile();
+
+        var value = mathExpression.Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("3^4", 81d)]
+    [InlineData("3^4^2", 81d * 81 * 81 * 81)]
+    [InlineData("2/3^4", 2 / 81d)]
+    [InlineData("0.5^2*3", 0.75d)]
+    [InlineData("-3^4", -81d)]
+    //[InlineData("2^3pi", 687.29133511454552d)]
+    //[InlineData("-3^4sin(-PI/2)", 81d)]
+    [InlineData("(-3)^0.5", double.NaN)]
+    [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    public void MathExpression_CompileThenEvaluate_HasScientificPower_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var mathExpression = new MathExpression(expression, _scientificContext);
+        mathExpression.Compile();
+
+        var value = mathExpression.Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+
+    [Theory]
+    //[InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("x", "x", 0.5, 0.5d)]
+    [InlineData("2x", "x", 0.5, 1d)]
+    [InlineData("PI", nameof(Math.PI), Math.PI, Math.PI)]
+    [InlineData("2 * PI", nameof(Math.PI), Math.PI, 2 * Math.PI)]
+    public void MathEvaluator_Evaluate_HasVariable_ExpectedValue(string expression, string varName,
+        double varValue, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{varName} = {varValue}");
+
+        var mathExpression = new MathExpression(expression, _scientificContext);
+        mathExpression.Compile();
+        mathExpression.SetVariable(varName, varValue);
 
         var value = mathExpression.Evaluate();
 

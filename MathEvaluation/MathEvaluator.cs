@@ -206,7 +206,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         if (entity != null && TryEvaluateContextDecimal(expression, context!, entity, provider, ref i, separator, closingSymbol, ref decimalValue, isOperand))
             return (double)decimalValue;
 
-        if (TryEvaluateCurrencySymbol(expression, provider, ref i))
+        if (TryParseCurrencySymbol(expression, provider, ref i))
             return value;
 
         var end = expression[i..].IndexOfAny("([ |") + i;
@@ -349,7 +349,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         }
     }
 
-    private static bool TryEvaluateCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider,
+    internal static bool TryParseCurrencySymbol(ReadOnlySpan<char> expression, IFormatProvider provider,
         ref int i)
     {
         var currencySymbol = NumberFormatInfo.GetInstance(provider).CurrencySymbol;
@@ -360,14 +360,14 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         return true;
     }
 
-    private static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider,
+    internal static double GetNumber(ReadOnlySpan<char> expression, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol)
     {
         var str = GetNumberString(expression, ref i, separator, closingSymbol);
         return double.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, provider);
     }
 
-    private static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, ref int i, char? separator, char? closingSymbol)
+    internal static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, ref int i, char? separator, char? closingSymbol)
     {
         var start = i;
         i++;
