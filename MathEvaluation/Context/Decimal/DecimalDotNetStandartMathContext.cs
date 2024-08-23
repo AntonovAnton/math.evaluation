@@ -7,8 +7,8 @@ namespace MathEvaluation.Context.Decimal;
 /// supports all constants and functions provided by <see cref="System.Math" /> class.
 /// Provides evaluating C# math expressions.
 /// </summary>
-/// <seealso cref="MathEvaluation.Context.Decimal.DecimalProgrammingMathContext" />
-public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
+/// <seealso cref="MathEvaluation.Context.MathContext" />
+public class DecimalDotNetStandartMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandartMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()

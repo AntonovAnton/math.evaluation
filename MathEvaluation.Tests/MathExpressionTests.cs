@@ -73,6 +73,7 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     //[InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("3^a^2", "a", 4, 81d * 81 * 81 * 81)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("PI", nameof(Math.PI), Math.PI, Math.PI)]
@@ -84,8 +85,8 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{varName} = {varValue}");
 
         var mathExpression = new MathExpression(expression, _scientificContext);
+        mathExpression.SetVariable(varValue, varName);
         mathExpression.Compile();
-        mathExpression.SetVariable(varName, varValue);
 
         var value = mathExpression.Evaluate();
 

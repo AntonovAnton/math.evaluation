@@ -39,8 +39,7 @@ public class DecimalScientificMathContext : MathContext
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        static decimal exponentiationFn(decimal leftOperand, decimal rigntOperand) => (decimal)Math.Pow((double)leftOperand, (double)rigntOperand);
-        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
+        BindOperandOperator(Math.Pow, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((decimal value) => value, '[', ']');
         BindFunction((decimal value) => Math.Abs(value), '|', '|');

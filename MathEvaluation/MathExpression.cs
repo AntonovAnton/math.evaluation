@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
-
-using LinqExpression = System.Linq.Expressions.Expression;
 
 using MathEvaluation.Context;
 
@@ -11,14 +10,17 @@ namespace MathEvaluation;
 
 public class MathExpression
 {
-    private static readonly LinqExpression DoubleZero = LinqExpression.Constant(0.0);
+    private static readonly Expression DoubleZero = Expression.Constant(0.0);
 
-    private MathContextTrie _variables = new();
-    private Func<double> _func;
+    private List<MathVariable<double>> _variables = new();
+    private MathContextTrie _variablesTrie = new();
 
-    /// <summary>Gets the math expression.</summary>
-    /// <value>The math expression.</value>
-    public string Expression { get; }
+    private ParameterExpression _parameter = Expression.Parameter(typeof(double[]), "args");
+    private Func<double[], double>? _func;
+
+    /// <summary>Gets the math expression string.</summary>
+    /// <value>The math expression string.</value>
+    public string MathString { get; }
 
     /// <summary>Gets the math context.</summary>
     /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
@@ -27,6 +29,10 @@ public class MathExpression
     /// <summary>Gets the specified format provider.</summary>
     /// <value>The specified format provider.</value>
     public IFormatProvider Provider { get; }
+
+    /// <summary>Gets the expression tree.</summary>
+    /// <value>The expression tree.</value>
+    public Expression? ExpressionTree { get; private set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MathExpression"/> class.
@@ -40,39 +46,47 @@ public class MathExpression
         if (string.IsNullOrWhiteSpace(expression))
             throw new ArgumentException("Expression is empty or white space.", nameof(expression));
 
-        Expression = expression;
+        MathString = expression;
         Context = context;
         Provider = provider ?? CultureInfo.CurrentCulture;
 
-        _func = () => double.NaN;
+        _func = null;
     }
 
     /// <summary>Sets the variable.</summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
-    public void SetVariable<T>(string key, T value)
-        where T : struct
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public void SetVariable(double value, string key)
     {
-        _variables.AddMathEntity(new MathVariable<T>(key, value));
+        var index = _variables.FindIndex(v => v.Key == key);
+        if (index == -1)
+            _variables.Add(new MathVariable<double>(key.ToString(), value));
+        else
+            _variables[index].SetValue(value);
     }
 
-    /// <summary>Compiles the <see cref="Expression">math expression</see>.</summary>
+    /// <summary>Compiles the <see cref="MathString">math expression</see>.</summary>
     /// <exception cref="FormatException"></exception>
     /// <exception cref="NotSupportedException"></exception>
     public void Compile()
     {
+        if (_func != null)
+            return;
+
         try
         {
+            foreach (var variable in _variables)
+                _variablesTrie.AddMathEntity(variable);
 
             var i = 0;
-            var expression = Build(Expression, Context, Provider, ref i, null, null, (int)EvalPrecedence.Unknown, DoubleZero);
+            ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, DoubleZero);
 
-            _func = LinqExpression.Lambda<Func<double>>(expression).Compile();
+            _func = Expression.Lambda<Func<double[], double>>(ExpressionTree, _parameter).Compile();
         }
         catch (Exception ex)
         {
-            ex.Data[nameof(Expression)] = Expression;
+            ex.Data[nameof(MathString)] = MathString;
             ex.Data[nameof(Context)] = Context;
             ex.Data[nameof(Provider)] = Provider;
             throw;
@@ -81,156 +95,167 @@ public class MathExpression
 
     public double Evaluate()
     {
-        return _func();
+        if (_func == null)
+            throw new InvalidOperationException();
+
+        var args = _variables.Select(v => v.Value).ToArray();
+
+        return _func(args);
     }
 
-    private static LinqExpression Build(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, int precedence, LinqExpression value)
+    private Expression Build(ReadOnlySpan<char> str, ref int i, char? separator, char? closingSymbol, int precedence, Expression expr)
     {
         var start = i;
-        while (expression.Length > i)
+        while (str.Length > i)
         {
-            if ((closingSymbol.HasValue && expression[i] == closingSymbol.Value) ||
-                (separator.HasValue && expression[i] == separator.Value))
-                return value;
+            if ((closingSymbol.HasValue && str[i] == closingSymbol.Value) ||
+                (separator.HasValue && str[i] == separator.Value))
+                return expr;
 
-            switch (expression[i])
+            switch (str[i])
             {
                 case '(':
                     if (precedence >= (int)EvalPrecedence.Function)
-                        return value;
+                        return expr;
 
                     i++;
-                    var right = Build(expression, context, provider, ref i, null, ')', (int)EvalPrecedence.Unknown, DoubleZero);
+                    var right = Build(str, ref i, null, ')', (int)EvalPrecedence.Unknown, DoubleZero);
                     i++;
-                    right = BuildExponentiation(expression, context, provider, ref i, separator, closingSymbol, right);
-                    var left = value is ConstantExpression c && (double)c.Value == 0.0 ? LinqExpression.Constant(1.0) : value;
-                    value = LinqExpression.Multiply(left, right);
+                    right = BuildExponentiation(str, ref i, separator, closingSymbol, right);
+                    var left = expr is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expr;
+                    expr = Expression.Multiply(left, right);
                     break;
                 case > '0' and <= '9' or '.' or '0' or ',' or '٫':
-                    value = LinqExpression.Constant(MathEvaluator.GetNumber(expression, provider, ref i, separator, closingSymbol));
+                    expr = Expression.Constant(MathEvaluator.GetNumber(str, Provider, ref i, separator, closingSymbol));
                     break;
                 case '+':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
-                        return value;
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !str[start..i].IsWhiteSpace())
+                        return expr;
 
                     i++;
-                    right = Build(expression, context, provider, ref i, separator, closingSymbol,
+                    right = Build(str, ref i, separator, closingSymbol,
                             precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, DoubleZero);
-                    value = LinqExpression.Add(value, right);
+                    expr = Expression.Add(expr, right);
                     break;
                 case '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
-                        return value;
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !str[start..i].IsWhiteSpace())
+                        return expr;
 
                     i++;
-                    while (expression.Length > i && expression[i] is ' ' or '\n' or '\r')
+                    while (str.Length > i && str[i] is ' ' or '\n' or '\r')
                         i++;
 
                     //two negatives should combine to make a positive
-                    if (expression.Length > i && expression[i] is '-')
+                    if (str.Length > i && str[i] is '-')
                     {
                         i++;
-                        right = Build(expression, context, provider, ref i, separator, closingSymbol,
+                        right = Build(str, ref i, separator, closingSymbol,
                                 precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, DoubleZero);
-                        value = LinqExpression.Add(value, right);
+                        expr = Expression.Add(expr, right);
                     }
                     else
                     {
-                        right = Build(expression, context, provider, ref i, separator, closingSymbol,
+                        right = Build(str, ref i, separator, closingSymbol,
                                 precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, DoubleZero);
-                        value = LinqExpression.Subtract(value, right);
+                        expr = Expression.Subtract(expr, right);
                     }
 
                     break;
-                case '*' when expression.Length == i + 1 || expression[i + 1] != '*':
+                case '*' when str.Length == i + 1 || str[i + 1] != '*':
                     if (precedence >= (int)EvalPrecedence.Basic)
-                        return value;
+                        return expr;
 
                     i++;
-                    right = Build(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
-                    value = LinqExpression.Multiply(value, right);
+                    right = Build(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
+                    expr = Expression.Multiply(expr, right);
                     break;
-                case '/' when expression.Length == i + 1 || expression[i + 1] != '/':
+                case '/' when str.Length == i + 1 || str[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
-                        return value;
+                        return expr;
 
                     i++;
-                    right = Build(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
-                    value = LinqExpression.Divide(value, right);
+                    right = Build(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
+                    expr = Expression.Divide(expr, right);
                     break;
                 case ' ' or '\n' or '\r': //space or LF or CR
                     i++;
                     break;
                 default:
-                    var entity = context?.FirstMathEntity(expression[i..]);
+                    var entity = Context?.FirstMathEntity(str[i..]);
 
                     //highest precedence is evaluating first
                     if (precedence >= entity?.Precedence)
-                        return value;
+                        return expr;
 
-                    value = BuildFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, precedence, value, false, entity);
+                    expr = BuildFuncOrVar(str, ref i, separator, closingSymbol, precedence, expr, false, entity);
                     break;
             }
         }
 
-        if (value is ConstantExpression && (double)((ConstantExpression)value).Value == 0.0 && expression[start..i].IsWhiteSpace())
-            return LinqExpression.Constant(double.NaN);
+        if (expr is ConstantExpression && (double)((ConstantExpression)expr).Value == 0.0 && str[start..i].IsWhiteSpace())
+            return Expression.Constant(double.NaN);
 
-        return value;
+        return expr;
     }
 
-    private static LinqExpression BuildOperand(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol)
+    private Expression BuildOperand(ReadOnlySpan<char> str, ref int i, char? separator, char? closingSymbol)
     {
-        while (expression.Length > i && expression[i] is ' ')
+        while (str.Length > i && str[i] is ' ')
             i++;
 
-        switch (expression[i])
+        switch (str[i])
         {
             case '(':
                 {
                     i++;
-                    var value = Build(expression, context, provider, ref i, null, ')', (int)EvalPrecedence.Unknown, DoubleZero);
+                    var expr = Build(str, ref i, null, ')', (int)EvalPrecedence.Unknown, DoubleZero);
                     i++;
-                    return value;
+                    return expr;
                 }
             case > '0' and <= '9' or '.' or '0' or ',' or '٫':
-                return Build(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, DoubleZero);
+                return Build(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, DoubleZero);
             case '-':
                 i++;
-                return LinqExpression.Negate(BuildOperand(expression, context, provider, ref i, separator, closingSymbol));
+                return Expression.Negate(BuildOperand(str, ref i, separator, closingSymbol));
             default:
-                return BuildFuncOrVar(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, DoubleZero, true);
+                return BuildFuncOrVar(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, DoubleZero, true);
         }
     }
 
-    private static LinqExpression BuildFuncOrVar(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, int precedence, LinqExpression value, bool isOperand, IMathEntity? entity = null)
+    private Expression BuildFuncOrVar(ReadOnlySpan<char> str, ref int i, char? separator, char? closingSymbol, int precedence, Expression expr, bool isOperand, IMathEntity? entity = null)
     {
-        entity ??= context?.FirstMathEntity(expression[i..]);
+        entity ??= Context?.FirstMathEntity(str[i..]);
         if (entity?.Precedence < precedence)
-            return value;
+            return expr;
 
-        if (entity != null && TryBuildContext(expression, context!, entity, provider, ref i, separator, closingSymbol, ref value, isOperand))
-            return value;
+        if (entity != null && TryBuildContext(str, entity, ref i, separator, closingSymbol, ref expr, isOperand))
+            return expr;
 
-        if (MathEvaluator.TryParseCurrencySymbol(expression, provider, ref i))
-            return value;
+        entity = _variablesTrie.FirstMathEntity(str[i..]);
+        if (entity is MathVariable<double> mathVariable)
+        {
+            i += entity.Key.Length;
+            var index = _variables.IndexOf(mathVariable);
+            var right = Expression.ArrayAccess(_parameter, Expression.Constant(index));
+            var left = expr == DoubleZero ? Expression.Constant(1.0) : expr;
+            return Expression.Multiply(left, right);
+        }
 
-        var end = expression[i..].IndexOfAny("([ |") + i;
-        var unknownSubstring = end > i ? expression[i..end] : expression[i..];
+        if (MathEvaluator.TryParseCurrencySymbol(str, Provider, ref i))
+            return expr;
+
+        var end = str[i..].IndexOfAny("([ |") + i;
+        var unknownSubstring = end > i ? str[i..end] : str[i..];
 
         throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported.");
     }
 
-    private static LinqExpression BuildExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, LinqExpression value, IMathEntity? entity = null)
+    private Expression BuildExponentiation(ReadOnlySpan<char> str, ref int i, char? separator, char? closingSymbol, Expression expr, IMathEntity? entity = null)
     {
-        while (expression.Length > i && expression[i] is ' ')
+        while (str.Length > i && str[i] is ' ')
             i++;
 
-        entity ??= (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
+        entity ??= (str.Length > i ? Context?.FirstMathEntity(str[i..]) : null);
         switch (entity)
         {
             case MathOperandConverter<double> mathConverter:
@@ -238,16 +263,16 @@ public class MathExpression
                     i += entity.Key.Length;
                     var fn = mathConverter.Fn;
                     Expression<Func<double, double>> lambda = arg => fn(arg);
-                    LinqExpression result;
+                    Expression result;
                     if (mathConverter.IsConvertingLeftOperand)
-                        result = LinqExpression.Invoke(lambda, value);
+                        result = Expression.Invoke(lambda, expr);
                     else
                     {
-                        var right = Build(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
-                        result = LinqExpression.Invoke(lambda, right);
+                        var right = Build(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
+                        result = Expression.Invoke(lambda, right);
                     }
 
-                    value = BuildExponentiation(expression, context, provider, ref i, separator, closingSymbol, result);
+                    expr = BuildExponentiation(str, ref i, separator, closingSymbol, result);
                     break;
                 }
             case MathOperandOperator<double> mathOperator:
@@ -255,35 +280,35 @@ public class MathExpression
                     i += entity.Key.Length;
                     var fn = mathOperator.Fn;
                     Expression<Func<double, double, double>> lambda = (arg1, arg2) => fn(arg1, arg2);
-                    var rightOperand = BuildOperand(expression, context, provider, ref i, separator, closingSymbol);
-                    rightOperand = BuildExponentiation(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
-                    value = LinqExpression.Invoke(lambda, value, rightOperand);
+                    var rightOperand = BuildOperand(str, ref i, separator, closingSymbol);
+                    rightOperand = BuildExponentiation(str, ref i, separator, closingSymbol, rightOperand);
+                    expr = Expression.Invoke(lambda, expr, rightOperand);
                     break;
                 }
         }
 
-        return value;
+        return expr;
     }
 
-    private static bool TryBuildContext(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, ref LinqExpression value, bool isOperand)
+    private bool TryBuildContext(ReadOnlySpan<char> str, IMathEntity entity,
+        ref int i, char? separator, char? closingSymbol, ref Expression expr, bool isOperand)
     {
         switch (entity)
         {
             case MathVariable<double> mathVariable:
                 {
                     i += entity.Key.Length;
-                    var right = LinqExpression.Constant(mathVariable.Value);
-                    var left = value is ConstantExpression c && (double)c.Value == 0.0 ? LinqExpression.Constant(1.0) : value;
-                    value = LinqExpression.Multiply(left, right);
+                    var right = Expression.Constant(mathVariable.Value);
+                    var left = expr == DoubleZero ? Expression.Constant(1.0) : expr;
+                    expr = Expression.Multiply(left, right);
                     return true;
                 }
             case MathVariableFunction<double> mathVariable:
                 {
                     i += entity.Key.Length;
-                    var right = LinqExpression.Constant(mathVariable.GetValue());
-                    var left = value is ConstantExpression c && (double)c.Value == 0.0 ? LinqExpression.Constant(1.0) : value;
-                    value = LinqExpression.Multiply(left, right);
+                    var right = Expression.Constant(mathVariable.GetValue());
+                    var left = expr == DoubleZero ? Expression.Constant(1.0) : expr;
+                    expr = Expression.Multiply(left, right);
                     return true;
                 }
             case MathOperandConverter<double> mathConverter:
@@ -291,11 +316,11 @@ public class MathExpression
                     i += entity.Key.Length;
                     Expression<Func<double, double>> lambda = arg => mathConverter.Fn(arg);
                     if (mathConverter.IsConvertingLeftOperand)
-                        value = LinqExpression.Invoke(lambda, value);
+                        expr = Expression.Invoke(lambda, expr);
                     else
                     {
-                        var right = Build(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
-                        value = LinqExpression.Invoke(lambda, right);
+                        var right = Build(str, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, DoubleZero);
+                        expr = Expression.Invoke(lambda, right);
                     }
                     return true;
                 }
@@ -303,9 +328,9 @@ public class MathExpression
                 {
                     i += entity.Key.Length;
                     Expression<Func<double, double, double>> lambda = (arg1, arg2) => mathOperator.Fn(arg1, arg2);
-                    var rightOperand = BuildOperand(expression, context, provider, ref i, separator, closingSymbol);
-                    rightOperand = BuildExponentiation(expression, context, provider, ref i, separator, closingSymbol, rightOperand);
-                    value = LinqExpression.Invoke(lambda, value, rightOperand);
+                    var rightOperand = BuildOperand(str, ref i, separator, closingSymbol);
+                    rightOperand = BuildExponentiation(str, ref i, separator, closingSymbol, rightOperand);
+                    expr = Expression.Invoke(lambda, expr, rightOperand);
                     return true;
                 }
             default:

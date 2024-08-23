@@ -39,8 +39,7 @@ public class ScientificMathContext : MathContext
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
-        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
+        BindOperandOperator(Math.Pow, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');

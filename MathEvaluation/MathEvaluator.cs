@@ -115,7 +115,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         return value;
 
                     i++;
-                    SkipEmpty(expression, ref i);
+                    SkipMeaninglessChars(expression, ref i);
 
                     //two negatives should combine to make a positive
                     if (expression.Length > i && expression[i] is '-')
@@ -169,7 +169,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     private static double EvaluateOperand(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol)
     {
-        SkipEmpty(expression, ref i);
+        SkipMeaninglessChars(expression, ref i);
 
         switch (expression[i])
         {
@@ -216,7 +216,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, double value, IMathEntity? entity = null)
     {
-        SkipEmpty(expression, ref i);
+        SkipMeaninglessChars(expression, ref i);
 
         entity ??= (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
         if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
@@ -382,9 +382,12 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         return expression[start..i];
     }
 
-    private static void SkipEmpty(ReadOnlySpan<char> expression, ref int i)
+    /// <summary>Skips whitespace, tab, LF, and CR.</summary>
+    /// <param name="expression">The string math expression.</param>
+    /// <param name="i">The current char index.</param>
+    private static void SkipMeaninglessChars(ReadOnlySpan<char> expression, ref int i)
     {
-        while (expression.Length > i && expression[i] is ' ' or '\t' or '\n' or '\r') //space or tab or LF or CR
+        while (expression.Length > i && expression[i] is ' ' or '\t' or '\n' or '\r')
             i++;
     }
 }

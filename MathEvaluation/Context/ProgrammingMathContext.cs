@@ -26,8 +26,7 @@ public class ProgrammingMathContext : MathContext
         static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
         BindOperator(floorDivisionFn, "//");
 
-        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
-        BindOperandOperator(exponentiationFn, "**", (int)EvalPrecedence.Exponentiation);
+        BindOperandOperator(Math.Pow, "**", (int)EvalPrecedence.Exponentiation);
 
         static double equalToFn(double leftOperand, double rigntOperand) => leftOperand == rigntOperand ? 1.0 : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);

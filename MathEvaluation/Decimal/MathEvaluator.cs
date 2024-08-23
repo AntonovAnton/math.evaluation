@@ -94,7 +94,7 @@ public partial class MathEvaluator
                         return value;
 
                     i++;
-                    SkipEmpty(expression, ref i);
+                    SkipMeaninglessChars(expression, ref i);
 
                     //two negatives should combine to make a positive
                     if (expression.Length > i && expression[i] is '-')
@@ -148,7 +148,7 @@ public partial class MathEvaluator
     private static decimal EvaluateOperandDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol)
     {
-        SkipEmpty(expression, ref i);
+        SkipMeaninglessChars(expression, ref i);
 
         switch (expression[i])
         {
@@ -195,7 +195,7 @@ public partial class MathEvaluator
     private static decimal EvaluateExponentiationDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
         ref int i, char? separator, char? closingSymbol, decimal value, IMathEntity? entity = null)
     {
-        SkipEmpty(expression, ref i);
+        SkipMeaninglessChars(expression, ref i);
 
         entity ??= (expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null);
         if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)

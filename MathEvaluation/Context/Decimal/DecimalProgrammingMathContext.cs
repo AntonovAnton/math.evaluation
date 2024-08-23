@@ -25,8 +25,7 @@ public class DecimalProgrammingMathContext : MathContext
         static decimal floorDivisionFn(decimal leftOperand, decimal rigntOperand) => Math.Floor(leftOperand / rigntOperand);
         BindOperator(floorDivisionFn, "//");
 
-        static decimal exponentiationFn(decimal leftOperand, decimal rigntOperand) => (decimal)Math.Pow((double)leftOperand, (double)rigntOperand);
-        BindOperandOperator(exponentiationFn, "**", (int)EvalPrecedence.Exponentiation);
+        BindOperandOperator(Math.Pow, "**", (int)EvalPrecedence.Exponentiation);
 
         static decimal equalToFn(decimal leftOperand, decimal rigntOperand) => leftOperand == rigntOperand ? 1.0m : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);

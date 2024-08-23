@@ -28,39 +28,68 @@ internal sealed class MathContextTrie
         {
             if (string.IsNullOrEmpty(trieNode.RemainingKey))
             {
+                if (trieNode.Entity != null)
+                    ThrowArgumentException(entity);
+
                 trieNode.Entity = entity;
                 return;
             }
             else
             {
                 var newChild = new TrieNode(trieNode.RemainingKey[1..], trieNode.Entity);
-                trieNode.Children.Add(trieNode.RemainingKey[0], newChild);
-                trieNode.RemainingKey = string.Empty;
-                trieNode.Entity = entity;
+                if (trieNode.Children.TryAdd(trieNode.RemainingKey[0], newChild))
+                {
+                    trieNode.RemainingKey = string.Empty;
+                    trieNode.Entity = entity;
+                }
+                else
+                {
+                    ThrowArgumentException(entity);
+                }
             }
         }
 
         if (key == trieNode.RemainingKey)
         {
+            if (trieNode.Entity != null)
+                ThrowArgumentException(entity);
+
             trieNode.Entity = entity;
             return;
         }
 
         if (!trieNode.Children.TryGetValue(key[0], out var childTreeNode))
         {
-            trieNode.Children.Add(key[0], new TrieNode(key[1..].ToString(), entity));
+            trieNode.Children.TryAdd(key[0], new TrieNode(key[1..].ToString(), entity));
         }
         else
         {
             if (!string.IsNullOrEmpty(childTreeNode.RemainingKey))
             {
+                if (key[1..].SequenceEqual(childTreeNode.RemainingKey))
+                {
+                    ThrowArgumentException(entity);
+                }
+
                 var newChild = new TrieNode(childTreeNode.RemainingKey[1..], childTreeNode.Entity);
-                childTreeNode.Children.Add(childTreeNode.RemainingKey[0], newChild);
-                childTreeNode.RemainingKey = string.Empty;
-                childTreeNode.Entity = null;
+                if (childTreeNode.Children.TryAdd(childTreeNode.RemainingKey[0], newChild))
+                {
+                    childTreeNode.RemainingKey = string.Empty;
+                    childTreeNode.Entity = null;
+                }
+                else
+                {
+                    ThrowArgumentException(entity);
+                }
             }
 
             AddMathEntity(childTreeNode, key[1..], entity);
+        }
+
+        static void ThrowArgumentException(IMathEntity entity)
+        {
+            var message = $"An entity with the same key has already been added. Key: {entity.Key}";
+            throw new ArgumentException(message, nameof(key));
         }
     }
 
