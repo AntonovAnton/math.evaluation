@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-
+using System.Reflection;
 using MathEvaluation.Context;
 
 namespace MathEvaluation;
@@ -12,11 +13,8 @@ public class MathExpression
 {
     private static readonly Expression DoubleZero = Expression.Constant(0.0);
 
-    private List<MathVariable<double>> _variables = new();
-    private MathContextTrie _variablesTrie = new();
-
-    private ParameterExpression _parameter = Expression.Parameter(typeof(double[]), "args");
-    private Func<double[], double>? _func;
+    private IMathContext _args = new MathContext();
+    private ParameterExpression? _parameter;
 
     /// <summary>Gets the math expression string.</summary>
     /// <value>The math expression string.</value>
@@ -49,40 +47,30 @@ public class MathExpression
         MathString = expression;
         Context = context;
         Provider = provider ?? CultureInfo.CurrentCulture;
-
-        _func = null;
-    }
-
-    /// <summary>Sets the variable.</summary>
-    /// <param name="value">The value.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public void SetVariable(double value, string key)
-    {
-        var index = _variables.FindIndex(v => v.Key == key);
-        if (index == -1)
-            _variables.Add(new MathVariable<double>(key.ToString(), value));
-        else
-            _variables[index].SetValue(value);
     }
 
     /// <summary>Compiles the <see cref="MathString">math expression</see>.</summary>
+    /// <returns>A delegate that represents the compiled lambda expression.</returns>
+    /// <typeparam name="T">Class provides custom variables and functions.</typeparam>
+    /// <param name="args">The custom variables and functions.</param>
     /// <exception cref="FormatException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public void Compile()
+    public Func<T, double> Compile<T>(T? args = null)
+        where T : class
     {
-        if (_func != null)
-            return;
-
         try
         {
-            foreach (var variable in _variables)
-                _variablesTrie.AddMathEntity(variable);
+            if (args != null)
+                _args.Bind(args);
+            else
+                _args.Bind(typeof(T));
+
+            _parameter = Expression.Parameter(typeof(T), nameof(args));
 
             var i = 0;
             ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, DoubleZero);
 
-            _func = Expression.Lambda<Func<double[], double>>(ExpressionTree, _parameter).Compile();
+            return Expression.Lambda<Func<T, double>>(ExpressionTree, _parameter).Compile();
         }
         catch (Exception ex)
         {
@@ -91,16 +79,6 @@ public class MathExpression
             ex.Data[nameof(Provider)] = Provider;
             throw;
         }
-    }
-
-    public double Evaluate()
-    {
-        if (_func == null)
-            throw new InvalidOperationException();
-
-        var args = _variables.Select(v => v.Value).ToArray();
-
-        return _func(args);
     }
 
     private Expression Build(ReadOnlySpan<char> str, ref int i, char? separator, char? closingSymbol, int precedence, Expression expr)
@@ -231,12 +209,11 @@ public class MathExpression
         if (entity != null && TryBuildContext(str, entity, ref i, separator, closingSymbol, ref expr, isOperand))
             return expr;
 
-        entity = _variablesTrie.FirstMathEntity(str[i..]);
-        if (entity is MathVariable<double> mathVariable)
+        entity = _args.FirstMathEntity(str[i..]);
+        if (entity is MathVariable<double> or MathVariable<decimal>)
         {
             i += entity.Key.Length;
-            var index = _variables.IndexOf(mathVariable);
-            var right = Expression.ArrayAccess(_parameter, Expression.Constant(index));
+            var right = Expression.Property(_parameter, entity.Key);
             var left = expr == DoubleZero ? Expression.Constant(1.0) : expr;
             return Expression.Multiply(left, right);
         }

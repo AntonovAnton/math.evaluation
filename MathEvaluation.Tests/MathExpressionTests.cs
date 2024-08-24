@@ -40,9 +40,9 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var mathExpression = new MathExpression(expression!);
-        mathExpression.Compile();
+        var func = mathExpression.Compile(new { });
 
-        var value = mathExpression.Evaluate();
+        var value = func(new { });
 
         Assert.Equal(expectedValue, value);
     }
@@ -63,9 +63,9 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var mathExpression = new MathExpression(expression, _scientificContext);
-        mathExpression.Compile();
+        var func = mathExpression.Compile(new { });
 
-        var value = mathExpression.Evaluate();
+        var value = func(new { });
 
         Assert.Equal(expectedValue, value);
     }
@@ -73,23 +73,25 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     //[InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
-    [InlineData("3^a^2", "a", 4, 81d * 81 * 81 * 81)]
-    [InlineData("x", "x", 0.5, 0.5d)]
-    [InlineData("2x", "x", 0.5, 1d)]
-    [InlineData("PI", nameof(Math.PI), Math.PI, Math.PI)]
-    [InlineData("2 * PI", nameof(Math.PI), Math.PI, 2 * Math.PI)]
-    public void MathEvaluator_Evaluate_HasVariable_ExpectedValue(string expression, string varName,
+    [InlineData("3^x^2", 4, 81d * 81 * 81 * 81)]
+    [InlineData("x", 0.5, 0.5d)]
+    [InlineData("2x", -0.5, -1d)]
+    public void MathEvaluator_Evaluate_HasVariable_ExpectedValue(string expression,
         double varValue, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-        testOutputHelper.WriteLine($"{varName} = {varValue}");
+        testOutputHelper.WriteLine($"x = {varValue}");
 
         var mathExpression = new MathExpression(expression, _scientificContext);
-        mathExpression.SetVariable(varValue, varName);
-        mathExpression.Compile();
+        var func = mathExpression.Compile<ExpressionParameters>();
 
-        var value = mathExpression.Evaluate();
+        var value = func(new ExpressionParameters { x = varValue });
 
         Assert.Equal(expectedValue, value);
     }
+}
+
+public class ExpressionParameters
+{
+    public double x { get; set; }
 }

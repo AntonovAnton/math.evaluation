@@ -37,7 +37,7 @@ public class MathContext : IMathContext
 
             var key = propertyInfo.Name;
             var value = propertyInfo.GetValue(args, null);
-            if (IsNumericType(propertyInfo.PropertyType))
+            if (IsConvertibleToDouble(propertyInfo.PropertyType))
             {
                 if (IsDecimalType(propertyInfo.PropertyType))
                     BindVariable(Convert.ToDecimal(value), key);
@@ -312,7 +312,7 @@ public class MathContext : IMathContext
     protected void BindOperandOperator(Func<decimal, decimal, decimal> fn, string key, int precedece)
         => _mathContextTrie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, precedece));
 
-    private static bool IsNumericType(Type type) => Type.GetTypeCode(type) switch
+    private static bool IsConvertibleToDouble(Type type) => Type.GetTypeCode(type) switch
     {
         TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
             or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double
@@ -321,4 +321,61 @@ public class MathContext : IMathContext
     };
 
     private static bool IsDecimalType(Type type) => Type.GetTypeCode(type) == TypeCode.Decimal;
+
+    void IMathContext.Bind(Type argsType)
+    {
+        foreach (var propertyInfo in argsType
+                     .GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (!propertyInfo.CanRead)
+                continue;
+
+            var key = propertyInfo.Name;
+            var valueType = propertyInfo.PropertyType;
+            if (IsConvertibleToDouble(valueType))
+            {
+                if (IsDecimalType(propertyInfo.PropertyType))
+                    BindVariable(0.0m, key);
+                else
+                    BindVariable(0.0, key);
+            }
+            else if (valueType == typeof(Func<double>))
+                BindVariable(() => 0.0, key);
+            else if (valueType == typeof(Func<double, double>))
+                BindFunction((v) => 0.0, key);
+            else if (valueType == typeof(Func<double, double, double>))
+                BindFunction((v1, v2) => 0.0, key);
+            else if (valueType == typeof(Func<double, double, double, double>))
+                BindFunction((v1, v2, v3) => 0.0, key);
+            else if (valueType == typeof(Func<double, double, double, double, double>))
+                BindFunction((v1, v2, v3, v4) => 0.0, key);
+            else if (valueType == typeof(Func<double, double, double, double, double, double>))
+                BindFunction((v1, v2, v3, v4, v5) => 0.0, key);
+            else if (valueType == typeof(Func<double[], double>))
+                BindFunction((double[] v) => 0.0, key);
+            else if (valueType == typeof(Func<decimal>))
+                BindVariable(() => 0.0m, key);
+            else if (valueType == typeof(Func<decimal, decimal>))
+                BindFunction((v) => 0.0m, key);
+            else if (valueType == typeof(Func<decimal, decimal, decimal>))
+                BindFunction((v1, v2) => 0.0m, key);
+            else if (valueType == typeof(Func<decimal, decimal, decimal, decimal>))
+                BindFunction((v1, v2, v3) => 0.0m, key);
+            else if (valueType == typeof(Func<decimal, decimal, decimal, decimal, decimal>))
+                BindFunction((v1, v2, v3, v4) => 0.0m, key);
+            else if (valueType == typeof(Func<decimal, decimal, decimal, decimal, decimal, decimal>))
+                BindFunction((v1, v2, v3, v4, v5) => 0.0m, key);
+            else if (valueType == typeof(Func<decimal[], decimal>))
+                BindFunction((decimal[] v) => 0.0m, key);
+            else if (valueType == typeof(Func<bool>))
+                BindVariable(() => false, key);
+            else
+            {
+                if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
+
+                throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
+            }
+        }
+    }
 }

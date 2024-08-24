@@ -38,6 +38,13 @@ public interface IMathContext
     void Bind(object args);
 
     /// <summary>
+    /// Binds custom variables and functions.
+    /// </summary>
+    /// <param name="argsType">Type of an object containing variables and functions.</param>
+    /// <returns></returns>
+    internal void Bind(Type argsType);
+
+    /// <summary>
     /// Binds the variable.
     /// </summary>
     /// <param name="value">The value.</param>
