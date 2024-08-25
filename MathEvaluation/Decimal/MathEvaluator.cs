@@ -8,24 +8,32 @@ namespace MathEvaluation;
 public partial class MathEvaluator
 {
     /// <inheritdoc cref="Evaluate(IFormatProvider?)"/>
+    /// <exception cref="System.ArgumentNullException">expression</exception>
+    /// <exception cref="System.ArgumentException">expression</exception>
     public decimal EvaluateDecimal(IFormatProvider? provider = null)
     {
         return EvaluateDecimal(Expression.AsSpan(), Context, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
+    /// <exception cref="System.ArgumentNullException">expression</exception>
+    /// <exception cref="System.ArgumentException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), null, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
+    /// <exception cref="System.ArgumentNullException">expression</exception>
+    /// <exception cref="System.ArgumentException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression, null, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
+    /// <exception cref="System.ArgumentNullException">expression</exception>
+    /// <exception cref="System.ArgumentException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), context, provider);
