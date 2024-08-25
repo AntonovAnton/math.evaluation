@@ -211,9 +211,9 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
     public void MathEvaluator_Evaluate_HasScientificNotation_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -397,8 +397,16 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
     [InlineData("sin 0.5π", 1d)]
+    [InlineData("sin 0.5π^2", -0.97536797208363146d)]
+    [InlineData("sin 90°^2", 0.6242659526396992d)]
+    [InlineData("sin(90°)^2", 1d)]
     [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
+    [InlineData("cos+1", 0.54030230586813977d)]
+    [InlineData("cos--1", 0.54030230586813977d)]
+    [InlineData("2^sin(1)^2", 1.6336211145430648d)]
+    [InlineData("2^sin1^2", 1.791876223827922d)]
+    [InlineData("2^sin(1)^sin1^2", 1.8211046249505032d)]
     [InlineData("cos(1)^2", 0.54030230586813977d * 0.54030230586813977d)]
     [InlineData("cos1(1 + 2)", 0.54030230586813977d * 3)]
     [InlineData("cos1(1 + 2) mod cos1+0.5", 0.5d)]
@@ -604,6 +612,8 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("6 + |( -4)|", 6 + 4)]
     [InlineData("6 + - |4|", 6 - 4)]
     [InlineData("2 - 5 * |-8 + (2 - |-4|)| / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("sin|-1|^2", 0.8414709848078965d)]
+    [InlineData("abs-|-1|^2", 1d)]
     [InlineData("3abs-5", 15d)]
     [InlineData("3 * Abs(  -5)", 15d)]
     [InlineData("3 / ABS(  -(9/3))", 1d)]
@@ -658,12 +668,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("Ln(1)", 0d)]
     [InlineData("LN(10)", 2.3025850929940459d)]
     [InlineData("LN(10)^2", 2.3025850929940459d * 2.3025850929940459d)]
-    [InlineData("LN[10]^2", 2.3025850929940459d * 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
     [InlineData("ln-100", double.NaN)]
     [InlineData("ln(∞)", double.PositiveInfinity)]
-    [InlineData("-2ln[1/0.5 + √(1/0.5^2 + 1)]", -2 * 1.4436354751788103d)]
+    [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void MathEvaluator_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -747,7 +756,7 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("ln(1/x + √(1/x^2 + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
@@ -768,7 +777,11 @@ public class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("getX1() + getX2( )", 0.5, 0.2, 0.5 + 0.2)]
-    [InlineData("ln[1/-getX1 + √(1/getX2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
+    [InlineData("getX1()^2 + 2^getX2^2", 0.5, 3, 0.5 * 0.5 + 512)]
+    [InlineData("sin2getX2^2", 0.5, 3, 8.1836768414311347d)]
+    [InlineData("sin2getX2()^2", 0.5, 3, 8.1836768414311347d)]
+    [InlineData("SINgetX1^getX2", 0.5, 3, 0.12467473338522769d)]
+    [InlineData("ln(1/-getX1 + √(1/getX2^2 + 1))", -0.5, 0.5, 1.4436354751788103d)]
     public void MathEvaluator_Evaluate_HasGetVariableFns_ExpectedValue(string expression,
         double x1, double x2, double expectedValue)
     {

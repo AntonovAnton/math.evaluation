@@ -39,10 +39,8 @@ public class DecimalScientificMathContext : MathContext
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        static decimal exponentiationFn(decimal left, decimal right) => (decimal)Math.Pow((double)left, (double)right);
-        BindOperandsOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
+        BindOperandsOperator(Math.Pow, '^', (int)EvalPrecedence.Exponentiation);
 
-        BindFunction((decimal value) => value, '[', ']');
         BindFunction((decimal value) => Math.Abs(value), '|', '|');
         BindFunction((decimal value) => Math.Ceiling(value), '⌈', '⌉');
         BindFunction((decimal value) => Math.Floor(value), '⌊', '⌋');
@@ -273,7 +271,7 @@ public class DecimalScientificMathContext : MathContext
         var result = 1L;
         while (i > 0)
         {
-            result = result * i;
+            result *= i;
             i--;
         }
 

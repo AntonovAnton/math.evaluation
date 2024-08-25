@@ -39,10 +39,8 @@ public class ScientificMathContext : MathContext
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        static double exponentiationFn(double left, double right) => Math.Pow(left, right);
-        BindOperandsOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
+        BindOperandsOperator(Math.Pow, '^', (int)EvalPrecedence.Exponentiation);
 
-        BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');
         BindFunction((double value) => Math.Ceiling(value), '⌈', '⌉');
         BindFunction((double value) => Math.Floor(value), '⌊', '⌋');
@@ -271,7 +269,7 @@ public class ScientificMathContext : MathContext
         var result = 1L;
         while (i > 0)
         {
-            result = result * i;
+            result *= i;
             i--;
         }
 
