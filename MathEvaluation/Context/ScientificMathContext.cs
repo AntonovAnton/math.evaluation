@@ -21,7 +21,7 @@ public class ScientificMathContext : MathContext
         BindVariable(Math.PI * 2, 'τ');
         BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
 
-        static double modFn(double leftOperand, double rigntOperand) => leftOperand % rigntOperand;
+        static double modFn(double left, double right) => left % right;
         BindOperator(modFn, "mod");
         BindOperator(modFn, "Mod");
         BindOperator(modFn, "MOD");
@@ -29,18 +29,18 @@ public class ScientificMathContext : MathContext
         BindOperator(modFn, "Modulo");
         BindOperator(modFn, "MODULO");
 
-        static double divisionFn(double leftOperand, double rigntOperand) => leftOperand / rigntOperand;
+        static double divisionFn(double left, double right) => left / right;
         BindOperator(divisionFn, '÷');
 
-        static double floorDivisionFn(double leftOperand, double rigntOperand) => Math.Floor(leftOperand / rigntOperand);
+        static double floorDivisionFn(double left, double right) => Math.Floor(left / right);
         BindOperator(floorDivisionFn, "//");
 
-        static double multiplicationFn(double leftOperand, double rigntOperand) => leftOperand * rigntOperand;
+        static double multiplicationFn(double left, double right) => left * right;
         BindOperator(multiplicationFn, '×');
         BindOperator(multiplicationFn, '·');
 
-        static double exponentiationFn(double leftOperand, double rigntOperand) => Math.Pow(leftOperand, rigntOperand);
-        BindOperandOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
+        static double exponentiationFn(double left, double right) => Math.Pow(left, right);
+        BindOperandsOperator(exponentiationFn, '^', (int)EvalPrecedence.Exponentiation);
 
         BindFunction((double value) => value, '[', ']');
         BindFunction((double value) => Math.Abs(value), '|', '|');
@@ -60,7 +60,7 @@ public class ScientificMathContext : MathContext
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
 
-        BindConverter(n => Factorial(n), '!', true);
+        BindOperandOperator(n => Factorial(n), '!', true);
 
         #region boolean logic
 
@@ -76,62 +76,62 @@ public class ScientificMathContext : MathContext
         BindVariable(0d, 'F');
         BindVariable(0d, '⊥');
 
-        static double equalToFn(double leftOperand, double rigntOperand) => leftOperand == rigntOperand ? 1.0 : default;
+        static double equalToFn(double left, double right) => left == right ? 1.0 : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);
         BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
-        static double notEqualToFn(double leftOperand, double rigntOperand) => leftOperand != rigntOperand ? 1.0 : default;
+        static double notEqualToFn(double left, double right) => left != right ? 1.0 : default;
         BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equality);
         BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
-        static double greaterThanFn(double leftOperand, double rigntOperand) => leftOperand > rigntOperand ? 1.0 : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+        static double greaterThanFn(double left, double right) => left > right ? 1.0 : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator);
 
-        static double lessThanFn(double leftOperand, double rigntOperand) => leftOperand < rigntOperand ? 1.0 : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+        static double lessThanFn(double left, double right) => left < right ? 1.0 : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator);
 
-        static double greaterThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand >= rigntOperand ? 1.0 : default;
-        BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.Comparison);
-        BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.Comparison);
+        static double greaterThanOrEqualToFn(double left, double right) => left >= right ? 1.0 : default;
+        BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.RelationalOperator);
 
-        static double lessThanOrEqualToFn(double leftOperand, double rigntOperand) => leftOperand <= rigntOperand ? 1.0 : default;
-        BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.Comparison);
-        BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.Comparison);
+        static double lessThanOrEqualToFn(double left, double right) => left <= right ? 1.0 : default;
+        BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.RelationalOperator);
 
-        static double implicationFn(double leftOperand, double rigntOperand) => leftOperand == default || rigntOperand != default ? 1.0 : default;
+        static double implicationFn(double left, double right) => left == default || right != default ? 1.0 : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
         BindOperator(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
 
-        static double reverseImplicationFn(double leftOperand, double rigntOperand) => leftOperand != default || rigntOperand == default ? 1.0 : default;
+        static double reverseImplicationFn(double left, double right) => left != default || right == default ? 1.0 : default;
         BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
         BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 
-        static double andFn(double leftOperand, double rigntOperand) => leftOperand != default && rigntOperand != default ? 1.0 : default;
+        static double andFn(double left, double right) => left != default && right != default ? 1.0 : default;
         BindOperator(andFn, '∧', (int)EvalPrecedence.LogicalAnd);
         BindOperator(andFn, "and", (int)EvalPrecedence.LogicalAnd);
         BindOperator(andFn, "And", (int)EvalPrecedence.LogicalAnd);
         BindOperator(andFn, "AND", (int)EvalPrecedence.LogicalAnd);
 
-        static double orFn(double leftOperand, double rigntOperand) => leftOperand != default || rigntOperand != default ? 1.0 : default;
+        static double orFn(double left, double right) => left != default || right != default ? 1.0 : default;
         BindOperator(orFn, '∨', (int)EvalPrecedence.LogicalOr);
         BindOperator(orFn, "or", (int)EvalPrecedence.LogicalOr);
         BindOperator(orFn, "Or", (int)EvalPrecedence.LogicalOr);
         BindOperator(orFn, "OR", (int)EvalPrecedence.LogicalOr);
 
-        static double xorFn(double leftOperand, double rigntOperand) => leftOperand != default ^ rigntOperand != default ? 1.0 : default;
+        static double xorFn(double left, double right) => left != default ^ right != default ? 1.0 : default;
         BindOperator(xorFn, '⊕', (int)EvalPrecedence.LogicalXor);
         BindOperator(xorFn, "xor", (int)EvalPrecedence.LogicalXor);
         BindOperator(xorFn, "Xor", (int)EvalPrecedence.LogicalXor);
         BindOperator(xorFn, "XOR", (int)EvalPrecedence.LogicalXor);
 
-        static double logicalNegationFn(double rigntOperand) => rigntOperand == default ? 1.0 : default;
-        BindConverter(logicalNegationFn, '¬');
+        static double logicalNegationFn(double right) => right == default ? 1.0 : default;
+        BindOperandOperator(logicalNegationFn, '¬');
 
-        static double notFn(double leftOperand, double rigntOperand) => rigntOperand == default ? 1.0 : default;
+        static double notFn(double left, double right) => right == default ? 1.0 : default;
         BindOperator(notFn, "not", (int)EvalPrecedence.LogicalNot);
         BindOperator(notFn, "Not", (int)EvalPrecedence.LogicalNot);
         BindOperator(notFn, "NOT", (int)EvalPrecedence.LogicalNot);
@@ -140,7 +140,7 @@ public class ScientificMathContext : MathContext
 
         #region trigonometric functions
 
-        BindConverter(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
+        BindOperandOperator(MathTrig.DegreesToRadians, '\u00b0', true); //degree symbol
 
         BindFunction(MathTrig.Sin, "sin");
         BindFunction(MathTrig.Sin, "Sin");

@@ -49,18 +49,18 @@ public interface IMathContext
     void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
     /// <summary>
-    /// Binds the variable.
+    /// Binds the getting value function.
     /// </summary>
-    /// <param name="getValue">The get value function.</param>
+    /// <param name="fn">The getting value function.</param>
     /// <param name="key">The key.</param>
     /// <returns></returns>
-    void BindVariable(Func<double> getValue, char key);
+    void BindFunction(Func<double> fn, char key);
 
-    /// <inheritdoc cref="BindVariable(Func{double}, char)"/>
-    void BindVariable(Func<double> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null);
+    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    void BindFunction(Func<double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
 
     /// <summary>
-    /// Binds the function.
+    /// Binds the unary function.
     /// </summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
@@ -104,11 +104,11 @@ public interface IMathContext
     /// <inheritdoc cref="BindVariable(double, string?)"/>
     void BindVariable(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
-    /// <inheritdoc cref="BindVariable(Func{double}, char)"/>
-    void BindVariable(Func<decimal> getValue, char key);
+    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    void BindFunction(Func<decimal> fn, char key);
 
-    /// <inheritdoc cref="BindVariable(Func{double}, string?)"/>
-    void BindVariable(Func<decimal> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null);
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)"/>
+    void BindFunction(Func<decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
 
     /// <inheritdoc cref="BindFunction(Func{double, double}, char)"/>
     void BindFunction(Func<decimal, decimal> fn, char key);
@@ -142,9 +142,9 @@ public interface IMathContext
     /// <inheritdoc cref="BindVariable(double, string?)"/>
     void BindVariable(bool value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
-    /// <inheritdoc cref="BindVariable(Func{double}, char)"/>
-    void BindVariable(Func<bool> getValue, char key);
+    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    void BindFunction(Func<bool> fn, char key);
 
-    /// <inheritdoc cref="BindVariable(Func{double}, string?)"/>
-    void BindVariable(Func<bool> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null);
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)"/>
+    void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
 }

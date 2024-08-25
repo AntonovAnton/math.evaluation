@@ -42,26 +42,26 @@ public static class MathEvaluatorExtensions
     }
 
     /// <summary>
-    /// Binds the variable. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
+    /// Binds the getting value function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
     /// </summary>
     /// <param name="evaluator">The math evaluator.</param>
-    /// <param name="getValue">The get value function.</param>
+    /// <param name="fn">The getting value function.</param>
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<double> getValue, char key)
-        => BindVariable(evaluator, getValue, key.ToString());
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double> fn, char key)
+        => BindFunction(evaluator, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<double> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         evaluator.Context ??= new MathContext();
-        evaluator.Context.BindVariable(getValue, key);
+        evaluator.Context.BindFunction(fn, key);
         return evaluator;
     }
 
     /// <summary>
-    /// Binds the function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
+    /// Binds the unary function. If <see cref="MathEvaluator.Context"/> is null sets the base <see cref="MathContext"/>.
     /// </summary>
     /// <param name="evaluator">The math evaluator.</param>
     /// <param name="fn">The function.</param>
@@ -156,16 +156,16 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<decimal> getValue, char key)
-        => BindVariable(evaluator, getValue, key.ToString());
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal> fn, char key)
+        => BindFunction(evaluator, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, string?)"/>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<decimal> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, string?)"/>
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         evaluator.Context ??= new MathContext();
-        evaluator.Context.BindVariable(getValue, key);
+        evaluator.Context.BindFunction(fn, key);
         return evaluator;
     }
 
@@ -250,16 +250,16 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
-    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<bool> getValue, char key)
-        => BindVariable(evaluator, getValue, key.ToString());
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<bool> fn, char key)
+        => BindFunction(evaluator, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(MathEvaluator, Func{double}, string?)"/>
-    public static MathEvaluator BindVariable(this MathEvaluator evaluator, Func<bool> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, string?)"/>
+    public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<bool> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         evaluator.Context ??= new MathContext();
-        evaluator.Context.BindVariable(getValue, key);
+        evaluator.Context.BindFunction(fn, key);
         return evaluator;
     }
 }

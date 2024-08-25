@@ -655,7 +655,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("getX1 + getX2", 0.5, 0.2, 0.5 + 0.2)]
+    [InlineData("getX1() + getX2( )", 0.5, 0.2, 0.5 + 0.2)]
     [InlineData("ln[1/-getX1 + √(1/getX2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
     public void MathEvaluator_EvaluateDecimal_HasGetVariableFns_ExpectedValue(string expression,
         decimal x1, decimal x2, double expectedValue)

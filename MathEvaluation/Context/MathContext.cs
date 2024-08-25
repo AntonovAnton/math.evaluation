@@ -37,7 +37,7 @@ public class MathContext : IMathContext
 
             var key = propertyInfo.Name;
             var value = propertyInfo.GetValue(args, null);
-            if (IsNumericType(propertyInfo.PropertyType))
+            if (IsConvertibleToDoubleType(propertyInfo.PropertyType))
             {
                 if (IsDecimalType(propertyInfo.PropertyType))
                     BindVariable(Convert.ToDecimal(value), key);
@@ -45,7 +45,7 @@ public class MathContext : IMathContext
                     BindVariable(Convert.ToDouble(value), key);
             }
             else if (value is Func<double> fn1)
-                BindVariable(fn1, key);
+                BindFunction(fn1, key);
             else if (value is Func<double, double> fn2)
                 BindFunction(fn2, key);
             else if (value is Func<double, double, double> fn3)
@@ -59,7 +59,7 @@ public class MathContext : IMathContext
             else if (value is Func<double[], double> fns)
                 BindFunction(fns, key);
             else if (value is Func<decimal> decimalFn1)
-                BindVariable(decimalFn1, key);
+                BindFunction(decimalFn1, key);
             else if (value is Func<decimal, decimal> decimalFn2)
                 BindFunction(decimalFn2, key);
             else if (value is Func<decimal, decimal, decimal> decimalFn3)
@@ -73,7 +73,7 @@ public class MathContext : IMathContext
             else if (value is Func<decimal[], decimal> decimalFns)
                 BindFunction(decimalFns, key);
             else if (value is Func<bool> boolFn1)
-                BindVariable(boolFn1, key);
+                BindFunction(boolFn1, key);
             else
             {
                 if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
@@ -96,23 +96,23 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<double> getValue, char key)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key.ToString(), getValue));
+    public void BindFunction(Func<double> fn, char key)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<double>(key.ToString(), fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<double> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key, getValue));
+    public void BindFunction(Func<double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<double>(key, fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double> fn, char key)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key.ToString(), fn));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<double>(key.ToString(), fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(key, fn));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<double>(key, fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
@@ -161,23 +161,23 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<decimal> getValue, char key)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<decimal>(key.ToString(), getValue));
+    public void BindFunction(Func<decimal> fn, char key)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<decimal>(key.ToString(), fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<decimal> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<decimal>(key, getValue));
+    public void BindFunction(Func<decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<decimal>(key, fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal> fn, char key)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(key.ToString(), fn));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<decimal>(key.ToString(), fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
     public void BindFunction(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(key, fn));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<decimal>(key, fn));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
@@ -226,37 +226,49 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<bool> getValue, char key)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key.ToString(), () => Convert.ToDouble(getValue())));
+    public void BindFunction(Func<bool> fn, char key)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<double>(key.ToString(), () => Convert.ToDouble(fn())));
 
     /// <inheritdoc/>
     /// <exception cref="System.ArgumentException">key</exception>
-    public void BindVariable(Func<bool> getValue, [CallerArgumentExpression(nameof(getValue))] string? key = null)
-        => _mathContextTrie.AddMathEntity(new MathVariableFunction<double>(key, () => Convert.ToDouble(getValue())));
+    public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _mathContextTrie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
 
-    /// <summary>Binds the function.</summary>
+    /// <summary>Binds the unary function.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="System.ArgumentException">key</exception>
     protected void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<double>(openingSymbol.ToString(), fn, closingSymbol));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<double>(openingSymbol.ToString(), fn, closingSymbol));
 
-    /// <summary>Binds the converter function that converts the value of the math operand.</summary>
+    /// <summary>Binds the operator that performs an action on one math operand.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
-    /// <param name="isConvertingLeftOperand">
-    ///   <c>true</c> if this instance is converting left operand; otherwise, <c>false</c>.
+    /// <param name="isProcessingLeft">
+    ///   <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
     /// <exception cref="System.ArgumentException">key</exception>
-    protected void BindConverter(Func<double, double> fn, char key, bool isConvertingLeftOperand = false)
-        => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key.ToString(), fn, isConvertingLeftOperand));
+    protected void BindOperandOperator(Func<double, double> fn, char key, bool isProcessingLeft = false)
+        => _mathContextTrie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, isProcessingLeft));
 
-    /// <inheritdoc cref="BindConverter(Func{double, double}, char, bool)"/>
-    protected void BindConverter(Func<double, double> fn, string key, bool isConvertingLeftOperand = false)
-        => _mathContextTrie.AddMathEntity(new MathOperandConverter<double>(key, fn, isConvertingLeftOperand));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool)"/>
+    protected void BindOperandOperator(Func<double, double> fn, string key, bool isProcessingLeft = false)
+        => _mathContextTrie.AddMathEntity(new MathOperandOperator<double>(key, fn, isProcessingLeft));
 
-    /// <summary>Binds the math operator that processes the left and right expressions.</summary>
+    /// <summary>Binds the math operator that can process the left and right math operands.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="precedece">The operator precedence.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="System.ArgumentException">key</exception>
+    protected void BindOperandsOperator(Func<double, double, double> fn, char key, int precedece)
+        => _mathContextTrie.AddMathEntity(new MathOperandsOperator<double>(key.ToString(), fn, precedece));
+
+    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)"/>
+    protected void BindOperandsOperator(Func<double, double, double> fn, string key, int precedece)
+        => _mathContextTrie.AddMathEntity(new MathOperandsOperator<double>(key, fn, precedece));
+
+    /// <summary>Binds the math operator that can process the left and right expressions.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <param name="precedece">The operator precedence.</param>
@@ -268,33 +280,25 @@ public class MathContext : IMathContext
     protected void BindOperator(Func<double, double, double> fn, string key, int precedece = (int)EvalPrecedence.Basic)
         => _mathContextTrie.AddMathEntity(new MathOperator<double>(key, fn, precedece));
 
-    /// <summary>Binds the math operator that processes the left and right math operands.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="precedece">The operator precedence.</param>
-    /// <param name="key">The key.</param>
-    /// <exception cref="System.ArgumentException">key</exception>
-    protected void BindOperandOperator(Func<double, double, double> fn, char key, int precedece)
-        => _mathContextTrie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double, double}, char, int)"/>
-    protected void BindOperandOperator(Func<double, double, double> fn, string key, int precedece)
-        => _mathContextTrie.AddMathEntity(new MathOperandOperator<double>(key, fn, precedece));
-
-    /// <summary>Binds the function.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="System.ArgumentException">key</exception>
+    /// <inheritdoc cref="BindFunction(Func{double, double}, char, char)"/>
     protected void BindFunction(Func<decimal, decimal> fn, char openingSymbol, char closingSymbol)
-        => _mathContextTrie.AddMathEntity(new BasicMathFunction<decimal>(openingSymbol.ToString(), fn, closingSymbol));
+        => _mathContextTrie.AddMathEntity(new MathUnaryFunction<decimal>(openingSymbol.ToString(), fn, closingSymbol));
 
-    /// <inheritdoc cref="BindConverter(Func{double, double}, char, bool)"/>
-    protected void BindConverter(Func<decimal, decimal> fn, char key, bool isConvertingLeftOperand = false)
-        => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key.ToString(), fn, isConvertingLeftOperand));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool)"/>
+    protected void BindOperandOperator(Func<decimal, decimal> fn, char key, bool isProcessingLeft = false)
+        => _mathContextTrie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, isProcessingLeft));
 
-    /// <inheritdoc cref="BindConverter(Func{double, double}, string, bool)"/>
-    protected void BindConverter(Func<decimal, decimal> fn, string key, bool isConvertingLeftOperand = false)
-        => _mathContextTrie.AddMathEntity(new MathOperandConverter<decimal>(key, fn, isConvertingLeftOperand));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool)"/>
+    protected void BindOperandOperator(Func<decimal, decimal> fn, string key, bool isProcessingLeft = false)
+        => _mathContextTrie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, isProcessingLeft));
+
+    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)"/>
+    protected void BindOperandsOperator(Func<decimal, decimal, decimal> fn, char key, int precedece)
+        => _mathContextTrie.AddMathEntity(new MathOperandsOperator<decimal>(key.ToString(), fn, precedece));
+
+    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)"/>
+    protected void BindOperandsOperator(Func<decimal, decimal, decimal> fn, string key, int precedece)
+        => _mathContextTrie.AddMathEntity(new MathOperandsOperator<decimal>(key, fn, precedece));
 
     /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)"/>
     protected void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedece = (int)EvalPrecedence.Basic)
@@ -304,15 +308,7 @@ public class MathContext : IMathContext
     protected void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedece = (int)EvalPrecedence.Basic)
         => _mathContextTrie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double, double}, char, int)"/>
-    protected void BindOperandOperator(Func<decimal, decimal, decimal> fn, char key, int precedece)
-        => _mathContextTrie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double, double}, string, int)"/>
-    protected void BindOperandOperator(Func<decimal, decimal, decimal> fn, string key, int precedece)
-        => _mathContextTrie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, precedece));
-
-    private static bool IsNumericType(Type type) => Type.GetTypeCode(type) switch
+    private static bool IsConvertibleToDoubleType(Type type) => Type.GetTypeCode(type) switch
     {
         TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
             or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double

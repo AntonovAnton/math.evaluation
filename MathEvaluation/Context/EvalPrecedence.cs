@@ -68,12 +68,12 @@ namespace MathEvaluation.Context
         /// and &gt;= (greater than or equal) comparison, 
         /// also known as relational, operators compare their operands.
         /// </summary>
-        Comparison = -100,
+        RelationalOperator = -100,
 
         /// <summary>
         /// The precedence of equality and inequality operators.
         /// </summary>
-        Equality = Comparison,
+        Equality = RelationalOperator,
 
         /// <summary>
         /// The precedence of arithmetic addition and subtraction operators.
@@ -101,9 +101,9 @@ namespace MathEvaluation.Context
         Exponentiation = 400,
 
         /// <summary>
-        /// The precedence of converting a math operand to another value 
-        /// (for example, converting degrees to radians).
+        /// The precedence of a math operator that performs an action on one math operand. 
+        /// For example, degrees, factorial, or negation.
         /// </summary>
-        Convertation = 500,
+        OperandUnaryOperator = 500,
     }
 }
