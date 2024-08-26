@@ -1,6 +1,7 @@
 ﻿using System;
+using MathEvaluation.Context;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The function with multiple parameters, so opening, separator, and closing symbol are required.
@@ -34,7 +35,7 @@ public class MathFunction<T> : MathEntity
     /// <param name="openningSymbol">The openning symbol.</param>
     /// <param name="separator">The parameters separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="System.ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException">fn</exception>
     public MathFunction(string? key, Func<T[], T> fn, char openningSymbol, char separator, char closingSymbol)
         : base(key)
     {

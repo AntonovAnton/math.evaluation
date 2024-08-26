@@ -1,6 +1,7 @@
 ﻿using System;
+using MathEvaluation.Context;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The math operator processes the left and right expressions.
@@ -20,7 +21,7 @@ public class MathOperator<T> : MathEntity
     /// <param name="key">The key (the operator notation).</param>
     /// <param name="fn">The function.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <exception cref="System.ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException">fn</exception>
     public MathOperator(string? key, Func<T, T, T> fn, int precedece = (int)EvalPrecedence.Basic)
         : base(key)
     {

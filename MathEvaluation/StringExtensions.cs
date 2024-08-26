@@ -53,27 +53,27 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Binds the variable. Sets the base <see cref="MathContext"/>.
+    /// Binds the getting value function. Sets the base <see cref="MathContext"/>.
     /// </summary>
     /// <param name="expression">The math expression.</param>
-    /// <param name="getValue">The get value function.</param>
+    /// <param name="fn">The getting value function.</param>
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
-    public static MathEvaluator BindVariable(this string expression, Func<double> getValue, char key)
-        => BindVariable(expression, getValue, key.ToString());
+    public static MathEvaluator BindFunction(this string expression, Func<double> fn, char key)
+        => BindFunction(expression, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(string, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this string expression, Func<double> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this string expression, Func<double> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         var context = new MathContext();
-        context.BindVariable(getValue, key);
+        context.BindFunction(fn, key);
 
         return new MathEvaluator(expression, context);
     }
 
     /// <summary>
-    /// Binds the function. Sets the base <see cref="MathContext"/>.
+    /// Binds the unary function. Sets the base <see cref="MathContext"/>.
     /// </summary>
     /// <param name="expression">The math expression.</param>
     /// <param name="fn">The function.</param>
@@ -161,6 +161,8 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
+    #region bind decimal methods
+
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, decimal value, char key)
         => BindVariable(expression, value, key.ToString());
@@ -175,16 +177,16 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
-    /// <inheritdoc cref="BindVariable(string, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this string expression, Func<decimal> getValue, char key)
-        => BindVariable(expression, getValue, key.ToString());
+    /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this string expression, Func<decimal> fn, char key)
+        => BindFunction(expression, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(string, Func{double}, string?)"/>
-    public static MathEvaluator BindVariable(this string expression, Func<decimal> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(string, Func{double}, string?)"/>
+    public static MathEvaluator BindFunction(this string expression, Func<decimal> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         var context = new MathContext();
-        context.BindVariable(getValue, key);
+        context.BindFunction(fn, key);
 
         return new MathEvaluator(expression, context);
     }
@@ -263,6 +265,10 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
+    #endregion
+
+    #region bind boolean methods
+
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, bool value, char key)
         => BindVariable(expression, value, key.ToString());
@@ -277,19 +283,23 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
-    /// <inheritdoc cref="BindVariable(string, Func{double}, char)"/>
-    public static MathEvaluator BindVariable(this string expression, Func<bool> getValue, char key)
-        => BindVariable(expression, getValue, key.ToString());
+    /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
+    public static MathEvaluator BindFunction(this string expression, Func<bool> fn, char key)
+        => BindFunction(expression, fn, key.ToString());
 
-    /// <inheritdoc cref="BindVariable(string, Func{double}, string?)"/>
-    public static MathEvaluator BindVariable(this string expression, Func<bool> getValue,
-        [CallerArgumentExpression(nameof(getValue))] string? key = null)
+    /// <inheritdoc cref="BindFunction(string, Func{double}, string?)"/>
+    public static MathEvaluator BindFunction(this string expression, Func<bool> fn,
+        [CallerArgumentExpression(nameof(fn))] string? key = null)
     {
         var context = new MathContext();
-        context.BindVariable(getValue, key);
+        context.BindFunction(fn, key);
 
         return new MathEvaluator(expression, context);
     }
+
+    #endregion
+
+    #region evaluate methods
 
     /// <inheritdoc cref="MathEvaluator.Evaluate(string, IFormatProvider?)"/>
     public static double Evaluate(this string expression, IFormatProvider? provider = null) =>
@@ -338,4 +348,6 @@ public static class StringExtensions
     /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, IFormatProvider?)"/>
     public static bool EvaluateBoolean(this ReadOnlySpan<char> span, IMathContext? context, IFormatProvider? provider = null) =>
         MathEvaluator.EvaluateBoolean(span, context, provider);
+
+    #endregion
 }

@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Title>Math expression evaluator</Title>
         <Authors>Anton Antonov</Authors>
-        <Description>This .NET library offers a fast and comprehensive evaluator for dynamically evaluating mathematical expressions from strings. It supports a wide range of operations and allows for the use of custom variables and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
+        <Description>This .NET library offers a fast and comprehensive evaluator for dynamically evaluating mathematical expressions from strings. It supports a wide range of operations and allows for the use of custom variables, operators, and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Copyright>Copyright © 2024 Anton Antonov</Copyright>
         <PackageProjectUrl>https://github.com/AntonovAnton/math.evaluation</PackageProjectUrl>
@@ -22,7 +22,7 @@ Evaluates to double, boolean, or decimal.
 Provides variable support within expressions.
 Extensible with custom functions.</PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>1.1.5</Version>
+        <Version>1.1.6</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>

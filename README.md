@@ -9,7 +9,7 @@ MathEvaluator is a .NET library that allows you to evaluate any mathematical exp
 - Evaluates to double, boolean, or decimal.
 - Provides variable support within expressions.
 - Extensible with custom functions.
-- Fast and comprehensive. More than 1200 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 1300 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Installation
 
@@ -26,7 +26,7 @@ This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>
 
 The evaluator uses recursive method calls to handle mathematical operations based on operator precedence and rules, an operator with highest precedence is evaluating first. This approach avoids the overhead associated with stack or queue data structures.
 
-The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables and functions by their keys (names) when providing a specific mathematical context or adding custom variables and functions is required.
+The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables, operators, and functions by their keys (names) when providing a specific mathematical context or adding custom variables, operators, and functions is required.
 
 Let's compare, for example, performance of calculating the mathematical expression:
 
@@ -52,13 +52,13 @@ Examples of using string extentions:
 
     "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(new CultureInfo("de-CH"));
 
-    "ln[1/-0.5 + √(1/(0.5^2) + 1)]".Evaluate(new ScientificMathContext());
+    "ln(1/-0.5 + √(1/(0.5^2) + 1))".Evaluate(new ScientificMathContext());
     
-    "ln[1/-0,5 + √(1/(0,5^2) + 1)]".Evaluate(new ScientificMathContext(), new CultureInfo("fr"));
+    "ln(1/-0,5 + √(1/(0,5^2) + 1))".Evaluate(new ScientificMathContext(), new CultureInfo("fr"));
     
-    "ln[1/-0.5 + √(1/(0.5^2) + 1)]".EvaluateDecimal(new DecimalScientificMathContext());
+    "ln(1/-0.5 + √(1/(0.5^2) + 1))".EvaluateDecimal(new DecimalScientificMathContext());
     
-    "ln[1/-0,5 + √(1/(0,5^2) + 1)]".EvaluateDecimal(new DecimalScientificMathContext(), new CultureInfo("fr"));
+    "ln(1/-0,5 + √(1/(0,5^2) + 1))".EvaluateDecimal(new DecimalScientificMathContext(), new CultureInfo("fr"));
     
     "4 % 3".Evaluate(new ProgrammingMathContext());
     
@@ -78,13 +78,13 @@ Examples of using static methods:
 
     MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", new CultureInfo("de-CH"));
     
-    MathEvaluator.Evaluate("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext());
+    MathEvaluator.Evaluate("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext());
     
-    MathEvaluator.Evaluate("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext(), new CultureInfo("fr"));
+    MathEvaluator.Evaluate("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), new CultureInfo("fr"));
     
-    MathEvaluator.EvaluateDecimal("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new DecimalScientificMathContext());
+    MathEvaluator.EvaluateDecimal("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext());
     
-    MathEvaluator.EvaluateDecimal("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new DecimalScientificMathContext(), new CultureInfo("fr"));
+    MathEvaluator.EvaluateDecimal("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), new CultureInfo("fr"));
     
     MathEvaluator.Evaluate("4 % 3", new ProgrammingMathContext());
     
@@ -104,13 +104,13 @@ Examples of using an instance of the MathEvaluator class:
 
     new MathEvaluator("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6").EvaluateDecimal(new CultureInfo("de-CH"));
     
-    new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new ScientificMathContext()).Evaluate();
+    new MathEvaluator("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext()).Evaluate();
     
-    new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new ScientificMathContext()).Evaluate(new CultureInfo("fr"));
+    new MathEvaluator("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext()).Evaluate(new CultureInfo("fr"));
     
-    new MathEvaluator("ln[1/-0.5 + √(1/(0.5^2) + 1)]", new DecimalScientificMathContext()).EvaluateDecimal();
+    new MathEvaluator("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal();
     
-    new MathEvaluator("ln[1/-0,5 + √(1/(0,5^2) + 1)]", new DecimalScientificMathContext()).EvaluateDecimal(new CultureInfo("fr"));
+    new MathEvaluator("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal(new CultureInfo("fr"));
     
     new MathEvaluator("4 % 3", new ProgrammingMathContext()).Evaluate();
     
@@ -193,7 +193,7 @@ Example of using custom context:
 | Subtraction, Negativity | - | 0 |
 | Multiplication  | *, ×, or · | 100 |
 | Division  | / or ÷ | 100 |
-| Parentheses, Square brackets | ( ) or [ ] | 200 |
+| Parentheses | ( ) | 200 |
 | Currency symbol  | depends on culture info | |
 | Exponentiation | ^ | 400 |
 | Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO | 100 |

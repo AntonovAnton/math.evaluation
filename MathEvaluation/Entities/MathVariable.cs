@@ -1,4 +1,6 @@
-﻿namespace MathEvaluation.Context;
+﻿using MathEvaluation.Context;
+
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The math variable.

@@ -4,7 +4,7 @@ using MathEvaluation.Context.Decimal;
 
 namespace MathEvaluation.Tests;
 
-public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
+public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
     private readonly DecimalProgrammingMathContext _programmingContext = new();
@@ -69,120 +69,6 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("false = true", false)]
-    [InlineData("not(False)", true)]
-    [InlineData("FALSE <> True", true)]
-    [InlineData("false or TRUE", true)]
-    [InlineData("True xor True", false)]
-    [InlineData("200 >= 2.4", 200 >= 2.4)]
-    [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
-    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
-    [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
-    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
-    [InlineData("2 ** 3 = 8", true)]
-    [InlineData("3 % 2 <> 1.1", true)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
-    [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _programmingContext);
-
-        Assert.Equal(expectedValue, value != 0.0m);
-    }
-
-    [Theory]
-    [InlineData("false = true", false)]
-    [InlineData("not(False)", true)]
-    [InlineData("FALSE ≠ True", true)]
-    [InlineData("false or TRUE", true)]
-    [InlineData("True xor True", false)]
-    [InlineData("200 ≥ 2.4", 200 >= 2.4)]
-    [InlineData("200 ≤ 2.4", 200 <= 2.4)]
-    [InlineData("1.0 ⪯ 0.1 and 5.4 ≤ 5.4", 1.0 <= 0.1 && 5.4 <= 5.4)]
-    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
-    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
-    [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
-    [InlineData("1.0 - 1.95 ⪰ 0.1", 1.0 - 1.95 >= 0.1)]
-    [InlineData("2^3 = 8", true)]
-    [InlineData("3 mod 2 ≠ 1.1", true)]
-    [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
-    [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
-    [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal(expectedValue, value != 0.0m);
-    }
-
-    [Theory]
-    [InlineData("¬F", true)]
-    [InlineData("¬⊥", true)]
-    [InlineData("¬T", false)]
-    [InlineData("¬⊤", false)]
-    [InlineData("T ≡ ¬F", true)]
-    [InlineData("T ≢ F", true)]
-    [InlineData("F ↔ F", true)]
-    [InlineData("T ↔ F", false)]
-    [InlineData("(T→F)∧(F→T)", false)]
-    [InlineData("(((¬F)∧T)∨¬T)→¬T", false)]
-    [InlineData("F∧T∨¬T", false)]
-    [InlineData("¬F∧T∨¬T", true)]
-    [InlineData("¬F∧T∨¬T→¬T", false)]
-    [InlineData("F∧¬T∨¬T", false)]
-    [InlineData("F∧¬T∨¬T→¬T", true)]
-    [InlineData("(((F)∧T)∨¬T)→T", true)]
-    [InlineData("(((F)∧T)∨¬T)⇒T", true)]
-    [InlineData("(((F)∧T)∨¬T)←T", false)]
-    [InlineData("F∧T∨¬T←T", false)]
-    [InlineData("F∧T∨¬T⟸T", false)]
-    [InlineData("F∧T∨¬T←¬T", true)]
-    [InlineData("F∧T∨¬T⟸¬T", true)]
-    [InlineData("0∧1∨¬1⟸¬1", true)]
-    [InlineData("0.0∧1.0∨¬1.0⟸¬1.0", true)]
-    [InlineData("0.0∧1.0∨¬1.0←¬1.0 ≢ F∧¬T∨¬T→T", false)]
-    [InlineData("0.0∧1.0∨¬1.0←¬1.0 ≢ ¬F∧T∨¬T→¬T", true)]
-    [InlineData("0.0∧1.0∨¬1.0←¬1.0 ≡ F∧¬T∨¬T→¬T", true)]
-    [InlineData("(F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T→¬T)⇔F", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T→¬T⇔F", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≢ ¬F∧T∨¬T→¬T↔F", false)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T→¬T⇎F", false)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T→¬T ↮ 4 ≠ 4", false)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T→¬T ↮ 4 = 4", true)]
-    [InlineData("¬F∧T∨¬T←¬T", true)]
-    [InlineData("T⊕T", false)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ 1 ⪰ 1 ⇔ 1 ⪯ 0", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ 1 ≥ 1 ⇔ 1 ≤ 0", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ 1 ≥ 1 ⇔ 1 ⊕ 1", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ 1 > 0 ⇔ 1 ⊕ 0", false)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ 1 < 0 ⇔ 1 ⊕ 0", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ⇎ F ⇎ T⊕T", true)]
-    [InlineData("F∧¬T∨¬T→¬T ≡ ¬F∧T∨¬T←¬T ↮ F ↮ T⊕T", true)]
-    [InlineData("F ∨ T ∧ ¬T ⊕ F", false)]
-    [InlineData("F ∨ T ∧ ¬F ⊕ T", false)]
-    [InlineData("F ∨ T ∧ ¬T ⊕ T", true)]
-    [InlineData("F ∨ T ∧ ¬T ⊕ ¬(F ⇎ F)", true)]
-    [InlineData("¬F∧T∨¬T→¬T ≡ F∨T∧¬T⊕¬(F ↮ F) ↔ F", true)]
-    [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
-    [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
-    [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal(expectedValue, value != 0.0m);
-    }
-
-    [Theory]
     [InlineData("(3 · 2)//(2 × 2)", 1d)]
     [InlineData("(3 * 2)//(2 * 2)", 1d)]
     [InlineData("6//-10", -1d)]
@@ -197,9 +83,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]", (3 + 1) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
-    [InlineData("(3 + 1)[5 + 2(5 - 1)]^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
+    [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
     public void MathEvaluator_EvaluateDecimal_HasScientificNotation_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -320,181 +206,6 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("π", Math.PI)]
-    [InlineData("((5 - 1)π)", 4 * Math.PI)]
-    [InlineData("(1/2)π", Math.PI / 2)]
-    [InlineData("2π * 2 / 2 + π", Math.PI * 3)]
-    [InlineData("pi", Math.PI)]
-    [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
-    public void MathEvaluator_EvaluateDecimal_HasPi_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
-    [InlineData("τ", Math.Tau)]
-    [InlineData("((5 - 1)τ)", 4 * Math.Tau)]
-    [InlineData("(1/2)τ", Math.Tau / 2)]
-    public void MathEvaluator_EvaluateDecimal_HasTau_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
-    [InlineData("sin(30\u00b0)", 0.49999999999999994d)]
-    [InlineData("sin 0.5π", 1d)]
-    [InlineData("cos1", 0.54030230586813977d)]
-    [InlineData("cos(1)^2", 0.54030230586813977d * 0.54030230586813977d)]
-    [InlineData("cos1^4", 0.54030230586813977d)]
-    [InlineData("cos1^4/2", 0.54030230586813977d / 2)]
-    [InlineData("Sin(15° + 15°)", 0.49999999999999994d)]
-    [InlineData("Sin(π/12 + π/12)", 0.49999999999999994d)]
-    [InlineData("SIN((1/6)π)", 0.49999999999999994d)]
-    [InlineData("sin(1 + 2.4)", -0.25554110202683122d)]
-    [InlineData("sin(3.4)", -0.25554110202683122d)]
-    [InlineData("sin( +3.4)", -0.25554110202683122d)]
-    [InlineData("sin( -3 * 2)", 0.27941549819892586d)]
-    [InlineData("sin(-3)", -0.14112000805986721d)]
-    [InlineData("cos(60°)", 0.50000000000000011d)]
-    [InlineData("Cos(30° + 30°)", 0.50000000000000011d)]
-    [InlineData("COS((1/3)π)", 0.50000000000000011d)]
-    [InlineData("sin(30°) + cos(60°)", 1d)]
-    [InlineData("tan(0°)", 0)]
-    [InlineData("Tan(45°)", 1d)]
-    [InlineData("Tan45°", 1d)]
-    [InlineData("Cot(45°)", 1d)]
-    [InlineData("sec(0°)", 1d)]
-    [InlineData("Sec(60°)", 1.9999999999999996d)]
-    [InlineData("Csc(30°)", 2.0000000000000004d)]
-    [InlineData("CSC(90°)", 1d)]
-    [InlineData("sin0 + 3", 3d)]
-    [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
-    public void MathEvaluator_EvaluateDecimal_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
-    [InlineData("sinh(0)", 0d)]
-    [InlineData("Sinh(0.88137358701954305)", 1d)]
-    [InlineData("SINH -0.48121182505960347", -0.5d)]
-    [InlineData("Sinh-0.88137358701954305", -1d)]
-    [InlineData("Cosh(0)", 1d)]
-    [InlineData("cosh(1.3169578969248166)", 1.9999999999999998d)]
-    [InlineData("tanh(0)", 0)]
-    [InlineData("TANH -0.54930614433405489", -0.5d)]
-    [InlineData("Tanh-∞", -1d)]
-    [InlineData("Coth(0.54930614433405489)", 2d)]
-    [InlineData("COTH(-∞)", -1d)]
-    [InlineData("COTH(∞)", 1d)]
-    [InlineData("coth-0.54930614433405489", -2d)]
-    [InlineData("sech(1.3169578969248166)", 0.50000000000000011d)]
-    [InlineData("Sech(0)", 1d)]
-    [InlineData("csch(1.4436354751788103)", 0.5d)]
-    [InlineData("Csch(0.88137358701954294)", 1.0000000000000002d)]
-    [InlineData("CSCH(∞)", 0d)]
-    [InlineData("CSCH(-∞)", 0d)]
-    [InlineData("CSCH -1.4436354751788103", -0.5d)]
-    [InlineData("Csch-0.88137358701954294", -1.0000000000000002d)]
-    public void MathEvaluator_EvaluateDecimal_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
-        double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
-    [InlineData("Arcsin(-1)", -Math.PI / 2)]
-    [InlineData("ARCSIN(0)", 0)]
-    [InlineData("Sin^-11", Math.PI / 2)]
-    [InlineData("Arccos(-1)", Math.PI)]
-    [InlineData("ARCCOS(0)", Math.PI / 2)]
-    [InlineData("Cos^-11", 0)]
-    [InlineData("arctan(-∞)", -Math.PI / 2)]
-    [InlineData("tan^-1(∞)", Math.PI / 2)]
-    [InlineData("Tan^-1(-2)", -1.1071487177940904d)]
-    [InlineData("Arctan(-1)", -Math.PI / 4)]
-    [InlineData("ARCTAN(0)", 0)]
-    [InlineData("TAN^-11", Math.PI / 4)]
-    [InlineData("arcsec(-∞)", Math.PI / 2)]
-    [InlineData("sec^-1(∞)", Math.PI / 2)]
-    [InlineData("Sec^-1(-2)", 2.0943951023931957d)]
-    [InlineData("Arcsec(-1)", Math.PI)]
-    [InlineData("arcsec1", 0)]
-    [InlineData("arccsc(-∞)", 0)]
-    [InlineData("csc^-1(∞)", 0)]
-    [InlineData("Csc^-1(-2)", -0.52359877559829893d)]
-    [InlineData("Arccsc(-1)", -Math.PI / 2)]
-    [InlineData("CSC^-11", Math.PI / 2)]
-    [InlineData("arccsc(2)", 0.52359877559829893d)]
-    [InlineData("arccot(-∞)", Math.PI)]
-    [InlineData("Cot^-1(∞)", 0d)]
-    [InlineData("Arccot(-2)", 2.677945044588987d)]
-    [InlineData("ARCCOT(-1)", Math.PI - Math.PI / 4)]
-    [InlineData("Cot^-1(0)", Math.PI / 2)]
-    [InlineData("cot^-11", Math.PI / 4)]
-    [InlineData("COT^-1(2)", 0.46364760900080609d)]
-    public void MathEvaluator_EvaluateDecimal_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
-    [InlineData("arsinh(0)", 0)]
-    [InlineData("sinh^-1(0.5)", 0.48121182505960347d)]
-    [InlineData("Arsinh(1)", 0.88137358701954294d)]
-    [InlineData("Sinh^-1(2)", 1.4436354751788103d)]
-    [InlineData("SINH^-1 -0.5", -0.48121182505960347d)]
-    [InlineData("Sinh^-1-1", -0.88137358701954294d)]
-    [InlineData("arsinh(-2)", -1.4436354751788103d)]
-    [InlineData("Arcosh(1)", 0)]
-    [InlineData("Cosh^-1(2)", 1.3169578969248166d)]
-    [InlineData("artanh(0)", 0)]
-    [InlineData("tanh^-1(0.5)", 0.54930614433405489d)]
-    [InlineData("TANH^-1 -0.5", -0.54930614433405489d)]
-    [InlineData("Coth^-1(2)", 0.54930614433405489d)]
-    [InlineData("ARCOTH(∞)", 0)]
-    [InlineData("arcoth(-2)", -0.54930614433405489d)]
-    [InlineData("Coth^-1(-∞)", 0)]
-    [InlineData("Sech^-1(0.5)", 1.3169578969248166d)]
-    [InlineData("Arsech(1)", 0)]
-    [InlineData("Csch^-1(0.5)", 1.4436354751788103d)]
-    [InlineData("Arcsch(1)", 0.88137358701954294d)]
-    [InlineData("Csch^-1(2)", 0.48121182505960347d)]
-    [InlineData("ARCSCH(∞)", 0)]
-    [InlineData("CSCH^-1 -0.5", -1.4436354751788103d)]
-    [InlineData("Csch^-1-1", -0.88137358701954294d)]
-    [InlineData("arcsch(-2)", -0.48121182505960347d)]
-    [InlineData("csch^-1(-∞)", 0)]
-    public void MathEvaluator_EvaluateDecimal_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
-    {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
-
-        Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Theory]
     [InlineData("|-20.3|", 20.3d)]
     [InlineData("-|20.3|", -20.3d)]
     [InlineData("3|-5|", 15d)]
@@ -506,6 +217,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("6 + |( -4)|", 6 + 4)]
     [InlineData("6 + - |4|", 6 - 4)]
     [InlineData("2 - 5 * |-8 + (2 - |-4|)| / 2 - 1", 2 - 5 * 10 / 2 - 1)]
+    [InlineData("abs-|-1|^2", 1d)]
     [InlineData("3abs-5", 15d)]
     [InlineData("3 * Abs(  -5)", 15d)]
     [InlineData("3 / ABS(  -(9/3))", 1d)]
@@ -552,7 +264,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("LN(10)", 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
-    [InlineData("-2ln[1/0.5 + √(1/0.5^2 + 1)]", -2 * 1.4436354751788103d)]
+    [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void MathEvaluator_EvaluateDecimal_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -636,7 +348,7 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("ln[1/x + √(1/x^2 + 1)]", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("ln(1/x + √(1/x^2 + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
@@ -655,8 +367,9 @@ public class DecimalMathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("getX1 + getX2", 0.5, 0.2, 0.5 + 0.2)]
-    [InlineData("ln[1/-getX1 + √(1/getX2^2 + 1)]", -0.5, 0.5, 1.4436354751788103d)]
+    [InlineData("getX1() + getX2( )", 0.5, 0.2, 0.5 + 0.2)]
+    [InlineData("getX1()^2 + 2^getX2^2", 0.5, 3, 0.5 * 0.5 + 512)]
+    [InlineData("ln(1/-getX1 + √(1/getX2^2 + 1))", -0.5, 0.5, 1.4436354751788103d)]
     public void MathEvaluator_EvaluateDecimal_HasGetVariableFns_ExpectedValue(string expression,
         decimal x1, decimal x2, double expectedValue)
     {

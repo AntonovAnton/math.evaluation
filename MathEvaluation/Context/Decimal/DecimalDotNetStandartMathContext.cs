@@ -7,8 +7,8 @@ namespace MathEvaluation.Context.Decimal;
 /// supports all constants and functions provided by <see cref="System.Math" /> class.
 /// Provides evaluating C# math expressions.
 /// </summary>
-/// <seealso cref="MathEvaluation.Context.Decimal.DecimalProgrammingMathContext" />
-public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
+/// <seealso cref="MathEvaluation.Context.MathContext" />
+public class DecimalDotNetStandartMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandartMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()
@@ -17,64 +17,95 @@ public class DecimalDotNetStandartMathContext : DecimalProgrammingMathContext
         BindVariable(1m, "true");
         BindVariable(0m, "false");
 
-        static decimal modFn(decimal leftOperand, decimal rigntOperand) => leftOperand % rigntOperand;
+        static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, '%');
 
-        static decimal equalToFn(decimal leftOperand, decimal rigntOperand) => leftOperand == rigntOperand ? 1.0m : default;
+        static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
         BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality);
 
-        static decimal notEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand != rigntOperand ? 1.0m : default;
+        static decimal notEqualToFn(decimal left, decimal right) => left != right ? 1.0m : default;
         BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality);
 
-        static decimal greaterThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand > rigntOperand ? 1.0m : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.Comparison);
+        static decimal greaterThanFn(decimal left, decimal right) => left > right ? 1.0m : default;
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator);
 
-        static decimal lessThanFn(decimal leftOperand, decimal rigntOperand) => leftOperand < rigntOperand ? 1.0m : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.Comparison);
+        static decimal lessThanFn(decimal left, decimal right) => left < right ? 1.0m : default;
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator);
 
-        static decimal greaterThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand >= rigntOperand ? 1.0m : default;
-        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.Comparison);
+        static decimal greaterThanOrEqualToFn(decimal left, decimal right) => left >= right ? 1.0m : default;
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator);
 
-        static decimal lessThanOrEqualToFn(decimal leftOperand, decimal rigntOperand) => leftOperand <= rigntOperand ? 1.0m : default;
-        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.Comparison);
+        static decimal lessThanOrEqualToFn(decimal left, decimal right) => left <= right ? 1.0m : default;
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator);
 
-        static decimal andFn(decimal leftOperand, decimal rigntOperand) => leftOperand != default && rigntOperand != default ? 1.0m : default;
+        static decimal andFn(decimal left, decimal right) => left != default && right != default ? 1.0m : default;
         BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd);
 
-        static decimal orFn(decimal leftOperand, decimal rigntOperand) => leftOperand != default || rigntOperand != default ? 1.0m : default;
+        static decimal orFn(decimal left, decimal right) => left != default || right != default ? 1.0m : default;
         BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr);
 
-        static decimal logicalNegationFn(decimal rigntOperand) => rigntOperand == default ? 1.0m : default;
-        BindConverter(logicalNegationFn, '!');
+        static decimal logicalNegationFn(decimal right) => right == default ? 1.0m : default;
+        BindOperandOperator(logicalNegationFn, '!');
 
-        static decimal logicalAndFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand & (long)rigntOperand;
+        static decimal logicalAndFn(decimal left, decimal right) => (long)left & (long)right;
         BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd);
 
-        static decimal logicalOrFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand | (long)rigntOperand;
+        static decimal logicalOrFn(decimal left, decimal right) => (long)left | (long)right;
         BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr);
 
-        static decimal logicalExclusiveOrFn(decimal leftOperand, decimal rigntOperand) => (long)leftOperand ^ (long)rigntOperand;
+        static decimal logicalExclusiveOrFn(decimal left, decimal right) => (long)left ^ (long)right;
         BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor);
 
-        static decimal bitwiseComplementFn(decimal rigntOperand) => ~(long)rigntOperand;
-        BindConverter(bitwiseComplementFn, '~');
+        static decimal bitwiseComplementFn(decimal right) => ~(long)right;
+        BindOperandOperator(bitwiseComplementFn, '~');
 
-        BindVariable(1m, 'f');
-        BindVariable(1m, 'd');
-        BindVariable(1m, 'm');
-        BindVariable(1m, 'l');
-        BindVariable(1m, 'u');
-        BindVariable(1m, "ul");
-        BindVariable(1m, "lu");
-        BindVariable(1m, 'F');
-        BindVariable(1m, 'D');
-        BindVariable(1m, 'M');
-        BindVariable(1m, 'L');
-        BindVariable(1m, "Lu");
-        BindVariable(1m, "LU");
-        BindVariable(1m, 'U');
-        BindVariable(1m, "Ul");
-        BindVariable(1m, "UL");
+        static decimal incrementFn(decimal left, decimal right) => left == default ? ++right : left++;
+        BindOperandsOperator(incrementFn, "++", (int)EvalPrecedence.OperandUnaryOperator);
+
+        static decimal postfixIncrementFn(decimal left) => left++;
+        BindOperandOperator(postfixIncrementFn, "++ ", true);
+        BindOperandOperator(postfixIncrementFn, "++\t", true);
+        BindOperandOperator(postfixIncrementFn, "++\r", true);
+        BindOperandOperator(postfixIncrementFn, "++\n", true);
+
+        static decimal prefixIncrementFn(decimal right) => ++right;
+        BindOperandOperator(prefixIncrementFn, " ++");
+        BindOperandOperator(prefixIncrementFn, "\t++");
+        BindOperandOperator(prefixIncrementFn, "\r++");
+        BindOperandOperator(prefixIncrementFn, "\n++");
+
+        static decimal decrementFn(decimal left, decimal right) => left == default ? --right : left--;
+        BindOperandsOperator(decrementFn, "--", (int)EvalPrecedence.OperandUnaryOperator);
+
+        static decimal postfixDecrementFn(decimal left) => left--;
+        BindOperandOperator(postfixDecrementFn, "-- ", true);
+        BindOperandOperator(postfixDecrementFn, "--\t", true);
+        BindOperandOperator(postfixDecrementFn, "--\r", true);
+        BindOperandOperator(postfixDecrementFn, "--\n", true);
+
+        static decimal prefixDecrementFn(decimal right) => --right;
+        BindOperandOperator(prefixDecrementFn, " --");
+        BindOperandOperator(prefixDecrementFn, "\t--");
+        BindOperandOperator(prefixDecrementFn, "\r--");
+        BindOperandOperator(prefixDecrementFn, "\n--");
+
+        BindOperandOperator((decimal value) => value, 'f', true);
+        BindOperandOperator((decimal value) => value, 'd', true);
+        BindOperandOperator((decimal value) => value, 'm', true);
+        BindOperandOperator((decimal value) => value, 'l', true);
+        BindOperandOperator((decimal value) => value, 'u', true);
+        BindOperandOperator((decimal value) => value, "ul", true);
+        BindOperandOperator((decimal value) => value, "lu", true);
+        BindOperandOperator((decimal value) => value, 'F', true);
+        BindOperandOperator((decimal value) => value, 'D', true);
+        BindOperandOperator((decimal value) => value, 'M', true);
+        BindOperandOperator((decimal value) => value, 'L', true);
+        BindOperandOperator((decimal value) => value, "Lu", true);
+        BindOperandOperator((decimal value) => value, "LU", true);
+        BindOperandOperator((decimal value) => value, 'U', true);
+        BindOperandOperator((decimal value) => value, "Ul", true);
+        BindOperandOperator((decimal value) => value, "UL", true);
+
         BindVariable(Math.PI);
         BindVariable(Math.E);
 
