@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
 
 /// <summary>
-/// The math context allows for the use of custom variables and functions.
+/// The math context allows for the search of custom variables, operators, and functions.
 /// </summary>
 public interface IMathContext
 {
@@ -112,7 +113,7 @@ public interface IMathContext
     /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)"/>
     void BindOperandsOperator(Func<double, double, double> fn, string key, int precedece);
 
-    /// <summary>Binds the math operator that can process the left and right expressions.</summary>
+    /// <summary>Binds the math operator that processes the left and right expressions.</summary>
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <param name="precedece">The operator precedence.</param>

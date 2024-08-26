@@ -1,4 +1,4 @@
-﻿namespace MathEvaluation.Context;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 /// Math entity interface.

@@ -143,6 +143,8 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
+    #region decimal
+
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, decimal value, char key)
         => BindVariable(evaluator, value, key.ToString());
@@ -237,6 +239,10 @@ public static class MathEvaluatorExtensions
         return evaluator;
     }
 
+    #endregion
+
+    #region boolean
+
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, bool value, char key)
         => BindVariable(evaluator, value, key.ToString());
@@ -262,4 +268,6 @@ public static class MathEvaluatorExtensions
         evaluator.Context.BindFunction(fn, key);
         return evaluator;
     }
+
+    #endregion
 }

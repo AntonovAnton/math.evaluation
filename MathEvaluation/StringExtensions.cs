@@ -161,6 +161,8 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
+    #region bind decimal methods
+
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, decimal value, char key)
         => BindVariable(expression, value, key.ToString());
@@ -263,6 +265,10 @@ public static class StringExtensions
         return new MathEvaluator(expression, context);
     }
 
+    #endregion
+
+    #region bind boolean methods
+
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, bool value, char key)
         => BindVariable(expression, value, key.ToString());
@@ -290,6 +296,10 @@ public static class StringExtensions
 
         return new MathEvaluator(expression, context);
     }
+
+    #endregion
+
+    #region evaluate methods
 
     /// <inheritdoc cref="MathEvaluator.Evaluate(string, IFormatProvider?)"/>
     public static double Evaluate(this string expression, IFormatProvider? provider = null) =>
@@ -338,4 +348,6 @@ public static class StringExtensions
     /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, IFormatProvider?)"/>
     public static bool EvaluateBoolean(this ReadOnlySpan<char> span, IMathContext? context, IFormatProvider? provider = null) =>
         MathEvaluator.EvaluateBoolean(span, context, provider);
+
+    #endregion
 }

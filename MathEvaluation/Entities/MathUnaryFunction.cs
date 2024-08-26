@@ -1,6 +1,7 @@
 ﻿using System;
+using MathEvaluation.Context;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The function with one parameter, so closing symbol is optional.
@@ -24,7 +25,7 @@ public class MathUnaryFunction<T> : MathEntity
     /// <param name="key">The key.</param>
     /// <param name="fn">The function.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="System.ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException">fn</exception>
     public MathUnaryFunction(string? key, Func<T, T> fn, char? closingSymbol = null)
         : base(key)
     {

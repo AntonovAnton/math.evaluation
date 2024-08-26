@@ -1,6 +1,7 @@
 ﻿using System;
+using MathEvaluation.Context;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The math operator that performs an action on one math operand. 
@@ -39,11 +40,11 @@ public class MathOperandOperator<T> : MathEntity
     /// <param name="isProcessingLeft">
     ///   <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
-    /// <exception cref="System.ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException">fn</exception>
     public MathOperandOperator(string? key, Func<T, T> fn, bool isProcessingLeft = false)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
-        IsProcessingLeft  = isProcessingLeft;
+        IsProcessingLeft = isProcessingLeft;
     }
 }

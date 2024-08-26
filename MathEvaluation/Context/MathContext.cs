@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
 
 /// <summary>
-/// The base implementation of the <see cref="IMathContext"/> allows for the use of custom variables and functions.
+/// The base implementation of the <see cref="IMathContext"/> allows for the search of custom variables, operators, and functions.
 /// It uses a prefix tree, also known as a trie (pronounced "try"), 
-/// for efficient searching of the variables and functions by their keys (names). 
+/// for efficient searching of the variables, operators, and functions by their keys (names). 
 /// Performance is improved by using <see cref="ReadOnlySpan{T}"/> for comparing strings. 
 /// For more details, refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>

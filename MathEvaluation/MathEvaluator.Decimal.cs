@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using MathEvaluation.Context;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation;
 
@@ -10,6 +11,8 @@ public partial class MathEvaluator
     /// <inheritdoc cref="Evaluate(IFormatProvider?)"/>
     /// <exception cref="System.ArgumentNullException">expression</exception>
     /// <exception cref="System.ArgumentException">expression</exception>
+    /// <exception cref="System.OverflowException">expression</exception>
+    /// <exception cref="System.DivideByZeroException">expression</exception>
     public decimal EvaluateDecimal(IFormatProvider? provider = null)
     {
         return EvaluateDecimal(Expression.AsSpan(), Context, provider);
@@ -18,6 +21,8 @@ public partial class MathEvaluator
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
     /// <exception cref="System.ArgumentNullException">expression</exception>
     /// <exception cref="System.ArgumentException">expression</exception>
+    /// <exception cref="System.OverflowException">expression</exception>
+    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), null, provider);
@@ -26,6 +31,8 @@ public partial class MathEvaluator
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
     /// <exception cref="System.ArgumentNullException">expression</exception>
     /// <exception cref="System.ArgumentException">expression</exception>
+    /// <exception cref="System.OverflowException">expression</exception>
+    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression, null, provider);
@@ -34,6 +41,8 @@ public partial class MathEvaluator
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     /// <exception cref="System.ArgumentNullException">expression</exception>
     /// <exception cref="System.ArgumentException">expression</exception>
+    /// <exception cref="System.OverflowException">expression</exception>
+    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), context, provider);
@@ -42,6 +51,8 @@ public partial class MathEvaluator
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     /// <exception cref="System.ArgumentNullException">expression</exception>
     /// <exception cref="System.ArgumentException">expression</exception>
+    /// <exception cref="System.OverflowException">expression</exception>
+    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
         try
@@ -95,7 +106,7 @@ public partial class MathEvaluator
 
                     value = GetDecimalNumber(expression, provider, ref i, separator, closingSymbol);
                     break;
-                case '+':
+                case '+' when expression.Length == i + 1 || expression[i + 1] != '+':
                     if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
                         return value;
 
@@ -106,7 +117,7 @@ public partial class MathEvaluator
                     if (isOperand)
                         return value;
                     break;
-                case '-':
+                case '-' when expression.Length == i + 1 || expression[i + 1] != '-':
                     if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
                         return value;
 
@@ -121,10 +132,8 @@ public partial class MathEvaluator
                             precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
                     }
                     else
-                    {
                         value -= EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol,
                             precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-                    }
 
                     if (isOperand)
                         return value;

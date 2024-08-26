@@ -26,7 +26,7 @@ This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>
 
 The evaluator uses recursive method calls to handle mathematical operations based on operator precedence and rules, an operator with highest precedence is evaluating first. This approach avoids the overhead associated with stack or queue data structures.
 
-The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables and functions by their keys (names) when providing a specific mathematical context or adding custom variables and functions is required.
+The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables, operators, and functions by their keys (names) when providing a specific mathematical context or adding custom variables, operators, and functions is required.
 
 Let's compare, for example, performance of calculating the mathematical expression:
 

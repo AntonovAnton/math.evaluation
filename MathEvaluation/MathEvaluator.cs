@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using MathEvaluation.Context;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation;
 
@@ -108,7 +109,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
 
                     value = GetNumber(expression, provider, ref i, separator, closingSymbol);
                     break;
-                case '+':
+                case '+' when expression.Length == i + 1 || expression[i + 1] != '+':
                     if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
                         return value;
 
@@ -119,7 +120,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     if (isOperand)
                         return value;
                     break;
-                case '-':
+                case '-' when expression.Length == i + 1 || expression[i + 1] != '-':
                     if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && !expression[start..i].IsWhiteSpace())
                         return value;
 
@@ -134,10 +135,8 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                             precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
                     }
                     else
-                    {
                         value -= Evaluate(expression, context, provider, ref i, separator, closingSymbol,
                             precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-                    }
 
                     if (isOperand)
                         return value;

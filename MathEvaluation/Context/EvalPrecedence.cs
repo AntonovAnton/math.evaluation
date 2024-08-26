@@ -3,7 +3,7 @@
 namespace MathEvaluation.Context
 {
     /// <summary>
-    /// Enumering precedence of math evaluation
+    /// Enumering precedence of math evaluation.
     /// </summary>
     [Serializable]
     public enum EvalPrecedence : int
@@ -102,7 +102,7 @@ namespace MathEvaluation.Context
 
         /// <summary>
         /// The precedence of a math operator that performs an action on one math operand. 
-        /// For example, degrees, factorial, or negation.
+        /// For example, degrees, decrement, increment, factorial, or negation.
         /// </summary>
         OperandUnaryOperator = 500,
     }
