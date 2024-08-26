@@ -122,18 +122,8 @@ public partial class MathEvaluator
                         return value;
 
                     i++;
-                    SkipMeaninglessChars(expression, ref i);
-
-                    //two negatives should combine to make a positive
-                    if (expression.Length > i && expression[i] is '-')
-                    {
-                        i++;
-                        value += EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol,
-                            precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-                    }
-                    else
-                        value -= EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol,
-                            precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
+                    value -= EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol,
+                        precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
 
                     if (isOperand)
                         return value;
@@ -169,7 +159,7 @@ public partial class MathEvaluator
             }
         }
 
-        if (value == 0m && expression[start..i].IsWhiteSpace())
+        if (!isOperand && value == default && expression[start..i].IsWhiteSpace())
             throw new ArgumentException("Expression cannot be evaluated.", nameof(expression));
 
         return value;

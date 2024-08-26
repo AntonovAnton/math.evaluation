@@ -59,22 +59,53 @@ public class DotNetStandartMathContext : MathContext
         static double bitwiseComplementFn(double right) => ~(long)right;
         BindOperandOperator(bitwiseComplementFn, '~');
 
-        BindVariable(1d, 'f');
-        BindVariable(1d, 'd');
-        BindVariable(1d, 'm');
-        BindVariable(1d, 'l');
-        BindVariable(1d, 'u');
-        BindVariable(1d, "ul");
-        BindVariable(1d, "lu");
-        BindVariable(1d, 'F');
-        BindVariable(1d, 'D');
-        BindVariable(1d, 'M');
-        BindVariable(1d, 'L');
-        BindVariable(1d, "Lu");
-        BindVariable(1d, "LU");
-        BindVariable(1d, 'U');
-        BindVariable(1d, "Ul");
-        BindVariable(1d, "UL");
+        static double incrementFn(double left, double right) => left == default ? ++right : left++;
+        BindOperandsOperator(incrementFn, "++", (int)EvalPrecedence.OperandUnaryOperator);
+
+        static double postfixIncrementFn(double left) => left++;
+        BindOperandOperator(postfixIncrementFn, "++ ", true);
+        BindOperandOperator(postfixIncrementFn, "++\t", true);
+        BindOperandOperator(postfixIncrementFn, "++\r", true);
+        BindOperandOperator(postfixIncrementFn, "++\n", true);
+
+        static double prefixIncrementFn(double right) => ++right;
+        BindOperandOperator(prefixIncrementFn, " ++");
+        BindOperandOperator(prefixIncrementFn, "\t++");
+        BindOperandOperator(prefixIncrementFn, "\r++");
+        BindOperandOperator(prefixIncrementFn, "\n++");
+
+        static double decrementFn(double left, double right) => left == default ? --right : left--;
+        BindOperandsOperator(decrementFn, "--", (int)EvalPrecedence.OperandUnaryOperator);
+
+        static double postfixDecrementFn(double left) => left--;
+        BindOperandOperator(postfixDecrementFn, "-- ", true);
+        BindOperandOperator(postfixDecrementFn, "--\t", true);
+        BindOperandOperator(postfixDecrementFn, "--\r", true);
+        BindOperandOperator(postfixDecrementFn, "--\n", true);
+
+        static double prefixDecrementFn(double right) => --right;
+        BindOperandOperator(prefixDecrementFn, " --");
+        BindOperandOperator(prefixDecrementFn, "\t--");
+        BindOperandOperator(prefixDecrementFn, "\r--");
+        BindOperandOperator(prefixDecrementFn, "\n--");
+
+        BindOperandOperator((double value) => value, 'f', true);
+        BindOperandOperator((double value) => value, 'd', true);
+        BindOperandOperator((double value) => value, 'm', true);
+        BindOperandOperator((double value) => value, 'l', true);
+        BindOperandOperator((double value) => value, 'u', true);
+        BindOperandOperator((double value) => value, "ul", true);
+        BindOperandOperator((double value) => value, "lu", true);
+        BindOperandOperator((double value) => value, 'F', true);
+        BindOperandOperator((double value) => value, 'D', true);
+        BindOperandOperator((double value) => value, 'M', true);
+        BindOperandOperator((double value) => value, 'L', true);
+        BindOperandOperator((double value) => value, "Lu", true);
+        BindOperandOperator((double value) => value, "LU", true);
+        BindOperandOperator((double value) => value, 'U', true);
+        BindOperandOperator((double value) => value, "Ul", true);
+        BindOperandOperator((double value) => value, "UL", true);
+
         BindVariable(Math.PI);
         BindVariable(Math.E);
 

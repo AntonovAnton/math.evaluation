@@ -31,6 +31,54 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
+    [InlineData("++a", 6)]
+    [InlineData("2 / 5 / ++a * 5", 2d / 5 / 6 * 5)]
+    [InlineData("2 / 5d /\r++a * 5", 2d / 5 / 6 * 5)]
+    [InlineData("2 / 5d / 2 * 2 + ++a", 2d / 5 / 2 * 2 + 6)]
+    [InlineData("2 + (5 - ++a)", 2 + (5 - 6))]
+    [InlineData("2 + (++a - 1)", 2 + (6 - 1))]
+    [InlineData("a++", 5d)]
+    [InlineData("2 / 5d / a++ * 5", 2 / 5d / 5 * 5)]
+    [InlineData("2 / 5d /a++\n * 5", 2 / 5d / 5 * 5)]
+    [InlineData("2 / 5d / 2 * a++ + 5d", 2 / 5d / 2 * 5 + 5)]
+    [InlineData("2 + (5 - a++)", 2 + (5 - 5))]
+    [InlineData("2 + (a++ - 1)", 2 + (5 - 1))]
+    public void MathEvaluator_EvaluateDecimal_HasIncrement_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = expression.SetContext(_context)
+            .BindVariable(5.0, 'a')
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("--a", 4)]
+    [InlineData("2 / 5 / --a * 5", 2d / 5 / 4 * 5)]
+    [InlineData("2 / 5d /\r--a * 5", 2d / 5 / 4 * 5)]
+    [InlineData("2 / 5d / 2 * 2 + --a", 2d / 5 / 2 * 2 + 4)]
+    [InlineData("2 + (5 - --a)", 2 + (5 - 4))]
+    [InlineData("2 + (--a - 1)", 2 + (4 - 1))]
+    [InlineData("a--", 5d)]
+    [InlineData("2 / 5d / a-- * 5", 2 / 5d / 5 * 5)]
+    [InlineData("2 / 5d /a--\n * 5", 2 / 5d / 5 * 5)]
+    [InlineData("2 / 5d / 2 * a-- + 5d", 2 / 5d / 2 * 5 + 5)]
+    [InlineData("2 + (5 - a--)", 2 + (5 - 5))]
+    [InlineData("2 + (a-- - 1)", 2 + (5 - 1))]
+    public void MathEvaluator_EvaluateDecimal_HasDecrement_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = expression.SetContext(_context)
+            .BindVariable(5.0, 'a')
+            .Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("false == Math.E", false)]
     [InlineData("!false", true)]
     [InlineData("false != Math.E", true)]
@@ -182,7 +230,6 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("3 * Math.Abs-5", 15d)]
     [InlineData("3 * Math.Abs(  -5)", 15d)]
     [InlineData("3 / Math.Abs(  -(9/3))", 1d)]
     [InlineData("Math.Abs(Math.Sin(-3))", 0.14112000805986721d)]

@@ -125,18 +125,8 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         return value;
 
                     i++;
-                    SkipMeaninglessChars(expression, ref i);
-
-                    //two negatives should combine to make a positive
-                    if (expression.Length > i && expression[i] is '-')
-                    {
-                        i++;
-                        value += Evaluate(expression, context, provider, ref i, separator, closingSymbol,
-                            precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-                    }
-                    else
-                        value -= Evaluate(expression, context, provider, ref i, separator, closingSymbol,
-                            precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
+                    value -= Evaluate(expression, context, provider, ref i, separator, closingSymbol,
+                        precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
 
                     if (isOperand)
                         return value;
@@ -172,7 +162,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             }
         }
 
-        if (value == 0d && expression[start..i].IsWhiteSpace())
+        if (!isOperand && value == default && expression[start..i].IsWhiteSpace())
             return double.NaN;
 
         return value;
