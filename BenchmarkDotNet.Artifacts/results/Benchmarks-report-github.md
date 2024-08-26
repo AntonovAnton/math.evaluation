@@ -9,13 +9,13 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4037/23H2/2023Update/SunValley3
 
 
 ```
-| Method                                                                                   | Job      | Runtime  | Mean        | Error     | StdDev     | Median      | Gen0   | Allocated |
-|----------------------------------------------------------------------------------------- |--------- |--------- |------------:|----------:|-----------:|------------:|-------:|----------:|
-| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 6.0 | .NET 6.0 | 606.5906 ns | 3.2328 ns |  3.0239 ns | 605.9759 ns |      - |         - |
-| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 6.0 | .NET 6.0 |   0.0031 ns | 0.0044 ns |  0.0039 ns |   0.0012 ns |      - |         - |
-| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 6.0 | .NET 6.0 | 423.6661 ns | 0.8381 ns |  0.7430 ns | 423.6580 ns | 0.0024 |      32 B |
-| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 6.0 | .NET 6.0 | 586.2541 ns | 2.4359 ns |  2.1594 ns | 586.8017 ns | 0.0172 |     216 B |
-| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 8.0 | .NET 8.0 | 523.2222 ns | 1.7657 ns |  1.6516 ns | 522.9990 ns |      - |         - |
-| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 8.0 | .NET 8.0 |   0.0007 ns | 0.0012 ns |  0.0010 ns |   0.0002 ns |      - |         - |
-| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 8.0 | .NET 8.0 | 360.9956 ns | 1.6143 ns |  1.4310 ns | 360.9817 ns | 0.0024 |      32 B |
-| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 8.0 | .NET 8.0 | 390.6348 ns | 7.5755 ns | 10.3694 ns | 393.6743 ns | 0.0172 |     216 B |
+| Method                                                                                   | Job      | Runtime  | Mean        | Error     | StdDev    | Median      | Gen0   | Allocated |
+|----------------------------------------------------------------------------------------- |--------- |--------- |------------:|----------:|----------:|------------:|-------:|----------:|
+| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 6.0 | .NET 6.0 | 607.0740 ns | 6.3619 ns | 5.3125 ns | 607.5628 ns |      - |         - |
+| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 6.0 | .NET 6.0 |   0.0000 ns | 0.0000 ns | 0.0000 ns |   0.0000 ns |      - |         - |
+| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 6.0 | .NET 6.0 | 444.3192 ns | 1.7528 ns | 1.5538 ns | 444.8485 ns | 0.0019 |      32 B |
+| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 6.0 | .NET 6.0 | 585.0627 ns | 2.4867 ns | 2.0765 ns | 585.0632 ns | 0.0172 |     216 B |
+| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 8.0 | .NET 8.0 | 528.5077 ns | 2.1982 ns | 1.8356 ns | 528.5068 ns |      - |         - |
+| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 8.0 | .NET 8.0 |   0.0082 ns | 0.0100 ns | 0.0093 ns |   0.0031 ns |      - |         - |
+| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 8.0 | .NET 8.0 | 358.1167 ns | 1.1469 ns | 1.0167 ns | 357.6606 ns | 0.0024 |      32 B |
+| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 8.0 | .NET 8.0 | 379.7740 ns | 4.9605 ns | 4.6400 ns | 379.9457 ns | 0.0172 |     216 B |
