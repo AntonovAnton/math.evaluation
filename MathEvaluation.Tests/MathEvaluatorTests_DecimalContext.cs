@@ -119,6 +119,19 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
     }
 
     [Theory]
+    [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
+    [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
+    public void MathEvaluator_EvaluateDecimal_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string expression, string? cultureName, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, cultureInfo);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("3**4", 81)]
     [InlineData("3**4**2", 81 * 81 * 81 * 81)]
     [InlineData("0.5**2*3", 0.75d)]

@@ -147,12 +147,14 @@ public partial class MathEvaluator
                     break;
                 default:
                     var entity = context?.FirstMathEntity(expression[i..]);
+                    if (entity == null && TryParseCurrencySymbol(expression, provider, ref i))
+                        break;
 
                     //highest precedence is evaluating first
                     if (precedence >= entity?.Precedence)
                         return value;
 
-                    value = EvaluateFuncOrVarDecimal(expression, context, provider, ref i, separator, closingSymbol, precedence, value, entity);
+                    value = EvaluateMathEntityDecimal(expression, context, provider, ref i, separator, closingSymbol, precedence, value, entity);
                     if (isOperand)
                         return value;
                     break;
@@ -165,10 +167,13 @@ public partial class MathEvaluator
         return value;
     }
 
-    private static decimal EvaluateFuncOrVarDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
-        ref int i, char? separator, char? closingSymbol, int precedence, decimal value, IMathEntity? entity = null)
+    private static decimal EvaluateOperandDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator, char? closingSymbol)
+        => EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+
+    private static decimal EvaluateMathEntityDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider provider,
+        ref int i, char? separator, char? closingSymbol, int precedence, decimal value, IMathEntity? entity = null, bool throwOnUnsupported = true)
     {
-        entity ??= context?.FirstMathEntity(expression[i..]);
         if (entity != null && entity.Precedence >= precedence)
         {
             if (TryEvaluateContextDecimal(expression, context!, entity, provider, ref i, separator, closingSymbol, ref value))
@@ -179,7 +184,7 @@ public partial class MathEvaluator
                 return (decimal)doubleValue;
         }
 
-        if (TryParseCurrencySymbol(expression, provider, ref i))
+        if (!throwOnUnsupported)
             return value;
 
         var end = expression[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
@@ -192,19 +197,12 @@ public partial class MathEvaluator
         ref int i, char? separator, char? closingSymbol, decimal value)
     {
         SkipMeaninglessChars(expression, ref i);
+        if (expression.Length <= i)
+            return value;
 
-        var entity = expression.Length > i ? context?.FirstMathEntity(expression[i..]) : null;
-        if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
-        {
-            if (TryEvaluateContextDecimal(expression, context!, entity, provider, ref i, separator, closingSymbol, ref value))
-                return value;
-
-            var doubleValue = (double)value;
-            if (TryEvaluateContext(expression, context!, entity, provider, ref i, separator, closingSymbol, ref doubleValue))
-                return (decimal)doubleValue;
-        }
-
-        return value;
+        var precedence = (int)EvalPrecedence.Exponentiation;
+        var entity = context?.FirstMathEntity(expression[i..]);
+        return EvaluateMathEntityDecimal(expression, context, provider, ref i, separator, closingSymbol, precedence, value, entity, false);
     }
 
     private static bool TryEvaluateContextDecimal(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, IFormatProvider provider,
@@ -225,7 +223,7 @@ public partial class MathEvaluator
                     var fn = mathOperator.Fn;
                     var result = mathOperator.IsProcessingLeft
                         ? fn(value)
-                        : fn(EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true));
+                        : fn(EvaluateOperandDecimal(expression, context, provider, ref i, separator, closingSymbol));
                     value = EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     return true;
                 }
@@ -233,7 +231,7 @@ public partial class MathEvaluator
                 {
                     i += entity.Key.Length;
                     var fn = mathOperator.Fn;
-                    var right = EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+                    var right = EvaluateOperandDecimal(expression, context, provider, ref i, separator, closingSymbol);
                     right = EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, right);
                     value = fn(value, right);
                     return true;
@@ -250,7 +248,8 @@ public partial class MathEvaluator
                 {
                     i += entity.Key.Length;
                     SkipParenthesisChars(expression, ref i);
-                    var result = EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, mathFunction.Fn());
+                    var result = mathFunction.Fn();
+                    result = EvaluateExponentiationDecimal(expression, context, provider, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
                     return true;
                 }
@@ -260,7 +259,7 @@ public partial class MathEvaluator
                     var fn = mathFunction.Fn;
                     var result = mathFunction.ClosingSymbol.HasValue
                         ? fn(EvaluateDecimal(expression, context, provider, ref i, null, mathFunction.ClosingSymbol, (int)EvalPrecedence.Unknown))
-                        : fn(EvaluateDecimal(expression, context, provider, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true));
+                        : fn(EvaluateOperandDecimal(expression, context, provider, ref i, separator, closingSymbol));
 
                     if (mathFunction.ClosingSymbol.HasValue)
                         i++;
