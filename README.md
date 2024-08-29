@@ -66,7 +66,7 @@ Examples of using string extentions:
 
     "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
-    "¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥".EvaluateBoolean(new ScientificMathContext());
+    "¬⊥∧⊤∨¬⊤⇒¬⊤".EvaluateBoolean(new ScientificMathContext());
 
 Examples of using static methods:
         
@@ -92,7 +92,7 @@ Examples of using static methods:
 
     MathEvaluator.EvaluateBoolean("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext());
 
-    MathEvaluator.EvaluateBoolean("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥", new ScientificMathContext());
+    MathEvaluator.EvaluateBoolean("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext());
 
 Examples of using an instance of the MathEvaluator class:
         
@@ -118,7 +118,7 @@ Examples of using an instance of the MathEvaluator class:
 
     new MathEvaluator("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
-    new MathEvaluator("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥⇎⊥)⇔⊥", new ScientificMathContext()).EvaluateBoolean();
+    new MathEvaluator("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
 
 Examples of using custom variables or functions:
         

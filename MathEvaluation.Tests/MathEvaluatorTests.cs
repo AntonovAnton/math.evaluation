@@ -9,13 +9,30 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     private readonly ScientificMathContext _scientificContext = new();
     private readonly ProgrammingMathContext _programmingContext = new();
 
+    [Fact]
+    public void MathEvaluator_Evaluate_Null_ThrowArgumentNullException()
+    {
+        var ex = Record.Exception(() => MathEvaluator.EvaluateDecimal(null!));
+        Assert.IsType<ArgumentNullException>(ex);
+    }
+
     [Theory]
-    [InlineData(null, double.NaN)]
-    [InlineData("", double.NaN)]
+    [InlineData("", "Expression is empty or white space. (Parameter 'expression')")]
+    [InlineData("   ", "Expression is empty or white space. (Parameter 'expression')")]
+    [InlineData("+", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
+    [InlineData("-", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
+    public void MathEvaluator_Evaluate_Empty_ThrowArgumentException(string expression,
+        string errorMessage)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
+        Assert.IsType<ArgumentException>(ex);
+        Assert.Equal(errorMessage, ex.Message);
+    }
+
+    [Theory]
     [InlineData("0/0", double.NaN)]
-    [InlineData("   ", double.NaN)]
-    [InlineData("+", double.NaN)]
-    [InlineData("-", double.NaN)]
     [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]

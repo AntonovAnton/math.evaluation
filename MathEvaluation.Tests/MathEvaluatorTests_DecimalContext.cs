@@ -19,8 +19,8 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
     [Theory]
     [InlineData("", "Expression is empty or white space. (Parameter 'expression')")]
     [InlineData("   ", "Expression is empty or white space. (Parameter 'expression')")]
-    [InlineData("+", "Expression cannot be evaluated. (Parameter 'expression')")]
-    [InlineData("-", "Expression cannot be evaluated. (Parameter 'expression')")]
+    [InlineData("+", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
+    [InlineData("-", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
     public void MathEvaluator_EvaluateDecimal_Empty_ThrowArgumentException(string expression,
         string errorMessage)
     {

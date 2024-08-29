@@ -61,12 +61,15 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
     public static double Evaluate(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
+        if (expression == null)
+            throw new ArgumentNullException(nameof(expression));
+
+        if (expression.IsWhiteSpace())
+            throw new ArgumentException("Expression is empty or white space.", nameof(expression));
+
+        var i = 0;
         try
         {
-            if (expression == null || expression.IsWhiteSpace())
-                return double.NaN;
-
-            var i = 0;
             var numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
             return Evaluate(expression, context, numberFormat, ref i, null, null, (int)EvalPrecedence.Unknown);
         }
@@ -75,6 +78,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             ex.Data[nameof(expression)] = expression.ToString();
             ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
+            ex.Data["position"] = i;
             throw;
         }
     }
@@ -173,8 +177,11 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             }
         }
 
-        if (!isOperand && value == default && !IsNotMeaningless(expression[start..i]))
-            return double.NaN;
+        if (value == default && !IsNotMeaningless(expression[start..i]))
+            if (isOperand)
+                throw new ArgumentException("Expression cannot be evaluated. The operand is not recognizable.", nameof(expression));
+            else
+                throw new ArgumentException("Expression cannot be evaluated. It is not recognizable.", nameof(expression));
 
         return value;
     }

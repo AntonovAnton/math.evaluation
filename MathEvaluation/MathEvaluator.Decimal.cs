@@ -55,15 +55,15 @@ public partial class MathEvaluator
     /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
+        if (expression == null)
+            throw new ArgumentNullException(nameof(expression));
+
+        if (expression.IsWhiteSpace())
+            throw new ArgumentException("Expression is empty or white space.", nameof(expression));
+
+        var i = 0;
         try
         {
-            if (expression == null)
-                throw new ArgumentNullException(nameof(expression));
-
-            if (expression.IsWhiteSpace())
-                throw new ArgumentException("Expression is empty or white space.", nameof(expression));
-
-            var i = 0;
             var numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
             return EvaluateDecimal(expression, context, numberFormat, ref i, null, null, (int)EvalPrecedence.Unknown);
         }
@@ -72,6 +72,7 @@ public partial class MathEvaluator
             ex.Data[nameof(expression)] = expression.ToString();
             ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
+            ex.Data["position"] = i;
             throw;
         }
     }
@@ -170,8 +171,11 @@ public partial class MathEvaluator
             }
         }
 
-        if (!isOperand && value == default && !IsNotMeaningless(expression[start..i]))
-            throw new ArgumentException("Expression cannot be evaluated.", nameof(expression));
+        if (value == default && !IsNotMeaningless(expression[start..i]))
+            if (isOperand)
+                throw new ArgumentException("Expression cannot be evaluated. The operand is not recognizable.", nameof(expression));
+            else
+                throw new ArgumentException("Expression cannot be evaluated. It is not recognizable.", nameof(expression));
 
         return value;
     }
