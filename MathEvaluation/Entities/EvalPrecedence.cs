@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MathEvaluation.Context
+namespace MathEvaluation.Entities
 {
     /// <summary>
     /// Enumering precedence of math evaluation.

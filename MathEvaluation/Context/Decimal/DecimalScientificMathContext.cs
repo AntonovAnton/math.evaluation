@@ -1,4 +1,5 @@
 ﻿using System;
+using MathEvaluation.Entities;
 using MathTrigonometric;
 
 namespace MathEvaluation.Context.Decimal;
