@@ -95,6 +95,24 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("pow(1,257, 2)", 1.257 * 1.257, "ru-RU")]
+    [InlineData("pow(1,257, 2)", 1257 * 1257, "en-US")]
+    [InlineData("pow(,23, 2)", 0.23 * 0.23, "af")]
+    [InlineData("pow( \r\n\t,23, 2)", 0.23 * 0.23, "af")]
+    [InlineData("pow( \r\n\t,23, ,2 * 10)", 0.23 * 0.23, "af")]
+    public void MathEvaluator_Evaluate_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string expression, double expectedValue, string cultureName)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var context = new MathContext();
+        context.BindFunction(Math.Pow, "pow");
+
+        var value = MathEvaluator.Evaluate(expression, context, new CultureInfo(cultureName));
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
     [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
     public void MathEvaluator_Evaluate_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string expression, string? cultureName, double expectedValue)
