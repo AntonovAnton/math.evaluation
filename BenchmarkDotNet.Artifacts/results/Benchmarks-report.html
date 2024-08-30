@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Benchmarks-20240830-204405</title>
+<title>Benchmarks-20240830-213336</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -25,14 +25,14 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4112/23H2/2023Update/SunValley3
 <table>
 <thead><tr><th>Method                                                                            </th><th>Job</th><th>Runtime</th><th>Mean </th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>689.9295 ns</td><td>2.8689 ns</td><td>2.5432 ns</td><td>689.6423 ns</td><td>-</td><td>-</td>
+</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>694.6406 ns</td><td>2.5360 ns</td><td>2.2481 ns</td><td>694.8585 ns</td><td>-</td><td>-</td>
 </tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>0.0000 ns</td><td>0.0000 ns</td><td>0.0000 ns</td><td>0.0000 ns</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>480.7071 ns</td><td>5.4809 ns</td><td>4.8587 ns</td><td>478.9223 ns</td><td>0.0019</td><td>32 B</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>620.5838 ns</td><td>2.1326 ns</td><td>1.8905 ns</td><td>620.7232 ns</td><td>0.0172</td><td>216 B</td>
-</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>574.8492 ns</td><td>2.6266 ns</td><td>2.4569 ns</td><td>575.0673 ns</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>0.0007 ns</td><td>0.0015 ns</td><td>0.0012 ns</td><td>0.0000 ns</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>394.8733 ns</td><td>0.9340 ns</td><td>0.8279 ns</td><td>394.8194 ns</td><td>0.0024</td><td>32 B</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>399.5120 ns</td><td>7.9095 ns</td><td>10.5590 ns</td><td>399.6573 ns</td><td>0.0172</td><td>216 B</td>
+</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>471.4371 ns</td><td>8.2864 ns</td><td>7.7511 ns</td><td>467.0298 ns</td><td>0.0019</td><td>32 B</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>619.2508 ns</td><td>1.8618 ns</td><td>1.6505 ns</td><td>619.0101 ns</td><td>0.0172</td><td>216 B</td>
+</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>619.6860 ns</td><td>2.0152 ns</td><td>1.7864 ns</td><td>619.4234 ns</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>0.0089 ns</td><td>0.0104 ns</td><td>0.0098 ns</td><td>0.0025 ns</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>390.6268 ns</td><td>0.8966 ns</td><td>0.8387 ns</td><td>390.4156 ns</td><td>0.0024</td><td>32 B</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>415.1494 ns</td><td>4.4285 ns</td><td>4.1424 ns</td><td>414.5584 ns</td><td>0.0172</td><td>216 B</td>
 </tr></tbody></table>
 </body>
 </html>

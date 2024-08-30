@@ -350,28 +350,27 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         var start = i;
         while (expression.Length > i)
         {
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '\u202f' or '\u00a0' or '٫' or '’' or '٬' or '⹁' &&
+            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' &&
                 (!separator.HasValue || expression[i] != separator.Value) &&
                 (!closingSymbol.HasValue || expression[i] != closingSymbol.Value))
             {
                 i++;
-            }
-            else if (expression[i] is 'e' or 'E') //an exponential notation number
-            {
-                i++;
-                if (expression.Length > i && expression[i] is '-' or '+')
-                    i++;
-            }
-            else if (IsNumberFormatSeparator(expression, numberFormat?.NumberGroupSeparator, ref i) ||
-                IsNumberFormatSeparator(expression, numberFormat?.NumberDecimalSeparator, ref i))
                 continue;
-            else
-                break;
-        }
+            }
 
-        //if the last symbol is 'e' it's the natural logarithmic base constant
-        if (expression[i - 1] is 'e')
-            i--;
+            //an exponential notation number
+            if (expression[i] is 'e' or 'E' && expression.Length > i + 1 &&
+                expression[i + 1] is >= '0' and <= '9' or '-' or '+')
+            {
+                i += 2;
+                continue;
+            }
+
+            if (IsNumberFormatSeparator(expression, numberFormat?.NumberDecimalSeparator, ref i) ||
+                IsNumberFormatSeparator(expression, numberFormat?.NumberGroupSeparator, ref i))
+                continue;
+            break;
+        }
 
         return expression[start..i];
 
