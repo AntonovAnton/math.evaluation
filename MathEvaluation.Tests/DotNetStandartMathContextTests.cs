@@ -312,7 +312,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Log(100)", 4.6051701859880918d)]
     [InlineData("Math.Log(-100)", double.NaN)]
     [InlineData("Math.Log(double.PositiveInfinity)", double.PositiveInfinity)]
-    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt((1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
+    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathEvaluator_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -376,7 +376,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("Math.Log(1/x + Math.Sqrt((1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("PI", $"{nameof(Math.PI)}", Math.PI, Math.PI)]

@@ -9,50 +9,30 @@ namespace MathEvaluation;
 public partial class MathEvaluator
 {
     /// <inheritdoc cref="Evaluate(IFormatProvider?)"/>
-    /// <exception cref="System.ArgumentNullException">expression</exception>
-    /// <exception cref="System.ArgumentException">expression</exception>
-    /// <exception cref="System.OverflowException">expression</exception>
-    /// <exception cref="System.DivideByZeroException">expression</exception>
     public decimal EvaluateDecimal(IFormatProvider? provider = null)
     {
         return EvaluateDecimal(Expression.AsSpan(), Context, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
-    /// <exception cref="System.ArgumentNullException">expression</exception>
-    /// <exception cref="System.ArgumentException">expression</exception>
-    /// <exception cref="System.OverflowException">expression</exception>
-    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), null, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
-    /// <exception cref="System.ArgumentNullException">expression</exception>
-    /// <exception cref="System.ArgumentException">expression</exception>
-    /// <exception cref="System.OverflowException">expression</exception>
-    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression, null, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
-    /// <exception cref="System.ArgumentNullException">expression</exception>
-    /// <exception cref="System.ArgumentException">expression</exception>
-    /// <exception cref="System.OverflowException">expression</exception>
-    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return EvaluateDecimal(expression.AsSpan(), context, provider);
     }
 
     /// <inheritdoc cref="Evaluate(string, IMathContext?, IFormatProvider?)"/>
-    /// <exception cref="System.ArgumentNullException">expression</exception>
-    /// <exception cref="System.ArgumentException">expression</exception>
-    /// <exception cref="System.OverflowException">expression</exception>
-    /// <exception cref="System.DivideByZeroException">expression</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> expression, IMathContext? context, IFormatProvider? provider = null)
     {
         if (expression == null)
@@ -61,19 +41,19 @@ public partial class MathEvaluator
         if (expression.IsWhiteSpace())
             throw new ArgumentException("Expression is empty or white space.", nameof(expression));
 
-        var i = 0;
         try
         {
             var numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
+            var i = 0;
             return EvaluateDecimal(expression, context, numberFormat, ref i, null, null, (int)EvalPrecedence.Unknown);
         }
         catch (Exception ex)
         {
+            ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
             ex.Data[nameof(expression)] = expression.ToString();
             ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
-            ex.Data["position"] = i;
-            throw;
+            throw ex;
         }
     }
 
@@ -85,14 +65,14 @@ public partial class MathEvaluator
         var start = i;
         while (expression.Length > i)
         {
-            if (separator.HasValue && expression[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i])))
+            if ((separator.HasValue && expression[i] == separator.Value &&
+                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i]))) ||
+                (closingSymbol.HasValue && expression[i] == closingSymbol.Value))
+            {
+                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
                 return value;
-
-            if (closingSymbol.HasValue && expression[i] == closingSymbol.Value)
-                return value;
-
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator)
+            }
+            else if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
             {
                 if (isOperand)
                     return EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -107,9 +87,10 @@ public partial class MathEvaluator
                     if (precedence >= (int)EvalPrecedence.Function)
                         return value;
 
+                    var startParenthesis = i;
                     i++;
                     var result = EvaluateDecimal(expression, context, numberFormat, ref i, null, ')', (int)EvalPrecedence.Unknown);
-                    i++;
+                    ThrowExceptionIfNotClosed(expression, ')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
 
@@ -171,21 +152,21 @@ public partial class MathEvaluator
             }
         }
 
-        if (value == default && !IsNotMeaningless(expression[start..i]))
-            if (isOperand)
-                throw new ArgumentException("Expression cannot be evaluated. The operand is not recognizable.", nameof(expression));
-            else
-                throw new ArgumentException("Expression cannot be evaluated. It is not recognizable.", nameof(expression));
-
+        ThrowExceptionIfNotEvaluated(expression, value, isOperand, start, i);
         return value;
     }
 
     private static decimal EvaluateOperandDecimal(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol)
-        => EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+    {
+        var start = i;
+        var value = EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+        return value;
+    }
 
     private static decimal EvaluateMathEntityDecimal(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
-        ref int i, char? separator, char? closingSymbol, int precedence, decimal value, IMathEntity? entity = null, bool throwOnUnsupported = true)
+        ref int i, char? separator, char? closingSymbol, int precedence, decimal value, IMathEntity? entity = null, bool throwError = true)
     {
         if (entity != null && entity.Precedence >= precedence)
         {
@@ -197,13 +178,13 @@ public partial class MathEvaluator
                 return (decimal)doubleValue;
         }
 
-        if (!throwOnUnsupported)
+        if (!throwError)
             return value;
 
         var end = expression[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
         var unknownSubstring = end > i ? expression[i..end] : expression[i..];
 
-        throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported.");
+        throw new MathEvaluationException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
     }
 
     private static decimal EvaluateExponentiationDecimal(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
@@ -221,6 +202,7 @@ public partial class MathEvaluator
     private static bool TryEvaluateContextDecimal(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol, ref decimal value)
     {
+        var start = i;
         switch (entity)
         {
             case MathVariable<decimal> mathVariable:
@@ -275,7 +257,7 @@ public partial class MathEvaluator
                         : fn(EvaluateOperandDecimal(expression, context, numberFormat, ref i, separator, closingSymbol));
 
                     if (mathFunction.ClosingSymbol.HasValue)
-                        i++;
+                        ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol.Value, start, ref i);
 
                     result = EvaluateExponentiationDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -295,9 +277,9 @@ public partial class MathEvaluator
                         args.Add(arg);
 
                         //closing
-                        if (expression.Length <= i || expression[i] != mathFunction.Separator)
+                        if (expression[i] != mathFunction.Separator)
                         {
-                            i++;
+                            ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol, start, ref i);
                             break;
                         }
 
@@ -320,5 +302,12 @@ public partial class MathEvaluator
     {
         var str = GetNumberString(expression, numberFormat, ref i, separator, closingSymbol);
         return decimal.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+    }
+
+    private static void ThrowExceptionIfNotEvaluated(
+        ReadOnlySpan<char> expression, decimal value, bool isOperand, int invalidTokenPosition, int i)
+    {
+        if (value == default && !IsNotMeaningless(expression[invalidTokenPosition..i]))
+            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 }

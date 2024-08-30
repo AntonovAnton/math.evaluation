@@ -256,7 +256,7 @@ DotNetStandartMathContext is the .NET Standart 2.1 programming math context supp
 
 Example of evaluating C# expression:
 
-    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L)".Evaluate(new DotNetStandartMathContext());
+    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandartMathContext());
 
 *NOTE: More math functions could be added to the math expression evaluator based on user needs.*
 

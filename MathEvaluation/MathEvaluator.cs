@@ -11,30 +11,32 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathEvaluator(string expression, IMathContext? context = null)
 {
-    /// <summary>Gets the math expression.</summary>
-    /// <value>The math expression.</value>
+    /// <summary>Gets the math expression string.</summary>
+    /// <value>The math expression string.</value>
     public string Expression { get; } = expression;
 
     /// <summary>Gets the math context.</summary>
     /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
     public IMathContext? Context { get; internal set; } = context;
 
-    /// <summary>Evaluates the <see cref="Expression">math expression</see>.</summary>
+    /// <summary>Evaluates the <see cref="Expression">math expression string</see>.</summary>
     /// <param name="provider">The specified format provider.</param>
     /// <returns>Value of the math expression.</returns>
-    /// <exception cref="FormatException"></exception>
-    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="ArgumentNullException">expression</exception>
+    /// <exception cref="ArgumentException">expression</exception>
+    /// <exception cref="MathEvaluationException">expression</exception>
     public double Evaluate(IFormatProvider? provider = null)
     {
         return Evaluate(Expression.AsSpan(), Context, provider);
     }
 
-    /// <summary>Evaluates the math <paramref name="expression" />.</summary>
-    /// <param name="expression">The math expression.</param>
+    /// <summary>Evaluates the math <paramref name="expression" /> string.</summary>
+    /// <param name="expression">The math expression string.</param>
     /// <param name="provider">The specified format provider.</param>
     /// <returns>Value of the math expression.</returns>
-    /// <exception cref="FormatException"></exception>
-    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="ArgumentNullException">expression</exception>
+    /// <exception cref="ArgumentException">expression</exception>
+    /// <exception cref="MathEvaluationException">expression</exception>
     public static double Evaluate(string expression, IFormatProvider? provider = null)
     {
         return Evaluate(expression.AsSpan(), null, provider);
@@ -46,13 +48,10 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         return Evaluate(expression, null, provider);
     }
 
-    /// <summary>Evaluates the math <paramref name="expression" />.</summary>
-    /// <param name="expression">The math expression.</param>
+    /// <inheritdoc cref="Evaluate(string, IFormatProvider?)"/>
+    /// <param name="expression">The math expression string.</param>
     /// <param name="context">The specified math context.</param>
     /// <param name="provider">The specified format provider.</param>
-    /// <returns>Value of the math expression.</returns>
-    /// <exception cref="FormatException"></exception>
-    /// <exception cref="NotSupportedException"></exception>
     public static double Evaluate(string expression, IMathContext? context, IFormatProvider? provider = null)
     {
         return Evaluate(expression.AsSpan(), context, provider);
@@ -67,19 +66,19 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         if (expression.IsWhiteSpace())
             throw new ArgumentException("Expression is empty or white space.", nameof(expression));
 
-        var i = 0;
         try
         {
             var numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
+            var i = 0;
             return Evaluate(expression, context, numberFormat, ref i, null, null, (int)EvalPrecedence.Unknown);
         }
         catch (Exception ex)
         {
+            ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
             ex.Data[nameof(expression)] = expression.ToString();
             ex.Data[nameof(context)] = context;
             ex.Data[nameof(provider)] = provider;
-            ex.Data["position"] = i;
-            throw;
+            throw ex;
         }
     }
 
@@ -91,14 +90,14 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         var start = i;
         while (expression.Length > i)
         {
-            if (separator.HasValue && expression[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i])))
+            if ((separator.HasValue && expression[i] == separator.Value &&
+                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i]))) ||
+                (closingSymbol.HasValue && expression[i] == closingSymbol.Value))
+            {
+                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
                 return value;
-
-            if (closingSymbol.HasValue && expression[i] == closingSymbol.Value)
-                return value;
-
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator)
+            }
+            else if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
             {
                 if (isOperand)
                     return Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -113,9 +112,10 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     if (precedence >= (int)EvalPrecedence.Function)
                         return value;
 
+                    var startParenthesis = i;
                     i++;
                     var result = Evaluate(expression, context, numberFormat, ref i, null, ')', (int)EvalPrecedence.Unknown);
-                    i++;
+                    ThrowExceptionIfNotClosed(expression, ')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
 
@@ -177,21 +177,21 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             }
         }
 
-        if (value == default && !IsNotMeaningless(expression[start..i]))
-            if (isOperand)
-                throw new ArgumentException("Expression cannot be evaluated. The operand is not recognizable.", nameof(expression));
-            else
-                throw new ArgumentException("Expression cannot be evaluated. It is not recognizable.", nameof(expression));
-
+        ThrowExceptionIfNotEvaluated(expression, value, isOperand, start, i);
         return value;
     }
 
     private static double EvaluateOperand(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol)
-        => Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+    {
+        var start = i;
+        var value = Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+        return value;
+    }
 
     private static double EvaluateMathEntity(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
-        ref int i, char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity, bool throwOnUnsupported = true)
+        ref int i, char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity, bool throwError = true)
     {
         if (entity != null && entity.Precedence >= precedence)
         {
@@ -203,13 +203,13 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 return (double)decimalValue;
         }
 
-        if (!throwOnUnsupported)
+        if (!throwError)
             return value;
 
         var end = expression[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
         var unknownSubstring = end > i ? expression[i..end] : expression[i..];
 
-        throw new NotSupportedException($"'{unknownSubstring.ToString()}' isn't supported.");
+        throw new MathEvaluationException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
     }
 
     private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
@@ -227,6 +227,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     private static bool TryEvaluateContext(ReadOnlySpan<char> expression, IMathContext context, IMathEntity entity, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol, ref double value)
     {
+        var start = i;
         switch (entity)
         {
             case MathVariable<double> mathVariable:
@@ -281,7 +282,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         : fn(EvaluateOperand(expression, context, numberFormat, ref i, separator, closingSymbol));
 
                     if (mathFunction.ClosingSymbol.HasValue)
-                        i++;
+                        ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol.Value, start, ref i);
 
                     result = EvaluateExponentiation(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -301,9 +302,9 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         args.Add(arg);
 
                         //closing
-                        if (expression.Length <= i || expression[i] != mathFunction.Separator)
+                        if (expression[i] != mathFunction.Separator)
                         {
-                            i++;
+                            ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol, start, ref i);
                             break;
                         }
 
@@ -399,8 +400,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         {
             i++;
             SkipMeaninglessChars(expression, ref i);
-            if (expression.Length > i && expression[i] == ')')
-                i++;
+            ThrowExceptionIfNotClosed(expression, ')', i, ref i);
         }
     }
 
@@ -429,4 +429,19 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     /// </returns>
     private static bool IsMeaningless(char c)
         => c is ' ' or '\t' or '\n' or '\r';
+
+    private static void ThrowExceptionIfNotEvaluated(
+        ReadOnlySpan<char> expression, double value, bool isOperand, int invalidTokenPosition, int i)
+    {
+        if (value == default && !IsNotMeaningless(expression[invalidTokenPosition..i]))
+            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
+    }
+
+    private static void ThrowExceptionIfNotClosed(
+        ReadOnlySpan<char> expression, char closingSymbol, int invalidTokenPosition, ref int i)
+    {
+        if (expression.Length <= i || expression[i] != closingSymbol)
+            throw new MathEvaluationException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
+        i++;
+    }
 }

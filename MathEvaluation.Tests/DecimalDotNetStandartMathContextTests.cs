@@ -260,7 +260,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Log(10, Math.E)", 2.3025850929940459d)]
     [InlineData("Math.Log(Math.E)", 1d)]
     [InlineData("Math.Log(100)", 4.6051701859880918d)]
-    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt((1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
+    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathEvaluator_EvaluateDecimal_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -324,7 +324,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("Math.Log(1/x + Math.Sqrt((1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("PI", $"{nameof(Math.PI)}", Math.PI, Math.PI)]
@@ -393,6 +393,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.EvaluateDecimal(expression, _context));
-        Assert.IsType<OverflowException>(ex);
+        Assert.IsType<MathEvaluationException>(ex);
+        Assert.IsType<OverflowException>(ex.InnerException);
     }
 }

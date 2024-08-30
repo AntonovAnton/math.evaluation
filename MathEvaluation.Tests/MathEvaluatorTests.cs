@@ -19,8 +19,6 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("", "Expression is empty or white space. (Parameter 'expression')")]
     [InlineData("   ", "Expression is empty or white space. (Parameter 'expression')")]
-    [InlineData("+", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
-    [InlineData("-", "Expression cannot be evaluated. It is not recognizable. (Parameter 'expression')")]
     public void MathEvaluator_Evaluate_Empty_ThrowArgumentException(string expression,
         string errorMessage)
     {
@@ -28,6 +26,19 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
         Assert.IsType<ArgumentException>(ex);
+        Assert.Equal(errorMessage, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("+", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
+    [InlineData("-", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
+    public void MathEvaluator_Evaluate_Empty_ThrowMathEvaluationException(string expression,
+        string errorMessage)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
+        Assert.IsType<MathEvaluationException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
 
@@ -509,20 +520,22 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, _scientificContext));
-        Assert.IsType<ArgumentException>(ex);
-        Assert.Equal("Not integer number 0.2 isn't supported by the factorial function.", ex.Message);
+        Assert.IsType<MathEvaluationException>(ex);
+        Assert.IsType<ArgumentException>(ex.InnerException);
+
+        Assert.Equal("Error of evaluating the expression. Not integer number 0.2 isn't supported by the factorial function.", ex.Message);
+        Assert.Equal("Not integer number 0.2 isn't supported by the factorial function.", ex.InnerException.Message);
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "'ctng' isn't supported.")]
-    [InlineData("p", "'p' isn't supported.")]
-    public void MathEvaluator_Evaluate_HasNotSupportedFn_ThrowNotSupportedException(string expression,
-        string errorMessage)
+    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable. Invalid token at position 4.")]
+    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable. Invalid token at position 0.")]
+    public void MathEvaluator_Evaluate_HasUnknowToken_ThrowMathEvaluationException(string expression, string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
-        Assert.IsType<NotSupportedException>(ex);
+        Assert.IsType<MathEvaluationException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
 
@@ -534,7 +547,34 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, cultureInfo));
-        Assert.IsType<FormatException>(ex);
-        Assert.Equal("The input string '888,32' was not in a correct format.", ex.Message);
+        Assert.IsType<MathEvaluationException>(ex);
+        Assert.IsType<FormatException>(ex.InnerException);
+        Assert.Equal("Error of evaluating the expression. The input string '888,32' was not in a correct format.", ex.Message);
+        Assert.Equal("The input string '888,32' was not in a correct format.", ex.InnerException.Message);
+    }
+
+    [Theory]
+    [InlineData("12 + 3 * (120 +5", "Error of evaluating the expression. It doesn't have the ')' closing symbol. Invalid token at position 9.")]
+    [InlineData("abs(1/.5 + √(1/(0.5*0.5) + 1)", "Error of evaluating the expression. It doesn't have the ')' closing symbol. Invalid token at position 3.")]
+    [InlineData("2 - 5 * ⌈-10 / 2 - 1", "Error of evaluating the expression. It doesn't have the '⌉' closing symbol. Invalid token at position 8.")]
+    public void MathEvaluator_Evaluate_ParenthesesOrFuncAreNotClosed_ThrowMathEvaluationException(string expression, string errorMessage)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, _scientificContext));
+        Assert.IsType<MathEvaluationException>(ex);
+        Assert.Equal(errorMessage, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("12 + abs()", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.")]
+    [InlineData("12 + abs / 1", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 8.")]
+    public void MathEvaluator_Evaluate_HasInvalidOperand_ThrowMathEvaluationException(string expression, string errorMessage)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, _scientificContext));
+        Assert.IsType<MathEvaluationException>(ex);
+        Assert.Equal(errorMessage, ex.Message);
     }
 }
