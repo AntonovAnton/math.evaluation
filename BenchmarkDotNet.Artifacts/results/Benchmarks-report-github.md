@@ -9,13 +9,11 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4112/23H2/2023Update/SunValley3
 
 
 ```
-| Method                                                                                   | Job      | Runtime  | Mean        | Error     | StdDev    | Median      | Gen0   | Allocated |
-|----------------------------------------------------------------------------------------- |--------- |--------- |------------:|----------:|----------:|------------:|-------:|----------:|
-| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 6.0 | .NET 6.0 | 694.6406 ns | 2.5360 ns | 2.2481 ns | 694.8585 ns |      - |         - |
-| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 6.0 | .NET 6.0 |   0.0000 ns | 0.0000 ns | 0.0000 ns |   0.0000 ns |      - |         - |
-| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 6.0 | .NET 6.0 | 471.4371 ns | 8.2864 ns | 7.7511 ns | 467.0298 ns | 0.0019 |      32 B |
-| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 6.0 | .NET 6.0 | 619.2508 ns | 1.8618 ns | 1.6505 ns | 619.0101 ns | 0.0172 |     216 B |
-| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 8.0 | .NET 8.0 | 619.6860 ns | 2.0152 ns | 1.7864 ns | 619.4234 ns |      - |         - |
-| &#39;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6)&#39;                             | .NET 8.0 | .NET 8.0 |   0.0089 ns | 0.0104 ns | 0.0098 ns |   0.0025 ns |      - |         - |
-| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 8.0 | .NET 8.0 | 390.6268 ns | 0.8966 ns | 0.8387 ns | 390.4156 ns | 0.0024 |      32 B |
-| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 8.0 | .NET 8.0 | 415.1494 ns | 4.4285 ns | 4.1424 ns | 414.5584 ns | 0.0172 |     216 B |
+| Method                                                                                   | Job      | Runtime  | Mean     | Error   | StdDev  | Gen0   | Allocated |
+|----------------------------------------------------------------------------------------- |--------- |--------- |---------:|--------:|--------:|-------:|----------:|
+| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 6.0 | .NET 6.0 | 681.1 ns | 2.68 ns | 2.51 ns |      - |         - |
+| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 6.0 | .NET 6.0 | 472.1 ns | 2.50 ns | 2.34 ns | 0.0019 |      32 B |
+| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 6.0 | .NET 6.0 | 621.7 ns | 3.26 ns | 2.89 ns | 0.0172 |     216 B |
+| &#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;                 | .NET 8.0 | .NET 8.0 | 587.9 ns | 2.47 ns | 2.19 ns |      - |         - |
+| &#39;&quot;sin(pi/6) + cos(pi/3)&quot;.SetContext(_scientificContext).Evaluate()&#39;                      | .NET 8.0 | .NET 8.0 | 381.1 ns | 0.74 ns | 0.62 ns | 0.0024 |      32 B |
+| &#39;&quot;sin(a) + cos(b)&quot;.SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()&#39; | .NET 8.0 | .NET 8.0 | 401.8 ns | 7.21 ns | 6.75 ns | 0.0172 |     216 B |

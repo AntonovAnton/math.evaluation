@@ -103,7 +103,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 return value;
             }
 
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
+            if (expression[i] is >= '0' and <= '9' || expression[i] == decimalSeparator) //number
             {
                 if (isOperand)
                     return Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -350,9 +350,8 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         var start = i;
         while (expression.Length > i)
         {
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' &&
-                (!separator.HasValue || expression[i] != separator.Value) &&
-                (!closingSymbol.HasValue || expression[i] != closingSymbol.Value))
+            if (expression[i] is >= '0' and <= '9' ||
+                numberFormat?.NumberDecimalSeparator == null && expression[i] is '.')
             {
                 i++;
                 continue;
@@ -366,15 +365,15 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 continue;
             }
 
-            if (IsNumberFormatSeparator(expression, numberFormat?.NumberDecimalSeparator, ref i) ||
-                IsNumberFormatSeparator(expression, numberFormat?.NumberGroupSeparator, ref i))
+            if (TryParseNumberFormatSeparator(expression, numberFormat?.NumberDecimalSeparator, ref i) ||
+                TryParseNumberFormatSeparator(expression, numberFormat?.NumberGroupSeparator, ref i))
                 continue;
             break;
         }
 
         return expression[start..i];
 
-        static bool IsNumberFormatSeparator(ReadOnlySpan<char> expression, string? numberFormatSeparator, ref int i)
+        static bool TryParseNumberFormatSeparator(ReadOnlySpan<char> expression, string? numberFormatSeparator, ref int i)
         {
             if (string.IsNullOrEmpty(numberFormatSeparator) ||
                 !expression[i..].StartsWith(numberFormatSeparator) ||

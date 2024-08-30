@@ -78,7 +78,7 @@ public partial class MathEvaluator
                 return value;
             }
 
-            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
+            if (expression[i] is >= '0' and <= '9' || expression[i] == decimalSeparator) //number
             {
                 if (isOperand)
                     return EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);

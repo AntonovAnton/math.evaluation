@@ -542,15 +542,14 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void MathEvaluator_Evaluate_HasIncorrectNumberFormat_ThrowFormatException()
     {
-        var expression = "888,32 CHF";
-        var cultureInfo = new CultureInfo("de-CH");
+        var expression = "888e3.2";
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression, cultureInfo));
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(expression));
         Assert.IsType<MathEvaluationException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
-        Assert.Equal("Error of evaluating the expression. The input string '888,32' was not in a correct format.", ex.Message);
-        Assert.Equal("The input string '888,32' was not in a correct format.", ex.InnerException.Message);
+        Assert.Equal("Error of evaluating the expression. The input string '888e3.2' was not in a correct format.", ex.Message);
+        Assert.Equal("The input string '888e3.2' was not in a correct format.", ex.InnerException.Message);
     }
 
     [Theory]
