@@ -90,14 +90,20 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         var start = i;
         while (expression.Length > i)
         {
-            if ((separator.HasValue && expression[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i]))) ||
-                (closingSymbol.HasValue && expression[i] == closingSymbol.Value))
+            if (separator.HasValue && expression[i] == separator.Value &&
+                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i])))
             {
                 ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
                 return value;
             }
-            else if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
+
+            if (closingSymbol.HasValue && expression[i] == closingSymbol.Value)
+            {
+                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+                return value;
+            }
+
+            if (expression[i] is >= '0' and <= '9' or '.' or ',' or '٫' || expression[i] == decimalSeparator) //number
             {
                 if (isOperand)
                     return Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
