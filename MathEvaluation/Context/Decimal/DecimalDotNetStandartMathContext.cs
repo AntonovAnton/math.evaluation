@@ -114,7 +114,7 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindFunction((decimal val1, decimal val2) => Math.Max(val1, val2), "Math.Max");
         BindFunction((decimal val1, decimal val2) => Math.Min(val1, val2), "Math.Min");
         BindFunction(Math.Pow);
-        BindFunction((decimal value) => Math.Round(value), "Math.Round");
+        BindFunction((decimal[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]), "Math.Round");
         BindFunction((decimal value) => Math.Sign(value), "Math.Sign");
         BindFunction(Math.Sin);
         BindFunction(Math.Sinh);

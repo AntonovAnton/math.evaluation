@@ -324,6 +324,23 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
+    [InlineData("Math.Round(-20.3)", -20d)]
+    [InlineData("-Math.Round(20.3)", -20d)]
+    [InlineData("-Math.Round(20.3474, 2)", -20.35d)]
+    [InlineData("-Math.Round(20.3434, 2)", -20.34d)]
+    [InlineData("Math.Round(-0.1)", 0d)]
+    [InlineData("Math.Round(-0.1, 0)", 0d)]
+    [InlineData("Math.Round(-0.1, 1)", -0.1d)]
+    public void MathEvaluator_EvaluateDecimal_HasRound_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.EvaluateDecimal(expression, _context);
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]

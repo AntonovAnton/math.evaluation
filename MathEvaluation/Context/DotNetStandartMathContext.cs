@@ -114,7 +114,7 @@ public class DotNetStandartMathContext : MathContext
         BindFunction((double val1, double val2) => Math.Max(val1, val2), "Math.Max");
         BindFunction((double val1, double val2) => Math.Min(val1, val2), "Math.Min");
         BindFunction(Math.Pow);
-        BindFunction((double value) => Math.Round(value), "Math.Round");
+        BindFunction((double[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]), "Math.Round");
         BindFunction((double value) => Math.Sign(value), "Math.Sign");
         BindFunction(Math.Sin);
         BindFunction(Math.Sinh);
