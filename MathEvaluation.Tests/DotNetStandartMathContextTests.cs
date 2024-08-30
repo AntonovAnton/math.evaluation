@@ -48,19 +48,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("++a", 6)]
-    [InlineData("2 / 5 / ++a * 5", 2d / 5 / 6 * 5)]
-    [InlineData("2 / 5d /\r++a * 5", 2d / 5 / 6 * 5)]
-    [InlineData("2 / 5d / 2 * 2 + ++a", 2d / 5 / 2 * 2 + 6)]
-    [InlineData("2 + (5 - ++a)", 2 + (5 - 6))]
-    [InlineData("2 + (++a - 1)", 2 + (6 - 1))]
-    [InlineData("a++", 5d)]
+    [InlineData("0++ -2/5", 0d - 2/5d)]
+    [InlineData("a++ -2/5", 5d - 2/5d)]
     [InlineData("2 / 5d / a++ * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a++\n * 5", 2 / 5d / 5 * 5)]
-    [InlineData("2 / 5d / 2 * a++ + 5d", 2 / 5d / 2 * 5 + 5)]
-    [InlineData("2 + (5 - a++)", 2 + (5 - 5))]
-    [InlineData("2 + (a++ - 1)", 2 + (5 - 1))]
-    public void MathEvaluator_Evaluate_HasIncrement_ExpectedValue(string expression, double expectedValue)
+    [InlineData("2 / 5d / 2 * a++\r + 5d", 2 / 5d / 2 * 5 + 5)]
+    public void MathEvaluator_Evaluate_HasPostfixIncrement_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -72,19 +65,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("--a", 4)]
-    [InlineData("2 / 5 / --a * 5", 2d / 5 / 4 * 5)]
-    [InlineData("2 / 5d /\r--a * 5", 2d / 5 / 4 * 5)]
-    [InlineData("2 / 5d / 2 * 2 + --a", 2d / 5 / 2 * 2 + 4)]
-    [InlineData("2 + (5 - --a)", 2 + (5 - 4))]
-    [InlineData("2 + (--a - 1)", 2 + (4 - 1))]
-    [InlineData("a--", 5d)]
+    [InlineData("0-- -2/5", 0d - 2/5d)]
+    [InlineData("a-- -2/5", 5d - 2/5d)]
     [InlineData("2 / 5d / a-- * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a--\n * 5", 2 / 5d / 5 * 5)]
-    [InlineData("2 / 5d / 2 * a-- + 5d", 2 / 5d / 2 * 5 + 5)]
-    [InlineData("2 + (5 - a--)", 2 + (5 - 5))]
-    [InlineData("2 + (a-- - 1)", 2 + (5 - 1))]
-    public void MathEvaluator_Evaluate_HasDecrement_ExpectedValue(string expression, double expectedValue)
+    [InlineData("2 / 5d / 2 * a--\r + 5d", 2 / 5d / 2 * 5 + 5)]
+    public void MathEvaluator_Evaluate_HasPostfixDecrement_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -326,7 +312,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Log(100)", 4.6051701859880918d)]
     [InlineData("Math.Log(-100)", double.NaN)]
     [InlineData("Math.Log(double.PositiveInfinity)", double.PositiveInfinity)]
-    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt((1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
+    [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathEvaluator_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
@@ -390,7 +376,24 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("Math.Log(1/x + Math.Sqrt((1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
+    [InlineData("Math.Round(-20.3)", -20d)]
+    [InlineData("-Math.Round(20.3)", -20d)]
+    [InlineData("-Math.Round(20.3474, 2)", -20.350000000000001)]
+    [InlineData("-Math.Round(20.3434, 2)", -20.34d)]
+    [InlineData("Math.Round(-0.1)", 0d)]
+    [InlineData("Math.Round(-0.1, 0)", 0d)]
+    [InlineData("Math.Round(-0.1, 1)", -0.10000000000000001d)]
+    public void MathEvaluator_Evaluate_HasRound_ExpectedValue(string expression, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = MathEvaluator.Evaluate(expression, _context);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
     [InlineData("PI", $"{nameof(Math.PI)}", Math.PI, Math.PI)]

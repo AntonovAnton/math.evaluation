@@ -1,4 +1,5 @@
 ﻿using System;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
 

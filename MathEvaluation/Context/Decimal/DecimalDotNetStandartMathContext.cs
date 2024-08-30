@@ -1,4 +1,5 @@
 ﻿using System;
+using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context.Decimal;
 
@@ -59,35 +60,17 @@ public class DecimalDotNetStandartMathContext : MathContext
         static decimal bitwiseComplementFn(decimal right) => ~(long)right;
         BindOperandOperator(bitwiseComplementFn, '~');
 
-        static decimal incrementFn(decimal left, decimal right) => left == default ? ++right : left++;
-        BindOperandsOperator(incrementFn, "++", (int)EvalPrecedence.OperandUnaryOperator);
-
         static decimal postfixIncrementFn(decimal left) => left++;
         BindOperandOperator(postfixIncrementFn, "++ ", true);
         BindOperandOperator(postfixIncrementFn, "++\t", true);
         BindOperandOperator(postfixIncrementFn, "++\r", true);
         BindOperandOperator(postfixIncrementFn, "++\n", true);
 
-        static decimal prefixIncrementFn(decimal right) => ++right;
-        BindOperandOperator(prefixIncrementFn, " ++");
-        BindOperandOperator(prefixIncrementFn, "\t++");
-        BindOperandOperator(prefixIncrementFn, "\r++");
-        BindOperandOperator(prefixIncrementFn, "\n++");
-
-        static decimal decrementFn(decimal left, decimal right) => left == default ? --right : left--;
-        BindOperandsOperator(decrementFn, "--", (int)EvalPrecedence.OperandUnaryOperator);
-
         static decimal postfixDecrementFn(decimal left) => left--;
         BindOperandOperator(postfixDecrementFn, "-- ", true);
         BindOperandOperator(postfixDecrementFn, "--\t", true);
         BindOperandOperator(postfixDecrementFn, "--\r", true);
         BindOperandOperator(postfixDecrementFn, "--\n", true);
-
-        static decimal prefixDecrementFn(decimal right) => --right;
-        BindOperandOperator(prefixDecrementFn, " --");
-        BindOperandOperator(prefixDecrementFn, "\t--");
-        BindOperandOperator(prefixDecrementFn, "\r--");
-        BindOperandOperator(prefixDecrementFn, "\n--");
 
         BindOperandOperator((decimal value) => value, 'f', true);
         BindOperandOperator((decimal value) => value, 'd', true);
@@ -131,7 +114,7 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindFunction((decimal val1, decimal val2) => Math.Max(val1, val2), "Math.Max");
         BindFunction((decimal val1, decimal val2) => Math.Min(val1, val2), "Math.Min");
         BindFunction(Math.Pow);
-        BindFunction((decimal value) => Math.Round(value), "Math.Round");
+        BindFunction((decimal[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]), "Math.Round");
         BindFunction((decimal value) => Math.Sign(value), "Math.Sign");
         BindFunction(Math.Sin);
         BindFunction(Math.Sinh);
@@ -140,22 +123,6 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindFunction(Math.Tanh);
         BindFunction((decimal value) => Math.Truncate(value), "Math.Truncate");
 
-        BindVariable((decimal)byte.MaxValue, "byte.MaxValue");
-        BindVariable((decimal)byte.MinValue, "byte.MinValue");
-        BindVariable((decimal)sbyte.MaxValue, "sbyte.MaxValue");
-        BindVariable((decimal)sbyte.MinValue, "sbyte.MinValue");
-        BindVariable((decimal)short.MaxValue, "short.MaxValue");
-        BindVariable((decimal)short.MinValue, "short.MinValue");
-        BindVariable((decimal)ushort.MaxValue, "ushort.MaxValue");
-        BindVariable((decimal)ushort.MinValue, "ushort.MinValue");
-        BindVariable((decimal)int.MaxValue, "int.MaxValue");
-        BindVariable((decimal)int.MinValue, "int.MinValue");
-        BindVariable((decimal)uint.MaxValue, "uint.MaxValue");
-        BindVariable((decimal)uint.MinValue, "uint.MinValue");
-        BindVariable((decimal)long.MaxValue, "long.MaxValue");
-        BindVariable((decimal)long.MinValue, "long.MinValue");
-        BindVariable((decimal)ulong.MaxValue, "ulong.MaxValue");
-        BindVariable((decimal)ulong.MinValue, "ulong.MinValue");
         BindVariable(float.NaN);
         BindVariable(float.Epsilon);
         BindVariable(float.PositiveInfinity);
@@ -174,6 +141,36 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindVariable(decimal.MaxValue);
         BindVariable(decimal.MinValue);
 
+        BindVariable(Single.NaN);
+        BindVariable(Single.Epsilon);
+        BindVariable(Single.PositiveInfinity);
+        BindVariable(Single.NegativeInfinity);
+        BindVariable(Single.MaxValue);
+        BindVariable(Single.MinValue);
+        BindVariable(Double.NaN);
+        BindVariable(Double.Epsilon);
+        BindVariable(Double.PositiveInfinity);
+        BindVariable(Double.NegativeInfinity);
+        BindVariable(Double.MaxValue);
+        BindVariable(Double.MinValue);
+
+        BindVariable((decimal)byte.MaxValue, "byte.MaxValue");
+        BindVariable((decimal)byte.MinValue, "byte.MinValue");
+        BindVariable((decimal)sbyte.MaxValue, "sbyte.MaxValue");
+        BindVariable((decimal)sbyte.MinValue, "sbyte.MinValue");
+        BindVariable((decimal)short.MaxValue, "short.MaxValue");
+        BindVariable((decimal)short.MinValue, "short.MinValue");
+        BindVariable((decimal)ushort.MaxValue, "ushort.MaxValue");
+        BindVariable((decimal)ushort.MinValue, "ushort.MinValue");
+        BindVariable((decimal)int.MaxValue, "int.MaxValue");
+        BindVariable((decimal)int.MinValue, "int.MinValue");
+        BindVariable((decimal)uint.MaxValue, "uint.MaxValue");
+        BindVariable((decimal)uint.MinValue, "uint.MinValue");
+        BindVariable((decimal)long.MaxValue, "long.MaxValue");
+        BindVariable((decimal)long.MinValue, "long.MinValue");
+        BindVariable((decimal)ulong.MaxValue, "ulong.MaxValue");
+        BindVariable((decimal)ulong.MinValue, "ulong.MinValue");
+
         BindVariable((decimal)byte.MaxValue, "Byte.MaxValue");
         BindVariable((decimal)byte.MinValue, "Byte.MinValue");
         BindVariable((decimal)sbyte.MaxValue, "SByte.MaxValue");
@@ -190,19 +187,6 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindVariable((decimal)long.MinValue, "Int64.MinValue");
         BindVariable((decimal)ulong.MaxValue, "UInt64.MaxValue");
         BindVariable((decimal)ulong.MinValue, "UInt64.MinValue");
-
-        BindVariable(Single.NaN);
-        BindVariable(Single.Epsilon);
-        BindVariable(Single.PositiveInfinity);
-        BindVariable(Single.NegativeInfinity);
-        BindVariable(Single.MaxValue);
-        BindVariable(Single.MinValue);
-        BindVariable(Double.NaN);
-        BindVariable(Double.Epsilon);
-        BindVariable(Double.PositiveInfinity);
-        BindVariable(Double.NegativeInfinity);
-        BindVariable(Double.MaxValue);
-        BindVariable(Double.MinValue);
     }
 }
 

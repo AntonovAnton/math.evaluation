@@ -84,7 +84,7 @@ internal sealed class MathContextTrie
 
     private class TrieNode(string remainingKey = "", IMathEntity? entity = null)
     {
-        public Dictionary<char, TrieNode> Children { get; } = new();
+        public Dictionary<char, TrieNode> Children { get; } = [];
 
         public string RemainingKey { get; set; } = remainingKey;
 
