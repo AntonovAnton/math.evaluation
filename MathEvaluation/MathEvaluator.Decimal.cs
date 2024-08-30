@@ -83,7 +83,7 @@ public partial class MathEvaluator
                 if (isOperand)
                     return EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = GetDecimalNumber(expression, numberFormat, ref i, separator, closingSymbol);
+                value = GetDecimalNumber(expression, numberFormat, ref i);
                 continue;
             }
 
@@ -303,10 +303,9 @@ public partial class MathEvaluator
         }
     }
 
-    private static decimal GetDecimalNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat,
-        ref int i, char? separator, char? closingSymbol)
+    private static decimal GetDecimalNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
     {
-        var str = GetNumberString(expression, numberFormat, ref i, separator, closingSymbol);
+        var str = GetNumberString(expression, numberFormat, ref i);
         return decimal.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 

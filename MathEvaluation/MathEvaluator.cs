@@ -108,7 +108,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 if (isOperand)
                     return Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = GetNumber(expression, numberFormat, ref i, separator, closingSymbol);
+                value = GetNumber(expression, numberFormat, ref i);
                 continue;
             }
 
@@ -337,15 +337,13 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         return true;
     }
 
-    private static double GetNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat,
-        ref int i, char? separator, char? closingSymbol)
+    private static double GetNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
     {
-        var str = GetNumberString(expression, numberFormat, ref i, separator, closingSymbol);
+        var str = GetNumberString(expression, numberFormat, ref i);
         return double.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    private static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat,
-        ref int i, char? separator, char? closingSymbol)
+    private static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
     {
         var start = i;
         while (expression.Length > i)
