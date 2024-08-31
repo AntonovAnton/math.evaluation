@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
-using MathEvaluation.Extensions;
 
 namespace MathEvaluation;
 

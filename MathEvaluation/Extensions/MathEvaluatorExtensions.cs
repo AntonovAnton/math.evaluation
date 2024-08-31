@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using MathEvaluation.Context;
 
-namespace MathEvaluation.Extensions;
+namespace MathEvaluation;
 
 /// <summary>
 /// Extends the <see cref="MathEvaluator"/> class to bind custom variables and functions.

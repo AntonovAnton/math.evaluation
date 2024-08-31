@@ -3,7 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using MathEvaluation.Context;
-using MathEvaluation.Extensions;
+using MathEvaluation;
 
 Console.OutputEncoding = Encoding.UTF8;
 

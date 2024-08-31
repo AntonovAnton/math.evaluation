@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace MathEvaluation.Extensions;
+namespace MathEvaluation;
 
 internal static class ReadOnlySpanExtensions
 {
