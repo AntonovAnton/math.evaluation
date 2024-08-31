@@ -568,6 +568,7 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("12 + abs()", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.")]
     [InlineData("12 + abs / 1", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 8.")]
+    [InlineData("0.5 + abs+1", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.")]
     public void MathEvaluator_Evaluate_HasInvalidOperand_ThrowMathEvaluationException(string expression, string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");

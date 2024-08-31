@@ -40,7 +40,7 @@ public static class StringExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindVariable(this string expression, double value, char key)
-        => BindVariable(expression, value, key.ToString());
+        => expression.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, double value,
@@ -60,7 +60,7 @@ public static class StringExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindFunction(this string expression, Func<double> fn, char key)
-        => BindFunction(expression, fn, key.ToString());
+        => expression.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this string expression, Func<double> fn,
@@ -80,7 +80,7 @@ public static class StringExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindFunction(this string expression, Func<double, double> fn, char key)
-        => BindFunction(expression, fn, key.ToString());
+        => expression.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(string, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this string expression, Func<double, double> fn,
@@ -165,7 +165,7 @@ public static class StringExtensions
 
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, decimal value, char key)
-        => BindVariable(expression, value, key.ToString());
+        => expression.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(string, double, string?)"/>
     public static MathEvaluator BindVariable(this string expression, decimal value,
@@ -179,7 +179,7 @@ public static class StringExtensions
 
     /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this string expression, Func<decimal> fn, char key)
-        => BindFunction(expression, fn, key.ToString());
+        => expression.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(string, Func{double}, string?)"/>
     public static MathEvaluator BindFunction(this string expression, Func<decimal> fn,
@@ -193,7 +193,7 @@ public static class StringExtensions
 
     /// <inheritdoc cref="BindFunction(string, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this string expression, Func<decimal, decimal> fn, char key)
-        => BindFunction(expression, fn, key.ToString());
+        => expression.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(string, Func{double, double}, string?)"/>
     public static MathEvaluator BindFunction(this string expression, Func<decimal, decimal> fn,
@@ -271,7 +271,7 @@ public static class StringExtensions
 
     /// <inheritdoc cref="BindVariable(string, double, char)"/>
     public static MathEvaluator BindVariable(this string expression, bool value, char key)
-        => BindVariable(expression, value, key.ToString());
+        => expression.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(string, double, string?)"/>
     public static MathEvaluator BindVariable(this string expression, bool value,
@@ -285,7 +285,7 @@ public static class StringExtensions
 
     /// <inheritdoc cref="BindFunction(string, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this string expression, Func<bool> fn, char key)
-        => BindFunction(expression, fn, key.ToString());
+        => expression.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(string, Func{double}, string?)"/>
     public static MathEvaluator BindFunction(this string expression, Func<bool> fn,
