@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation;
 
@@ -91,15 +92,15 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
         while (expression.Length > i)
         {
             if (separator.HasValue && expression[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i])))
+                (numberFormat == null || decimalSeparator != separator.Value || expression[start..i].IsNotMeaningless()))
             {
-                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+                expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
                 return value;
             }
 
             if (closingSymbol.HasValue && expression[i] == closingSymbol.Value)
             {
-                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+                expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
                 return value;
             }
 
@@ -108,7 +109,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                 if (isOperand)
                     return Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = GetNumber(expression, numberFormat, ref i);
+                value = expression.ParseNumber(numberFormat, ref i);
                 continue;
             }
 
@@ -121,7 +122,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     var startParenthesis = i;
                     i++;
                     var result = Evaluate(expression, context, numberFormat, ref i, null, ')', (int)EvalPrecedence.Unknown);
-                    ThrowExceptionIfNotClosed(expression, ')', startParenthesis, ref i);
+                    expression.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
 
@@ -129,7 +130,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     value = (value == 0 ? 1 : value) * result;
                     break;
                 case '+' when expression.Length == i + 1 || expression[i + 1] != '+':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && IsNotMeaningless(expression[start..i]))
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && start != i && expression[start..i].IsNotMeaningless())
                         return value;
 
                     i++;
@@ -140,7 +141,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         return value;
                     break;
                 case '-' when expression.Length == i + 1 || expression[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && IsNotMeaningless(expression[start..i]))
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && expression[start..i].IsNotMeaningless())
                         return value;
 
                     i++;
@@ -169,7 +170,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                     break;
                 default:
                     var entity = context?.FirstMathEntity(expression[i..]);
-                    if (entity == null && numberFormat != null && TryParseCurrencySymbol(expression, numberFormat, ref i))
+                    if (entity == null && numberFormat != null && expression.TryParseCurrencySymbol(numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
@@ -183,7 +184,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             }
         }
 
-        ThrowExceptionIfNotEvaluated(expression, value, isOperand, start, i);
+        expression.ThrowExceptionIfNotEvaluated(value, isOperand, start, i);
         return value;
     }
 
@@ -192,7 +193,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     {
         var start = i;
         var value = Evaluate(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+        expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
         return value;
     }
 
@@ -221,7 +222,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
     private static double EvaluateExponentiation(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol, double value)
     {
-        SkipMeaninglessChars(expression, ref i);
+        expression.SkipMeaninglessChars(ref i);
         if (expression.Length <= i)
             return value;
 
@@ -273,7 +274,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             case MathGetValueFunction<double> mathFunction:
                 {
                     i += entity.Key.Length;
-                    SkipParenthesisChars(expression, ref i);
+                    expression.SkipParenthesisChars(ref i);
                     var result = mathFunction.Fn();
                     result = EvaluateExponentiation(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -288,7 +289,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         : fn(EvaluateOperand(expression, context, numberFormat, ref i, separator, closingSymbol));
 
                     if (mathFunction.ClosingSymbol.HasValue)
-                        ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol.Value, start, ref i);
+                        expression.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol.Value, start, ref i);
 
                     result = EvaluateExponentiation(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -310,7 +311,7 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
                         //closing
                         if (expression[i] != mathFunction.Separator)
                         {
-                            ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol, start, ref i);
+                            expression.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol, start, ref i);
                             break;
                         }
 
@@ -326,124 +327,5 @@ public partial class MathEvaluator(string expression, IMathContext? context = nu
             default:
                 return false;
         }
-    }
-
-    private static bool TryParseCurrencySymbol(ReadOnlySpan<char> expression, NumberFormatInfo numberFormat, ref int i)
-    {
-        if (!expression[i..].StartsWith(numberFormat.CurrencySymbol))
-            return false;
-
-        i += numberFormat.CurrencySymbol.Length;
-        return true;
-    }
-
-    private static double GetNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
-    {
-        var str = GetNumberString(expression, numberFormat, ref i);
-        return double.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
-    }
-
-    private static ReadOnlySpan<char> GetNumberString(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
-    {
-        var start = i;
-        while (expression.Length > i)
-        {
-            if (expression[i] is >= '0' and <= '9' ||
-                numberFormat?.NumberDecimalSeparator == null && expression[i] is '.')
-            {
-                i++;
-                continue;
-            }
-
-            //an exponential notation number
-            if (expression[i] is 'e' or 'E' && expression.Length > i + 1 &&
-                expression[i + 1] is >= '0' and <= '9' or '-' or '+')
-            {
-                i += 2;
-                continue;
-            }
-
-            if (TryParseNumberFormatSeparator(expression, numberFormat?.NumberDecimalSeparator, ref i) ||
-                TryParseNumberFormatSeparator(expression, numberFormat?.NumberGroupSeparator, ref i))
-                continue;
-            break;
-        }
-
-        return expression[start..i];
-
-        static bool TryParseNumberFormatSeparator(ReadOnlySpan<char> expression, string? numberFormatSeparator, ref int i)
-        {
-            if (string.IsNullOrEmpty(numberFormatSeparator) ||
-                !expression[i..].StartsWith(numberFormatSeparator) ||
-                (expression.Length > i + numberFormatSeparator.Length &&
-                expression[i + numberFormatSeparator.Length] is not >= '0' and <= '9'))
-                return false;
-
-            i += numberFormatSeparator.Length;
-            return true;
-        }
-    }
-
-    /// <summary>Skips whitespace, tab, LF, and CR.</summary>
-    /// <param name="expression">The string math expression.</param>
-    /// <param name="i">The current char index.</param>
-    private static void SkipMeaninglessChars(ReadOnlySpan<char> expression, ref int i)
-    {
-        while (expression.Length > i && IsMeaningless(expression[i]))
-            i++;
-    }
-
-    /// <summary>Skips parenthesis ().</summary>
-    /// <param name="expression">The string math expression.</param>
-    /// <param name="i">The current char index.</param>
-    private static void SkipParenthesisChars(ReadOnlySpan<char> expression, ref int i)
-    {
-        if (expression.Length > i && expression[i] == '(')
-        {
-            i++;
-            SkipMeaninglessChars(expression, ref i);
-            ThrowExceptionIfNotClosed(expression, ')', i, ref i);
-        }
-    }
-
-    /// <summary>
-    /// Determines whether the specified string is meaningless (has only whitespace, tab, LF, or CR).
-    /// </summary>
-    /// <param name="str">The string.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified string is meaningless; otherwise, <c>false</c>.
-    /// </returns>
-    private static bool IsNotMeaningless(ReadOnlySpan<char> str)
-    {
-        foreach (char c in str)
-            if (!IsMeaningless(c))
-                return true;
-
-        return false;
-    }
-
-    /// <summary>
-    /// Determines whether the specified char is meaningless (is whitespace, tab, LF, or CR).
-    /// </summary>
-    /// <param name="c">The char.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified char is meaningless; otherwise, <c>false</c>.
-    /// </returns>
-    private static bool IsMeaningless(char c)
-        => c is ' ' or '\t' or '\n' or '\r';
-
-    private static void ThrowExceptionIfNotEvaluated(
-        ReadOnlySpan<char> expression, double value, bool isOperand, int invalidTokenPosition, int i)
-    {
-        if (value == default && !IsNotMeaningless(expression[invalidTokenPosition..i]))
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
-    }
-
-    private static void ThrowExceptionIfNotClosed(
-        ReadOnlySpan<char> expression, char closingSymbol, int invalidTokenPosition, ref int i)
-    {
-        if (expression.Length <= i || expression[i] != closingSymbol)
-            throw new MathEvaluationException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
-        i++;
     }
 }

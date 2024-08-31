@@ -1,4 +1,5 @@
 ﻿using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
 

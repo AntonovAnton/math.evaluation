@@ -56,7 +56,7 @@ public partial class MathEvaluatorTests
     [InlineData("sin(90°)^2", 1d)]
     [InlineData("sin0.5/2", 0.2397127693021015d)]
     [InlineData("cos1", 0.54030230586813977d)]
-    [InlineData("cos+1", 0.54030230586813977d)]
+    [InlineData("cos(+1)", 0.54030230586813977d)]
     [InlineData("cos-(-1)", 0.54030230586813977d)]
     [InlineData("2^sin(1)^2", 1.6336211145430648d)]
     [InlineData("2^sin1^2", 1.791876223827922d)]

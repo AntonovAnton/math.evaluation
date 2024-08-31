@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using MathEvaluation.Context;
 
-namespace MathEvaluation;
+namespace MathEvaluation.Extensions;
 
 /// <summary>
 /// Extends the <see cref="MathEvaluator"/> class to bind custom variables and functions.
@@ -30,7 +30,7 @@ public static class MathEvaluatorExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, double value, char key)
-        => BindVariable(evaluator, value, key.ToString());
+        => evaluator.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, double value,
@@ -49,7 +49,7 @@ public static class MathEvaluatorExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double> fn, char key)
-        => BindFunction(evaluator, fn, key.ToString());
+        => evaluator.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double> fn,
@@ -68,7 +68,7 @@ public static class MathEvaluatorExtensions
     /// <param name="key">The key.</param>
     /// <returns><see cref="MathEvaluator"/> instance</returns>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double> fn, char key)
-        => BindFunction(evaluator, fn, key.ToString());
+        => evaluator.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<double, double> fn,
@@ -147,7 +147,7 @@ public static class MathEvaluatorExtensions
 
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, decimal value, char key)
-        => BindVariable(evaluator, value, key.ToString());
+        => evaluator.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, string?)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, decimal value,
@@ -160,7 +160,7 @@ public static class MathEvaluatorExtensions
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal> fn, char key)
-        => BindFunction(evaluator, fn, key.ToString());
+        => evaluator.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, string?)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal> fn,
@@ -173,7 +173,7 @@ public static class MathEvaluatorExtensions
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal> fn, char key)
-        => BindFunction(evaluator, fn, key.ToString());
+        => evaluator.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double, double}, string?)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<decimal, decimal> fn,
@@ -245,7 +245,7 @@ public static class MathEvaluatorExtensions
 
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, char)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, bool value, char key)
-        => BindVariable(evaluator, value, key.ToString());
+        => evaluator.BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(MathEvaluator, double, string?)"/>
     public static MathEvaluator BindVariable(this MathEvaluator evaluator, bool value,
@@ -258,7 +258,7 @@ public static class MathEvaluatorExtensions
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, char)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<bool> fn, char key)
-        => BindFunction(evaluator, fn, key.ToString());
+        => evaluator.BindFunction(fn, key.ToString());
 
     /// <inheritdoc cref="BindFunction(MathEvaluator, Func{double}, string?)"/>
     public static MathEvaluator BindFunction(this MathEvaluator evaluator, Func<bool> fn,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation;
 
@@ -66,15 +67,15 @@ public partial class MathEvaluator
         while (expression.Length > i)
         {
             if (separator.HasValue && expression[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || IsNotMeaningless(expression[start..i])))
+                (numberFormat == null || decimalSeparator != separator.Value || expression[start..i].IsNotMeaningless()))
             {
-                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+                expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
                 return value;
             }
 
             if (closingSymbol.HasValue && expression[i] == closingSymbol.Value)
             {
-                ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+                expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
                 return value;
             }
 
@@ -83,7 +84,7 @@ public partial class MathEvaluator
                 if (isOperand)
                     return EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = GetDecimalNumber(expression, numberFormat, ref i);
+                value = expression.ParseDecimalNumber(numberFormat, ref i);
                 continue;
             }
 
@@ -96,7 +97,7 @@ public partial class MathEvaluator
                     var startParenthesis = i;
                     i++;
                     var result = EvaluateDecimal(expression, context, numberFormat, ref i, null, ')', (int)EvalPrecedence.Unknown);
-                    ThrowExceptionIfNotClosed(expression, ')', startParenthesis, ref i);
+                    expression.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
 
@@ -104,7 +105,7 @@ public partial class MathEvaluator
                     value = (value == 0 ? 1 : value) * result;
                     break;
                 case '+' when expression.Length == i + 1 || expression[i + 1] != '+':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && IsNotMeaningless(expression[start..i]))
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && start != i && expression[start..i].IsNotMeaningless())
                         return value;
 
                     i++;
@@ -115,7 +116,7 @@ public partial class MathEvaluator
                         return value;
                     break;
                 case '-' when expression.Length == i + 1 || expression[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && IsNotMeaningless(expression[start..i]))
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && expression[start..i].IsNotMeaningless())
                         return value;
 
                     i++;
@@ -144,7 +145,7 @@ public partial class MathEvaluator
                     break;
                 default:
                     var entity = context?.FirstMathEntity(expression[i..]);
-                    if (entity == null && numberFormat != null && TryParseCurrencySymbol(expression, numberFormat, ref i))
+                    if (entity == null && numberFormat != null && expression.TryParseCurrencySymbol(numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
@@ -158,7 +159,7 @@ public partial class MathEvaluator
             }
         }
 
-        ThrowExceptionIfNotEvaluated(expression, value, isOperand, start, i);
+        expression.ThrowExceptionIfNotEvaluated(value, isOperand, start, i);
         return value;
     }
 
@@ -167,7 +168,7 @@ public partial class MathEvaluator
     {
         var start = i;
         var value = EvaluateDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        ThrowExceptionIfNotEvaluated(expression, value, true, start, i);
+        expression.ThrowExceptionIfNotEvaluated(value, true, start, i);
         return value;
     }
 
@@ -196,7 +197,7 @@ public partial class MathEvaluator
     private static decimal EvaluateExponentiationDecimal(ReadOnlySpan<char> expression, IMathContext? context, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol, decimal value)
     {
-        SkipMeaninglessChars(expression, ref i);
+        expression.SkipMeaninglessChars(ref i);
         if (expression.Length <= i)
             return value;
 
@@ -248,7 +249,7 @@ public partial class MathEvaluator
             case MathGetValueFunction<decimal> mathFunction:
                 {
                     i += entity.Key.Length;
-                    SkipParenthesisChars(expression, ref i);
+                    expression.SkipParenthesisChars(ref i);
                     var result = mathFunction.Fn();
                     result = EvaluateExponentiationDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -263,7 +264,7 @@ public partial class MathEvaluator
                         : fn(EvaluateOperandDecimal(expression, context, numberFormat, ref i, separator, closingSymbol));
 
                     if (mathFunction.ClosingSymbol.HasValue)
-                        ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol.Value, start, ref i);
+                        expression.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol.Value, start, ref i);
 
                     result = EvaluateExponentiationDecimal(expression, context, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;
@@ -285,7 +286,7 @@ public partial class MathEvaluator
                         //closing
                         if (expression[i] != mathFunction.Separator)
                         {
-                            ThrowExceptionIfNotClosed(expression, mathFunction.ClosingSymbol, start, ref i);
+                            expression.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol, start, ref i);
                             break;
                         }
 
@@ -301,18 +302,5 @@ public partial class MathEvaluator
             default:
                 return false;
         }
-    }
-
-    private static decimal GetDecimalNumber(ReadOnlySpan<char> expression, NumberFormatInfo? numberFormat, ref int i)
-    {
-        var str = GetNumberString(expression, numberFormat, ref i);
-        return decimal.Parse(str, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
-    }
-
-    private static void ThrowExceptionIfNotEvaluated(
-        ReadOnlySpan<char> expression, decimal value, bool isOperand, int invalidTokenPosition, int i)
-    {
-        if (value == default && !IsNotMeaningless(expression[invalidTokenPosition..i]))
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 }

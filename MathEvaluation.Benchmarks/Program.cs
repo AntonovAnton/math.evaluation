@@ -2,8 +2,8 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using MathEvaluation;
 using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 Console.OutputEncoding = Encoding.UTF8;
 
