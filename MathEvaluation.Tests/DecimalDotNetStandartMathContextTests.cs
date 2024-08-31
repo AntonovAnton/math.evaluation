@@ -1,6 +1,5 @@
 ﻿using Xunit.Abstractions;
 using MathEvaluation.Context.Decimal;
-using MathEvaluation;
 
 namespace MathEvaluation.Tests;
 
