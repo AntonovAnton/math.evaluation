@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using MathEvaluation.Entities;
 
-namespace MathEvaluation.Context;
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// A prefix tree, also known as a trie (pronounced "try"), is a type of search tree. 
 /// It is a special form of a digital tree that represents a dynamic set of strings, 
 /// usually words in a dictionary, in a way that allows for efficient retrieval.
 /// </summary>
-internal sealed class MathContextTrie
+internal sealed class MathEntitiesTrie
 {
     private readonly TrieNode _rootNode = new();
 

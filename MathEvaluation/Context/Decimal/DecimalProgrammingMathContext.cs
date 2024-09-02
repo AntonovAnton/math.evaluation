@@ -12,13 +12,13 @@ public class DecimalProgrammingMathContext : MathContext
     /// <summary>Initializes a new instance of the <see cref="DecimalProgrammingMathContext" /> class.</summary>
     public DecimalProgrammingMathContext()
     {
-        BindVariable(1m, "true");
-        BindVariable(1m, "True");
-        BindVariable(1m, "TRUE");
+        BindConstant(1m, "true");
+        BindConstant(1m, "True");
+        BindConstant(1m, "TRUE");
 
-        BindVariable(0m, "false");
-        BindVariable(0m, "False");
-        BindVariable(0m, "FALSE");
+        BindConstant(0m, "false");
+        BindConstant(0m, "False");
+        BindConstant(0m, "FALSE");
 
         static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, '%');

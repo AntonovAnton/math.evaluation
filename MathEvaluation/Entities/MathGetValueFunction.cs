@@ -19,7 +19,7 @@ public class MathGetValueFunction<T> : MathEntity
     /// <summary>Initializes a new instance of the <see cref="MathGetValueFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>
     /// <param name="fn">The getting value function.</param>
-    /// <exception cref="ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException"/>
     public MathGetValueFunction(string? key, Func<T> fn)
         : base(key)
     {

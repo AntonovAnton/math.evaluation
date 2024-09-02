@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Xunit.Abstractions;
 using MathEvaluation.Context.Decimal;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
 
@@ -17,8 +18,8 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
     }
 
     [Theory]
-    [InlineData("", "Expression is empty or white space. (Parameter 'expression')")]
-    [InlineData("   ", "Expression is empty or white space. (Parameter 'expression')")]
+    [InlineData("", "Expression string is empty or white space. (Parameter 'mathString')")]
+    [InlineData("   ", "Expression string is empty or white space. (Parameter 'mathString')")]
     public void MathEvaluator_EvaluateDecimal_Empty_ThrowArgumentException(string expression,
         string errorMessage)
     {
@@ -32,7 +33,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
     [Theory]
     [InlineData("+", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
     [InlineData("-", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
-    public void MathEvaluator_EvaluateDecimal_Empty_ThrowMathEvaluationException(string expression,
+    public void MathEvaluator_EvaluateDecimal_NotRecognizable_ThrowMathEvaluationException(string expression,
         string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");
@@ -127,7 +128,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, null, cultureInfo);
 
         Assert.Equal(expectedValue, value);
     }
@@ -140,7 +141,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, null, cultureInfo);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -385,10 +386,12 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"{varName} = {varValue}");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(varValue, varName);
+
         var value = expression
             .SetContext(_scientificContext)
-            .BindVariable(varValue, varName)
-            .EvaluateDecimal();
+            .EvaluateDecimal(parameters);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -405,10 +408,12 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
 
         var getX1 = () => x1;
         var getX2 = () => x2;
+
+        var parameters = new MathParameters(new { getX1, getX2 });
+
         var value = expression
             .SetContext(_scientificContext)
-            .Bind(new { getX1, getX2 })
-            .EvaluateDecimal();
+            .EvaluateDecimal(parameters);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -424,9 +429,12 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
 
         var sqrt = Math.Sqrt;
         Func<double, double> ln = Math.Log;
+
+        var parameters = new MathParameters();
+        parameters.Bind(new { x1, x2, sqrt, ln });
+
         var value = expression
-            .Bind(new { x1, x2, sqrt, ln })
-            .EvaluateDecimal();
+            .EvaluateDecimal(parameters);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -448,20 +456,11 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
             }
             return minValue;
         };
+
         var value = expression
-            .Bind(new { min })
-            .EvaluateDecimal();
+            .EvaluateDecimal(new { min });
 
         Assert.Equal((decimal)expectedValue, value);
-    }
-
-    [Fact]
-    public void MathEvaluator_Bind_HasNotSupportedCustomSystemFunc_ThrowNotSupportedException()
-    {
-        Func<decimal, decimal, decimal, decimal, decimal, decimal, decimal> min = (a, b, c, d, e, v) => 0m;
-        var ex = Record.Exception(() => "min(3, 4)".Bind(new { min }));
-        Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("System.Func`7[System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal] isn't supported, you can use Func<T[], T> istead.", ex.Message);
     }
 
     [Fact]

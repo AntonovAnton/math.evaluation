@@ -20,7 +20,7 @@ public class MathOperator<T> : MathEntity
     /// <param name="key">The key (the operator notation).</param>
     /// <param name="fn">The function.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <exception cref="ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException"/>
     public MathOperator(string? key, Func<T, T, T> fn, int precedece = (int)EvalPrecedence.Basic)
         : base(key)
     {

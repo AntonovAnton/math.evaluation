@@ -1,4 +1,5 @@
 ﻿using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
 
@@ -132,8 +133,7 @@ public partial class MathEvaluatorTests_DecimalContext
         var getC = () => c;
         var value = expression
             .SetContext(_programmingContext)
-            .Bind(new { A = a, B = b, C = getC })
-            .EvaluateDecimal();
+            .EvaluateDecimal(new MathParameters(new { A = a, B = b, C = getC }));
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -148,10 +148,12 @@ public partial class MathEvaluatorTests_DecimalContext
         var context = new ProgrammingMathContext();
         context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(a);
+
         var value = expression
             .SetContext(context)
-            .BindVariable(a)
-            .EvaluateDecimal();
+            .EvaluateDecimal(parameters);
 
         Assert.Equal(expectedValue, value != 0.0m);
     }

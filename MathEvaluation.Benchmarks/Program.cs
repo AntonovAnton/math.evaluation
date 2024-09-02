@@ -4,6 +4,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using MathEvaluation;
 using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -34,6 +35,6 @@ public class Benchmarks
     [Benchmark(Description = "\"sin(a) + cos(b)\".SetContext(_scientificContext).BindVariable(new { a, b }).Evaluate()")]
     public double MathEvaluator_EvaluateSinCos_HasVariables_ComplexExpression()
     {
-        return "sin(a) + cos(b)".SetContext(_scientificContext).Bind(new { a, b }).Evaluate();
+        return "sin(a) + cos(b)".SetContext(_scientificContext).Evaluate(new MathParameters(new { a, b }));
     }
 }

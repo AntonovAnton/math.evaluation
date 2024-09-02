@@ -13,13 +13,13 @@ public class ProgrammingMathContext : MathContext
     /// <summary>Initializes a new instance of the <see cref="ProgrammingMathContext" /> class.</summary>
     public ProgrammingMathContext()
     {
-        BindVariable(1d, "true");
-        BindVariable(1d, "True");
-        BindVariable(1d, "TRUE");
+        BindConstant(1d, "true");
+        BindConstant(1d, "True");
+        BindConstant(1d, "TRUE");
 
-        BindVariable(0d, "false");
-        BindVariable(0d, "False");
-        BindVariable(0d, "FALSE");
+        BindConstant(0d, "false");
+        BindConstant(0d, "False");
+        BindConstant(0d, "FALSE");
 
         static double modFn(double left, double right) => left % right;
         BindOperator(modFn, '%');

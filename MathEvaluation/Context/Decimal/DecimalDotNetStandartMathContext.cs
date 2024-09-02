@@ -15,8 +15,8 @@ public class DecimalDotNetStandartMathContext : MathContext
     public DecimalDotNetStandartMathContext()
         : base()
     {
-        BindVariable(1m, "true");
-        BindVariable(0m, "false");
+        BindConstant(1m, "true");
+        BindConstant(0m, "false");
 
         static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, '%');
@@ -89,8 +89,8 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindOperandOperator((decimal value) => value, "Ul", true);
         BindOperandOperator((decimal value) => value, "UL", true);
 
-        BindVariable(Math.PI);
-        BindVariable(Math.E);
+        BindConstant(Math.PI);
+        BindConstant(Math.E);
 
         BindFunction((decimal value) => Math.Abs(value), "Math.Abs");
         BindFunction(Math.Acos);
@@ -123,70 +123,70 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindFunction(Math.Tanh);
         BindFunction((decimal value) => Math.Truncate(value), "Math.Truncate");
 
-        BindVariable(float.NaN);
-        BindVariable(float.Epsilon);
-        BindVariable(float.PositiveInfinity);
-        BindVariable(float.NegativeInfinity);
-        BindVariable(float.MaxValue);
-        BindVariable(float.MinValue);
-        BindVariable(double.NaN);
-        BindVariable(double.Epsilon);
-        BindVariable(double.PositiveInfinity);
-        BindVariable(double.NegativeInfinity);
-        BindVariable(double.MaxValue);
-        BindVariable(double.MinValue);
-        BindVariable(decimal.One);
-        BindVariable(decimal.MinusOne);
-        BindVariable(decimal.Zero);
-        BindVariable(decimal.MaxValue);
-        BindVariable(decimal.MinValue);
+        BindConstant(float.NaN);
+        BindConstant(float.Epsilon);
+        BindConstant(float.PositiveInfinity);
+        BindConstant(float.NegativeInfinity);
+        BindConstant(float.MaxValue);
+        BindConstant(float.MinValue);
+        BindConstant(double.NaN);
+        BindConstant(double.Epsilon);
+        BindConstant(double.PositiveInfinity);
+        BindConstant(double.NegativeInfinity);
+        BindConstant(double.MaxValue);
+        BindConstant(double.MinValue);
+        BindConstant(decimal.One);
+        BindConstant(decimal.MinusOne);
+        BindConstant(decimal.Zero);
+        BindConstant(decimal.MaxValue);
+        BindConstant(decimal.MinValue);
 
-        BindVariable(Single.NaN);
-        BindVariable(Single.Epsilon);
-        BindVariable(Single.PositiveInfinity);
-        BindVariable(Single.NegativeInfinity);
-        BindVariable(Single.MaxValue);
-        BindVariable(Single.MinValue);
-        BindVariable(Double.NaN);
-        BindVariable(Double.Epsilon);
-        BindVariable(Double.PositiveInfinity);
-        BindVariable(Double.NegativeInfinity);
-        BindVariable(Double.MaxValue);
-        BindVariable(Double.MinValue);
+        BindConstant(Single.NaN);
+        BindConstant(Single.Epsilon);
+        BindConstant(Single.PositiveInfinity);
+        BindConstant(Single.NegativeInfinity);
+        BindConstant(Single.MaxValue);
+        BindConstant(Single.MinValue);
+        BindConstant(Double.NaN);
+        BindConstant(Double.Epsilon);
+        BindConstant(Double.PositiveInfinity);
+        BindConstant(Double.NegativeInfinity);
+        BindConstant(Double.MaxValue);
+        BindConstant(Double.MinValue);
 
-        BindVariable((decimal)byte.MaxValue, "byte.MaxValue");
-        BindVariable((decimal)byte.MinValue, "byte.MinValue");
-        BindVariable((decimal)sbyte.MaxValue, "sbyte.MaxValue");
-        BindVariable((decimal)sbyte.MinValue, "sbyte.MinValue");
-        BindVariable((decimal)short.MaxValue, "short.MaxValue");
-        BindVariable((decimal)short.MinValue, "short.MinValue");
-        BindVariable((decimal)ushort.MaxValue, "ushort.MaxValue");
-        BindVariable((decimal)ushort.MinValue, "ushort.MinValue");
-        BindVariable((decimal)int.MaxValue, "int.MaxValue");
-        BindVariable((decimal)int.MinValue, "int.MinValue");
-        BindVariable((decimal)uint.MaxValue, "uint.MaxValue");
-        BindVariable((decimal)uint.MinValue, "uint.MinValue");
-        BindVariable((decimal)long.MaxValue, "long.MaxValue");
-        BindVariable((decimal)long.MinValue, "long.MinValue");
-        BindVariable((decimal)ulong.MaxValue, "ulong.MaxValue");
-        BindVariable((decimal)ulong.MinValue, "ulong.MinValue");
+        BindConstant((decimal)byte.MaxValue, "byte.MaxValue");
+        BindConstant((decimal)byte.MinValue, "byte.MinValue");
+        BindConstant((decimal)sbyte.MaxValue, "sbyte.MaxValue");
+        BindConstant((decimal)sbyte.MinValue, "sbyte.MinValue");
+        BindConstant((decimal)short.MaxValue, "short.MaxValue");
+        BindConstant((decimal)short.MinValue, "short.MinValue");
+        BindConstant((decimal)ushort.MaxValue, "ushort.MaxValue");
+        BindConstant((decimal)ushort.MinValue, "ushort.MinValue");
+        BindConstant((decimal)int.MaxValue, "int.MaxValue");
+        BindConstant((decimal)int.MinValue, "int.MinValue");
+        BindConstant((decimal)uint.MaxValue, "uint.MaxValue");
+        BindConstant((decimal)uint.MinValue, "uint.MinValue");
+        BindConstant((decimal)long.MaxValue, "long.MaxValue");
+        BindConstant((decimal)long.MinValue, "long.MinValue");
+        BindConstant((decimal)ulong.MaxValue, "ulong.MaxValue");
+        BindConstant((decimal)ulong.MinValue, "ulong.MinValue");
 
-        BindVariable((decimal)byte.MaxValue, "Byte.MaxValue");
-        BindVariable((decimal)byte.MinValue, "Byte.MinValue");
-        BindVariable((decimal)sbyte.MaxValue, "SByte.MaxValue");
-        BindVariable((decimal)sbyte.MinValue, "SByte.MinValue");
-        BindVariable((decimal)short.MaxValue, "Int16.MaxValue");
-        BindVariable((decimal)short.MinValue, "Int16.MinValue");
-        BindVariable((decimal)ushort.MaxValue, "UInt16.MaxValue");
-        BindVariable((decimal)ushort.MinValue, "UInt16.MinValue");
-        BindVariable((decimal)int.MaxValue, "Int32.MaxValue");
-        BindVariable((decimal)int.MinValue, "Int32.MinValue");
-        BindVariable((decimal)uint.MaxValue, "UInt32.MaxValue");
-        BindVariable((decimal)uint.MinValue, "UInt32.MinValue");
-        BindVariable((decimal)long.MaxValue, "Int64.MaxValue");
-        BindVariable((decimal)long.MinValue, "Int64.MinValue");
-        BindVariable((decimal)ulong.MaxValue, "UInt64.MaxValue");
-        BindVariable((decimal)ulong.MinValue, "UInt64.MinValue");
+        BindConstant((decimal)byte.MaxValue, "Byte.MaxValue");
+        BindConstant((decimal)byte.MinValue, "Byte.MinValue");
+        BindConstant((decimal)sbyte.MaxValue, "SByte.MaxValue");
+        BindConstant((decimal)sbyte.MinValue, "SByte.MinValue");
+        BindConstant((decimal)short.MaxValue, "Int16.MaxValue");
+        BindConstant((decimal)short.MinValue, "Int16.MinValue");
+        BindConstant((decimal)ushort.MaxValue, "UInt16.MaxValue");
+        BindConstant((decimal)ushort.MinValue, "UInt16.MinValue");
+        BindConstant((decimal)int.MaxValue, "Int32.MaxValue");
+        BindConstant((decimal)int.MinValue, "Int32.MinValue");
+        BindConstant((decimal)uint.MaxValue, "UInt32.MaxValue");
+        BindConstant((decimal)uint.MinValue, "UInt32.MinValue");
+        BindConstant((decimal)long.MaxValue, "Int64.MaxValue");
+        BindConstant((decimal)long.MinValue, "Int64.MinValue");
+        BindConstant((decimal)ulong.MaxValue, "UInt64.MaxValue");
+        BindConstant((decimal)ulong.MinValue, "UInt64.MinValue");
     }
 }
 

@@ -15,7 +15,7 @@ public abstract class MathEntity : IMathEntity
 
     /// <summary>Initializes a new instance of the <see cref="MathEntity" /> class.</summary>
     /// <param name="key">The key.</param>
-    /// <exception cref="ArgumentNullException">key</exception>
+    /// <exception cref="ArgumentNullException"/>
     protected MathEntity(string? key)
     {
         Key = key ?? throw new ArgumentNullException(nameof(key));

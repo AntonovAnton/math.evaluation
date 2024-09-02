@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace MathEvaluation;
+namespace MathEvaluation.Extensions;
 
 internal static class ReadOnlySpanExtensions
 {
@@ -107,6 +107,21 @@ internal static class ReadOnlySpanExtensions
     {
         if (value == default && !str[invalidTokenPosition..i].IsNotMeaningless())
             throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
+    }
+
+    /// <summary>Throws the exception if missing opening symbol.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="invalidTokenPosition">The invalid token position.</param>
+    /// <param name="i">The current char index.</param>
+    /// <exception cref="MathEvaluationException">It doesn't have the '{openingSymbol}' opening symbol.</exception>
+    public static void ThrowExceptionIfNotOpened(this ReadOnlySpan<char> str,
+        char openingSymbol, int invalidTokenPosition, ref int i)
+    {
+        if (str.Length <= i || str[i] != openingSymbol)
+            throw new MathEvaluationException($"It doesn't have the '{openingSymbol}' opening symbol.", invalidTokenPosition);
+
+        i++;
     }
 
     /// <summary>Throws the exception if missing closing symbol.</summary>

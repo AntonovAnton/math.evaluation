@@ -1,4 +1,5 @@
 ﻿using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
 
@@ -130,10 +131,12 @@ public partial class MathEvaluatorTests
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
+        var parameters = new MathParameters();
+        parameters.Bind(new { A = a, B = b, C = getC });
+        
         var value = expression
             .SetContext(_programmingContext)
-            .Bind(new { A = a, B = b, C = getC })
-            .EvaluateBoolean();
+            .EvaluateBoolean(parameters);
 
         Assert.Equal(expectedValue, value);
     }
@@ -148,10 +151,12 @@ public partial class MathEvaluatorTests
         var context = new ProgrammingMathContext();
         context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(a);
+
         var value = expression
             .SetContext(context)
-            .BindVariable(a)
-            .EvaluateBoolean();
+            .EvaluateBoolean(parameters);
 
         Assert.Equal(expectedValue, value);
     }
