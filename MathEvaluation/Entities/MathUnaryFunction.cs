@@ -3,7 +3,7 @@
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The function with one parameter, so closing symbol is optional.
+/// The function with one parameter, so opening and closing symbols are optional.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathUnaryFunction<T> : MathEntity
@@ -12,6 +12,10 @@ public class MathUnaryFunction<T> : MathEntity
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
     public Func<T, T> Fn { get; }
+
+    /// <summary>Gets the opening symbol.</summary>
+    /// <value>The opening symbol.</value>
+    public char? OpeningSymbol { get; }
 
     /// <summary>Gets the closing symbol.</summary>
     /// <value>The closing symbol.</value>
@@ -23,12 +27,14 @@ public class MathUnaryFunction<T> : MathEntity
     /// <summary>Initializes a new instance of the <see cref="MathUnaryFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>
     /// <param name="fn">The function.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException">fn</exception>
-    public MathUnaryFunction(string? key, Func<T, T> fn, char? closingSymbol = null)
+    /// <exception cref="ArgumentNullException"/>
+    public MathUnaryFunction(string? key, Func<T, T> fn, char? openingSymbol = null, char? closingSymbol = null)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
         ClosingSymbol = closingSymbol;
+        OpeningSymbol = openingSymbol;
     }
 }

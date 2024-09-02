@@ -14,13 +14,13 @@ public class DecimalScientificMathContext : MathContext
     /// <summary>Initializes a new instance of the <see cref="DecimalScientificMathContext" /> class.</summary>
     public DecimalScientificMathContext()
     {
-        BindVariable(Math.PI, 'π');
-        BindVariable(Math.PI, "pi");
-        BindVariable(Math.PI, "Pi");
-        BindVariable(Math.PI, "PI");
-        BindVariable(Math.E, 'e');
-        BindVariable(Math.PI * 2, 'τ');
-        BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
+        BindConstant(Math.PI, 'π');
+        BindConstant(Math.PI, "pi");
+        BindConstant(Math.PI, "Pi");
+        BindConstant(Math.PI, "PI");
+        BindConstant(Math.E, 'e');
+        BindConstant(Math.PI * 2, 'τ');
+        BindConstant(double.PositiveInfinity, '\u221e'); //infinity symbol
 
         static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, "mod");
@@ -52,9 +52,9 @@ public class DecimalScientificMathContext : MathContext
         BindFunction((decimal value) => Math.Abs(value), "abs");
         BindFunction((decimal value) => Math.Abs(value), "Abs");
         BindFunction((decimal value) => Math.Abs(value), "ABS");
-        BindFunction(Math.Log, "ln");
-        BindFunction(Math.Log, "Ln");
-        BindFunction(Math.Log, "LN");
+        BindFunction((double value) => Math.Log(value), "ln");
+        BindFunction((double value) => Math.Log(value), "Ln");
+        BindFunction((double value) => Math.Log(value), "LN");
         BindFunction(Math.Log10, "log");
         BindFunction(Math.Log10, "Log");
         BindFunction(Math.Log10, "LOG");
@@ -63,17 +63,17 @@ public class DecimalScientificMathContext : MathContext
 
         #region boolean logic
 
-        BindVariable(1d, "true");
-        BindVariable(1d, "True");
-        BindVariable(1d, "TRUE");
-        BindVariable(1d, 'T');
-        BindVariable(1d, '⊤');
+        BindConstant(1d, "true");
+        BindConstant(1d, "True");
+        BindConstant(1d, "TRUE");
+        BindConstant(1d, 'T');
+        BindConstant(1d, '⊤');
 
-        BindVariable(0d, "false");
-        BindVariable(0d, "False");
-        BindVariable(0d, "FALSE");
-        BindVariable(0d, 'F');
-        BindVariable(0d, '⊥');
+        BindConstant(0d, "false");
+        BindConstant(0d, "False");
+        BindConstant(0d, "FALSE");
+        BindConstant(0d, 'F');
+        BindConstant(0d, '⊥');
 
         static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);

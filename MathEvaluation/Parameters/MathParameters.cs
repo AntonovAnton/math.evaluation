@@ -4,33 +4,115 @@ using System.Runtime.CompilerServices;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 
-namespace MathEvaluation.Context;
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace MathEvaluation;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
-/// The base implementation of the <see cref="IMathContext"/>.
+/// The base implementation of the <see cref="IMathParameters"/>.
 /// It uses a prefix tree, also known as a trie (pronounced "try"), 
-/// for efficient searching of the constants, operators, and functions by their keys (names). 
+/// for efficient searching of the variables and functions by their keys (names). 
 /// Performance is improved by using <see cref="ReadOnlySpan{T}"/> for comparing strings. 
 /// For more details, refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
-/// <seealso cref="MathEvaluation.Context.IMathContext" />
-public class MathContext : IMathContext
+/// <seealso cref="MathEvaluation.IMathParameters" />
+public class MathParameters : IMathParameters
 {
     private readonly MathEntitiesTrie _trie = new();
+
+    /// <summary>Initializes a new instance of the <see cref="MathParameters" /> class.</summary>
+    public MathParameters()
+    {
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="MathParameters" /> class.</summary>
+    /// <param name="parameters">An object containing variables and functions.</param>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="NotSupportedException"/>
+    public MathParameters(object parameters)
+    {
+        if (parameters == null)
+            throw new ArgumentNullException("parameters");
+
+        Bind(parameters);
+    }
 
     /// <inheritdoc/>
     public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
         => _trie.FirstMathEntity(expression);
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(double value, char key)
-        => _trie.AddMathEntity(new MathConstant<double>(key.ToString(), value));
+    /// <exception cref="System.ArgumentNullException">parameters</exception>
+    /// <exception cref="System.NotSupportedException"></exception>
+    public void Bind(object parameters)
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters));
+
+        foreach (var propertyInfo in parameters.GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (!propertyInfo.CanRead)
+                continue;
+
+            var key = propertyInfo.Name;
+            var value = propertyInfo.GetValue(parameters, null);
+            if (propertyInfo.PropertyType.IsConvertibleToDouble())
+            {
+                if (propertyInfo.PropertyType.IsDecimal())
+                    BindVariable(Convert.ToDecimal(value), key);
+                else
+                    BindVariable(Convert.ToDouble(value), key);
+            }
+            else if (value is Func<double> fn1)
+                BindFunction(fn1, key);
+            else if (value is Func<double, double> fn2)
+                BindFunction(fn2, key);
+            else if (value is Func<double, double, double> fn3)
+                BindFunction(fn3, key);
+            else if (value is Func<double, double, double, double> fn4)
+                BindFunction(fn4, key);
+            else if (value is Func<double, double, double, double, double> fn5)
+                BindFunction(fn5, key);
+            else if (value is Func<double, double, double, double, double, double> fn6)
+                BindFunction(fn6, key);
+            else if (value is Func<double[], double> fns)
+                BindFunction(fns, key);
+            else if (value is Func<decimal> decimalFn1)
+                BindFunction(decimalFn1, key);
+            else if (value is Func<decimal, decimal> decimalFn2)
+                BindFunction(decimalFn2, key);
+            else if (value is Func<decimal, decimal, decimal> decimalFn3)
+                BindFunction(decimalFn3, key);
+            else if (value is Func<decimal, decimal, decimal, decimal> decimalFn4)
+                BindFunction(decimalFn4, key);
+            else if (value is Func<decimal, decimal, decimal, decimal, decimal> decimalFn5)
+                BindFunction(decimalFn5, key);
+            else if (value is Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6)
+                BindFunction(decimalFn6, key);
+            else if (value is Func<decimal[], decimal> decimalFns)
+                BindFunction(decimalFns, key);
+            else if (value is Func<bool> boolFn1)
+                BindFunction(boolFn1, key);
+            else
+            {
+                if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
+
+                throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
+            }
+        }
+    }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<double>(key, value));
+    public void BindVariable(double value, char key)
+        => _trie.AddMathEntity(new MathVariable<double>(key.ToString(), value));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _trie.AddMathEntity(new MathVariable<double>(key, value));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
@@ -44,17 +126,7 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<double, double> fn, char key)
-        => _trie.AddMathEntity(new MathUnaryFunction<double>(key.ToString(), fn));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
-        => _trie.AddMathEntity(new MathUnaryFunction<double>(openingSymbol.ToString(), fn, null, closingSymbol));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null, 
+    public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char? openingSymbol = null, char? closingSymbol = null)
         => _trie.AddMathEntity(new MathUnaryFunction<double>(key, fn, openingSymbol, closingSymbol));
 
@@ -93,47 +165,17 @@ public class MathContext : IMathContext
         char closingSymbol = Constants.DefaultClosingSymbol)
         => _trie.AddMathEntity(new MathFunction<double>(key, fn, openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandOperator(Func<double, double> fn, char key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, isProcessingLeft));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandOperator(Func<double, double> fn, string key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key, fn, isProcessingLeft));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandsOperator(Func<double, double, double> fn, char key, int precedece)
-        => _trie.AddMathEntity(new MathOperandsOperator<double>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandsOperator(Func<double, double, double> fn, string key, int precedece)
-        => _trie.AddMathEntity(new MathOperandsOperator<double>(key, fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, char key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, string key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedece));
-
     #region decimal
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(decimal value, char key)
-        => _trie.AddMathEntity(new MathConstant<decimal>(key.ToString(), value));
+    public void BindVariable(decimal value, char key)
+        => _trie.AddMathEntity(new MathVariable<decimal>(key.ToString(), value));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<decimal>(key, value));
+    public void BindVariable(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _trie.AddMathEntity(new MathVariable<decimal>(key, value));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
@@ -144,16 +186,6 @@ public class MathContext : IMathContext
     /// <exception cref="ArgumentNullException"/>
     public void BindFunction(Func<decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _trie.AddMathEntity(new MathGetValueFunction<decimal>(key, fn));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<decimal, decimal> fn, char key)
-        => _trie.AddMathEntity(new MathUnaryFunction<decimal>(key.ToString(), fn));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<decimal, decimal> fn, char openingSymbol, char closingSymbol)
-        => _trie.AddMathEntity(new MathUnaryFunction<decimal>(openingSymbol.ToString(), fn, null, closingSymbol));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
@@ -196,49 +228,19 @@ public class MathContext : IMathContext
         char closingSymbol = Constants.DefaultClosingSymbol)
         => _trie.AddMathEntity(new MathFunction<decimal>(key, fn, openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandOperator(Func<decimal, decimal> fn, char key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, isProcessingLeft));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandOperator(Func<decimal, decimal> fn, string key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, isProcessingLeft));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandsOperator(Func<decimal, decimal, decimal> fn, char key, int precedece)
-        => _trie.AddMathEntity(new MathOperandsOperator<decimal>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperandsOperator(Func<decimal, decimal, decimal> fn, string key, int precedece)
-        => _trie.AddMathEntity(new MathOperandsOperator<decimal>(key, fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedece));
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece));
-
     #endregion
 
     #region boolean
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(bool value, char key)
-        => _trie.AddMathEntity(new MathConstant<double>(key.ToString(), Convert.ToDouble(value)));
+    public void BindVariable(bool value, char key)
+        => _trie.AddMathEntity(new MathVariable<double>(key.ToString(), Convert.ToDouble(value)));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindConstant(bool value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<double>(key, Convert.ToDouble(value)));
+    public void BindVariable(bool value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _trie.AddMathEntity(new MathVariable<double>(key, Convert.ToDouble(value)));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>

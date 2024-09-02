@@ -96,6 +96,11 @@ namespace MathEvaluation.Entities
         Variable = 300,
 
         /// <summary>
+        /// The precedence of a constant.
+        /// </summary>
+        Constant = Variable,
+
+        /// <summary>
         /// The precedence of the exponentiation operation.
         /// </summary>
         Exponentiation = 400,

@@ -13,9 +13,9 @@ public class MathFunction<T> : MathEntity
     /// <value>The function.</value>
     public Func<T[], T> Fn { get; }
 
-    /// <summary>Gets the openning symbol.</summary>
-    /// <value>The openning symbol.</value>
-    public char OpenningSymbol { get; }
+    /// <summary>Gets the opening symbol.</summary>
+    /// <value>The opening symbol.</value>
+    public char OpeningSymbol { get; }
 
     /// <summary>Gets the parameters separator.</summary>
     /// <value>The parameters separator.</value>
@@ -31,16 +31,16 @@ public class MathFunction<T> : MathEntity
     /// <summary>Initializes a new instance of the <see cref="MathFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>
     /// <param name="fn">The function.</param>
-    /// <param name="openningSymbol">The openning symbol.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="separator">The parameters separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException">fn</exception>
-    public MathFunction(string? key, Func<T[], T> fn, char openningSymbol, char separator, char closingSymbol)
+    /// <exception cref="ArgumentNullException"/>
+    public MathFunction(string? key, Func<T[], T> fn, char openingSymbol, char separator, char closingSymbol)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
         Separator = separator;
-        OpenningSymbol = openningSymbol;
+        OpeningSymbol = openingSymbol;
         ClosingSymbol = closingSymbol;
     }
 }

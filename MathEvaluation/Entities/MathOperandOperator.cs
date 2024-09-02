@@ -39,7 +39,7 @@ public class MathOperandOperator<T> : MathEntity
     /// <param name="isProcessingLeft">
     ///   <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
-    /// <exception cref="ArgumentNullException">fn</exception>
+    /// <exception cref="ArgumentNullException"/>
     public MathOperandOperator(string? key, Func<T, T> fn, bool isProcessingLeft = false)
         : base(key)
     {

@@ -1,5 +1,6 @@
 ﻿using Xunit.Abstractions;
 using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
 
@@ -57,9 +58,11 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(5.0, 'a');
+
         var value = expression.SetContext(_context)
-            .BindVariable(5.0, 'a')
-            .Evaluate();
+            .Evaluate(parameters);
 
         Assert.Equal(expectedValue, value);
     }
@@ -74,9 +77,11 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(5.0, 'a');
+
         var value = expression.SetContext(_context)
-            .BindVariable(5.0, 'a')
-            .Evaluate();
+            .Evaluate(parameters);
 
         Assert.Equal(expectedValue, value);
     }
@@ -404,10 +409,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"{varName} = {varValue}");
 
+        var parameters = new MathParameters();
+        parameters.BindVariable(varValue, varName);
+
         var value = expression
             .SetContext(_context)
-            .BindVariable(varValue, varName)
-            .Evaluate();
+            .Evaluate(parameters);
 
         Assert.Equal(expectedValue, value);
     }
