@@ -44,6 +44,8 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("0/0", double.NaN)]
+    [InlineData("-0", -0.0)]
+    [InlineData("0 - 0", 0.0)]
     [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
     [InlineData("2 + (5 - 1)", 2 + (5 - 1))]
@@ -68,6 +70,8 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var value = MathEvaluator.Evaluate(expression!);
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
