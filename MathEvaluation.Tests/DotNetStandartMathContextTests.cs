@@ -11,6 +11,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("double.NaN", double.NaN)]
     [InlineData("double.PositiveInfinity", double.PositiveInfinity)]
+    [InlineData("Infinity", double.PositiveInfinity)]
+    [InlineData("∞", double.PositiveInfinity)]
     [InlineData("double.NegativeInfinity", double.NegativeInfinity)]
     [InlineData("double.Epsilon", double.Epsilon)]
     [InlineData("double.MinValue", double.MinValue)]

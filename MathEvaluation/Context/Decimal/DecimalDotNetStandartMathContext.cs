@@ -123,6 +123,10 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindFunction(Math.Tanh);
         BindFunction((decimal value) => Math.Truncate(value), "Math.Truncate");
 
+        //double.ToString() represents double.PositiveInfinity from time to time as "Infinity" or '∞'
+        BindConstant(double.PositiveInfinity, "Infinity");
+        BindConstant(double.PositiveInfinity, '\u221e'); //infinity symbol
+
         BindConstant(float.NaN);
         BindConstant(float.Epsilon);
         BindConstant(float.PositiveInfinity);

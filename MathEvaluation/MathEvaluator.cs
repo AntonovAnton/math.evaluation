@@ -175,10 +175,11 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                     if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && mathString[start..i].IsNotMeaningless())
                         return value;
 
+                    var isNegativity = start == i;
                     i++;
-                    value -= Evaluate(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol,
+                    result = Evaluate(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol,
                         precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-
+                    value = isNegativity ? -result : value - result; //it keeps sign
                     if (isOperand)
                         return value;
                     break;
