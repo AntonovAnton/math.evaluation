@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using Xunit.Abstractions;
-using MathEvaluation.Context.Decimal;
+using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Tests;
@@ -128,7 +128,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, null, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, cultureInfo);
 
         Assert.Equal(expectedValue, value);
     }
@@ -141,7 +141,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, null, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, cultureInfo);
 
         Assert.Equal((decimal)expectedValue, value);
     }

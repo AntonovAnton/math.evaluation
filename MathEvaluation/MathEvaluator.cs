@@ -20,76 +20,62 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
     /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
     public IMathContext? Context { get; } = context;
 
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    public double Evaluate(IFormatProvider? provider = null)
+        => Evaluate(MathString, Context, null, provider);
+
     /// <summary>Evaluates the <see cref="MathString">math expression string</see>.</summary>
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
     /// <param name="provider">The specified format provider.</param>
     /// <returns>Value of the math expression.</returns>
-    /// <exception cref="ArgumentNullException">expression</exception>
+    /// <exception cref="ArgumentNullException"/>
     /// <exception cref="ArgumentException">expression</exception>
     /// <exception cref="MathEvaluationException">expression</exception>
-    public double Evaluate(IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => Evaluate(MathString.AsSpan(), Context, parameters, provider);
+    public double Evaluate(IMathParameters parameters, IFormatProvider? provider = null)
+        => Evaluate(MathString, Context, parameters, provider);
 
-    /// <summary>Evaluates the math expression string.</summary>
-    /// <param name="mathString">The math expression string.</param>
-    /// <param name="parameters">The parameters of the math expression string.</param>
-    /// <param name="provider">The specified format provider.</param>
-    /// <returns>Value of the math expression.</returns>
-    /// <exception cref="ArgumentNullException">expression</exception>
-    /// <exception cref="ArgumentException">expression</exception>
-    /// <exception cref="MathEvaluationException">expression</exception>
-    public static double Evaluate(string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => Evaluate(mathString.AsSpan(), null, parameters, provider);
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(ReadOnlySpan<char> mathString, IFormatProvider? provider = null)
+        => Evaluate(mathString, null, null, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static double Evaluate(ReadOnlySpan<char> mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(ReadOnlySpan<char> mathString, IMathParameters parameters, IFormatProvider? provider = null)
         => Evaluate(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    /// <param name="mathString">The math expression string.</param>
-    /// <param name="context">The specified math context.</param>
-    /// <param name="parameters">The parameters of the math expression string.</param>
-    /// <param name="provider">The specified format provider.</param>
-    public static double Evaluate(string mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => Evaluate(mathString.AsSpan(), context, parameters, provider);
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(ReadOnlySpan<char> mathString, IMathContext context, IFormatProvider? provider = null)
+        => Evaluate(mathString, context, null, provider);
 
-    #region Evaluate(object parameters)
+    #region object parameters
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
     public double Evaluate(object parameters, IFormatProvider? provider = null)
-        => Evaluate(MathString.AsSpan(), Context, new MathParameters(parameters), provider);
+        => Evaluate(MathString, Context, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public double Evaluate(string mathString, object parameters, IFormatProvider? provider = null)
-        => Evaluate(mathString.AsSpan(), null, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
     public static double Evaluate(ReadOnlySpan<char> mathString, object parameters, IFormatProvider? provider = null)
-        => Evaluate(mathString, null, new MathParameters(parameters), provider);
+        => Evaluate(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext, IMathParameters?, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
-    public static double Evaluate(string mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
-        => Evaluate(mathString.AsSpan(), context, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, IMathContext, IMathParameters?, IFormatProvider?)"/>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public static double Evaluate(IReadOnlyList<char> mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
+    public static double Evaluate(ReadOnlySpan<char> mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => Evaluate(mathString, context, new MathParameters(parameters), provider);
 
     #endregion
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <summary>Evaluates the math expression string.</summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <param name="context">The specified math context.</param>
+    /// <param name="parameters">The parameters of the math expression string.</param>
+    /// <param name="provider">The specified format provider.</param>
+    /// <returns>Value of the math expression.</returns>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="ArgumentException">expression</exception>
+    /// <exception cref="MathEvaluationException">expression</exception>
     public static double Evaluate(ReadOnlySpan<char> mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
     {
         if (mathString == null)
             throw new ArgumentNullException(nameof(mathString));

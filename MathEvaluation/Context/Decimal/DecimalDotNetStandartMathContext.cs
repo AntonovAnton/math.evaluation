@@ -1,7 +1,9 @@
 ﻿using System;
 using MathEvaluation.Entities;
 
-namespace MathEvaluation.Context.Decimal;
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace MathEvaluation.Context;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
 /// The .NET Standart 2.1 programming math context 

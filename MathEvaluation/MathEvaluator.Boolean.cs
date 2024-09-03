@@ -1,58 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
 using MathEvaluation.Context;
 
 namespace MathEvaluation;
 
 public partial class MathEvaluator
 {
-    /// <inheritdoc cref="Evaluate(IMathParameters?, IFormatProvider?)"/>
-    public bool EvaluateBoolean(IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateBoolean(MathString.AsSpan(), Context, parameters, provider);
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    public bool EvaluateBoolean(IFormatProvider? provider = null)
+        => EvaluateBoolean(MathString, Context, null, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateBoolean(mathString.AsSpan(), null, parameters, provider);
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    public bool EvaluateBoolean(IMathParameters parameters, IFormatProvider? provider = null)
+        => EvaluateBoolean(MathString, Context, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, null, null, provider);
+
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString, IMathParameters parameters, IFormatProvider? provider = null)
         => EvaluateBoolean(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(string mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateBoolean(mathString.AsSpan(), context, parameters, provider);
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString, IMathContext context, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, context, null, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => Evaluate(mathString, context, parameters, provider) != default;
+    #region object parameters
 
-    #region Evaluate(object parameters)
-
-    /// <inheritdoc cref="Evaluate(object, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
     public bool EvaluateBoolean(object parameters, IFormatProvider? provider = null)
-        => EvaluateBoolean(MathString.AsSpan(), Context, new MathParameters(parameters), provider);
+        => EvaluateBoolean(MathString, Context, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, object, IFormatProvider?)"/>
-    public bool EvaluateBoolean(string mathString, object parameters, IFormatProvider? provider = null)
-        => EvaluateBoolean(mathString.AsSpan(), null, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, object, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
     public static bool EvaluateBoolean(ReadOnlySpan<char> mathString, object parameters, IFormatProvider? provider = null)
-        => EvaluateBoolean(mathString, null, new MathParameters(parameters), provider);
+        => EvaluateBoolean(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, object, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(string mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
-        => EvaluateBoolean(mathString.AsSpan(), context, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, object, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(IReadOnlyList<char> mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => EvaluateBoolean(mathString, context, new MathParameters(parameters), provider);
 
     #endregion
+
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(ReadOnlySpan<char> mathString,
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
+        => Evaluate(mathString, context, parameters, provider) != default;
 }
