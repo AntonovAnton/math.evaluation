@@ -123,6 +123,10 @@ public class DotNetStandartMathContext : MathContext
         BindFunction(Math.Tanh);
         BindFunction((double value) => Math.Truncate(value), "Math.Truncate");
 
+        //double.ToString() represents double.PositiveInfinity from time to time as "Infinity" or '∞'
+        BindVariable(double.PositiveInfinity, "Infinity");
+        BindVariable(double.PositiveInfinity, '\u221e'); //infinity symbol
+
         BindVariable(float.NaN);
         BindVariable(float.Epsilon);
         BindVariable(float.PositiveInfinity);

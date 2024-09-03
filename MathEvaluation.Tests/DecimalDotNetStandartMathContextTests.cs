@@ -360,6 +360,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
+    [InlineData("Infinity")]
+    [InlineData("∞")]
     [InlineData("double.NaN")]
     [InlineData("double.PositiveInfinity")]
     [InlineData("double.NegativeInfinity")]
