@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using MathEvaluation.Context;
-using MathTrigonometric;
 
 namespace MathEvaluation.Extensions;
 
@@ -19,71 +17,104 @@ public static class StringExtensions
         return new MathEvaluator(mathString, context);
     }
 
-    #region evaluate methods
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(this string mathString, IFormatProvider? provider = null)
+        => Evaluate(mathString, null, null, provider);
 
-    /// <inheritdoc cref="MathEvaluator.Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static double Evaluate(this string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.Evaluate(mathString, parameters, provider);
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(this string mathString, IMathParameters parameters, IFormatProvider? provider = null)
+        => Evaluate(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="MathEvaluator.Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static double Evaluate(this string mathString, IMathContext? context,
-        IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.Evaluate(mathString, context, parameters, provider);
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static double Evaluate(this string mathString, IMathContext context, IFormatProvider? provider = null)
+        => Evaluate(mathString, context, null, provider);
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(this string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateDecimal(mathString, parameters, provider);
+    #region object parameters
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(this string mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateDecimal(mathString, context, parameters, provider);
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static double Evaluate(this string mathString, object parameters, IFormatProvider? provider = null)
+        => Evaluate(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(this string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateBoolean(mathString, parameters, provider);
-
-    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(this string mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateBoolean(mathString, context, parameters, provider);
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static double Evaluate(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
+        => Evaluate(mathString, context, new MathParameters(parameters), provider);
 
     #endregion
 
-    #region Evaluate(object parameters)
-
-    /// <inheritdoc cref="MathEvaluator.Evaluate(string, object, IFormatProvider?)"/>
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static double Evaluate(this string mathString,
-        object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.Evaluate(mathString, parameters, provider);
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
+        => MathEvaluator.Evaluate(mathString, context, parameters, provider);
 
-    /// <inheritdoc cref="MathEvaluator.Evaluate(string, IMathContext?, object, IFormatProvider?)"/>
-    public static double Evaluate(this string mathString, IMathContext? context,
-        object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.Evaluate(mathString, context, parameters, provider);
+    #region decimal
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, object, IFormatProvider?)"/>
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(this string mathString, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, null, null, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(this string mathString, IMathParameters parameters, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, null, parameters, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(this string mathString, IMathContext context, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, context, null, provider);
+
+    #region object parameters
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static decimal EvaluateDecimal(this string mathString, object parameters, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, null, parameters, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static decimal EvaluateDecimal(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, context, new MathParameters(parameters), provider);
+
+    #endregion
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(this string mathString,
-        object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateDecimal(mathString, parameters, provider);
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
+        => MathEvaluator.EvaluateDecimal(mathString, context, parameters, provider);
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateDecimal(string, IMathContext?, object, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(this string mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateDecimal(mathString, context, parameters, provider);
+    #endregion
 
-    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, object, IFormatProvider?)"/>
+    #region boolean
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this string mathString, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, null, null, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this string mathString, IMathParameters parameters, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, null, parameters, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static bool EvaluateBoolean(this string mathString, IMathContext context, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, context, null, provider);
+
+    #region object parameters
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static bool EvaluateBoolean(this string mathString, object parameters, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, null, parameters, provider);
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static bool EvaluateBoolean(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
+        => EvaluateBoolean(mathString, context, new MathParameters(parameters), provider);
+
+    #endregion
+
+    /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static bool EvaluateBoolean(this string mathString,
-        object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateBoolean(mathString, parameters, provider);
-
-    /// <inheritdoc cref="MathEvaluator.EvaluateBoolean(string, IMathContext?, object, IFormatProvider?)"/>
-    public static bool EvaluateBoolean(this string mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null) =>
-        MathEvaluator.EvaluateBoolean(mathString, context, parameters, provider);
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
+        => MathEvaluator.EvaluateBoolean(mathString, context, parameters, provider);
 
     #endregion
 }

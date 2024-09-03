@@ -2,7 +2,9 @@
 using MathEvaluation.Entities;
 using MathTrigonometric;
 
-namespace MathEvaluation.Context.Decimal;
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace MathEvaluation.Context;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
 /// The base scientific math context supports all trigonometric functions, logarithms, other scientific math functions, and constants. 

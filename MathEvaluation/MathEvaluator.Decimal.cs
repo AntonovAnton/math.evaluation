@@ -9,54 +9,48 @@ namespace MathEvaluation;
 
 public partial class MathEvaluator
 {
-    /// <inheritdoc cref="Evaluate(IMathParameters?, IFormatProvider?)"/>
-    public decimal EvaluateDecimal(IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateDecimal(MathString.AsSpan(), Context, parameters, provider);
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    public decimal EvaluateDecimal(IFormatProvider? provider = null)
+        => EvaluateDecimal(MathString, Context, null, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(string mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString.AsSpan(), null, parameters, provider);
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    public decimal EvaluateDecimal(IMathParameters parameters, IFormatProvider? provider = null)
+        => EvaluateDecimal(MathString, Context, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString,
-        IMathParameters? parameters = null, IFormatProvider? provider = null)
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, null, null, provider);
+
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathParameters parameters, IFormatProvider? provider = null)
         => EvaluateDecimal(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(string mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString.AsSpan(), context, parameters, provider);
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathContext context, IFormatProvider? provider = null)
+        => EvaluateDecimal(mathString, context, null, provider);
 
-    #region Evaluate(object parameters)
+    #region object parameters
 
-    /// <inheritdoc cref="Evaluate(object, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
     public decimal EvaluateDecimal(object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(MathString.AsSpan(), Context, new MathParameters(parameters), provider);
+        => EvaluateDecimal(MathString, Context, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, object, IFormatProvider?)"/>
-    public decimal EvaluateDecimal(string mathString, object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString.AsSpan(), null, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, object, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, null, new MathParameters(parameters), provider);
+        => EvaluateDecimal(mathString, null, parameters, provider);
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, object, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(string mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString.AsSpan(), context, new MathParameters(parameters), provider);
-
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, object, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(IReadOnlyList<char> mathString,
-        IMathContext? context, object parameters, IFormatProvider? provider = null)
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => EvaluateDecimal(mathString, context, new MathParameters(parameters), provider);
 
     #endregion
 
-    /// <inheritdoc cref="Evaluate(string, IMathContext?, IMathParameters?, IFormatProvider?)"/>
+    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString,
-        IMathContext? context, IMathParameters? parameters = null, IFormatProvider? provider = null)
+        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
     {
         if (mathString == null)
             throw new ArgumentNullException(nameof(mathString));
