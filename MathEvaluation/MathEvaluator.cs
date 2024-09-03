@@ -94,6 +94,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
             ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
             ex.Data[nameof(mathString)] = mathString.ToString();
             ex.Data[nameof(context)] = context;
+            ex.Data[nameof(parameters)] = parameters;
             ex.Data[nameof(provider)] = provider;
             throw ex;
         }
@@ -111,13 +112,17 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
             if (separator.HasValue && mathString[i] == separator.Value &&
                 (numberFormat == null || decimalSeparator != separator.Value || mathString[start..i].IsNotMeaningless()))
             {
-                mathString.ThrowExceptionIfNotEvaluated(value, true, start, i);
+                if (value == default)
+                    mathString.ThrowExceptionIfNotEvaluated(true, start, i);
+
                 return value;
             }
 
             if (closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
             {
-                mathString.ThrowExceptionIfNotEvaluated(value, true, start, i);
+                if (value == default)
+                    mathString.ThrowExceptionIfNotEvaluated(true, start, i);
+
                 return value;
             }
 
@@ -152,7 +157,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
 
                     i++;
                     value += Evaluate(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol,
-                            precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
+                        precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
 
                     if (isOperand)
                         return value;
@@ -202,7 +207,9 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
             }
         }
 
-        mathString.ThrowExceptionIfNotEvaluated(value, isOperand, start, i);
+        if (value == default)
+            mathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
+
         return value;
     }
 
@@ -212,7 +219,9 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
     {
         var start = i;
         var value = Evaluate(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        mathString.ThrowExceptionIfNotEvaluated(value, true, start, i);
+        if (value == default)
+            mathString.ThrowExceptionIfNotEvaluated(true, start, i);
+
         return value;
     }
 

@@ -83,29 +83,13 @@ internal static class ReadOnlySpanExtensions
 
     /// <summary>Throws the exception if not evaluated.</summary>
     /// <param name="str">The math expression string.</param>
-    /// <param name="value">The value.</param>
     /// <param name="isOperand">if set to <c>true</c> [is operand].</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
     /// <exception cref="MathEvaluationException"></exception>
-    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str,
-        double value, bool isOperand, int invalidTokenPosition, int i)
+    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str, bool isOperand, int invalidTokenPosition, int i)
     {
-        if (value == default && !str[invalidTokenPosition..i].IsNotMeaningless())
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
-    }
-
-    /// <summary>Throws the exception if not evaluated.</summary>
-    /// <param name="str">The math expression string.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="isOperand">if set to <c>true</c> [is operand].</param>
-    /// <param name="invalidTokenPosition">The invalid token position.</param>
-    /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException"></exception>
-    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str,
-        decimal value, bool isOperand, int invalidTokenPosition, int i)
-    {
-        if (value == default && !str[invalidTokenPosition..i].IsNotMeaningless())
+        if (!str[invalidTokenPosition..i].IsNotMeaningless())
             throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 
