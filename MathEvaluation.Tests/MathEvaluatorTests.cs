@@ -122,7 +122,7 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.Evaluate(expression, cultureInfo);
+        var value = MathEvaluator.Evaluate(expression, null, null, cultureInfo);
 
         Assert.Equal(expectedValue, value);
     }

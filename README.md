@@ -74,17 +74,17 @@ Examples of using static methods:
 
     MathEvaluator.EvaluateDecimal("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
 
-    MathEvaluator.Evaluate("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", new CultureInfo("en-US"));
+    MathEvaluator.Evaluate("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", null, null, new CultureInfo("en-US"));
 
-    MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", new CultureInfo("de-CH"));
+    MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, null, new CultureInfo("de-CH"));
     
     MathEvaluator.Evaluate("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext());
     
-    MathEvaluator.Evaluate("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), new CultureInfo("fr"));
+    MathEvaluator.Evaluate("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), null, new CultureInfo("fr"));
     
     MathEvaluator.EvaluateDecimal("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext());
     
-    MathEvaluator.EvaluateDecimal("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), new CultureInfo("fr"));
+    MathEvaluator.EvaluateDecimal("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), null, new CultureInfo("fr"));
     
     MathEvaluator.Evaluate("4 % 3", new ProgrammingMathContext());
     

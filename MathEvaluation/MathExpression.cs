@@ -55,8 +55,7 @@ public class MathExpression
     /// <exception cref="ArgumentException">expression</exception>
     /// <exception cref="MathEvaluationException">expression</exception>
     public Func<T, double> Compile<T>(IFormatProvider? provider = null)
-        where T : class
-        => Compile<T>(null, provider);
+        => Compile<T>(default, provider);
 
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
@@ -66,7 +65,6 @@ public class MathExpression
     /// <exception cref="ArgumentException">expression</exception>
     /// <exception cref="MathEvaluationException">expression</exception>
     public Func<T, double> Compile<T>(T? parameters, IFormatProvider? provider = null)
-        where T : class
     {
         try
         {
@@ -99,16 +97,8 @@ public class MathExpression
         var start = i;
         while (mathString.Length > i)
         {
-            if (separator.HasValue && mathString[i] == separator.Value &&
-                (_numberFormat == null || decimalSeparator != separator.Value || mathString[start..i].IsNotMeaningless()))
-            {
-                if (expression == DoubleZero)
-                    mathString.ThrowExceptionIfNotEvaluated(true, start, i);
-
-                return expression;
-            }
-
-            if (closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
+            if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, decimalSeparator) ||
+                closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
             {
                 if (expression == DoubleZero)
                     mathString.ThrowExceptionIfNotEvaluated(true, start, i);
@@ -186,7 +176,7 @@ public class MathExpression
                     break;
                 default:
                     var entity = Context?.FirstMathEntity(mathString[i..]) ?? _parameters?.FirstMathEntity(mathString[i..]);
-                    if (entity == null && _numberFormat != null && mathString.TryParseCurrencySymbol(_numberFormat, ref i))
+                    if (entity == null && _numberFormat != null && mathString.TryParseCurrency(_numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
@@ -241,7 +231,7 @@ public class MathExpression
     private Expression BuildExponentiation(ReadOnlySpan<char> mathString,
         ref int i, char? separator, char? closingSymbol, Expression expression)
     {
-        mathString.SkipMeaninglessChars(ref i);
+        mathString.SkipMeaningless(ref i);
         if (mathString.Length <= i)
             return expression;
 
@@ -308,7 +298,7 @@ public class MathExpression
             case MathGetValueFunction<double> mathFunction:
                 {
                     i += entity.Key.Length;
-                    mathString.SkipParenthesisChars(ref i);
+                    mathString.SkipParenthesis(ref i);
 
                     Expression<Func<double>> lambda = () => mathFunction.Fn();
                     Expression right = Expression.Invoke(lambda);

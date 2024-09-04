@@ -12,7 +12,7 @@ internal static class ReadOnlySpanExtensions
     /// <returns>
     ///   <c>true</c> if it's the currency symbol; otherwise, <c>false</c>.
     /// </returns>
-    public static bool TryParseCurrencySymbol(this ReadOnlySpan<char> str, NumberFormatInfo numberFormat, ref int i)
+    public static bool TryParseCurrency(this ReadOnlySpan<char> str, NumberFormatInfo numberFormat, ref int i)
     {
         if (!str[i..].StartsWith(numberFormat.CurrencySymbol))
             return false;
@@ -46,7 +46,7 @@ internal static class ReadOnlySpanExtensions
     /// <summary>Skips meaningless chars (whitespace, tab, LF, and CR).</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="i">The current char index.</param>
-    public static void SkipMeaninglessChars(this ReadOnlySpan<char> str, ref int i)
+    public static void SkipMeaningless(this ReadOnlySpan<char> str, ref int i)
     {
         while (str.Length > i && IsMeaningless(str[i]))
             i++;
@@ -55,14 +55,28 @@ internal static class ReadOnlySpanExtensions
     /// <summary>Skips parenthesis ().</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="i">The current char index.</param>
-    public static void SkipParenthesisChars(this ReadOnlySpan<char> str, ref int i)
+    public static void SkipParenthesis(this ReadOnlySpan<char> str, ref int i)
     {
         if (str.Length > i && str[i] == '(')
         {
             i++;
-            str.SkipMeaninglessChars(ref i);
+            str.SkipMeaningless(ref i);
             str.ThrowExceptionIfNotClosed(')', i, ref i);
         }
+    }
+
+    /// <summary>Determines whether the current char is the params separator.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="start">The starting position of evaluating.</param>
+    /// <param name="i">The current char index.</param>
+    /// <param name="separator">The params separator.</param>
+    /// <param name="decimalSeparator">The decimal separator (can be the same as the params separator).</param>
+    /// <returns>
+    ///   <c>true</c> if it's the params separator symbol; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsParamsSeparator(this ReadOnlySpan<char> str, int start, int i, char separator, char decimalSeparator)
+    {
+        return str[i] == separator && (decimalSeparator != separator || str[start..i].IsNotMeaningless());
     }
 
     /// <summary>

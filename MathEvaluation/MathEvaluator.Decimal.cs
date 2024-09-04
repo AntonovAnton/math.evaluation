@@ -14,43 +14,17 @@ public partial class MathEvaluator
         => EvaluateDecimal(MathString, Context, null, provider);
 
     /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public decimal EvaluateDecimal(object parameters, IFormatProvider? provider = null)
+        => EvaluateDecimal(MathString, Context, new MathParameters(parameters), provider);
+
+    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
     public decimal EvaluateDecimal(IMathParameters parameters, IFormatProvider? provider = null)
         => EvaluateDecimal(MathString, Context, parameters, provider);
 
     /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, null, null, provider);
-
-    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathParameters parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, null, parameters, provider);
-
-    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathContext context, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, context, null, provider);
-
-    #region object parameters
-
-    /// <inheritdoc cref="Evaluate(IMathParameters, IFormatProvider?)"/>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public decimal EvaluateDecimal(object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(MathString, Context, parameters, provider);
-
-    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, null, parameters, provider);
-
-    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
-        => EvaluateDecimal(mathString, context, new MathParameters(parameters), provider);
-
-    #endregion
-
-    /// <inheritdoc cref="Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(ReadOnlySpan<char> mathString,
-        IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
+        IMathContext? context = null, IMathParameters? parameters = null, IFormatProvider? provider = null)
     {
         if (mathString == null)
             throw new ArgumentNullException(nameof(mathString));
@@ -84,16 +58,8 @@ public partial class MathEvaluator
         var start = i;
         while (mathString.Length > i)
         {
-            if (separator.HasValue && mathString[i] == separator.Value &&
-                (numberFormat == null || decimalSeparator != separator.Value || mathString[start..i].IsNotMeaningless()))
-            {
-                if (value == default)
-                    mathString.ThrowExceptionIfNotEvaluated(true, start, i);
-
-                return value;
-            }
-
-            if (closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
+            if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, decimalSeparator) ||
+                closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
             {
                 if (value == default)
                     mathString.ThrowExceptionIfNotEvaluated(true, start, i);
@@ -167,7 +133,7 @@ public partial class MathEvaluator
                     break;
                 default:
                     var entity = context?.FirstMathEntity(mathString[i..]) ?? parameters?.FirstMathEntity(mathString[i..]);
-                    if (entity == null && numberFormat != null && mathString.TryParseCurrencySymbol(numberFormat, ref i))
+                    if (entity == null && numberFormat != null && mathString.TryParseCurrency(numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
@@ -226,7 +192,7 @@ public partial class MathEvaluator
         IMathContext? context, IMathParameters? parameters, NumberFormatInfo? numberFormat,
         ref int i, char? separator, char? closingSymbol, decimal value)
     {
-        mathString.SkipMeaninglessChars(ref i);
+        mathString.SkipMeaningless(ref i);
         if (mathString.Length <= i)
             return value;
 
@@ -286,7 +252,7 @@ public partial class MathEvaluator
             case MathGetValueFunction<decimal> mathFunction:
                 {
                     i += entity.Key.Length;
-                    mathString.SkipParenthesisChars(ref i);
+                    mathString.SkipParenthesis(ref i);
                     var result = mathFunction.Fn();
                     result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
                     value = (value == 0 ? 1 : value) * result;

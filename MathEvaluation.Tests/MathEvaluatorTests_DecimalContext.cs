@@ -128,7 +128,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, null, null, cultureInfo);
 
         Assert.Equal(expectedValue, value);
     }
@@ -141,7 +141,7 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, cultureInfo);
+        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext, null, cultureInfo);
 
         Assert.Equal((decimal)expectedValue, value);
     }
