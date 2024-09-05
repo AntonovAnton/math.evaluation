@@ -4,9 +4,7 @@ using System.Runtime.CompilerServices;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 
-#pragma warning disable IDE0130 // Namespace does not match folder structure
-namespace MathEvaluation;
-#pragma warning restore IDE0130 // Namespace does not match folder structure
+namespace MathEvaluation.Parameters;
 
 /// <summary>
 /// The base implementation of the <see cref="IMathParameters"/>.
@@ -15,7 +13,7 @@ namespace MathEvaluation;
 /// Performance is improved by using <see cref="ReadOnlySpan{T}"/> for comparing strings. 
 /// For more details, refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
-/// <seealso cref="MathEvaluation.IMathParameters" />
+/// <seealso cref="IMathParameters" />
 public class MathParameters : IMathParameters
 {
     private readonly MathEntitiesTrie _trie = new();
@@ -32,7 +30,7 @@ public class MathParameters : IMathParameters
     public MathParameters(object parameters)
     {
         if (parameters == null)
-            throw new ArgumentNullException("parameters");
+            throw new ArgumentNullException(nameof(parameters));
 
         Bind(parameters);
     }
@@ -42,8 +40,8 @@ public class MathParameters : IMathParameters
         => _trie.FirstMathEntity(expression);
 
     /// <inheritdoc/>
-    /// <exception cref="System.ArgumentNullException">parameters</exception>
-    /// <exception cref="System.NotSupportedException"></exception>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException"></exception>
     public void Bind(object parameters)
     {
         if (parameters == null)
@@ -57,9 +55,10 @@ public class MathParameters : IMathParameters
 
             var key = propertyInfo.Name;
             var value = propertyInfo.GetValue(parameters, null);
-            if (propertyInfo.PropertyType.IsConvertibleToDouble())
+            var valueType = propertyInfo.PropertyType;
+            if (valueType.IsConvertibleToDouble())
             {
-                if (propertyInfo.PropertyType.IsDecimal())
+                if (valueType.IsDecimal())
                     BindVariable(Convert.ToDecimal(value), key);
                 else
                     BindVariable(Convert.ToDouble(value), key);

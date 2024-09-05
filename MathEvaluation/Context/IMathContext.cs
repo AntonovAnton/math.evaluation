@@ -14,6 +14,11 @@ public interface IMathContext
     /// <returns><see cref="IMathEntity" /> instance or null.</returns>
     IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
 
+    /// <summary>Binds constants and functions.</summary>
+    /// <param name="context">An object containing constants and functions.</param>
+    /// <returns></returns>
+    void Bind(object context);
+
     /// <summary>Binds the constant.</summary>
     /// <param name="value">The value.</param>
     /// <param name="key">The key.</param>

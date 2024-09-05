@@ -1,5 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation.Tests;
 
@@ -133,7 +134,7 @@ public partial class MathEvaluatorTests
         var getC = () => c;
         var parameters = new MathParameters();
         parameters.Bind(new { A = a, B = b, C = getC });
-        
+
         var value = expression
             .SetContext(_programmingContext)
             .EvaluateBoolean(parameters);

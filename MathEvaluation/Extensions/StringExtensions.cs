@@ -1,5 +1,6 @@
 ﻿using System;
 using MathEvaluation.Context;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation.Extensions;
 
@@ -29,8 +30,6 @@ public static class StringExtensions
     public static double Evaluate(this string mathString, IMathContext context, IFormatProvider? provider = null)
         => Evaluate(mathString, context, null, provider);
 
-    #region object parameters
-
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
     public static double Evaluate(this string mathString, object parameters, IFormatProvider? provider = null)
@@ -41,12 +40,16 @@ public static class StringExtensions
     public static double Evaluate(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => Evaluate(mathString, context, new MathParameters(parameters), provider);
 
-    #endregion
-
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static double Evaluate(this string mathString,
         IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
         => MathEvaluator.Evaluate(mathString, context, parameters, provider);
+
+    public static Func<double> Compile(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).Compile();
+
+    public static Func<T, double> Compile<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).Compile(parameters);
 
     #region decimal
 
@@ -62,8 +65,6 @@ public static class StringExtensions
     public static decimal EvaluateDecimal(this string mathString, IMathContext context, IFormatProvider? provider = null)
         => EvaluateDecimal(mathString, context, null, provider);
 
-    #region object parameters
-
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
     public static decimal EvaluateDecimal(this string mathString, object parameters, IFormatProvider? provider = null)
@@ -73,8 +74,6 @@ public static class StringExtensions
     /// <exception cref="NotSupportedException">parameters</exception>
     public static decimal EvaluateDecimal(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => EvaluateDecimal(mathString, context, new MathParameters(parameters), provider);
-
-    #endregion
 
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static decimal EvaluateDecimal(this string mathString,
@@ -97,8 +96,6 @@ public static class StringExtensions
     public static bool EvaluateBoolean(this string mathString, IMathContext context, IFormatProvider? provider = null)
         => EvaluateBoolean(mathString, context, null, provider);
 
-    #region object parameters
-
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     /// <exception cref="NotSupportedException">parameters</exception>
     public static bool EvaluateBoolean(this string mathString, object parameters, IFormatProvider? provider = null)
@@ -108,8 +105,6 @@ public static class StringExtensions
     /// <exception cref="NotSupportedException">parameters</exception>
     public static bool EvaluateBoolean(this string mathString, IMathContext? context, object parameters, IFormatProvider? provider = null)
         => EvaluateBoolean(mathString, context, new MathParameters(parameters), provider);
-
-    #endregion
 
     /// <inheritdoc cref="MathEvaluator.Evaluate(ReadOnlySpan{char}, IMathContext?, IMathParameters?, IFormatProvider?)"/>
     public static bool EvaluateBoolean(this string mathString,

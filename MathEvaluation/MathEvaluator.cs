@@ -4,6 +4,7 @@ using System.Globalization;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation;
 
@@ -201,7 +202,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                 return value;
 
             var decimalValue = (decimal)value;
-            if (TryEvaluateContextDecimal(mathString, context, parameters, entity, numberFormat, ref i, separator, closingSymbol, ref decimalValue))
+            if (TryEvaluateEntityDecimal(mathString, context, parameters, entity, numberFormat, ref i, separator, closingSymbol, ref decimalValue))
                 return (double)decimalValue;
         }
 

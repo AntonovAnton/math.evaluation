@@ -5,19 +5,21 @@ using System.Linq.Expressions;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation;
 
 /// <summary>
-/// Compiles any mathematical expression string to the <see cref="Func{T, TResult}"/>.
+/// Compiles any mathematical expression string to the <see cref="Func{T, TResult}"/> with parameters or to the <see cref="Func{TResult}"/>.
 /// </summary>
-public class MathExpression
+public partial class MathExpression
 {
     private static readonly Expression DoubleZero = Expression.Constant(0.0);
 
+    private readonly NumberFormatInfo? _numberFormat;
+
     private ParameterExpression? _parameterExpression;
     private IMathParameters? _parameters;
-    private NumberFormatInfo? _numberFormat;
 
     /// <summary>Gets the math expression string.</summary>
     /// <value>The math expression string.</value>
@@ -27,6 +29,10 @@ public class MathExpression
     /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
     public IMathContext? Context { get; }
 
+    /// <summary>Gets the specified format provider.</summary>
+    /// <value>The specified format provider.</value>
+    public IFormatProvider? Provider { get; }
+
     /// <summary>Gets the expression tree.</summary>
     /// <value>The expression tree.</value>
     public Expression? ExpressionTree { get; private set; }
@@ -34,9 +40,10 @@ public class MathExpression
     /// <summary>Initializes a new instance of the <see cref="MathExpression" /> class.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <param name="context">The math context.</param>
+    /// <param name="provider">The specified format provider.</param>
     /// <exception cref="System.ArgumentNullException">mathString</exception>
     /// <exception cref="System.ArgumentException">Expression string is empty or white space. - mathString</exception>
-    public MathExpression(string mathString, IMathContext? context = null)
+    public MathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null)
     {
         if (mathString == null)
             throw new ArgumentNullException(nameof(mathString));
@@ -46,33 +53,48 @@ public class MathExpression
 
         MathString = mathString;
         Context = context;
+        Provider = provider;
+        _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
     }
 
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
-    /// <param name="provider">The specified format provider.</param>
     /// <returns>A delegate that represents the compiled expression.</returns>
-    /// <exception cref="ArgumentNullException"/>
-    /// <exception cref="ArgumentException">expression</exception>
-    /// <exception cref="MathEvaluationException">expression</exception>
-    public Func<T, double> Compile<T>(IFormatProvider? provider = null)
-        => Compile<T>(default, provider);
-
-    /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
-    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
-    /// <param name="provider">The specified format provider.</param>
-    /// <returns>A delegate that represents the compiled expression.</returns>
-    /// <exception cref="ArgumentNullException"/>
-    /// <exception cref="ArgumentException">expression</exception>
-    /// <exception cref="MathEvaluationException">expression</exception>
-    public Func<T, double> Compile<T>(T? parameters, IFormatProvider? provider = null)
+    /// <exception cref="MathEvaluationException"/>
+    public Func<double> Compile()
     {
         try
         {
-            if (parameters != null)
-                _parameters = new MathParameters(parameters);
+            var i = 0;
+            ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, false, DoubleZero);
+
+            return Expression.Lambda<Func<double>>(ExpressionTree).Compile();
+        }
+        catch (Exception ex)
+        {
+            ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
+            ex.Data["mathString"] = MathString;
+            ex.Data["context"] = Context;
+            ex.Data["parameters"] = null;
+            ex.Data["provider"] = Provider;
+            throw ex;
+        }
+    }
+
+    /// <inheritdoc cref="Compile()"/>
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public Func<T, double> Compile<T>(T parameters)
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters));
+
+        try
+        {
+            _parameters = new MathParameters();
+            _parameters.Bind(parameters);
 
             _parameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
-            _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
 
             var i = 0;
             ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, false, DoubleZero);
@@ -82,9 +104,10 @@ public class MathExpression
         catch (Exception ex)
         {
             ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
-            ex.Data[nameof(MathString)] = MathString;
-            ex.Data[nameof(Context)] = Context;
-            ex.Data[nameof(provider)] = provider;
+            ex.Data["mathString"] = MathString;
+            ex.Data["context"] = Context;
+            ex.Data["parameters"] = parameters;
+            ex.Data["provider"] = Provider;
             throw ex;
         }
     }
@@ -160,7 +183,7 @@ public class MathExpression
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, expression);
+                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DoubleZero);
                     expression = Expression.Multiply(expression, right);
                     break;
                 case '/' when mathString.Length == i + 1 || mathString[i + 1] != '/':
@@ -168,7 +191,7 @@ public class MathExpression
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, expression);
+                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DoubleZero);
                     expression = Expression.Divide(expression, right);
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
@@ -258,8 +281,9 @@ public class MathExpression
             case MathVariable<double> mathVariable:
                 {
                     i += entity.Key.Length;
-                    Expression right = Expression.Constant(mathVariable.Value);
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
+                    Expression right = Expression.Property(_parameterExpression, entity.Key);
+                    if (right.Type != typeof(double))
+                        right = Expression.Convert(right, typeof(double));
                     var left = expression == DoubleZero ? Expression.Constant(1.0) : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
@@ -267,7 +291,7 @@ public class MathExpression
             case MathOperandOperator<double> mathOperator:
                 {
                     i += entity.Key.Length;
-                    Expression<Func<double, double>> lambda = arg => mathOperator.Fn(arg);
+                    Expression<Func<double, double>> lambda = v => mathOperator.Fn(v);
                     if (mathOperator.IsProcessingLeft)
                         expression = Expression.Invoke(lambda, expression);
                     else
@@ -281,7 +305,7 @@ public class MathExpression
             case MathOperandsOperator<double> mathOperator:
                 {
                     i += entity.Key.Length;
-                    Expression<Func<double, double, double>> lambda = (arg1, arg2) => mathOperator.Fn(arg1, arg2);
+                    Expression<Func<double, double, double>> lambda = (v1, v2) => mathOperator.Fn(v1, v2);
                     var rightOperand = BuildOperand(mathString, ref i, separator, closingSymbol);
                     rightOperand = BuildExponentiation(mathString, ref i, separator, closingSymbol, rightOperand);
                     expression = Expression.Invoke(lambda, expression, rightOperand);
@@ -290,7 +314,7 @@ public class MathExpression
             case MathOperator<double> mathOperator:
                 {
                     i += entity.Key.Length;
-                    Expression<Func<double, double, double>> lambda = (arg1, arg2) => mathOperator.Fn(arg1, arg2);
+                    Expression<Func<double, double, double>> lambda = (v1, v2) => mathOperator.Fn(v1, v2);
                     var right = Build(mathString, ref i, separator, closingSymbol, mathOperator.Precedence, false, DoubleZero);
                     expression = Expression.Invoke(lambda, expression, right);
                     return true;
@@ -320,7 +344,7 @@ public class MathExpression
                     if (mathFunction.ClosingSymbol.HasValue)
                         mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol.Value, start, ref i);
 
-                    Expression<Func<double, double>> lambda = (arg) => mathFunction.Fn(arg);
+                    Expression<Func<double, double>> lambda = (value) => mathFunction.Fn(value);
                     Expression right = Expression.Invoke(lambda, arg);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
@@ -348,8 +372,8 @@ public class MathExpression
 
                     mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol, start, ref i);
 
-                    Expression<Func<double[], double>> lambda = (args) => mathFunction.Fn(args);
-                    Expression right = Expression.Invoke(lambda, args);
+                    Expression<Func<double[], double>> lambda = (values) => mathFunction.Fn(values);
+                    Expression right = Expression.Invoke(lambda, Expression.NewArrayInit(typeof(double), args));
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
                     expression = Expression.Multiply(left, right);

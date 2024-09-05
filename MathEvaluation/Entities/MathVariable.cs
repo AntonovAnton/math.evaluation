@@ -1,7 +1,7 @@
 ﻿namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The math variable.
+/// The math variable uses as a parameter.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathVariable<T>(string? key, T value) : MathEntity(key)

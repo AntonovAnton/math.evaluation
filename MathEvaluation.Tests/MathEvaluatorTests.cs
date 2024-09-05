@@ -2,6 +2,7 @@
 using Xunit.Abstractions;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation.Tests;
 
@@ -13,7 +14,7 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void MathEvaluator_Evaluate_Null_ThrowArgumentNullException()
     {
-        var ex = Record.Exception(() => MathEvaluator.EvaluateDecimal(null!));
+        var ex = Record.Exception(() => MathEvaluator.Evaluate(null!));
         Assert.IsType<ArgumentNullException>(ex);
     }
 
@@ -66,11 +67,11 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
-    public void MathEvaluator_Evaluate_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_Evaluate_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression!);
+        var value = MathEvaluator.Evaluate(expression);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -453,11 +454,11 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var getX1 = () => x1;
         var getX2 = () => x2;
 
-        var parameters = new MathParameters(new { getX1, getX2 });
+        _scientificContext.Bind(new { getX1, getX2 });
 
         var value = expression
             .SetContext(_scientificContext)
-            .Evaluate(parameters);
+            .Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -474,10 +475,11 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
         var sqrt = Math.Sqrt;
         Func<double, double> ln = Math.Log;
 
-        var parameters = new MathParameters();
-        parameters.Bind(new { x1, x2, sqrt, ln });
+        var context = new MathContext(new { sqrt, ln });
+        var parameters = new MathParameters(new { x1, x2 });
 
         var value = expression
+            .SetContext(context)
             .Evaluate(parameters);
 
         Assert.Equal(expectedValue, value);
@@ -501,8 +503,10 @@ public partial class MathEvaluatorTests(ITestOutputHelper testOutputHelper)
             return minValue;
         };
 
-        var value = expression
-            .Evaluate(new { min });
+        var context = new MathContext();
+        context.Bind(new { min });
+
+        var value = expression.Evaluate(context);
 
         Assert.Equal(expectedValue, value);
     }
