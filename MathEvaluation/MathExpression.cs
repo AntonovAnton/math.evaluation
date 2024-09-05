@@ -15,6 +15,7 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     private static readonly Expression DoubleZero = Expression.Constant(0.0);
+    private static readonly Expression DoubleOne = Expression.Constant(1.0);
 
     private readonly NumberFormatInfo? _numberFormat;
 
@@ -152,11 +153,11 @@ public partial class MathExpression
                         return right;
 
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && start != i && mathString[start..i].IsNotMeaningless())
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
                         return expression;
 
                     i++;
@@ -167,7 +168,7 @@ public partial class MathExpression
                         return expression;
                     break;
                 case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && mathString[start..i].IsNotMeaningless())
+                    if (precedence >=(int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
                         return expression;
 
                     var isNegativity = start == i;
@@ -237,18 +238,15 @@ public partial class MathExpression
             if (TryBuildEntity(mathString, entity, ref i, separator, closingSymbol, ref expression))
                 return expression;
 
-            //var decimalValue = (decimal)expression;
-            //if (TryBuildContextDecimal(mathString, entity, _numberFormat, ref i, separator, closingSymbol, ref decimalValue))
-            //    return (double)decimalValue;
+            Expression convertExpression = expression == DoubleZero ? DecimalZero : Expression.Convert(expression, typeof(decimal));
+            if (TryBuildEntityDecimal(mathString, entity, ref i, separator, closingSymbol, ref convertExpression))
+                return Expression.Convert(convertExpression, typeof(double));
         }
 
-        if (!throwError)
-            return expression;
+        if (throwError)
+            mathString.ThrowExceptionInvalidToken(i);
 
-        var end = mathString[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
-        var unknownSubstring = end > i ? mathString[i..end] : mathString[i..];
-
-        throw new MathEvaluationException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
+        return expression;
     }
 
     private Expression BuildExponentiation(ReadOnlySpan<char> mathString,
@@ -274,7 +272,7 @@ public partial class MathExpression
                     i += entity.Key.Length;
                     Expression right = Expression.Constant(mathConstant.Value);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
                 }
@@ -284,7 +282,7 @@ public partial class MathExpression
                     Expression right = Expression.Property(_parameterExpression, entity.Key);
                     if (right.Type != typeof(double))
                         right = Expression.Convert(right, typeof(double));
-                    var left = expression == DoubleZero ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
                 }
@@ -327,7 +325,7 @@ public partial class MathExpression
                     Expression<Func<double>> lambda = () => mathFunction.Fn();
                     Expression right = Expression.Invoke(lambda);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
                 }
@@ -347,7 +345,7 @@ public partial class MathExpression
                     Expression<Func<double, double>> lambda = (value) => mathFunction.Fn(value);
                     Expression right = Expression.Invoke(lambda, arg);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
                 }
@@ -375,7 +373,7 @@ public partial class MathExpression
                     Expression<Func<double[], double>> lambda = (values) => mathFunction.Fn(values);
                     Expression right = Expression.Invoke(lambda, Expression.NewArrayInit(typeof(double), args));
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression is ConstantExpression c && (double)c.Value == 0.0 ? Expression.Constant(1.0) : expression;
+                    var left = expression == DoubleZero ? DoubleOne : expression;
                     expression = Expression.Multiply(left, right);
                     return true;
                 }

@@ -75,11 +75,11 @@ public partial class MathEvaluatorTests_DecimalContext(ITestOutputHelper testOut
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \n\r 3", 2 + (5 - 1) - 3)]
-    public void MathEvaluator_EvaluateDecimal_ExpectedValue(string? expression, double expectedValue)
+    public void MathEvaluator_EvaluateDecimal_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression!);
+        var value = MathEvaluator.EvaluateDecimal(expression);
 
         Assert.Equal((decimal)expectedValue, value);
     }

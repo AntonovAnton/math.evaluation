@@ -1,4 +1,4 @@
-﻿namespace MathEvaluation.Tests;
+﻿namespace MathEvaluation.Tests.Compilation;
 
 public partial class MathExpressionTests
 {

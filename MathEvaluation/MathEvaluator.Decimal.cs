@@ -94,7 +94,7 @@ public partial class MathEvaluator
                     value = (value == 0 ? 1 : value) * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && start != i && mathString[start..i].IsNotMeaningless())
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
                         return value;
 
                     i++;
@@ -105,7 +105,7 @@ public partial class MathEvaluator
                         return value;
                     break;
                 case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && start != i && mathString[start..i].IsNotMeaningless())
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
                         return value;
 
                     i++;
@@ -180,13 +180,10 @@ public partial class MathEvaluator
                 return (decimal)doubleValue;
         }
 
-        if (!throwError)
-            return value;
+        if (throwError)
+            mathString.ThrowExceptionInvalidToken(i);
 
-        var end = mathString[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
-        var unknownSubstring = end > i ? mathString[i..end] : mathString[i..];
-
-        throw new MathEvaluationException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
+        return value;
     }
 
     private static decimal EvaluateExponentiationDecimal(ReadOnlySpan<char> mathString,

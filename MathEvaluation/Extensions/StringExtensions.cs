@@ -45,11 +45,29 @@ public static class StringExtensions
         IMathContext? context, IMathParameters? parameters, IFormatProvider? provider = null)
         => MathEvaluator.Evaluate(mathString, context, parameters, provider);
 
+    /// <inheritdoc cref="MathExpression.Compile()"/>
     public static Func<double> Compile(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile();
 
+    /// <inheritdoc cref="MathExpression.Compile{T}(T)"/>
     public static Func<T, double> Compile<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile(parameters);
+
+    /// <inheritdoc cref="MathExpression.CompileDecimal()"/>
+    public static Func<decimal> CompileDecimal(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileDecimal();
+
+    /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)"/>
+    public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileDecimal(parameters);
+
+    /// <inheritdoc cref="MathExpression.CompileBoolean()"/>
+    public static Func<bool> CompileBoolean(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileBoolean();
+
+    /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)"/>
+    public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
 
     #region decimal
 

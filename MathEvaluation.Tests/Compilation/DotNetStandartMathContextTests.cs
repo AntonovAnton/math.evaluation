@@ -1,11 +1,10 @@
 ﻿using Xunit.Abstractions;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
-using MathEvaluation.Parameters;
 
-namespace MathEvaluation.Tests;
+namespace MathEvaluation.Tests.Compilation;
 
-public class DotNetStandartMathContextTests_Compilation(ITestOutputHelper testOutputHelper)
+public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
 {
     private readonly DotNetStandartMathContext _context = new();
 
@@ -84,32 +83,32 @@ public class DotNetStandartMathContextTests_Compilation(ITestOutputHelper testOu
         Assert.Equal(expectedValue, value);
     }
 
-    //[Theory]
-    //[InlineData("false == Math.E", false)]
-    //[InlineData("!false", true)]
-    //[InlineData("false != Math.E", true)]
-    //[InlineData("false || Math.E", true)]
-    //[InlineData("true ^ true", false)]
-    //[InlineData("200 >= 2.4", 200 >= 2.4)]
-    //[InlineData("200 <= 2.4", 200 <= 2.4)]
-    //[InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    //[InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
-    //[InlineData("5.4 < 5.4", 5.4 < 5.4)]
-    //[InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
-    //[InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
-    //[InlineData("Math.Sin(0) == Math.Tan(0)", true)]
-    //[InlineData("Math.Sin(0) != Math.Cos(1)", true)]
-    //[InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    //[InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    //public void MathExpression_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
-    //{
-    //    testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+    [Theory]
+    [InlineData("false == Math.E", false)]
+    [InlineData("!false", true)]
+    [InlineData("false != Math.E", true)]
+    [InlineData("false || Math.E", true)]
+    [InlineData("true ^ true", false)]
+    [InlineData("200 >= 2.4", 200 >= 2.4)]
+    [InlineData("200 <= 2.4", 200 <= 2.4)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("5.4 < 5.4", 5.4 < 5.4)]
+    [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
+    [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
+    [InlineData("Math.Sin(0) == Math.Tan(0)", true)]
+    [InlineData("Math.Sin(0) != Math.Cos(1)", true)]
+    [InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
+    public void MathExpression_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-    //    var fn = new MathExpression(expression, _context).CompileBoolean();
-    //    var value = fn();
+        var fn = new MathExpression(expression, _context).CompileBoolean();
+        var value = fn();
 
-    //    Assert.Equal(expectedValue, value);
-    //}
+        Assert.Equal(expectedValue, value);
+    }
 
     [Theory]
     [InlineData("2 ^ 3", 1)]
@@ -408,19 +407,16 @@ public class DotNetStandartMathContextTests_Compilation(ITestOutputHelper testOu
     }
 
     [Theory]
-    [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
-    [InlineData("x", "x", 0.5, 0.5d)]
-    [InlineData("2x", "x", 0.5, 1d)]
-    [InlineData("PI", $"{nameof(Math.PI)}", Math.PI, Math.PI)]
-    [InlineData("2 * PI", $"{nameof(Math.PI)}", Math.PI, 2 * Math.PI)]
-    public void MathExpression_CompileThenInvoke_HasVariable_ExpectedValue(string expression, string varName,
+    [InlineData("Math.Log(1/x + Math.Sqrt(1/(x*x) + 1))", 0.5, 1.4436354751788103d)]
+    [InlineData("x", 0.5, 0.5d)]
+    [InlineData("2x", 0.5, 1d)]
+    [InlineData("PI", Math.PI, Math.PI)]
+    [InlineData("2 * PI", Math.PI, 2 * Math.PI)]
+    public void MathExpression_CompileThenInvoke_HasVariable_ExpectedValue(string expression,
         double varValue, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-        testOutputHelper.WriteLine($"{varName} = {varValue}");
-
-        var parameters = new MathParameters();
-        parameters.BindVariable(varValue, varName);
+        testOutputHelper.WriteLine($"variable value = {varValue}");
 
         var fn = expression.Compile(new { x = 0.0, PI = 0.0 }, _context);
         var value = fn(new { x = varValue, PI = varValue });
