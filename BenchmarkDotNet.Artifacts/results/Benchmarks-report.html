@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Benchmarks-20240906-030637</title>
+<title>Benchmarks-20240906-032745</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -25,16 +25,16 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4112/23H2/2023Update/SunValley3
 <table>
 <thead><tr><th>Method                                                            </th><th>Job</th><th>Runtime</th><th>Mean   </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>669.78 ns</td><td>3.047 ns</td><td>2.850 ns</td><td>-</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.Evaluate(_scientificContext)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>476.85 ns</td><td>2.375 ns</td><td>2.105 ns</td><td>-</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Evaluate(_scientificContext, new { a, b })&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>747.90 ns</td><td>5.437 ns</td><td>5.086 ns</td><td>0.0572</td><td>-</td><td>728 B</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Compile(new { a, b }, _scientificContext)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>165,265.02 ns</td><td>3,278.968 ns</td><td>5,828.362 ns</td><td>0.9766</td><td>0.4883</td><td>13925 B</td>
-</tr><tr><td>&#39;compiled sin(a) + cos(b): fn(new { a, b })&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>24.26 ns</td><td>0.189 ns</td><td>0.176 ns</td><td>0.0044</td><td>-</td><td>56 B</td>
-</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>565.68 ns</td><td>5.249 ns</td><td>4.653 ns</td><td>-</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.Evaluate(_scientificContext)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>407.17 ns</td><td>1.402 ns</td><td>1.311 ns</td><td>-</td><td>-</td><td>-</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Evaluate(_scientificContext, new { a, b })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>502.43 ns</td><td>2.711 ns</td><td>2.404 ns</td><td>0.0572</td><td>-</td><td>728 B</td>
-</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Compile(new { a, b }, _scientificContext)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>144,108.94 ns</td><td>676.229 ns</td><td>599.459 ns</td><td>0.9766</td><td>0.7324</td><td>13941 B</td>
-</tr><tr><td>&#39;compiled sin(a) + cos(b): fn(new { a, b })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>21.90 ns</td><td>0.455 ns</td><td>0.623 ns</td><td>0.0044</td><td>-</td><td>56 B</td>
+</thead><tbody><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>683.62 ns</td><td>2.080 ns</td><td>1.946 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.Evaluate(_scientificContext)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>478.11 ns</td><td>1.162 ns</td><td>1.030 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Evaluate(_scientificContext, new { a, b })&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>757.19 ns</td><td>10.730 ns</td><td>9.512 ns</td><td>0.0572</td><td>-</td><td>728 B</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Compile(new { a, b }, _scientificContext)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>161,085.95 ns</td><td>1,155.021 ns</td><td>1,080.408 ns</td><td>0.9766</td><td>0.4883</td><td>13922 B</td>
+</tr><tr><td>&#39;compiled sin(a) + cos(b): fn(new { a, b })&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>24.46 ns</td><td>0.227 ns</td><td>0.190 ns</td><td>0.0044</td><td>-</td><td>56 B</td>
+</tr><tr><td>&#39;&quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;.Evaluate()&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>549.06 ns</td><td>2.590 ns</td><td>2.296 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(pi/6) + cos(pi/3)&quot;.Evaluate(_scientificContext)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>395.17 ns</td><td>1.146 ns</td><td>1.016 ns</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Evaluate(_scientificContext, new { a, b })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>495.00 ns</td><td>2.539 ns</td><td>2.375 ns</td><td>0.0572</td><td>-</td><td>728 B</td>
+</tr><tr><td>&#39;&quot;sin(a) + cos(b)&quot;.Compile(new { a, b }, _scientificContext)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>144,535.09 ns</td><td>1,156.682 ns</td><td>965.882 ns</td><td>0.9766</td><td>0.7324</td><td>13941 B</td>
+</tr><tr><td>&#39;compiled sin(a) + cos(b): fn(new { a, b })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>22.34 ns</td><td>0.407 ns</td><td>0.380 ns</td><td>0.0044</td><td>-</td><td>56 B</td>
 </tr></tbody></table>
 </body>
 </html>

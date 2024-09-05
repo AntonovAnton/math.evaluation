@@ -119,7 +119,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                     value = (value == 0 ? 1 : value) * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return value;
 
                     i++;
@@ -130,7 +130,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                         return value;
                     break;
                 case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return value;
 
                     var isNegativity = start == i;

@@ -94,7 +94,7 @@ public partial class MathEvaluator
                     value = (value == 0 ? 1 : value) * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return value;
 
                     i++;
@@ -105,13 +105,14 @@ public partial class MathEvaluator
                         return value;
                     break;
                 case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return value;
 
+                    var isNegativity = start == i;
                     i++;
-                    value -= EvaluateDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol,
+                    result = EvaluateDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol,
                         precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand);
-
+                    value = isNegativity ? -result : value - result; //it keeps sign
                     if (isOperand)
                         return value;
                     break;

@@ -76,7 +76,7 @@ internal static class ReadOnlySpanExtensions
     /// </returns>
     public static bool IsParamsSeparator(this ReadOnlySpan<char> str, int start, int i, char separator, char decimalSeparator)
     {
-        return str[i] == separator && (decimalSeparator != separator || str.IsNotMeaningless(start, i));
+        return str[i] == separator && (decimalSeparator != separator || !str.IsMeaningless(start, i));
     }
 
     /// <summary>
@@ -88,17 +88,12 @@ internal static class ReadOnlySpanExtensions
     /// <returns>
     ///   <c>true</c> if the specified string is meaningless; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsNotMeaningless(this ReadOnlySpan<char> str, int start, int end)
+    public static bool IsMeaningless(this ReadOnlySpan<char> str, int start, int end)
     {
-        while (start < end)
-        {
-            if (!IsMeaningless(str[start]))
-                return true;
-
+        while (start < end && IsMeaningless(str[start]))
             start++;
-        }
 
-        return false;
+        return start == end;
     }
 
     /// <summary>Throws the exception if not evaluated.</summary>
@@ -109,7 +104,7 @@ internal static class ReadOnlySpanExtensions
     /// <exception cref="MathEvaluationException"></exception>
     public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str, bool isOperand, int invalidTokenPosition, int i)
     {
-        if (!str.IsNotMeaningless(invalidTokenPosition, i))
+        if (str.IsMeaningless(invalidTokenPosition, i))
             throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 

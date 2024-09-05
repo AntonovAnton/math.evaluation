@@ -109,7 +109,7 @@ public partial class MathExpression
                     expression = Expression.Multiply(left, right);
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >=(int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (isOperand || precedence >=(int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return expression;
 
                     i++;
@@ -120,7 +120,7 @@ public partial class MathExpression
                         return expression;
                     break;
                 case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && mathString.IsNotMeaningless(start, i))
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
                         return expression;
 
                     var isNegativity = start == i;
