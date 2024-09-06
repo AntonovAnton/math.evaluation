@@ -13,7 +13,6 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     private static readonly Expression DecimalZero = Expression.Constant(0.0m);
-    private static readonly Expression DecimalOne = Expression.Constant(1.0m);
 
     /// <inheritdoc cref="Compile()"/>
     public Func<decimal> CompileDecimal()
@@ -222,8 +221,7 @@ public partial class MathExpression
                     Expression right = Expression.Property(_parameterExpression, entity.Key);
                     if (right.Type != typeof(decimal))
                         right = Expression.Convert(right, typeof(decimal));
-                    var left = expression == DecimalZero ? DecimalOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DecimalZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             case MathOperandOperator<decimal> mathOperator:

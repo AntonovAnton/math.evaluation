@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
-using System.Security.Cryptography;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
@@ -16,7 +15,6 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     private static readonly Expression DoubleZero = Expression.Constant(0.0);
-    private static readonly Expression DoubleOne = Expression.Constant(1.0);
 
     private readonly NumberFormatInfo? _numberFormat;
 
