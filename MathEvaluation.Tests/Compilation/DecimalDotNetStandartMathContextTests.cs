@@ -1,7 +1,6 @@
 ﻿using Xunit.Abstractions;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
-using MathEvaluation.Parameters;
 
 namespace MathEvaluation.Tests.Compilation;
 

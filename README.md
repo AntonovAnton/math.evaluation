@@ -2,14 +2,18 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator?style=for-the-badge)](https://www.nuget.org/packages/MathEvaluator/)
 [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator?style=for-the-badge)](https://www.nuget.org/packages/MathEvaluator/)
 ## Overview
-MathEvaluator is a .NET library that allows you to evaluate any mathematical expressions from a string dynamically.
+MathEvaluator is a .NET library that allows you to evaluate and compile any mathematical expressions from a string dynamically.
 
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates to double, boolean, or decimal.
-- Provides variable support within expressions.
-- Extensible with custom functions.
+- Compiles a math expression string into executable code and produces a delegate that represents the math expression.
+- Provides variable support within math expressions.
+- Extensible with custom functions and operators.
 - Fast and comprehensive. More than 1300 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+
+## Articles
+[Evaluating Boolean Expressions. Comparison with NCalc.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
 
 ## Installation
 
@@ -36,10 +40,16 @@ Below are the results of the comparison with the NCalc library:
 
 | Method                                                                   | Job      | Runtime  | Mean       | Error    | StdDev   | Gen0   | Allocated |
 |------------------------------------------------------------------------- |--------- |--------- |-----------:|---------:|---------:|-------:|----------:|
-| MathEvaluator | .NET 6.0 | .NET 6.0 |   616.9 ns |  2.67 ns |  2.23 ns |      - |         - |
+| MathEvaluator | .NET 6.0 | .NET 6.0 |     670.33 ns |     3.304 ns |     3.091 ns | 0.0057 |      80 B |
 | NCalc | .NET 6.0 | .NET 6.0 | 8,901.1 ns | 62.27 ns | 52.00 ns | 0.2747 |    3464 B |
-| MathEvaluator | .NET 8.0 | .NET 8.0 |   518.0 ns |  2.20 ns |  1.95 ns |      - |         - |
+| MathEvaluator | .NET 8.0 | .NET 8.0 |     547.54 ns |     1.283 ns |     1.072 ns | 0.0057 |      80 B |
 | NCalc | .NET 8.0 | .NET 8.0 | 8,499.7 ns | 40.09 ns | 37.50 ns | 0.2594 |    3440 B |
+
+## Compilation
+Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.2.0)
+
+By using compilation, you can convert any mathematical expression string into a delegate, such as Func\<T, TResult> or Func\<TResult>, which significantly improves performance when evaluating the expression. 
+However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 300 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/blob/main/BenchmarkDotNet.Artifacts/results/Benchmarks-report-github.md) for detailed performance insights.
 
 ## How to use
 Examples of using string extentions:
@@ -48,9 +58,9 @@ Examples of using string extentions:
 
     "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".EvaluateDecimal();
 
-    "$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6".Evaluate(new CultureInfo("en-US"));
+    "$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6".Evaluate(null, new CultureInfo("en-US"));
 
-    "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(new CultureInfo("de-CH"));
+    "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(null, new CultureInfo("de-CH"));
 
     "ln(1/-0.5 + √(1/(0.5^2) + 1))".Evaluate(new ScientificMathContext());
     
@@ -68,59 +78,33 @@ Examples of using string extentions:
 
     "¬⊥∧⊤∨¬⊤⇒¬⊤".EvaluateBoolean(new ScientificMathContext());
 
-Examples of using static methods:
+Examples of using an instance of the MathExpression class:
         
-    MathEvaluator.Evaluate("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
+    new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
 
-    MathEvaluator.EvaluateDecimal("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6");
+    new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").EvaluateDecimal();
 
-    MathEvaluator.Evaluate("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", null, null, new CultureInfo("en-US"));
+    new MathExpression("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", null, new CultureInfo("en-US")).Evaluate();
 
-    MathEvaluator.EvaluateDecimal("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, null, new CultureInfo("de-CH"));
+    new MathExpression("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, new CultureInfo("de-CH")).EvaluateDecimal();
     
-    MathEvaluator.Evaluate("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext());
+    new MathExpression("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext()).Evaluate();
     
-    MathEvaluator.Evaluate("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), null, new CultureInfo("fr"));
+    new MathExpression("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), new CultureInfo("fr")).Evaluate();
     
-    MathEvaluator.EvaluateDecimal("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext());
+    new MathExpression("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal();
     
-    MathEvaluator.EvaluateDecimal("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), null, new CultureInfo("fr"));
+    new MathExpression("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), new CultureInfo("fr")).EvaluateDecimal();
     
-    MathEvaluator.Evaluate("4 % 3", new ProgrammingMathContext());
+    new MathExpression("4 % 3", new ProgrammingMathContext()).Evaluate();
     
-    MathEvaluator.EvaluateDecimal("4 mod 3", new DecimalScientificMathContext());
+    new MathExpression("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
 
-    MathEvaluator.EvaluateBoolean("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext());
+    new MathExpression("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
-    MathEvaluator.EvaluateBoolean("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext());
+    new MathExpression("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
 
-Examples of using an instance of the MathEvaluator class:
-        
-    new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
-
-    new MathEvaluator("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").EvaluateDecimal();
-
-    new MathEvaluator("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6").Evaluate(new CultureInfo("en-US"));
-
-    new MathEvaluator("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6").EvaluateDecimal(new CultureInfo("de-CH"));
-    
-    new MathEvaluator("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext()).Evaluate();
-    
-    new MathEvaluator("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext()).Evaluate(new CultureInfo("fr"));
-    
-    new MathEvaluator("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal();
-    
-    new MathEvaluator("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal(new CultureInfo("fr"));
-    
-    new MathEvaluator("4 % 3", new ProgrammingMathContext()).Evaluate();
-    
-    new MathEvaluator("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
-
-    new MathEvaluator("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
-
-    new MathEvaluator("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
-
-Examples of using custom variables or functions:
+Examples of passing custom variables and functions as parameters:
         
     var x1 = 0.5;
     var x2 = -0.5;
@@ -128,30 +112,43 @@ Examples of using custom variables or functions:
     Func<double, double> ln = Math.Log;
 
     var value1 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1))"
-        .Bind(new { x1, x2, sqrt, ln })
-        .Evaluate();
+        .Evaluate(new { x1, x2, sqrt, ln });
+
+    var parameters = new MathParameters();
+    parameters.BindVariable(0.5, "x1");
+    parameters.BindVariable(-0.5, "x2");
+    parameters.BindFunction(Math.Sqrt);
+    parameters.BindFunction(d => Math.Log(d), "ln");
 
     var value2 = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
-        .BindVariable(0.5, "x1")
-        .BindVariable(-0.5, "x2")
-        .BindFunction(Math.Sqrt)
-        .BindFunction(Math.Log, "ln")
-        .Evaluate();
+        .Evaluate(parameters);
 
 Example of using custom context:
 
     var context = new MathContext();
-    context.BindVariable(0.5, "x1");
-    context.BindVariable(-0.5, "x2");
     context.BindFunction(Math.Sqrt);
-    context.BindFunction(Math.Log, "ln");
+    context.BindFunction(d => Math.Log(d), "ln");
 
     "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
-        .SetContext(context)
-        .Evaluate();
+        .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
+
+Examples of compilation:
+
+    
+    Func<decimal> fn1 = "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6"
+        .CompileDecimal(null, new CultureInfo("de-CH"));
+
+    var value1 = fn1();
+
+    var fn2 = "ln(1/x1 + √(1/(x2*x2) + 1))"
+        .Compile(new { x1 = 0.0, x2 = 0.0 }, new ScientificMathContext());
+
+    var value2 = fn2(new { x1 = -0.5, x2 = 0.5 });
+
 
 ## Supported math functions, operators, and constants
 
+#### When no mathematical context is specified:
 |          | Notation | Precedence |
 |--------- |--------- | --------- |
 | Addition | + | 0 |

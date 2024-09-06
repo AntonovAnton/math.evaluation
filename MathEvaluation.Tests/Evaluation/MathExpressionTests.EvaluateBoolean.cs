@@ -2,9 +2,9 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 
-namespace MathEvaluation.Tests;
+namespace MathEvaluation.Tests.Evaluation;
 
-public partial class MathEvaluatorTests
+public partial class MathExpressionTests
 {
     [Theory]
     [InlineData("false = true", false)]
@@ -24,11 +24,11 @@ public partial class MathEvaluatorTests
     [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
+        var value = new MathExpression(expression, _programmingContext).EvaluateBoolean();
 
         Assert.Equal(expectedValue, value);
     }
@@ -51,11 +51,11 @@ public partial class MathEvaluatorTests
     [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateBoolean();
 
         Assert.Equal(expectedValue, value);
     }
@@ -111,11 +111,11 @@ public partial class MathEvaluatorTests
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
     [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateBoolean();
 
         Assert.Equal(expectedValue, value);
     }
@@ -127,7 +127,7 @@ public partial class MathEvaluatorTests
     [InlineData("A or not B and C", true, false, false, true)]
     [InlineData("A or not B and (C or B)", true, false, true, true)]
     [InlineData("A or not B and (C or B)", false, true, false, false)]
-    public void MathEvaluator_EvaluateBoolean_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -135,9 +135,7 @@ public partial class MathEvaluatorTests
         var parameters = new MathParameters();
         parameters.Bind(new { A = a, B = b, C = getC });
 
-        var value = expression
-            .SetContext(_programmingContext)
-            .EvaluateBoolean(parameters);
+        var value = expression.EvaluateBoolean(parameters, _programmingContext);
 
         Assert.Equal(expectedValue, value);
     }
@@ -145,7 +143,7 @@ public partial class MathEvaluatorTests
     [Theory]
     [InlineData("if(3 % a = 1, true, false)", 2d, true)]
     [InlineData("if(3 % a = 1, true, false)", 1d, false)]
-    public void MathEvaluator_EvaluateBoolean_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -155,9 +153,7 @@ public partial class MathEvaluatorTests
         var parameters = new MathParameters();
         parameters.BindVariable(a);
 
-        var value = expression
-            .SetContext(context)
-            .EvaluateBoolean(parameters);
+        var value = expression.EvaluateBoolean(parameters, context);
 
         Assert.Equal(expectedValue, value);
     }

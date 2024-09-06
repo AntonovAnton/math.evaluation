@@ -2,9 +2,9 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 
-namespace MathEvaluation.Tests;
+namespace MathEvaluation.Tests.Evaluation;
 
-public partial class MathEvaluatorTests_DecimalContext
+public partial class MathExpressionTests_DecimalContext
 {
     [Theory]
     [InlineData("false = true", false)]
@@ -24,11 +24,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateDecimal_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _programmingContext);
+        var value = new MathExpression(expression, _programmingContext).EvaluateDecimal();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -51,11 +51,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateDecimal_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -111,11 +111,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
     [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateDecimal_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateDecimal_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -127,14 +127,12 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("A or not B and C", true, false, false, true)]
     [InlineData("A or not B and (C or B)", true, false, true, true)]
     [InlineData("A or not B and (C or B)", false, true, false, false)]
-    public void MathEvaluator_EvaluateDecimal_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
+    public void MathExpression_EvaluateDecimal_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var value = expression
-            .SetContext(_programmingContext)
-            .EvaluateDecimal(new MathParameters(new { A = a, B = b, C = getC }));
+        var value = expression.EvaluateDecimal(new { A = a, B = b, C = getC }, _programmingContext);
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -142,7 +140,7 @@ public partial class MathEvaluatorTests_DecimalContext
     [Theory]
     [InlineData("if(3 % a = 1, true, false)", 2d, true)]
     [InlineData("if(3 % a = 1, true, false)", 1d, false)]
-    public void MathEvaluator_EvaluateDecimal_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    public void MathExpression_EvaluateDecimal_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
@@ -152,9 +150,7 @@ public partial class MathEvaluatorTests_DecimalContext
         var parameters = new MathParameters();
         parameters.BindVariable(a);
 
-        var value = expression
-            .SetContext(context)
-            .EvaluateDecimal(parameters);
+        var value = expression.EvaluateDecimal(parameters, context);
 
         Assert.Equal(expectedValue, value != 0.0m);
     }

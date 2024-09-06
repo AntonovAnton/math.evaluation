@@ -7,9 +7,6 @@ using MathEvaluation.Parameters;
 
 namespace MathEvaluation;
 
-/// <summary>
-/// Compiles any mathematical expression string to the <see cref="Func{T, TResult}"/> with parameters or to the <see cref="Func{TResult}"/>.
-/// </summary>
 public partial class MathExpression
 {
     private static readonly Expression DecimalZero = Expression.Constant(0.0m);
@@ -36,13 +33,11 @@ public partial class MathExpression
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
 
+        _parameters = new MathParameters(parameters);
+        _parameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
+
         try
         {
-            _parameters = new MathParameters();
-            _parameters.Bind(parameters);
-
-            _parameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
-
             var i = 0;
             ExpressionTree = BuildDecimal(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, false, DecimalZero);
 
@@ -57,12 +52,10 @@ public partial class MathExpression
     private Expression BuildDecimal(ReadOnlySpan<char> mathString,
         ref int i, char? separator, char? closingSymbol, int precedence, bool isOperand, Expression expression)
     {
-        var decimalSeparator = _numberFormat?.NumberDecimalSeparator?.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
-
         var start = i;
         while (mathString.Length > i)
         {
-            if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, decimalSeparator) ||
+            if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, _decimalSeparator) ||
                 closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
             {
                 if (expression == DecimalZero)
@@ -71,7 +64,7 @@ public partial class MathExpression
                 return expression;
             }
 
-            if (mathString[i] is >= '0' and <= '9' || mathString[i] == decimalSeparator) //number
+            if (mathString[i] is >= '0' and <= '9' || mathString[i] == _decimalSeparator) //number
             {
                 if (isOperand)
                     return BuildDecimal(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, false, DecimalZero);
@@ -101,8 +94,8 @@ public partial class MathExpression
                         return expression;
 
                     i++;
-                    right = BuildDecimal(mathString, ref i, separator, closingSymbol,
-                        precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand, DecimalZero);
+                    var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
+                    right = BuildDecimal(mathString, ref i, separator, closingSymbol, p, isOperand, DecimalZero);
                     expression = Expression.Add(expression, right);
                     if (isOperand)
                         return expression;
@@ -113,8 +106,8 @@ public partial class MathExpression
 
                     var isNegativity = start == i;
                     i++;
-                    right = BuildDecimal(mathString, ref i, separator, closingSymbol,
-                        precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic, isOperand, DecimalZero);
+                    p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
+                    right = BuildDecimal(mathString, ref i, separator, closingSymbol, p, isOperand, DecimalZero);
                     expression = isNegativity ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
                     if (isOperand)
                         return expression;
@@ -139,8 +132,8 @@ public partial class MathExpression
                     i++;
                     break;
                 default:
-                    var entity = Context?.FirstMathEntity(mathString[i..]) ?? _parameters?.FirstMathEntity(mathString[i..]);
-                    if (entity == null && _numberFormat != null && mathString.TryParseCurrency(_numberFormat, ref i))
+                    var entity = FirstMathEntity(mathString[i..]);
+                    if (entity == null && mathString.TryParseCurrency(_numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
@@ -197,7 +190,7 @@ public partial class MathExpression
             return expression;
 
         var precedence = (int)EvalPrecedence.Exponentiation;
-        var entity = Context?.FirstMathEntity(mathString[i..]) ?? _parameters?.FirstMathEntity(mathString[i..]);
+        var entity = FirstMathEntity(mathString[i..]);
         return BuildMathEntityDecimal(mathString, ref i, separator, closingSymbol, precedence, expression, entity, false);
     }
 

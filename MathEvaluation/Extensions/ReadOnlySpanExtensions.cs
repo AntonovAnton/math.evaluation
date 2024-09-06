@@ -12,9 +12,9 @@ internal static class ReadOnlySpanExtensions
     /// <returns>
     ///   <c>true</c> if it's the currency symbol; otherwise, <c>false</c>.
     /// </returns>
-    public static bool TryParseCurrency(this ReadOnlySpan<char> str, NumberFormatInfo numberFormat, ref int i)
+    public static bool TryParseCurrency(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
-        if (!str[i..].StartsWith(numberFormat.CurrencySymbol))
+        if (numberFormat == null || !str[i..].StartsWith(numberFormat.CurrencySymbol))
             return false;
 
         i += numberFormat.CurrencySymbol.Length;
@@ -101,11 +101,11 @@ internal static class ReadOnlySpanExtensions
     /// <param name="isOperand">if set to <c>true</c> [is operand].</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException"></exception>
+    /// <exception cref="MathExpressionException"></exception>
     public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str, bool isOperand, int invalidTokenPosition, int i)
     {
         if (str.IsMeaningless(invalidTokenPosition, i))
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
+            throw new MathExpressionException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 
     /// <summary>Throws the exception if missing opening symbol.</summary>
@@ -113,12 +113,12 @@ internal static class ReadOnlySpanExtensions
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException">It doesn't have the '{openingSymbol}' opening symbol.</exception>
+    /// <exception cref="MathExpressionException">It doesn't have the '{openingSymbol}' opening symbol.</exception>
     public static void ThrowExceptionIfNotOpened(this ReadOnlySpan<char> str,
         char openingSymbol, int invalidTokenPosition, ref int i)
     {
         if (str.Length <= i || str[i] != openingSymbol)
-            throw new MathEvaluationException($"It doesn't have the '{openingSymbol}' opening symbol.", invalidTokenPosition);
+            throw new MathExpressionException($"It doesn't have the '{openingSymbol}' opening symbol.", invalidTokenPosition);
 
         i++;
     }
@@ -128,12 +128,12 @@ internal static class ReadOnlySpanExtensions
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException">It doesn't have the '{closingSymbol}' closing symbol.</exception>
+    /// <exception cref="MathExpressionException">It doesn't have the '{closingSymbol}' closing symbol.</exception>
     public static void ThrowExceptionIfNotClosed(this ReadOnlySpan<char> str,
         char closingSymbol, int invalidTokenPosition, ref int i)
     {
         if (str.Length <= i || str[i] != closingSymbol)
-            throw new MathEvaluationException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
+            throw new MathExpressionException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
 
         i++;
     }
@@ -141,14 +141,14 @@ internal static class ReadOnlySpanExtensions
     /// <summary>Throws the exception about invalid token.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
-    /// <exception cref="MathEvaluation.MathEvaluationException">'{unknownSubstring.ToString()}' is not recognizable.</exception>
+    /// <exception cref="MathEvaluation.MathExpressionException">'{unknownSubstring.ToString()}' is not recognizable.</exception>
     public static void ThrowExceptionInvalidToken(this ReadOnlySpan<char> str, int invalidTokenPosition)
     {
         var i = invalidTokenPosition;
         var end = str[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
         var unknownSubstring = end > i ? str[i..end] : str[i..];
 
-        throw new MathEvaluationException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
+        throw new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
     }
 
     /// <summary>

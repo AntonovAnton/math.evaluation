@@ -26,21 +26,21 @@ public class Benchmarks
     }
 
     [Benchmark(Description = "\"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\".Evaluate()")]
-    public double MathEvaluator_Evaluate_ComplexExpression()
+    public double MathExpression_Evaluate_ComplexExpression()
     {
         return "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
     }
 
-    [Benchmark(Description = "\"sin(pi/6) + cos(pi/3)\".Evaluate(_scientificContext)")]
-    public double MathEvaluator_EvaluateSinCos_ComplexExpression()
+    [Benchmark(Description = "\"sin(pi/6) + cos(pi/3)\".Evaluate(null, _scientificContext)")]
+    public double MathExpression_EvaluateSinCos_ComplexExpression()
     {
-        return "sin(pi/6) + cos(pi/3)".Evaluate(_scientificContext);
+        return "sin(pi/6) + cos(pi/3)".Evaluate(null, _scientificContext);
     }
 
     [Benchmark(Description = "\"sin(a) + cos(b)\".Evaluate(_scientificContext, new { a, b })")]
-    public double MathEvaluator_EvaluateSinCos_HasVariables_ComplexExpression()
+    public double MathExpression_EvaluateSinCos_HasVariables_ComplexExpression()
     {
-        return "sin(a) + cos(b)".Evaluate(_scientificContext, new { a, b });
+        return "sin(a) + cos(b)".Evaluate(new { a, b }, _scientificContext);
     }
 
     [Benchmark(Description = "\"sin(a) + cos(b)\".Compile(new { a, b }, _scientificContext)")]
@@ -49,7 +49,7 @@ public class Benchmarks
         "sin(a) + cos(b)".Compile(new { a, b }, _scientificContext);
     }
 
-    [Benchmark(Description = "compiled sin(a) + cos(b): fn(new { a, b })")]
+    [Benchmark(Description = "compiled \"sin(a) + cos(b)\": fn(new { a, b })")]
     public double MathExpression_InvokeSinCos_HasVariables_ComplexExpression()
     {
         return _fn(new { a, b });
