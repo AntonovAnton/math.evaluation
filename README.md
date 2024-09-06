@@ -46,7 +46,7 @@ Below are the results of the comparison with the NCalc library:
 | NCalc | .NET 8.0 | .NET 8.0 | 8,499.7 ns | 40.09 ns | 37.50 ns | 0.2594 |    3440 B |
 
 ## Compilation
-Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.2.0)
+Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
 
 By using compilation, you can convert any mathematical expression string into a delegate, such as Func\<T, TResult> or Func\<TResult>, which significantly improves performance when evaluating the expression. 
 However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 300 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/blob/main/BenchmarkDotNet.Artifacts/results/Benchmarks-report-github.md) for detailed performance insights.
