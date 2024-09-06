@@ -1,9 +1,9 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 
-namespace MathEvaluation.Tests;
+namespace MathEvaluation.Tests.Compilation;
 
-public partial class MathEvaluatorTests
+public partial class MathExpressionTests_DecimalContext
 {
     [Theory]
     [InlineData("false = true", false)]
@@ -23,13 +23,14 @@ public partial class MathEvaluatorTests
     [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _programmingContext);
+        var fn = new MathExpression(expression, _programmingContext).CompileDecimal();
+        var value = fn();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
@@ -50,13 +51,14 @@ public partial class MathEvaluatorTests
     [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var value = fn();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
@@ -110,13 +112,14 @@ public partial class MathEvaluatorTests
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
     [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathEvaluator_EvaluateBoolean_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateBoolean(expression, _scientificContext);
+        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var value = fn();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
@@ -126,38 +129,30 @@ public partial class MathEvaluatorTests
     [InlineData("A or not B and C", true, false, false, true)]
     [InlineData("A or not B and (C or B)", true, false, true, true)]
     [InlineData("A or not B and (C or B)", false, true, false, false)]
-    public void MathEvaluator_EvaluateBoolean_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var parameters = new MathParameters();
-        parameters.Bind(new { A = a, B = b, C = getC });
-        
-        var value = expression
-            .SetContext(_programmingContext)
-            .EvaluateBoolean(parameters);
+        var fn = expression.CompileDecimal(new { A = a, B = b, C = getC }, _programmingContext);
+        var value = fn(new { A = a, B = b, C = getC });
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 
     [Theory]
     [InlineData("if(3 % a = 1, true, false)", 2d, true)]
     [InlineData("if(3 % a = 1, true, false)", 1d, false)]
-    public void MathEvaluator_EvaluateBoolean_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var context = new ProgrammingMathContext();
         context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
-        var parameters = new MathParameters();
-        parameters.BindVariable(a);
+        var fn = expression.CompileDecimal(new { a }, context);
+        var value = fn(new { a });
 
-        var value = expression
-            .SetContext(context)
-            .EvaluateBoolean(parameters);
-
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value != 0.0m);
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace MathEvaluation.Tests;
+﻿namespace MathEvaluation.Tests.Evaluation;
 
-public partial class MathEvaluatorTests
+public partial class MathExpressionTests
 {
     [Theory]
     [InlineData("π", Math.PI)]
@@ -18,11 +18,11 @@ public partial class MathEvaluatorTests
     [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
     [InlineData("Pi((5 - 1))", 4 * Math.PI)]
     [InlineData("1/2PI", 1 / (2 * Math.PI))]
-    public void MathEvaluator_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasPi_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -39,11 +39,11 @@ public partial class MathEvaluatorTests
     [InlineData("2τ / τ / 2 * τ", Math.Tau)]
     [InlineData("ττ", Math.Tau * Math.Tau)]
     [InlineData("+ττ", Math.Tau * Math.Tau)]
-    public void MathEvaluator_Evaluate_HasTau_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasTau_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -93,11 +93,11 @@ public partial class MathEvaluatorTests
     [InlineData("CSC(90°)", 1d)]
     [InlineData("sin0 + 3", 3d)]
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
-    public void MathEvaluator_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -129,12 +129,12 @@ public partial class MathEvaluatorTests
     [InlineData("CSCH(-∞)", 0d)]
     [InlineData("CSCH -1.4436354751788103", -0.5d)]
     [InlineData("Csch-0.88137358701954294", -1.0000000000000002d)]
-    public void MathEvaluator_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
+    public void MathExpression_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
         double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -180,11 +180,11 @@ public partial class MathEvaluatorTests
     [InlineData("Cot^-1(0)", Math.PI / 2)]
     [InlineData("cot^-11", Math.PI / 4)]
     [InlineData("COT^-1(2)", 0.46364760900080609d)]
-    public void MathEvaluator_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -245,11 +245,11 @@ public partial class MathEvaluatorTests
     [InlineData("Csch^-1-1", -0.88137358701954294d)]
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
     [InlineData("csch^-1(-∞)", 0)]
-    public void MathEvaluator_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.Evaluate(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).Evaluate();
 
         Assert.Equal(expectedValue, value);
     }

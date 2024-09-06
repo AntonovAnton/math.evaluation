@@ -2,12 +2,10 @@ using System;
 using System.Runtime.CompilerServices;
 using MathEvaluation.Entities;
 
-#pragma warning disable IDE0130 // Namespace does not match folder structure
-namespace MathEvaluation;
-#pragma warning restore IDE0130 // Namespace does not match folder structure
+namespace MathEvaluation.Parameters;
 
 /// <summary>
-/// It allows for the search of custom variables and functions that are used as parameters within a mathematical expression.
+/// It allows for the search of custom variables that are used as parameters within a mathematical expression.
 /// </summary>
 public interface IMathParameters
 {
@@ -16,7 +14,7 @@ public interface IMathParameters
     /// <returns><see cref="IMathEntity" /> instance or null.</returns>
     IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
 
-    /// <summary>Binds custom variables and functions.</summary>
+    /// <summary>Binds custom variables.</summary>
     /// <param name="parameters">An object containing variables and functions.</param>
     /// <returns></returns>
     void Bind(object parameters);

@@ -1,6 +1,6 @@
-﻿namespace MathEvaluation.Tests;
+﻿namespace MathEvaluation.Tests.Evaluation;
 
-public partial class MathEvaluatorTests_DecimalContext
+public partial class MathExpressionTests_DecimalContext
 {
     [Theory]
     [InlineData("π", Math.PI)]
@@ -9,11 +9,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("2π * 2 / 2 + π", Math.PI * 3)]
     [InlineData("pi", Math.PI)]
     [InlineData("((5 - 1)Pi)", 4 * Math.PI)]
-    public void MathEvaluator_EvaluateDecimal_HasPi_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_EvaluateDecimal_HasPi_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -22,11 +22,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("τ", Math.Tau)]
     [InlineData("((5 - 1)τ)", 4 * Math.Tau)]
     [InlineData("(1/2)τ", Math.Tau / 2)]
-    public void MathEvaluator_EvaluateDecimal_HasTau_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_EvaluateDecimal_HasTau_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -68,11 +68,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("CSC(90°)", 1d)]
     [InlineData("sin0 + 3", 3d)]
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
-    public void MathEvaluator_EvaluateDecimal_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_EvaluateDecimal_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -99,12 +99,12 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("CSCH(-∞)", 0d)]
     [InlineData("CSCH -1.4436354751788103", -0.5d)]
     [InlineData("Csch-0.88137358701954294", -1.0000000000000002d)]
-    public void MathEvaluator_EvaluateDecimal_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
+    public void MathExpression_EvaluateDecimal_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
         double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -140,11 +140,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("Cot^-1(0)", Math.PI / 2)]
     [InlineData("cot^-11", Math.PI / 4)]
     [InlineData("COT^-1(2)", 0.46364760900080609d)]
-    public void MathEvaluator_EvaluateDecimal_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_EvaluateDecimal_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -176,11 +176,11 @@ public partial class MathEvaluatorTests_DecimalContext
     [InlineData("Csch^-1-1", -0.88137358701954294d)]
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
     [InlineData("csch^-1(-∞)", 0)]
-    public void MathEvaluator_EvaluateDecimal_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_EvaluateDecimal_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = MathEvaluator.EvaluateDecimal(expression, _scientificContext);
+        var value = new MathExpression(expression, _scientificContext).EvaluateDecimal();
 
         Assert.Equal((decimal)expectedValue, value);
     }

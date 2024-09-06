@@ -18,9 +18,90 @@ public class MathContext : IMathContext
 {
     private readonly MathEntitiesTrie _trie = new();
 
+    /// <summary>Initializes a new instance of the <see cref="MathContext" /> class.</summary>
+    public MathContext()
+    {
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="MathContext" /> class.</summary>
+    /// <param name="context">An object containing constants and functions.</param>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="NotSupportedException"/>
+    public MathContext(object context)
+    {
+        if (context == null)
+            throw new ArgumentNullException(nameof(context));
+
+        Bind(context);
+    }
+
     /// <inheritdoc/>
     public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
         => _trie.FirstMathEntity(expression);
+
+    /// <inheritdoc/>
+    /// <exception cref="System.ArgumentNullException">parameters</exception>
+    /// <exception cref="System.NotSupportedException"></exception>
+    public void Bind(object context)
+    {
+        if (context == null)
+            throw new ArgumentNullException(nameof(context));
+
+        foreach (var propertyInfo in context.GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (!propertyInfo.CanRead)
+                continue;
+
+            var key = propertyInfo.Name;
+            var value = propertyInfo.GetValue(context, null);
+            var valueType = propertyInfo.PropertyType;
+            if (valueType.IsConvertibleToDouble())
+            {
+                if (valueType.IsDecimal())
+                    BindConstant(Convert.ToDecimal(value), key);
+                else
+                    BindConstant(Convert.ToDouble(value), key);
+            }
+            else if (value is Func<double> fn1)
+                BindFunction(fn1, key);
+            else if (value is Func<double, double> fn2)
+                BindFunction(fn2, key);
+            else if (value is Func<double, double, double> fn3)
+                BindFunction(fn3, key);
+            else if (value is Func<double, double, double, double> fn4)
+                BindFunction(fn4, key);
+            else if (value is Func<double, double, double, double, double> fn5)
+                BindFunction(fn5, key);
+            else if (value is Func<double, double, double, double, double, double> fn6)
+                BindFunction(fn6, key);
+            else if (value is Func<double[], double> fns)
+                BindFunction(fns, key);
+            else if (value is Func<decimal> decimalFn1)
+                BindFunction(decimalFn1, key);
+            else if (value is Func<decimal, decimal> decimalFn2)
+                BindFunction(decimalFn2, key);
+            else if (value is Func<decimal, decimal, decimal> decimalFn3)
+                BindFunction(decimalFn3, key);
+            else if (value is Func<decimal, decimal, decimal, decimal> decimalFn4)
+                BindFunction(decimalFn4, key);
+            else if (value is Func<decimal, decimal, decimal, decimal, decimal> decimalFn5)
+                BindFunction(decimalFn5, key);
+            else if (value is Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6)
+                BindFunction(decimalFn6, key);
+            else if (value is Func<decimal[], decimal> decimalFns)
+                BindFunction(decimalFns, key);
+            else if (value is Func<bool> boolFn1)
+                BindFunction(boolFn1, key);
+            else
+            {
+                if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
+
+                throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
+            }
+        }
+    }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
@@ -54,7 +135,7 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null, 
+    public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char? openingSymbol = null, char? closingSymbol = null)
         => _trie.AddMathEntity(new MathUnaryFunction<double>(key, fn, openingSymbol, closingSymbol));
 

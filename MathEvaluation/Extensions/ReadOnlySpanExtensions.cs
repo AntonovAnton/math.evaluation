@@ -12,9 +12,9 @@ internal static class ReadOnlySpanExtensions
     /// <returns>
     ///   <c>true</c> if it's the currency symbol; otherwise, <c>false</c>.
     /// </returns>
-    public static bool TryParseCurrencySymbol(this ReadOnlySpan<char> str, NumberFormatInfo numberFormat, ref int i)
+    public static bool TryParseCurrency(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
-        if (!str[i..].StartsWith(numberFormat.CurrencySymbol))
+        if (numberFormat == null || !str[i..].StartsWith(numberFormat.CurrencySymbol))
             return false;
 
         i += numberFormat.CurrencySymbol.Length;
@@ -46,7 +46,7 @@ internal static class ReadOnlySpanExtensions
     /// <summary>Skips meaningless chars (whitespace, tab, LF, and CR).</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="i">The current char index.</param>
-    public static void SkipMeaninglessChars(this ReadOnlySpan<char> str, ref int i)
+    public static void SkipMeaningless(this ReadOnlySpan<char> str, ref int i)
     {
         while (str.Length > i && IsMeaningless(str[i]))
             i++;
@@ -55,58 +55,57 @@ internal static class ReadOnlySpanExtensions
     /// <summary>Skips parenthesis ().</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="i">The current char index.</param>
-    public static void SkipParenthesisChars(this ReadOnlySpan<char> str, ref int i)
+    public static void SkipParenthesis(this ReadOnlySpan<char> str, ref int i)
     {
         if (str.Length > i && str[i] == '(')
         {
             i++;
-            str.SkipMeaninglessChars(ref i);
+            str.SkipMeaningless(ref i);
             str.ThrowExceptionIfNotClosed(')', i, ref i);
         }
     }
 
+    /// <summary>Determines whether the current char is the params separator.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="start">The starting position of evaluating.</param>
+    /// <param name="i">The current char index.</param>
+    /// <param name="separator">The params separator.</param>
+    /// <param name="decimalSeparator">The decimal separator (can be the same as the params separator).</param>
+    /// <returns>
+    ///   <c>true</c> if it's the params separator symbol; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsParamsSeparator(this ReadOnlySpan<char> str, int start, int i, char separator, char decimalSeparator)
+    {
+        return str[i] == separator && (decimalSeparator != separator || !str.IsMeaningless(start, i));
+    }
+
     /// <summary>
-    /// Determines whether the specified string is meaningless (has only whitespace, tab, LF, or CR).
+    /// Determines whether the part of the math expression string is meaningless (has only whitespace, tab, LF, or CR).
     /// </summary>
     /// <param name="str">The math expression string.</param>
+    /// <param name="start">The starting position.</param>
+    /// <param name="end">The ending position.</param>
     /// <returns>
     ///   <c>true</c> if the specified string is meaningless; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsNotMeaningless(this ReadOnlySpan<char> str)
+    public static bool IsMeaningless(this ReadOnlySpan<char> str, int start, int end)
     {
-        foreach (char c in str)
-            if (!IsMeaningless(c))
-                return true;
+        while (start < end && IsMeaningless(str[start]))
+            start++;
 
-        return false;
+        return start == end;
     }
 
     /// <summary>Throws the exception if not evaluated.</summary>
     /// <param name="str">The math expression string.</param>
-    /// <param name="value">The value.</param>
     /// <param name="isOperand">if set to <c>true</c> [is operand].</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException"></exception>
-    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str,
-        double value, bool isOperand, int invalidTokenPosition, int i)
+    /// <exception cref="MathExpressionException"></exception>
+    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str, bool isOperand, int invalidTokenPosition, int i)
     {
-        if (value == default && !str[invalidTokenPosition..i].IsNotMeaningless())
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
-    }
-
-    /// <summary>Throws the exception if not evaluated.</summary>
-    /// <param name="str">The math expression string.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="isOperand">if set to <c>true</c> [is operand].</param>
-    /// <param name="invalidTokenPosition">The invalid token position.</param>
-    /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException"></exception>
-    public static void ThrowExceptionIfNotEvaluated(this ReadOnlySpan<char> str,
-        decimal value, bool isOperand, int invalidTokenPosition, int i)
-    {
-        if (value == default && !str[invalidTokenPosition..i].IsNotMeaningless())
-            throw new MathEvaluationException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
+        if (str.IsMeaningless(invalidTokenPosition, i))
+            throw new MathExpressionException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 
     /// <summary>Throws the exception if missing opening symbol.</summary>
@@ -114,12 +113,12 @@ internal static class ReadOnlySpanExtensions
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException">It doesn't have the '{openingSymbol}' opening symbol.</exception>
+    /// <exception cref="MathExpressionException">It doesn't have the '{openingSymbol}' opening symbol.</exception>
     public static void ThrowExceptionIfNotOpened(this ReadOnlySpan<char> str,
         char openingSymbol, int invalidTokenPosition, ref int i)
     {
         if (str.Length <= i || str[i] != openingSymbol)
-            throw new MathEvaluationException($"It doesn't have the '{openingSymbol}' opening symbol.", invalidTokenPosition);
+            throw new MathExpressionException($"It doesn't have the '{openingSymbol}' opening symbol.", invalidTokenPosition);
 
         i++;
     }
@@ -129,14 +128,27 @@ internal static class ReadOnlySpanExtensions
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
     /// <param name="i">The current char index.</param>
-    /// <exception cref="MathEvaluationException">It doesn't have the '{closingSymbol}' closing symbol.</exception>
+    /// <exception cref="MathExpressionException">It doesn't have the '{closingSymbol}' closing symbol.</exception>
     public static void ThrowExceptionIfNotClosed(this ReadOnlySpan<char> str,
         char closingSymbol, int invalidTokenPosition, ref int i)
     {
         if (str.Length <= i || str[i] != closingSymbol)
-            throw new MathEvaluationException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
+            throw new MathExpressionException($"It doesn't have the '{closingSymbol}' closing symbol.", invalidTokenPosition);
 
         i++;
+    }
+
+    /// <summary>Throws the exception about invalid token.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="invalidTokenPosition">The invalid token position.</param>
+    /// <exception cref="MathEvaluation.MathExpressionException">'{unknownSubstring.ToString()}' is not recognizable.</exception>
+    public static void ThrowExceptionInvalidToken(this ReadOnlySpan<char> str, int invalidTokenPosition)
+    {
+        var i = invalidTokenPosition;
+        var end = str[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
+        var unknownSubstring = end > i ? str[i..end] : str[i..];
+
+        throw new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
     }
 
     /// <summary>
