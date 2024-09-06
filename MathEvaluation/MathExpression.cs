@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
@@ -72,12 +73,7 @@ public partial class MathExpression
         }
         catch (Exception ex)
         {
-            ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
-            ex.Data["mathString"] = MathString;
-            ex.Data["context"] = Context;
-            ex.Data["parameters"] = null;
-            ex.Data["provider"] = Provider;
-            throw ex;
+            throw CreateException(ex, MathString, Context, Provider, null);
         }
     }
 
@@ -104,12 +100,7 @@ public partial class MathExpression
         }
         catch (Exception ex)
         {
-            ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
-            ex.Data["mathString"] = MathString;
-            ex.Data["context"] = Context;
-            ex.Data["parameters"] = parameters;
-            ex.Data["provider"] = Provider;
-            throw ex;
+            throw CreateException(ex, MathString, Context, Provider, parameters);
         }
     }
 
@@ -153,8 +144,7 @@ public partial class MathExpression
                         return right;
 
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
@@ -272,8 +262,7 @@ public partial class MathExpression
                     i += entity.Key.Length;
                     Expression right = Expression.Constant(mathConstant.Value);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             case MathVariable<double> mathVariable:
@@ -282,8 +271,7 @@ public partial class MathExpression
                     Expression right = Expression.Property(_parameterExpression, entity.Key);
                     if (right.Type != typeof(double))
                         right = Expression.Convert(right, typeof(double));
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             case MathOperandOperator<double> mathOperator:
@@ -304,9 +292,9 @@ public partial class MathExpression
                 {
                     i += entity.Key.Length;
                     Expression<Func<double, double, double>> lambda = (v1, v2) => mathOperator.Fn(v1, v2);
-                    var rightOperand = BuildOperand(mathString, ref i, separator, closingSymbol);
-                    rightOperand = BuildExponentiation(mathString, ref i, separator, closingSymbol, rightOperand);
-                    expression = Expression.Invoke(lambda, expression, rightOperand);
+                    var right = BuildOperand(mathString, ref i, separator, closingSymbol);
+                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
+                    expression = Expression.Invoke(lambda, expression, right);
                     return true;
                 }
             case MathOperator<double> mathOperator:
@@ -325,8 +313,7 @@ public partial class MathExpression
                     Expression<Func<double>> lambda = () => mathFunction.Fn();
                     Expression right = Expression.Invoke(lambda);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             case MathUnaryFunction<double> mathFunction:
@@ -345,8 +332,7 @@ public partial class MathExpression
                     Expression<Func<double, double>> lambda = (value) => mathFunction.Fn(value);
                     Expression right = Expression.Invoke(lambda, arg);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             case MathFunction<double> mathFunction:
@@ -373,12 +359,22 @@ public partial class MathExpression
                     Expression<Func<double[], double>> lambda = (values) => mathFunction.Fn(values);
                     Expression right = Expression.Invoke(lambda, Expression.NewArrayInit(typeof(double), args));
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    var left = expression == DoubleZero ? DoubleOne : expression;
-                    expression = Expression.Multiply(left, right);
+                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right);
                     return true;
                 }
             default:
                 return false;
         }
+    }
+
+    private static MathEvaluationException CreateException(Exception ex,
+        string mathString, IMathContext? context, IFormatProvider? provider, object? parameters)
+    {
+        ex = ex is not MathEvaluationException ? new MathEvaluationException(ex.Message, ex) : ex;
+        ex.Data[nameof(mathString)] = mathString;
+        ex.Data[nameof(context)] = context;
+        ex.Data[nameof(provider)] = provider;
+        ex.Data[nameof(parameters)] = parameters;
+        throw ex;
     }
 }

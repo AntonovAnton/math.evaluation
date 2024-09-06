@@ -91,7 +91,7 @@ public partial class MathEvaluator
                         return result;
 
                     result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
@@ -211,14 +211,14 @@ public partial class MathEvaluator
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, mathConstant.Value);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathVariable<decimal> mathVariable:
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, mathVariable.Value);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathOperandOperator<decimal> mathOperator:
@@ -254,7 +254,7 @@ public partial class MathEvaluator
                     mathString.SkipParenthesis(ref i);
                     var result = mathFunction.Fn();
                     result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathUnaryFunction<decimal> mathFunction:
@@ -272,7 +272,7 @@ public partial class MathEvaluator
 
                     var result = mathFunction.Fn(arg);
                     result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathFunction<decimal> mathFunction:
@@ -298,7 +298,7 @@ public partial class MathEvaluator
 
                     var result = mathFunction.Fn([.. args]);
                     result = EvaluateExponentiationDecimal(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             default:

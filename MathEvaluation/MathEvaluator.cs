@@ -116,7 +116,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                         return result;
 
                     result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
@@ -236,14 +236,14 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, mathConstant.Value);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathVariable<double> mathVariable:
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, mathVariable.Value);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathOperandOperator<double> mathOperator:
@@ -280,7 +280,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
 
                     var result = mathFunction.Fn();
                     result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathUnaryFunction<double> mathFunction:
@@ -298,7 +298,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
 
                     var result = mathFunction.Fn(arg);
                     result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             case MathFunction<double> mathFunction:
@@ -324,7 +324,7 @@ public partial class MathEvaluator(string mathString, IMathContext? context = nu
 
                     var result = mathFunction.Fn([.. args]);
                     result = EvaluateExponentiation(mathString, context, parameters, numberFormat, ref i, separator, closingSymbol, result);
-                    value = (value == 0 ? 1 : value) * result;
+                    value = value == default ? result : value * result;
                     return true;
                 }
             default:
