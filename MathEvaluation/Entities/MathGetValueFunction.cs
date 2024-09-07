@@ -28,10 +28,8 @@ public class MathGetValueFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression ToExpression()
+    public override Expression BuildExpression()
     {
-        var fn = Fn;
-        Expression<Func<T>> expression = () => fn();
-        return expression;
+        return Expression.Constant(Fn);
     }
 }

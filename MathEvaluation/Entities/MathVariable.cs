@@ -17,7 +17,7 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
     public T Value { get; } = value;
 
     /// <inheritdoc/>
-    public override Expression ToExpression()
+    public override Expression BuildExpression()
     {
         return Expression.Constant(Value);
     }

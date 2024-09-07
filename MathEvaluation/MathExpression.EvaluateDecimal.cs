@@ -176,86 +176,84 @@ public partial class MathExpression
         var start = i;
         switch (entity)
         {
-            case MathConstant<decimal> mathConstant:
+            case MathConstant<decimal> constant:
                 {
                     i += entity.Key.Length;
-                    var result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, mathConstant.Value);
+                    var result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, constant.Value);
                     value = value == default ? result : value * result;
                     return true;
                 }
-            case MathVariable<decimal> mathVariable:
+            case MathVariable<decimal> variable:
                 {
                     i += entity.Key.Length;
-                    var result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, mathVariable.Value);
+                    var result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, variable.Value);
                     value = value == default ? result : value * result;
                     return true;
                 }
-            case MathOperandOperator<decimal> mathOperator:
+            case MathOperandOperator<decimal> op:
                 {
                     i += entity.Key.Length;
-                    var fn = mathOperator.Fn;
-                    var result = mathOperator.IsProcessingLeft
-                        ? fn(value)
-                        : fn(EvaluateOperandDecimal(mathString, ref i, separator, closingSymbol));
+                    var result = op.IsProcessingLeft
+                        ? op.Fn(value)
+                        : op.Fn(EvaluateOperandDecimal(mathString, ref i, separator, closingSymbol));
                     value = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, result);
                     return true;
                 }
-            case MathOperandsOperator<decimal> mathOperator:
+            case MathOperandsOperator<decimal> op:
                 {
                     i += entity.Key.Length;
-                    var fn = mathOperator.Fn;
                     var right = EvaluateOperandDecimal(mathString, ref i, separator, closingSymbol);
                     right = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
-                    value = fn(value, right);
+                    value = op.Fn(value, right);
                     return true;
                 }
-            case MathOperator<decimal> mathOperator:
+            case MathOperator<decimal> op:
                 {
                     i += entity.Key.Length;
-                    var fn = mathOperator.Fn;
-                    var right = EvaluateDecimal(mathString, ref i, separator, closingSymbol, mathOperator.Precedence);
-                    value = fn(value, right);
+                    var right = EvaluateDecimal(mathString, ref i, separator, closingSymbol, op.Precedence);
+                    value = op.Fn(value, right);
                     return true;
                 }
-            case MathGetValueFunction<decimal> mathFunction:
+            case MathGetValueFunction<decimal> func:
                 {
                     i += entity.Key.Length;
                     mathString.SkipParenthesis(ref i);
-                    var result = mathFunction.Fn();
-                    result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, result);
+
+                    var result = func.Fn();
+                    result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, func.Fn());
                     value = value == default ? result : value * result;
                     return true;
                 }
-            case MathUnaryFunction<decimal> mathFunction:
+            case MathUnaryFunction<decimal> func:
                 {
                     i += entity.Key.Length;
-                    if (mathFunction.OpeningSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotOpened(mathFunction.OpeningSymbol.Value, start, ref i);
+                    if (func.OpeningSymbol.HasValue)
+                        mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
 
-                    var arg = mathFunction.ClosingSymbol.HasValue
-                        ? EvaluateDecimal(mathString, ref i, null, mathFunction.ClosingSymbol, (int)EvalPrecedence.Unknown)
+                    var arg = func.ClosingSymbol.HasValue
+                        ? EvaluateDecimal(mathString, ref i, null, func.ClosingSymbol, (int)EvalPrecedence.Unknown)
                         : EvaluateOperandDecimal(mathString, ref i, separator, closingSymbol);
 
-                    if (mathFunction.ClosingSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol.Value, start, ref i);
+                    if (func.ClosingSymbol.HasValue)
+                        mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol.Value, start, ref i);
 
-                    var result = mathFunction.Fn(arg);
+                    var result = func.Fn(arg);
                     result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
                     return true;
                 }
-            case MathFunction<decimal> mathFunction:
+            case MathFunction<decimal> func:
                 {
                     i += entity.Key.Length;
-                    mathString.ThrowExceptionIfNotOpened(mathFunction.OpeningSymbol, start, ref i);
+                    mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol, start, ref i);
 
                     var args = new List<decimal>();
                     while (mathString.Length > i)
                     {
-                        var arg = EvaluateDecimal(mathString, ref i, mathFunction.Separator, mathFunction.ClosingSymbol, (int)EvalPrecedence.Unknown);
+                        var arg = EvaluateDecimal(mathString, ref i, func.Separator, func.ClosingSymbol, (int)EvalPrecedence.Unknown);
                         args.Add(arg);
 
-                        if (mathString[i] == mathFunction.Separator)
+                        if (mathString[i] == func.Separator)
                         {
                             i++; //other param
                             continue;
@@ -263,9 +261,9 @@ public partial class MathExpression
                         break;
                     }
 
-                    mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol, start, ref i);
+                    mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol, start, ref i);
 
-                    var result = mathFunction.Fn([.. args]);
+                    var result = func.Fn([.. args]);
                     result = EvaluateExponentiationDecimal(mathString, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
                     return true;

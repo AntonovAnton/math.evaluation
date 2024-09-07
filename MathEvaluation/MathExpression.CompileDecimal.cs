@@ -201,15 +201,15 @@ public partial class MathExpression
         var start = i;
         switch (entity)
         {
-            case MathConstant<decimal> mathConstant:
+            case MathConstant<decimal> constant:
                 {
                     i += entity.Key.Length;
-                    Expression right = mathConstant.ToExpression();
+                    Expression right = constant.BuildExpression();
                     right = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DecimalZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
-            case MathVariable<decimal> mathVariable:
+            case MathVariable<decimal>:
                 {
                     i += entity.Key.Length;
                     Expression right = Expression.Property(_parameterExpression, entity.Key);
@@ -218,74 +218,74 @@ public partial class MathExpression
                     expression = expression == DecimalZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
-            case MathOperandOperator<decimal> mathOperator:
+            case MathOperandOperator<decimal> op:
                 {
                     i += entity.Key.Length;
-                    if (mathOperator.IsProcessingLeft)
-                        expression = Expression.Invoke(mathOperator.ToExpression(), expression);
+                    if (op.IsProcessingLeft)
+                        expression = Expression.Invoke(op.BuildExpression(), expression);
                     else
                     {
                         var right = BuildDecimal(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DecimalZero);
-                        expression = Expression.Invoke(mathOperator.ToExpression(), right);
+                        expression = Expression.Invoke(op.BuildExpression(), right);
                     }
                     expression = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, expression);
                     return true;
                 }
-            case MathOperandsOperator<decimal> mathOperator:
+            case MathOperandsOperator<decimal> op:
                 {
                     i += entity.Key.Length;
                     var right = BuildOperandDecimal(mathString, ref i, separator, closingSymbol);
                     right = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
-                    expression = Expression.Invoke(mathOperator.ToExpression(), expression, right);
+                    expression = Expression.Invoke(op.BuildExpression(), expression, right);
                     return true;
                 }
-            case MathOperator<decimal> mathOperator:
+            case MathOperator<decimal> op:
                 {
                     i += entity.Key.Length;
-                    var right = BuildDecimal(mathString, ref i, separator, closingSymbol, mathOperator.Precedence, false, DecimalZero);
-                    expression = Expression.Invoke(mathOperator.ToExpression(), expression, right);
+                    var right = BuildDecimal(mathString, ref i, separator, closingSymbol, op.Precedence, false, DecimalZero);
+                    expression = Expression.Invoke(op.BuildExpression(), expression, right);
                     return true;
                 }
-            case MathGetValueFunction<decimal> mathFunction:
+            case MathGetValueFunction<decimal> func:
                 {
                     i += entity.Key.Length;
                     mathString.SkipParenthesis(ref i);
 
-                    Expression right = Expression.Invoke(mathFunction.ToExpression());
+                    Expression right = Expression.Invoke(func.BuildExpression());
                     right = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DecimalZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
-            case MathUnaryFunction<decimal> mathFunction:
+            case MathUnaryFunction<decimal> func:
                 {
                     i += entity.Key.Length;
-                    if (mathFunction.OpeningSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotOpened(mathFunction.OpeningSymbol.Value, start, ref i);
+                    if (func.OpeningSymbol.HasValue)
+                        mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
 
-                    var arg = mathFunction.ClosingSymbol.HasValue
-                        ? BuildDecimal(mathString, ref i, null, mathFunction.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DecimalZero)
+                    var arg = func.ClosingSymbol.HasValue
+                        ? BuildDecimal(mathString, ref i, null, func.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DecimalZero)
                         : BuildOperandDecimal(mathString, ref i, separator, closingSymbol);
 
-                    if (mathFunction.ClosingSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol.Value, start, ref i);
+                    if (func.ClosingSymbol.HasValue)
+                        mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol.Value, start, ref i);
 
-                    Expression right = Expression.Invoke(mathFunction.ToExpression(), arg);
+                    Expression right = Expression.Invoke(func.BuildExpression(), arg);
                     right = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DecimalZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
-            case MathFunction<decimal> mathFunction:
+            case MathFunction<decimal> func:
                 {
                     i += entity.Key.Length;
-                    mathString.ThrowExceptionIfNotOpened(mathFunction.OpeningSymbol, start, ref i);
+                    mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol, start, ref i);
 
                     var args = new List<Expression>();
                     while (mathString.Length > i)
                     {
-                        var arg = BuildDecimal(mathString, ref i, mathFunction.Separator, mathFunction.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DecimalZero);
+                        var arg = BuildDecimal(mathString, ref i, func.Separator, func.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DecimalZero);
                         args.Add(arg);
 
-                        if (mathString[i] == mathFunction.Separator)
+                        if (mathString[i] == func.Separator)
                         {
                             i++; //other param
                             continue;
@@ -293,9 +293,9 @@ public partial class MathExpression
                         break;
                     }
 
-                    mathString.ThrowExceptionIfNotClosed(mathFunction.ClosingSymbol, start, ref i);
+                    mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol, start, ref i);
 
-                    Expression right = Expression.Invoke(mathFunction.ToExpression(), Expression.NewArrayInit(typeof(decimal), args));
+                    Expression right = Expression.Invoke(func.BuildExpression(), Expression.NewArrayInit(typeof(decimal), args));
                     right = BuildExponentiationDecimal(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DecimalZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
