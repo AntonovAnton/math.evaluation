@@ -38,18 +38,20 @@ Let's compare, for example, performance of calculating the mathematical expressi
 
 Below are the results of the comparison with the NCalc library: 
 
-| Method                                                                   | Job      | Runtime  | Mean       | Error    | StdDev   | Gen0   | Allocated |
-|------------------------------------------------------------------------- |--------- |--------- |-----------:|---------:|---------:|-------:|----------:|
-| MathEvaluator | .NET 6.0 | .NET 6.0 |     670.33 ns |     3.304 ns |     3.091 ns | 0.0057 |      80 B |
-| NCalc | .NET 6.0 | .NET 6.0 | 8,901.1 ns | 62.27 ns | 52.00 ns | 0.2747 |    3464 B |
-| MathEvaluator | .NET 8.0 | .NET 8.0 |     547.54 ns |     1.283 ns |     1.072 ns | 0.0057 |      80 B |
-| NCalc | .NET 8.0 | .NET 8.0 | 8,499.7 ns | 40.09 ns | 37.50 ns | 0.2594 |    3440 B |
+| Method        | Job      | Runtime  | Mean       | Error     | StdDev    | Gen0   | Allocated |
+|-------------- |--------- |--------- |-----------:|----------:|----------:|-------:|----------:|
+| MathEvaluator | .NET 6.0 | .NET 6.0 |   674.6 ns |   4.76 ns |   4.46 ns | 0.0057 |      80 B |
+| NCalc         | .NET 6.0 | .NET 6.0 | 8,504.8 ns | 121.32 ns | 113.48 ns | 0.3967 |    5160 B |
+| MathEvaluator | .NET 8.0 | .NET 8.0 |   575.6 ns |  10.08 ns |   9.43 ns | 0.0057 |      80 B |
+| NCalc         | .NET 8.0 | .NET 8.0 | 6,368.1 ns |  42.85 ns |  37.99 ns | 0.3510 |    4472 B |
+
+**NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
 
 By using compilation, you can convert any mathematical expression string into a delegate, such as Func\<T, TResult> or Func\<TResult>, which significantly improves performance when evaluating the expression. 
-However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 300 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/blob/main/BenchmarkDotNet.Artifacts/results/Benchmarks-report-github.md) for detailed performance insights.
+However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 200 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results) for detailed performance insights.
 
 ## How to use
 Examples of using string extentions:
