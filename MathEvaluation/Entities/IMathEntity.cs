@@ -19,6 +19,6 @@ public interface IMathEntity
     /// </value>
     public int Precedence { get; }
 
-    /// <summary>Converts to the <see cref="Expression"/>.</summary>
-    public Expression ToExpression();
+    /// <summary>Builds the <see cref="Expression"/>.</summary>
+    public Expression BuildExpression();
 }

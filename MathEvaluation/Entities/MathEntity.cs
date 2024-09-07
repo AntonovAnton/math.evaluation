@@ -23,5 +23,5 @@ public abstract class MathEntity : IMathEntity
     }
 
     /// <inheritdoc/>
-    public abstract Expression ToExpression();
+    public abstract Expression BuildExpression();
 }

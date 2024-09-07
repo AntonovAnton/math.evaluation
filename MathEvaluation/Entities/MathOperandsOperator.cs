@@ -30,10 +30,8 @@ public class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression ToExpression()
+    public override Expression BuildExpression()
     {
-        var fn = Fn;
-        Expression<Func<T, T, T>> expression = (arg1, arg2) => fn(arg1, arg2);
-        return expression;
+        return Expression.Constant(Fn);
     }
 }

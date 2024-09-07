@@ -40,10 +40,8 @@ public class MathUnaryFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression ToExpression()
+    public override Expression BuildExpression()
     {
-        var fn = Fn;
-        Expression<Func<T, T>> expression = (arg) => fn(arg);
-        return expression;
+        return Expression.Constant(Fn);
     }
 }
