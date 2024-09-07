@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace MathEvaluation.Entities;
 
@@ -26,5 +27,13 @@ public class MathOperandsOperator<T> : MathEntity
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
         Precedence = precedece;
+    }
+
+    /// <inheritdoc/>
+    public override Expression ToExpression()
+    {
+        var fn = Fn;
+        Expression<Func<T, T, T>> expression = (arg1, arg2) => fn(arg1, arg2);
+        return expression;
     }
 }

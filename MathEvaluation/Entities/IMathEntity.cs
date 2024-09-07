@@ -1,4 +1,6 @@
-﻿namespace MathEvaluation.Entities;
+﻿using System.Linq.Expressions;
+
+namespace MathEvaluation.Entities;
 
 /// <summary>
 /// Math entity interface.
@@ -16,4 +18,7 @@ public interface IMathEntity
     /// The evaluation precedence.
     /// </value>
     public int Precedence { get; }
+
+    /// <summary>Converts to the <see cref="Expression"/>.</summary>
+    public Expression ToExpression();
 }

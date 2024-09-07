@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace MathEvaluation.Entities;
 
@@ -24,5 +25,13 @@ public class MathGetValueFunction<T> : MathEntity
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
+    }
+
+    /// <inheritdoc/>
+    public override Expression ToExpression()
+    {
+        var fn = Fn;
+        Expression<Func<T>> expression = () => fn();
+        return expression;
     }
 }

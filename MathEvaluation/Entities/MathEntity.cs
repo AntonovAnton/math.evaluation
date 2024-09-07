@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace MathEvaluation.Entities;
 
@@ -20,4 +21,7 @@ public abstract class MathEntity : IMathEntity
     {
         Key = key ?? throw new ArgumentNullException(nameof(key));
     }
+
+    /// <inheritdoc/>
+    public abstract Expression ToExpression();
 }

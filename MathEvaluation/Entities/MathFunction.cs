@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace MathEvaluation.Entities;
 
@@ -42,5 +43,13 @@ public class MathFunction<T> : MathEntity
         Separator = separator;
         OpeningSymbol = openingSymbol;
         ClosingSymbol = closingSymbol;
+    }
+
+    /// <inheritdoc/>
+    public override Expression ToExpression()
+    {
+        var fn = Fn;
+        Expression<Func<T[], T>> expression = (args) => fn(args);
+        return expression;
     }
 }
