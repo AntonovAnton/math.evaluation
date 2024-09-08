@@ -68,7 +68,7 @@ public partial class MathExpression
         try
         {
             var i = 0;
-            return Evaluate(MathString, ref i, null, null, (int)EvalPrecedence.Unknown);
+            return Evaluate(MathString, ref i, null, null);
         }
         catch (Exception ex)
         {
@@ -76,9 +76,10 @@ public partial class MathExpression
         }
     }
 
-    private double Evaluate(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, bool isOperand = false, double value = default)
+    private double Evaluate(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
     {
+        var value = default(double);
         var start = i;
         while (mathString.Length > i)
         {
@@ -108,7 +109,7 @@ public partial class MathExpression
 
                     var startParenthesis = i;
                     i++;
-                    var result = Evaluate(mathString, ref i, null, ')', (int)EvalPrecedence.Unknown);
+                    var result = Evaluate(mathString, ref i, null, ')');
                     mathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
@@ -187,8 +188,8 @@ public partial class MathExpression
         return value;
     }
 
-    private double EvaluateMathEntity(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity, bool throwError = true)
+    private double EvaluateMathEntity(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity, bool throwError = true)
     {
         if (entity != null && entity.Precedence >= precedence)
         {
@@ -206,8 +207,8 @@ public partial class MathExpression
         return value;
     }
 
-    private double EvaluateExponentiation(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, double value)
+    private double EvaluateExponentiation(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, double value)
     {
         mathString.SkipMeaningless(ref i);
         if (mathString.Length <= i)
@@ -218,8 +219,8 @@ public partial class MathExpression
         return EvaluateMathEntity(mathString, ref i, separator, closingSymbol, precedence, value, entity, false);
     }
 
-    private bool TryEvaluateEntity(ReadOnlySpan<char> mathString, IMathEntity entity,
-        ref int i, char? separator, char? closingSymbol, ref double value)
+    private bool TryEvaluateEntity(ReadOnlySpan<char> mathString, IMathEntity entity, ref int i,
+        char? separator, char? closingSymbol, ref double value)
     {
         var start = i;
         switch (entity)
@@ -279,7 +280,7 @@ public partial class MathExpression
                         mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
 
                     var arg = func.ClosingSymbol.HasValue
-                        ? Evaluate(mathString, ref i, null, func.ClosingSymbol, (int)EvalPrecedence.Unknown)
+                        ? Evaluate(mathString, ref i, null, func.ClosingSymbol)
                         : EvaluateOperand(mathString, ref i, separator, closingSymbol);
 
                     if (func.ClosingSymbol.HasValue)
@@ -298,7 +299,7 @@ public partial class MathExpression
                     var args = new List<double>();
                     while (mathString.Length > i)
                     {
-                        var arg = Evaluate(mathString, ref i, func.Separator, func.ClosingSymbol, (int)EvalPrecedence.Unknown);
+                        var arg = Evaluate(mathString, ref i, func.Separator, func.ClosingSymbol);
                         args.Add(arg);
 
                         if (mathString[i] == func.Separator)

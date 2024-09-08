@@ -114,7 +114,7 @@ public interface IMathContext
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it's a binary operator.</param>
+    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it matches a C# binary operator.</param>
     void BindOperator(Func<double, double, double> fn, char key,
         int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null);
 

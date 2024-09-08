@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace MathEvaluation.Entities;
@@ -49,5 +50,11 @@ public class MathFunction<T> : MathEntity
     public override Expression BuildExpression()
     {
         return Expression.Constant(Fn);
+    }
+
+    /// <inheritdoc cref="BuildExpression()"/>
+    public Expression BuildExpression(IEnumerable<Expression> args)
+    {
+        return Expression.Invoke(BuildExpression(), Expression.NewArrayInit(typeof(T), args));
     }
 }
