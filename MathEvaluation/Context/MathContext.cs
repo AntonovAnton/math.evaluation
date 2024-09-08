@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MathEvaluation.Entities;
@@ -196,13 +197,15 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, char key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedece));
+    public void BindOperator(Func<double, double, double> fn, char key,
+        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
+        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedece, binaryOperatorType));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, string key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedece));
+    public void BindOperator(Func<double, double, double> fn, string key,
+        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
+        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedece, binaryOperatorType));
 
     #region decimal
 
@@ -299,13 +302,15 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedece));
+    public void BindOperator(Func<decimal, decimal, decimal> fn, char key,
+        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
+        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedece, binaryOperatorType));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedece = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece));
+    public void BindOperator(Func<decimal, decimal, decimal> fn, string key,
+        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
+        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece, binaryOperatorType));
 
     #endregion
 

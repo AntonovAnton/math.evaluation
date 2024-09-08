@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using MathEvaluation.Entities;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -23,7 +24,7 @@ public class DecimalProgrammingMathContext : MathContext
         BindConstant(0m, "FALSE");
 
         static decimal modFn(decimal left, decimal right) => left % right;
-        BindOperator(modFn, '%');
+        BindOperator(modFn, '%', (int)EvalPrecedence.Basic, ExpressionType.Modulo);
 
         static decimal floorDivisionFn(decimal left, decimal right) => Math.Floor(left / right);
         BindOperator(floorDivisionFn, "//");
@@ -31,41 +32,41 @@ public class DecimalProgrammingMathContext : MathContext
         BindOperandsOperator(Math.Pow, "**", (int)EvalPrecedence.Exponentiation);
 
         static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
-        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality);
+        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality, ExpressionType.Equal);
 
         static decimal notEqualToFn(decimal left, decimal right) => left != right ? 1.0m : default;
-        BindOperator(notEqualToFn, "<>", (int)EvalPrecedence.Equality);
+        BindOperator(notEqualToFn, "<>", (int)EvalPrecedence.Equality, ExpressionType.NotEqual);
 
         static decimal greaterThanFn(decimal left, decimal right) => left > right ? 1.0m : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThan);
 
         static decimal lessThanFn(decimal left, decimal right) => left < right ? 1.0m : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThan);
 
         static decimal greaterThanOrEqualToFn(decimal left, decimal right) => left >= right ? 1.0m : default;
-        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator);
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThanOrEqual);
 
         static decimal lessThanOrEqualToFn(decimal left, decimal right) => left <= right ? 1.0m : default;
-        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator);
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThanOrEqual);
 
         static decimal andFn(decimal left, decimal right) => left != default && right != default ? 1.0m : default;
-        BindOperator(andFn, "and", (int)EvalPrecedence.LogicalAnd);
-        BindOperator(andFn, "And", (int)EvalPrecedence.LogicalAnd);
-        BindOperator(andFn, "AND", (int)EvalPrecedence.LogicalAnd);
+        BindOperator(andFn, "and", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
+        BindOperator(andFn, "And", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
+        BindOperator(andFn, "AND", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
 
         static decimal orFn(decimal left, decimal right) => left != default || right != default ? 1.0m : default;
-        BindOperator(orFn, "or", (int)EvalPrecedence.LogicalOr);
-        BindOperator(orFn, "Or", (int)EvalPrecedence.LogicalOr);
-        BindOperator(orFn, "OR", (int)EvalPrecedence.LogicalOr);
+        BindOperator(orFn, "or", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
+        BindOperator(orFn, "Or", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
+        BindOperator(orFn, "OR", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
 
         static decimal xorFn(decimal left, decimal right) => left != default ^ right != default ? 1.0m : default;
-        BindOperator(xorFn, "xor", (int)EvalPrecedence.LogicalXor);
-        BindOperator(xorFn, "Xor", (int)EvalPrecedence.LogicalXor);
-        BindOperator(xorFn, "XOR", (int)EvalPrecedence.LogicalXor);
+        BindOperator(xorFn, "xor", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
+        BindOperator(xorFn, "Xor", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
+        BindOperator(xorFn, "XOR", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
 
         static decimal notFn(decimal left, decimal right) => right == default ? 1.0m : default;
-        BindOperator(notFn, "not", (int)EvalPrecedence.LogicalNot);
-        BindOperator(notFn, "Not", (int)EvalPrecedence.LogicalNot);
-        BindOperator(notFn, "NOT", (int)EvalPrecedence.LogicalNot);
+        BindOperator(notFn, "not", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
+        BindOperator(notFn, "Not", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
+        BindOperator(notFn, "NOT", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
     }
 }

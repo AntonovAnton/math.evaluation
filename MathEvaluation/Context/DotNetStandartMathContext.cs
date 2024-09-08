@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
@@ -19,43 +20,43 @@ public class DotNetStandartMathContext : MathContext
         BindConstant(0d, "false");
 
         static double modFn(double left, double right) => left % right;
-        BindOperator(modFn, '%', (int)EvalPrecedence.Basic);
+        BindOperator(modFn, '%', (int)EvalPrecedence.Basic, ExpressionType.Modulo);
 
         static double equalToFn(double left, double right) => left == right ? 1.0 : default;
-        BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality);
+        BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality, ExpressionType.Equal);
 
         static double notEqualToFn(double left, double right) => left != right ? 1.0 : default;
-        BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality);
+        BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality, ExpressionType.NotEqual);
 
         static double greaterThanFn(double left, double right) => left > right ? 1.0 : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThan);
 
         static double lessThanFn(double left, double right) => left < right ? 1.0 : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator);
+        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThan);
 
         static double greaterThanOrEqualToFn(double left, double right) => left >= right ? 1.0 : default;
-        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator);
+        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThanOrEqual);
 
         static double lessThanOrEqualToFn(double left, double right) => left <= right ? 1.0 : default;
-        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator);
+        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThanOrEqual);
 
         static double andFn(double left, double right) => left != default && right != default ? 1.0 : default;
-        BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd);
+        BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd, ExpressionType.AndAlso);
 
         static double orFn(double left, double right) => left != default || right != default ? 1.0 : default;
-        BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr);
+        BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr, ExpressionType.OrElse);
 
         static double logicalNegationFn(double right) => right == default ? 1.0 : default;
         BindOperandOperator(logicalNegationFn, '!');
 
         static double logicalAndFn(double left, double right) => (long)left & (long)right;
-        BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd);
+        BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd, ExpressionType.And);
 
         static double logicalOrFn(double left, double right) => (long)left | (long)right;
-        BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr);
+        BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr, ExpressionType.Or);
 
         static double logicalExclusiveOrFn(double left, double right) => (long)left ^ (long)right;
-        BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor);
+        BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
 
         static double bitwiseComplementFn(double right) => ~(long)right;
         BindOperandOperator(bitwiseComplementFn, '~');
