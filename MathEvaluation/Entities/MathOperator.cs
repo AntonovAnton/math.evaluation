@@ -23,7 +23,7 @@ public class MathOperator<T> : MathEntity
     /// <param name="key">The key (the operator notation).</param>
     /// <param name="fn">The function.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it's a binary operator.</param>
+    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it matches a C# binary operator.</param>
     /// <exception cref="ArgumentNullException"/>
     public MathOperator(string? key, Func<T, T, T> fn, int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
         : base(key)
@@ -68,14 +68,14 @@ public class MathOperator<T> : MathEntity
 
 
             Expression expression = _binaryOperatorType.Value is ExpressionType.Not
-                ? expression = Expression.Not(right)
-                : expression = Expression.MakeBinary(_binaryOperatorType.Value, left, right);
+                ? expression = Expression.Not(right).Reduce()
+                : expression = Expression.MakeBinary(_binaryOperatorType.Value, left, right).Reduce();
 
             if (expression.Type != typeof(T))
             {
                 expression = typeof(T) == typeof(decimal) && expression.Type == typeof(bool)
                     ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
-                    : expression = Expression.Convert(expression, typeof(T));
+                    : expression = Expression.Convert(expression, typeof(T)).Reduce();
             }
 
             return expression;

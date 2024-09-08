@@ -30,6 +30,6 @@ public class MathGetValueFunction<T> : MathEntity
     /// <inheritdoc/>
     public override Expression BuildExpression()
     {
-        return Expression.Constant(Fn);
+        return Expression.Invoke(Expression.Constant(Fn));
     }
 }

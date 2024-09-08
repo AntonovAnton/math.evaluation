@@ -400,6 +400,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("ln(1/x + √(1/x^2 + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
+    [InlineData("200x^- 0.15", "x", Math.E, 172.14159528501156d)]
     [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
     [InlineData("2 * Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, 2 * Math.PI)]
     public void MathExpression_Evaluate_HasVariable_ExpectedValue(string expression, string varName,

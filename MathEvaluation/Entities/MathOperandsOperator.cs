@@ -34,4 +34,10 @@ public class MathOperandsOperator<T> : MathEntity
     {
         return Expression.Constant(Fn);
     }
+
+    /// <inheritdoc cref="BuildExpression()"/>
+    public Expression BuildExpression(Expression left, Expression right)
+    {
+        return Expression.Invoke(BuildExpression(), left, right);
+    }
 }

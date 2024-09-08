@@ -418,6 +418,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("x", 0.5, 0.5d)]
     [InlineData("2x", 0.5, 1d)]
     [InlineData("PI", Math.PI, Math.PI)]
+    [InlineData("200x^- 0.15", 2, 180.25009252216603d)]
     [InlineData("2 * PI", Math.PI, 2 * Math.PI)]
     public void MathExpression_CompileThenInvoke_HasVariable_ExpectedValue(string expression,
         double varValue, double expectedValue)

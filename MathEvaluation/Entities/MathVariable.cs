@@ -21,4 +21,14 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
     {
         return Expression.Constant(Value);
     }
+
+    /// <inheritdoc cref="BuildExpression()"/>
+    public Expression BuildExpression(ParameterExpression parameters)
+    {
+        Expression expression = Expression.Property(parameters, Key);
+        if (expression.Type != typeof(T))
+            expression = Expression.Convert(expression, typeof(T)).Reduce();
+
+        return expression;
+    }
 }

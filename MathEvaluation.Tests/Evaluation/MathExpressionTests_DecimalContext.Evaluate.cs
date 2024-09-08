@@ -360,6 +360,7 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("ln(1/x + √(1/x^2 + 1))", "x", 0.5, 1.4436354751788103d)]
     [InlineData("x", "x", 0.5, 0.5d)]
     [InlineData("2x", "x", 0.5, 1d)]
+    [InlineData("200x^- 0.15", "x", 2, 180.25009252216600d)]
     [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
     public void MathExpression_EvaluateDecimal_HasVariable_ExpectedValue(string expression, string varName,
         decimal varValue, double expectedValue)

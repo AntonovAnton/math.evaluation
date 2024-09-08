@@ -25,7 +25,7 @@ public partial class MathExpression
         try
         {
             var i = 0;
-            ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, false, DoubleZero);
+            ExpressionTree = Build(MathString, ref i, null, null);
 
             return Expression.Lambda<Func<double>>(ExpressionTree).Compile();
         }
@@ -50,7 +50,7 @@ public partial class MathExpression
         try
         {
             var i = 0;
-            ExpressionTree = Build(MathString, ref i, null, null, (int)EvalPrecedence.Unknown, false, DoubleZero);
+            ExpressionTree = Build(MathString, ref i, null, null);
 
             return Expression.Lambda<Func<T, double>>(ExpressionTree, _parameterExpression).Compile();
         }
@@ -60,9 +60,10 @@ public partial class MathExpression
         }
     }
 
-    private Expression Build(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, bool isOperand, Expression expression)
+    private Expression Build(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
     {
+        Expression expression = DoubleZero;
         var start = i;
         while (mathString.Length > i)
         {
@@ -78,7 +79,7 @@ public partial class MathExpression
             if (mathString[i] is >= '0' and <= '9' || mathString[i] == _decimalSeparator) //number
             {
                 if (isOperand)
-                    return Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Function, false, DoubleZero);
+                    return Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
                 expression = Expression.Constant(mathString.ParseNumber(_numberFormat, ref i));
                 continue;
@@ -92,7 +93,7 @@ public partial class MathExpression
 
                     var startParenthesis = i;
                     i++;
-                    var right = Build(mathString, ref i, null, ')', (int)EvalPrecedence.Unknown, false, DoubleZero);
+                    var right = Build(mathString, ref i, null, ')');
                     mathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return right;
@@ -106,7 +107,7 @@ public partial class MathExpression
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand, DoubleZero);
+                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand);
                     expression = Expression.Add(expression, right).Reduce();
                     if (isOperand)
                         return expression;
@@ -118,7 +119,7 @@ public partial class MathExpression
                     var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand, DoubleZero);
+                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand);
                     expression = isNegativity ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
                     expression = expression.Reduce();
                     if (isOperand)
@@ -129,7 +130,7 @@ public partial class MathExpression
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DoubleZero);
+                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Multiply(expression, right).Reduce();
                     break;
                 case '/' when mathString.Length == i + 1 || mathString[i + 1] != '/':
@@ -137,7 +138,7 @@ public partial class MathExpression
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DoubleZero);
+                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Divide(expression, right).Reduce();
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
@@ -168,24 +169,24 @@ public partial class MathExpression
     private Expression BuildOperand(ReadOnlySpan<char> mathString, ref int i, char? separator, char? closingSymbol)
     {
         var start = i;
-        var expression = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true, DoubleZero);
+        var expression = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
         if (expression == DoubleZero)
             mathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;
     }
 
-    private Expression BuildMathEntity(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, Expression expression, IMathEntity? entity, bool throwError = true)
+    private Expression BuildMathEntity(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, int precedence, Expression expression, IMathEntity? entity, bool throwError = true)
     {
         if (entity != null && entity.Precedence >= precedence)
         {
             if (TryBuildEntity(mathString, entity, ref i, separator, closingSymbol, ref expression))
                 return expression;
 
-            Expression convertExpression = expression == DoubleZero ? DecimalZero : Expression.Convert(expression, typeof(decimal)).Reduce();
-            if (TryBuildEntityDecimal(mathString, entity, ref i, separator, closingSymbol, ref convertExpression))
-                return Expression.Convert(convertExpression, typeof(double)).Reduce();
+            var decimalExpression = expression == DoubleZero ? DecimalZero : Expression.Convert(expression, typeof(decimal)).Reduce();
+            if (TryBuildEntityDecimal(mathString, entity, ref i, separator, closingSymbol, ref decimalExpression))
+                return Expression.Convert(decimalExpression, typeof(double)).Reduce();
         }
 
         if (throwError)
@@ -194,8 +195,8 @@ public partial class MathExpression
         return expression;
     }
 
-    private Expression BuildExponentiation(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, Expression expression)
+    private Expression BuildExponentiation(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, Expression expression)
     {
         mathString.SkipMeaningless(ref i);
         if (mathString.Length <= i)
@@ -206,8 +207,8 @@ public partial class MathExpression
         return BuildMathEntity(mathString, ref i, separator, closingSymbol, precedence, expression, entity, false);
     }
 
-    private bool TryBuildEntity(ReadOnlySpan<char> mathString, IMathEntity entity,
-        ref int i, char? separator, char? closingSymbol, ref Expression expression)
+    private bool TryBuildEntity(ReadOnlySpan<char> mathString, IMathEntity entity, ref int i,
+        char? separator, char? closingSymbol, ref Expression expression)
     {
         var start = i;
         switch (entity)
@@ -215,17 +216,16 @@ public partial class MathExpression
             case MathConstant<double> constant:
                 {
                     i += entity.Key.Length;
-                    Expression right = constant.BuildExpression();
+                    var right = constant.BuildExpression();
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
-            case MathVariable<double>:
+            case MathVariable<double> mathVariable:
                 {
                     i += entity.Key.Length;
-                    Expression right = Expression.Property(_parameterExpression, entity.Key);
-                    if (right.Type != typeof(double))
-                        right = Expression.Convert(right, typeof(double)).Reduce();
+                    var right = mathVariable.BuildExpression(_parameterExpression!);
+                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
                 }
@@ -233,11 +233,11 @@ public partial class MathExpression
                 {
                     i += entity.Key.Length;
                     if (op.IsProcessingLeft)
-                        expression = Expression.Invoke(op.BuildExpression(), expression);
+                        expression = op.BuildExpression(expression);
                     else
                     {
-                        var right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, false, DoubleZero);
-                        expression = Expression.Invoke(op.BuildExpression(), right);
+                        var right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                        expression = op.BuildExpression(right);
                     }
                     expression = BuildExponentiation(mathString, ref i, separator, closingSymbol, expression);
                     return true;
@@ -247,13 +247,13 @@ public partial class MathExpression
                     i += entity.Key.Length;
                     var right = BuildOperand(mathString, ref i, separator, closingSymbol);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = Expression.Invoke(op.BuildExpression(), expression, right);
+                    expression = op.BuildExpression(expression, right);
                     return true;
                 }
             case MathOperator<double> op:
                 {
                     i += entity.Key.Length;
-                    var right = Build(mathString, ref i, separator, closingSymbol, op.Precedence, false, DoubleZero);
+                    var right = Build(mathString, ref i, separator, closingSymbol, op.Precedence);
                     expression = op.BuildExpression(expression, right);
                     return true;
                 }
@@ -262,7 +262,7 @@ public partial class MathExpression
                     i += entity.Key.Length;
                     mathString.SkipParenthesis(ref i);
 
-                    Expression right = Expression.Invoke(func.BuildExpression());
+                    var right = func.BuildExpression();
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
@@ -274,13 +274,13 @@ public partial class MathExpression
                         mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
 
                     var arg = func.ClosingSymbol.HasValue
-                        ? Build(mathString, ref i, null, func.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DoubleZero)
+                        ? Build(mathString, ref i, null, func.ClosingSymbol)
                         : BuildOperand(mathString, ref i, separator, closingSymbol);
 
                     if (func.ClosingSymbol.HasValue)
                         mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol.Value, start, ref i);
 
-                    Expression right = Expression.Invoke(func.BuildExpression(), arg);
+                    var right = func.BuildExpression(arg);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
@@ -293,7 +293,7 @@ public partial class MathExpression
                     var args = new List<Expression>();
                     while (mathString.Length > i)
                     {
-                        var arg = Build(mathString, ref i, func.Separator, func.ClosingSymbol, (int)EvalPrecedence.Unknown, false, DoubleZero);
+                        var arg = Build(mathString, ref i, func.Separator, func.ClosingSymbol);
                         args.Add(arg);
 
                         if (mathString[i] == func.Separator)
@@ -306,7 +306,7 @@ public partial class MathExpression
 
                     mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol, start, ref i);
 
-                    Expression right = Expression.Invoke(func.BuildExpression(), Expression.NewArrayInit(typeof(double), args));
+                    var right = func.BuildExpression(args);
                     right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
                     expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
                     return true;
