@@ -67,8 +67,9 @@ public partial class MathExpression
 
         try
         {
+            var defaultValue = new EvalValue(0.0);
             var i = 0;
-            return Evaluate(MathString, ref i, null, null, (int)EvalPrecedence.Unknown);
+            return Evaluate(MathString, ref i, defaultValue, null, null);
         }
         catch (Exception ex)
         {
@@ -76,16 +77,17 @@ public partial class MathExpression
         }
     }
 
-    private double Evaluate(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, bool isOperand = false, double value = default)
+    private EvalValue Evaluate(ReadOnlySpan<char> mathString, ref int i, EvalValue defaultValue,
+        char? separator, char? closingSymbol, int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
     {
+        var value = defaultValue;
         var start = i;
         while (mathString.Length > i)
         {
             if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, _decimalSeparator) ||
                 closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
             {
-                if (value == default)
+                if (value.IsDefault)
                     mathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
                 return value;
@@ -94,9 +96,11 @@ public partial class MathExpression
             if (mathString[i] is >= '0' and <= '9' || mathString[i] == _decimalSeparator) //number
             {
                 if (isOperand)
-                    return Evaluate(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
+                    return Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = mathString.ParseNumber(_numberFormat, ref i);
+                value = defaultValue.DecimalValue.HasValue
+                    ? mathString.ParseDecimalNumber(_numberFormat, ref i)
+                    : mathString.ParseNumber(_numberFormat, ref i);
                 continue;
             }
 
@@ -108,13 +112,13 @@ public partial class MathExpression
 
                     var startParenthesis = i;
                     i++;
-                    var result = Evaluate(mathString, ref i, null, ')', (int)EvalPrecedence.Unknown);
+                    var result = Evaluate(mathString, ref i, defaultValue, null, ')');
                     mathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return result;
 
                     result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, result);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     break;
                 case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
@@ -122,7 +126,7 @@ public partial class MathExpression
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    value += Evaluate(mathString, ref i, separator, closingSymbol, p, isOperand);
+                    value += Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, p, isOperand);
                     if (isOperand)
                         return value;
                     break;
@@ -133,7 +137,7 @@ public partial class MathExpression
                     var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    result = Evaluate(mathString, ref i, separator, closingSymbol, p, isOperand);
+                    result = Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, p, isOperand);
                     value = isNegativity ? -result : value - result; //it keeps sign
                     if (isOperand)
                         return value;
@@ -143,14 +147,14 @@ public partial class MathExpression
                         return value;
 
                     i++;
-                    value *= Evaluate(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value *= Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     break;
                 case '/' when mathString.Length == i + 1 || mathString[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
                         return value;
 
                     i++;
-                    value /= Evaluate(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value /= Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
                     i++;
@@ -171,33 +175,34 @@ public partial class MathExpression
             }
         }
 
-        if (value == default)
+        if (value.IsDefault)
             mathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
 
         return value;
     }
 
-    private double EvaluateOperand(ReadOnlySpan<char> mathString, ref int i, char? separator, char? closingSymbol)
+    private EvalValue EvaluateOperand(ReadOnlySpan<char> mathString, ref int i, EvalValue defaultValue, char? separator, char? closingSymbol)
     {
         var start = i;
-        var value = Evaluate(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        if (value == default)
+        var value = Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        if (value.IsDefault)
             mathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return value;
     }
 
-    private double EvaluateMathEntity(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, int precedence, double value, IMathEntity? entity, bool throwError = true)
+    private EvalValue EvaluateMathEntity(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, int precedence, EvalValue value, IMathEntity? entity, bool throwError = true)
     {
         if (entity != null && entity.Precedence >= precedence)
         {
-            if (TryEvaluateEntity(mathString, entity, ref i, separator, closingSymbol, ref value))
-                return value;
+            EvalValue doubleValue = (double)value;
+            if (TryEvaluateEntityDouble(mathString, entity, ref i, separator, closingSymbol, ref doubleValue))
+                return doubleValue;
 
-            var decimalValue = (decimal)value;
+            EvalValue decimalValue = (decimal)value;
             if (TryEvaluateEntityDecimal(mathString, entity, ref i, separator, closingSymbol, ref decimalValue))
-                return (double)decimalValue;
+                return decimalValue;
         }
 
         if (throwError)
@@ -206,8 +211,8 @@ public partial class MathExpression
         return value;
     }
 
-    private double EvaluateExponentiation(ReadOnlySpan<char> mathString,
-        ref int i, char? separator, char? closingSymbol, double value)
+    private EvalValue EvaluateExponentiation(ReadOnlySpan<char> mathString, ref int i,
+        char? separator, char? closingSymbol, EvalValue value)
     {
         mathString.SkipMeaningless(ref i);
         if (mathString.Length <= i)
@@ -218,9 +223,10 @@ public partial class MathExpression
         return EvaluateMathEntity(mathString, ref i, separator, closingSymbol, precedence, value, entity, false);
     }
 
-    private bool TryEvaluateEntity(ReadOnlySpan<char> mathString, IMathEntity entity,
-        ref int i, char? separator, char? closingSymbol, ref double value)
+    private bool TryEvaluateEntityDouble(ReadOnlySpan<char> mathString, IMathEntity entity, ref int i,
+        char? separator, char? closingSymbol, ref EvalValue value)
     {
+        var defaultValue = new EvalValue(0.0);
         var start = i;
         switch (entity)
         {
@@ -228,14 +234,14 @@ public partial class MathExpression
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, constant.Value);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     return true;
                 }
             case MathVariable<double> variable:
                 {
                     i += entity.Key.Length;
                     var result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, variable.Value);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     return true;
                 }
             case MathOperandOperator<double> op:
@@ -243,14 +249,14 @@ public partial class MathExpression
                     i += entity.Key.Length;
                     var result = op.IsProcessingLeft
                         ? op.Fn(value)
-                        : op.Fn(EvaluateOperand(mathString, ref i, separator, closingSymbol));
+                        : op.Fn(EvaluateOperand(mathString, ref i, defaultValue, separator, closingSymbol));
                     value = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, result);
                     return true;
                 }
             case MathOperandsOperator<double> op:
                 {
                     i += entity.Key.Length;
-                    var right = EvaluateOperand(mathString, ref i, separator, closingSymbol);
+                    var right = EvaluateOperand(mathString, ref i, defaultValue, separator, closingSymbol);
                     right = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, right);
                     value = op.Fn(value, right);
                     return true;
@@ -258,7 +264,7 @@ public partial class MathExpression
             case MathOperator<double> op:
                 {
                     i += entity.Key.Length;
-                    var right = Evaluate(mathString, ref i, separator, closingSymbol, op.Precedence);
+                    var right = Evaluate(mathString, ref i, defaultValue, separator, closingSymbol, op.Precedence);
                     value = op.Fn(value, right);
                     return true;
                 }
@@ -269,7 +275,7 @@ public partial class MathExpression
 
                     var result = func.Fn();
                     result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, result);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     return true;
                 }
             case MathUnaryFunction<double> func:
@@ -279,15 +285,15 @@ public partial class MathExpression
                         mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
 
                     var arg = func.ClosingSymbol.HasValue
-                        ? Evaluate(mathString, ref i, null, func.ClosingSymbol, (int)EvalPrecedence.Unknown)
-                        : EvaluateOperand(mathString, ref i, separator, closingSymbol);
+                        ? Evaluate(mathString, ref i, defaultValue, null, func.ClosingSymbol)
+                        : EvaluateOperand(mathString, ref i, defaultValue, separator, closingSymbol);
 
                     if (func.ClosingSymbol.HasValue)
                         mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol.Value, start, ref i);
 
                     var result = func.Fn(arg);
                     result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, result);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     return true;
                 }
             case MathFunction<double> func:
@@ -298,7 +304,7 @@ public partial class MathExpression
                     var args = new List<double>();
                     while (mathString.Length > i)
                     {
-                        var arg = Evaluate(mathString, ref i, func.Separator, func.ClosingSymbol, (int)EvalPrecedence.Unknown);
+                        var arg = Evaluate(mathString, ref i, defaultValue, func.Separator, func.ClosingSymbol);
                         args.Add(arg);
 
                         if (mathString[i] == func.Separator)
@@ -313,7 +319,7 @@ public partial class MathExpression
 
                     var result = func.Fn([.. args]);
                     result = EvaluateExponentiation(mathString, ref i, separator, closingSymbol, result);
-                    value = value == default ? result : value * result;
+                    value = value.IsDefault ? result : value * result;
                     return true;
                 }
             default:
