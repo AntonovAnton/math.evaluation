@@ -254,7 +254,7 @@ public partial class MathExpression
                 {
                     i += entity.Key.Length;
                     var right = Build(mathString, ref i, separator, closingSymbol, op.Precedence, false, DoubleZero);
-                    expression = Expression.Invoke(op.BuildExpression(), expression, right);
+                    expression = op.BuildExpression(expression, right);
                     return true;
                 }
             case MathGetValueFunction<double> func:
