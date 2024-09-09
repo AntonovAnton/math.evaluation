@@ -26,7 +26,7 @@ Alternatively, you can install the package using the NuGet Package Manager Conso
 ## Perfomance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher. 
 
-This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, avoidance of regular expressions, and reliance on static methods. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
+This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, and avoidance of regular expressions. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
 
 The evaluator uses recursive method calls to handle mathematical operations based on operator precedence and rules, an operator with highest precedence is evaluating first. This approach avoids the overhead associated with stack or queue data structures.
 
