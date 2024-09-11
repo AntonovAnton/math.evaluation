@@ -19,6 +19,14 @@ public interface IMathParameters
     /// <returns></returns>
     void Bind(object parameters);
 
+    /// <inheritdoc cref="BindVariable(double, char)"/>
+    void BindVariable<T>(T value, char key)
+        where T : struct;
+
+    /// <inheritdoc cref="BindVariable(double, char)"/>
+    void BindVariable<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        where T : struct;
+
     /// <summary>Binds the variable.</summary>
     /// <param name="value">The value.</param>
     /// <param name="key">The key.</param>

@@ -20,6 +20,14 @@ public interface IMathContext
     /// <returns></returns>
     void Bind(object context);
 
+    /// <inheritdoc cref="BindConstant(double, char)"/>
+    void BindConstant<T>(T value, char key)
+        where T : struct;
+
+    /// <inheritdoc cref="BindConstant(double, char)"/>
+    void BindConstant<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        where T : struct;
+
     /// <summary>Binds the constant.</summary>
     /// <param name="value">The value.</param>
     /// <param name="key">The key.</param>
