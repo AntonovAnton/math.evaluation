@@ -18,8 +18,8 @@ public class DecimalDotNetStandartMathContext : MathContext
     public DecimalDotNetStandartMathContext()
         : base()
     {
-        BindConstant(1m, "true");
-        BindConstant(0m, "false");
+        BindConstant(1d, "true");
+        BindConstant(0d, "false");
 
         static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, '%', (int)EvalPrecedence.Basic, ExpressionType.Modulo);
@@ -75,56 +75,116 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindOperandOperator(postfixDecrementFn, "--\r", true);
         BindOperandOperator(postfixDecrementFn, "--\n", true);
 
-        BindOperandOperator((decimal value) => value, 'f', true);
-        BindOperandOperator((decimal value) => value, 'd', true);
-        BindOperandOperator((decimal value) => value, 'm', true);
-        BindOperandOperator((decimal value) => value, 'l', true);
-        BindOperandOperator((decimal value) => value, 'u', true);
-        BindOperandOperator((decimal value) => value, "ul", true);
-        BindOperandOperator((decimal value) => value, "lu", true);
-        BindOperandOperator((decimal value) => value, 'F', true);
-        BindOperandOperator((decimal value) => value, 'D', true);
-        BindOperandOperator((decimal value) => value, 'M', true);
-        BindOperandOperator((decimal value) => value, 'L', true);
-        BindOperandOperator((decimal value) => value, "Lu", true);
-        BindOperandOperator((decimal value) => value, "LU", true);
-        BindOperandOperator((decimal value) => value, 'U', true);
-        BindOperandOperator((decimal value) => value, "Ul", true);
-        BindOperandOperator((decimal value) => value, "UL", true);
+        static decimal emptyFn(decimal value) => value;
+        BindOperandOperator(emptyFn, 'f', true);
+        BindOperandOperator(emptyFn, 'd', true);
+        BindOperandOperator(emptyFn, 'm', true);
+        BindOperandOperator(emptyFn, 'l', true);
+        BindOperandOperator(emptyFn, 'u', true);
+        BindOperandOperator(emptyFn, "ul", true);
+        BindOperandOperator(emptyFn, "lu", true);
+        BindOperandOperator(emptyFn, 'F', true);
+        BindOperandOperator(emptyFn, 'D', true);
+        BindOperandOperator(emptyFn, 'M', true);
+        BindOperandOperator(emptyFn, 'L', true);
+        BindOperandOperator(emptyFn, "Lu", true);
+        BindOperandOperator(emptyFn, "LU", true);
+        BindOperandOperator(emptyFn, 'U', true);
+        BindOperandOperator(emptyFn, "Ul", true);
+        BindOperandOperator(emptyFn, "UL", true);
 
         BindConstant(Math.PI);
         BindConstant(Math.E);
 
-        BindFunction((decimal value) => Math.Abs(value), "Math.Abs");
-        BindFunction(Math.Acos);
-        BindFunction(Math.Acosh);
-        BindFunction(Math.Asin);
-        BindFunction(Math.Asinh);
-        BindFunction(Math.Atan);
-        BindFunction(Math.Atan2);
-        BindFunction(Math.Atanh);
-        BindFunction((decimal a, decimal b) => Math.BigMul((int)a, (int)b), "Math.BigMul");
-        BindFunction(Math.Cbrt);
-        BindFunction((decimal value) => Math.Ceiling(value), "Math.Ceiling");
-        BindFunction((decimal value, decimal min, decimal max) => Math.Clamp(value, min, max), "Math.Clamp");
-        BindFunction(Math.Cos);
-        BindFunction(Math.Cosh);
-        BindFunction(Math.Exp);
-        BindFunction((decimal value) => Math.Floor(value), "Math.Floor");
-        BindFunction(Math.IEEERemainder);
-        BindFunction(args => args.Length == 1 ? Math.Log(args[0]) : Math.Log(args[0], args[1]), "Math.Log");
-        BindFunction(Math.Log10);
-        BindFunction((decimal val1, decimal val2) => Math.Max(val1, val2), "Math.Max");
-        BindFunction((decimal val1, decimal val2) => Math.Min(val1, val2), "Math.Min");
-        BindFunction(Math.Pow);
-        BindFunction((decimal[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]), "Math.Round");
-        BindFunction((decimal value) => Math.Sign(value), "Math.Sign");
-        BindFunction(Math.Sin);
-        BindFunction(Math.Sinh);
-        BindFunction(Math.Sqrt);
-        BindFunction(Math.Tan);
-        BindFunction(Math.Tanh);
-        BindFunction((decimal value) => Math.Truncate(value), "Math.Truncate");
+        static decimal absFn(decimal v) => Math.Abs(v);
+        BindFunction(absFn, "Math.Abs");
+
+        static double acosFn(double v) => Math.Acos(v);
+        BindFunction(acosFn, "Math.Acos");
+
+        static double acoshFn(double v) => Math.Acosh(v);
+        BindFunction(acoshFn, "Math.Acosh");
+
+        static double asinFn(double v) => Math.Asin(v);
+        BindFunction(asinFn, "Math.Asin");
+
+        static double asinhFn(double v) => Math.Asinh(v);
+        BindFunction(asinhFn, "Math.Asinh");
+
+        static double atanFn(double v) => Math.Atan(v);
+        BindFunction(atanFn, "Math.Atan");
+
+        static double atan2Fn(double y, double x) => Math.Atan2(y, x);
+        BindFunction(atan2Fn, "Math.Atan2");
+
+        static double atanhFn(double v) => Math.Atanh(v);
+        BindFunction(atanhFn, "Math.Atanh");
+
+        static decimal bigMul(decimal a, decimal b) => Math.BigMul((int)a, (int)b);
+        BindFunction(bigMul, "Math.BigMul");
+
+        static double cbrtFn(double value) => Math.Cbrt(value);
+        BindFunction(cbrtFn, "Math.Cbrt");
+
+        static decimal ceilingFn(decimal value) => Math.Ceiling(value);
+        BindFunction(ceilingFn, "Math.Ceiling");
+
+        static decimal clampFn(decimal value, decimal min, decimal max) => Math.Clamp(value, min, max);
+        BindFunction(clampFn, "Math.Clamp");
+
+        static double cosFn(double value) => Math.Cos(value);
+        BindFunction(cosFn, "Math.Cos");
+
+        static double coshFn(double value) => Math.Cosh(value);
+        BindFunction(coshFn, "Math.Cosh");
+
+        static double expFn(double value) => Math.Exp(value);
+        BindFunction(expFn, "Math.Exp");
+
+        static decimal floorFn(decimal value) => Math.Floor(value);
+        BindFunction(floorFn, "Math.Floor");
+
+        static double remainderFn(double x, double y) => Math.IEEERemainder(x, y);
+        BindFunction(remainderFn, "Math.IEEERemainder");
+
+        static double logFn(double[] args) => args.Length == 1 ? Math.Log(args[0]) : Math.Log(args[0], args[1]);
+        BindFunction(logFn, "Math.Log");
+
+        static double log10Fn(double value) => Math.Log10(value);
+        BindFunction(log10Fn, "Math.Log10");
+
+        static decimal maxFn(decimal val1, decimal val2) => Math.Max(val1, val2);
+        BindFunction(maxFn, "Math.Max");
+
+        static decimal minFn(decimal val1, decimal val2) => Math.Min(val1, val2);
+        BindFunction(minFn, "Math.Min");
+
+        static double powFn(double x, double y) => Math.Pow(x, y);
+        BindFunction(powFn, "Math.Pow");
+
+        static decimal roundFn(decimal[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]);
+        BindFunction(roundFn, "Math.Round");
+
+        static decimal signFn(decimal value) => Math.Sign(value);
+        BindFunction(signFn, "Math.Sign");
+
+        static double sinFn(double value) => Math.Sin(value);
+        BindFunction(sinFn, "Math.Sin");
+
+        static double sinhFn(double value) => Math.Sinh(value);
+        BindFunction(sinhFn, "Math.Sinh");
+
+        static double sqrtFn(double value) => Math.Sqrt(value);
+        BindFunction(sqrtFn, "Math.Sqrt");
+
+        static double tanFn(double value) => Math.Tan(value);
+        BindFunction(tanFn, "Math.Tan");
+
+        static double tanhFn(double value) => Math.Tanh(value);
+        BindFunction(tanhFn, "Math.Tanh");
+
+        static decimal truncateFn(decimal value) => Math.Truncate(value);
+        BindFunction(truncateFn, "Math.Truncate");
 
         //double.ToString() represents double.PositiveInfinity from time to time as "Infinity" or '∞'
         BindConstant(double.PositiveInfinity, "Infinity");

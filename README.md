@@ -13,7 +13,9 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Fast and comprehensive. More than 1300 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Articles
-[Evaluating Boolean Expressions. Comparison with NCalc.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
+[Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
+
+[Compilation of a Math Expression into a delegate.](https://medium.com/@AntonAntonov88/compile-any-math-expression-from-string-dynamically-at-runtime-in-c-net-710f8bbbb880)
 
 ## Installation
 

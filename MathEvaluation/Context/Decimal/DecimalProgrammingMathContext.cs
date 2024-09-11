@@ -15,13 +15,13 @@ public class DecimalProgrammingMathContext : MathContext
     /// <summary>Initializes a new instance of the <see cref="DecimalProgrammingMathContext" /> class.</summary>
     public DecimalProgrammingMathContext()
     {
-        BindConstant(1m, "true");
-        BindConstant(1m, "True");
-        BindConstant(1m, "TRUE");
+        BindConstant(1d, "true");
+        BindConstant(1d, "True");
+        BindConstant(1d, "TRUE");
 
-        BindConstant(0m, "false");
-        BindConstant(0m, "False");
-        BindConstant(0m, "FALSE");
+        BindConstant(0d, "false");
+        BindConstant(0d, "False");
+        BindConstant(0d, "FALSE");
 
         static decimal modFn(decimal left, decimal right) => left % right;
         BindOperator(modFn, '%', (int)EvalPrecedence.Basic, ExpressionType.Modulo);
@@ -29,7 +29,8 @@ public class DecimalProgrammingMathContext : MathContext
         static decimal floorDivisionFn(decimal left, decimal right) => Math.Floor(left / right);
         BindOperator(floorDivisionFn, "//");
 
-        BindOperandsOperator(Math.Pow, "**", (int)EvalPrecedence.Exponentiation);
+        static double powFn(double x, double y) => Math.Pow(x, y);
+        BindOperandsOperator(powFn, "**", (int)EvalPrecedence.Exponentiation);
 
         static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
         BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality, ExpressionType.Equal);
