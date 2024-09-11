@@ -47,40 +47,47 @@ public class MathOperator<T> : MathEntity
         {
             if (_binaryOperatorType.Value is ExpressionType.AndAlso or ExpressionType.OrElse)
             {
-                if (left.Type != typeof(bool))
-                    left = Expression.NotEqual(left, typeof(T) == typeof(decimal) ? Expression.Constant(0.0m) : Expression.Constant(0.0));
-            }
-
-            if (_binaryOperatorType.Value is ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.Not)
-            {
-                if (right.Type != typeof(bool))
-                    right = Expression.NotEqual(right, typeof(T) == typeof(decimal) ? Expression.Constant(0.0m) : Expression.Constant(0.0));
+                left = ConvertToBoolean(left);
+                right = ConvertToBoolean(right);
             }
 
             if (_binaryOperatorType.Value is ExpressionType.And or ExpressionType.Or or ExpressionType.ExclusiveOr)
             {
-                if (left.Type != typeof(bool))
-                    left = Expression.Convert(left, typeof(long));
-
-                if (right.Type != typeof(bool))
-                    right = Expression.Convert(right, typeof(long));
+                left = ConvertToLong(left);
+                right = ConvertToLong(right);
             }
 
+            // if logical negation operation (NOT right)
+            var expression = _binaryOperatorType.Value is ExpressionType.Not
+                ? Expression.Not(ConvertToBoolean(right)).Reduce()
+                : Expression.MakeBinary(_binaryOperatorType.Value, left, right).Reduce();
 
-            Expression expression = _binaryOperatorType.Value is ExpressionType.Not
-                ? expression = Expression.Not(right).Reduce()
-                : expression = Expression.MakeBinary(_binaryOperatorType.Value, left, right).Reduce();
+            if (typeof(T) == expression.Type)
+                return expression;
 
-            if (expression.Type != typeof(T))
-            {
-                expression = typeof(T) == typeof(decimal) && expression.Type == typeof(bool)
-                    ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
-                    : expression = Expression.Convert(expression, typeof(T)).Reduce();
-            }
-
-            return expression;
+            return typeof(T) == typeof(decimal) && expression.Type == typeof(bool)
+                ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
+                : Expression.Convert(expression, typeof(T)).Reduce();
         }
 
         return Expression.Invoke(BuildExpression(), left, right);
+    }
+
+    private static Expression ConvertToBoolean(Expression expression)
+    {
+        if (expression.Type != typeof(bool))
+            expression = Expression.NotEqual(expression, typeof(T) == typeof(decimal)
+                ? Expression.Constant(0.0m)
+                : Expression.Constant(0.0));
+
+        return expression;
+    }
+
+    private static Expression ConvertToLong(Expression expression)
+    {
+        if (expression.Type != typeof(bool))
+            expression = Expression.Convert(expression, typeof(long));
+
+        return expression;
     }
 }
