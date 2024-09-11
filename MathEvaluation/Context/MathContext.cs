@@ -97,11 +97,31 @@ public class MathContext : IMathContext
             else
             {
                 if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
-                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<double[], double> or Func<decimal[], decimal> istead.");
 
                 throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
             }
         }
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="NotSupportedException"/>
+    public void BindConstant<T>(T value, char key)
+        where T : struct
+        => BindConstant(value, key.ToString());
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="NotSupportedException"/>
+    public void BindConstant<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        where T : struct
+    {
+        var type = typeof(T);
+        if (type.IsConvertibleToDouble())
+            BindConstant(Convert.ToDouble(value), key);
+        else
+            throw new NotSupportedException($"{type} isn't supported.");
     }
 
     /// <inheritdoc/>
