@@ -1,4 +1,3 @@
-using MathEvaluation.Context;
 using MathEvaluation.Parameters;
 using System.Numerics;
 
