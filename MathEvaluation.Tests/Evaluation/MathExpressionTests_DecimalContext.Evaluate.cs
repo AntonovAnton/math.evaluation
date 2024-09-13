@@ -203,8 +203,8 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
 
     [Theory]
     [InlineData("e", Math.E)]
-    [InlineData("200e", 200 * Math.E)]
-    [InlineData("200e^- 0.15", 172.14159528501156d)]
+    [InlineData("200e", 543.656365691808d)]
+    [InlineData("200e^- 0.1", 180.967483607192d)]
     public void MathExpression_EvaluateDecimal_HasLnBase_ExpectedValue(string expression, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");

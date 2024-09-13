@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
@@ -9,83 +8,49 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
-    private static readonly Expression DoubleZero = Expression.Constant(0.0);
-
-    private ParameterExpression? _parameterExpression;
-
     /// <summary>Gets the expression tree.</summary>
     /// <value>The expression tree.</value>
     public Expression? ExpressionTree { get; private set; }
 
-    /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
-    /// <returns>A delegate that represents the compiled expression.</returns>
-    /// <exception cref="MathExpressionException"/>
+    internal ParameterExpression? ParameterExpression { get; private set; }
+
+    /// <inheritdoc cref="Compile{TResult}()"/>
     public Func<double> Compile()
-    {
-        try
-        {
-            var i = 0;
-            ExpressionTree = Build(MathString, ref i, null, null);
+        => Compile<double>();
 
-            return Expression.Lambda<Func<double>>(ExpressionTree).Compile();
-        }
-        catch (Exception ex)
-        {
-            throw CreateException(ex, MathString, Context, Provider, null);
-        }
-    }
-
-    /// <inheritdoc cref="Compile()"/>
-    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
-    /// <exception cref="ArgumentNullException">parameters</exception>
-    /// <exception cref="NotSupportedException">parameters</exception>
+    /// <inheritdoc cref="Compile{T, TResult}(T)"/>
     public Func<T, double> Compile<T>(T parameters)
+        => Compile<T, double>(parameters);
+
+    internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
+        int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
+        where TResult : struct, IConvertible
     {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        var span = MathString.AsSpan();
+        Expression expression = Expression.Constant(default(TResult));
 
-        _parameters = new MathParameters(parameters);
-        _parameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
-
-        try
-        {
-            var i = 0;
-            ExpressionTree = Build(MathString, ref i, null, null);
-
-            return Expression.Lambda<Func<T, double>>(ExpressionTree, _parameterExpression).Compile();
-        }
-        catch (Exception ex)
-        {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
-        }
-    }
-
-    private Expression Build(ReadOnlySpan<char> mathString, ref int i,
-        char? separator, char? closingSymbol, int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
-    {
-        Expression expression = DoubleZero;
         var start = i;
-        while (mathString.Length > i)
+        while (span.Length > i)
         {
-            if (separator.HasValue && mathString.IsParamsSeparator(start, i, separator.Value, _decimalSeparator) ||
-                closingSymbol.HasValue && mathString[i] == closingSymbol.Value)
+            if (separator.HasValue && IsParamSeparator(separator.Value, start, i) ||
+                closingSymbol.HasValue && span[i] == closingSymbol.Value)
             {
-                if (expression == DoubleZero)
-                    mathString.ThrowExceptionIfNotEvaluated(true, start, i);
+                if (expression.IsZero())
+                    MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
                 return expression;
             }
 
-            if (mathString[i] is >= '0' and <= '9' || mathString[i] == _decimalSeparator) //number
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator) //number
             {
                 if (isOperand)
-                    return Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
+                    return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                expression = Expression.Constant(mathString.ParseNumber(_numberFormat, ref i));
+                expression = Expression.Constant(span.ParseNumber<TResult>(_numberFormat, ref i));
                 continue;
             }
 
-            switch (mathString[i])
+            switch (span[i])
             {
                 case '(':
                     if (precedence >= (int)EvalPrecedence.Function)
@@ -93,226 +58,151 @@ public partial class MathExpression
 
                     var startParenthesis = i;
                     i++;
-                    var right = Build(mathString, ref i, null, ')');
-                    mathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
+                    var right = Build<TResult>(ref i, null, ')');
+                    MathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
                     if (isOperand)
                         return right;
 
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
+                    right = BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+                    expression = expression.IsZero() ? right : Expression.Multiply(expression, right).Reduce();
                     break;
-                case '+' when mathString.Length == i + 1 || mathString[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
+                case '+' when span.Length == i + 1 || span[i + 1] != '+':
+                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
                         return expression;
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand);
+                    right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
                     expression = Expression.Add(expression, right).Reduce();
                     if (isOperand)
                         return expression;
                     break;
-                case '-' when mathString.Length == i + 1 || mathString[i + 1] != '-':
-                    if (precedence >=(int)EvalPrecedence.LowestBasic && !mathString.IsMeaningless(start, i))
+                case '-' when span.Length == i + 1 || span[i + 1] != '-':
+                    if (precedence >=(int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
                         return expression;
 
                     var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build(mathString, ref i, separator, closingSymbol, p, isOperand);
+                    right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
                     expression = isNegativity ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
                     expression = expression.Reduce();
                     if (isOperand)
                         return expression;
                     break;
-                case '*' when mathString.Length == i + 1 || mathString[i + 1] != '*':
+                case '*' when span.Length == i + 1 || span[i + 1] != '*':
                     if (precedence >= (int)EvalPrecedence.Basic)
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Multiply(expression, right).Reduce();
                     break;
-                case '/' when mathString.Length == i + 1 || mathString[i + 1] != '/':
+                case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
                         return expression;
 
                     i++;
-                    right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Divide(expression, right).Reduce();
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
                     i++;
                     break;
                 default:
-                    var entity = FirstMathEntity(mathString[i..]);
-                    if (entity == null && mathString.TryParseCurrency(_numberFormat, ref i))
+                    var entity = FirstMathEntity(span[i..]);
+                    if (entity == null && span.TryParseCurrency(_numberFormat, ref i))
                         break;
 
                     //highest precedence is evaluating first
                     if (precedence >= entity?.Precedence)
                         return expression;
 
-                    expression = BuildMathEntity(mathString, ref i, separator, closingSymbol, precedence, expression, entity);
+                    if (entity != null)
+                        expression = entity.Build<TResult>(this, ref i, separator, closingSymbol, expression);
+                    else
+                        MathString.ThrowExceptionInvalidToken(i);
+
                     if (isOperand)
                         return expression;
                     break;
             }
         }
 
-        if (expression == DoubleZero)
-            mathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
+        if (expression.IsZero())
+            MathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
 
         return expression.Reduce();
     }
 
-    private Expression BuildOperand(ReadOnlySpan<char> mathString, ref int i, char? separator, char? closingSymbol)
+    internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
+        where TResult : struct, IConvertible
     {
         var start = i;
-        var expression = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        if (expression == DoubleZero)
-            mathString.ThrowExceptionIfNotEvaluated(true, start, i);
+        var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        if (expression.IsZero())
+            MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;
     }
 
-    private Expression BuildMathEntity(ReadOnlySpan<char> mathString, ref int i,
-        char? separator, char? closingSymbol, int precedence, Expression expression, IMathEntity? entity, bool throwError = true)
+    internal Expression BuildExponentiation<TResult>(ref int i, char? separator, char? closingSymbol, Expression left)
+        where TResult : struct, IConvertible
     {
-        if (entity != null && entity.Precedence >= precedence)
-        {
-            if (TryBuildEntity(mathString, entity, ref i, separator, closingSymbol, ref expression))
-                return expression;
+        MathString.SkipMeaningless(ref i);
+        if (MathString.Length <= i)
+            return left;
 
-            var decimalExpression = expression == DoubleZero ? DecimalZero : Expression.Convert(expression, typeof(decimal)).Reduce();
-            if (TryBuildEntityDecimal(mathString, entity, ref i, separator, closingSymbol, ref decimalExpression))
-                return Expression.Convert(decimalExpression, typeof(double)).Reduce();
+        var entity = FirstMathEntity(MathString.AsSpan(i));
+        if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
+            return entity.Build<TResult>(this, ref i, separator, closingSymbol, left);
+
+        return left;
+    }
+
+    /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
+    /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
+    /// <returns>A delegate that represents the compiled expression.</returns>
+    /// <exception cref="MathExpressionException"/>
+    private Func<TResult> Compile<TResult>()
+        where TResult : struct, IConvertible
+    {
+        try
+        {
+            var i = 0;
+            ExpressionTree = Build<TResult>(ref i, null, null);
+
+            return Expression.Lambda<Func<TResult>>(ExpressionTree).Compile();
         }
-
-        if (throwError)
-            mathString.ThrowExceptionInvalidToken(i);
-
-        return expression;
-    }
-
-    private Expression BuildExponentiation(ReadOnlySpan<char> mathString, ref int i,
-        char? separator, char? closingSymbol, Expression expression)
-    {
-        mathString.SkipMeaningless(ref i);
-        if (mathString.Length <= i)
-            return expression;
-
-        var precedence = (int)EvalPrecedence.Exponentiation;
-        var entity = FirstMathEntity(mathString[i..]);
-        return BuildMathEntity(mathString, ref i, separator, closingSymbol, precedence, expression, entity, false);
-    }
-
-    private bool TryBuildEntity(ReadOnlySpan<char> mathString, IMathEntity entity, ref int i,
-        char? separator, char? closingSymbol, ref Expression expression)
-    {
-        var start = i;
-        switch (entity)
+        catch (Exception ex)
         {
-            case MathConstant<double> constant:
-                {
-                    i += entity.Key.Length;
-                    var right = constant.BuildExpression();
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
-                    return true;
-                }
-            case MathVariable<double> mathVariable:
-                {
-                    i += entity.Key.Length;
-                    var right = mathVariable.BuildExpression(_parameterExpression!);
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
-                    return true;
-                }
-            case MathOperandOperator<double> op:
-                {
-                    i += entity.Key.Length;
-                    if (op.IsProcessingLeft)
-                        expression = op.BuildExpression(expression);
-                    else
-                    {
-                        var right = Build(mathString, ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
-                        expression = op.BuildExpression(right);
-                    }
-                    expression = BuildExponentiation(mathString, ref i, separator, closingSymbol, expression);
-                    return true;
-                }
-            case MathOperandsOperator<double> op:
-                {
-                    i += entity.Key.Length;
-                    var right = BuildOperand(mathString, ref i, separator, closingSymbol);
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = op.BuildExpression(expression, right);
-                    return true;
-                }
-            case MathOperator<double> op:
-                {
-                    i += entity.Key.Length;
-                    var right = Build(mathString, ref i, separator, closingSymbol, op.Precedence);
-                    expression = op.BuildExpression(expression, right);
-                    return true;
-                }
-            case MathGetValueFunction<double> func:
-                {
-                    i += entity.Key.Length;
-                    mathString.SkipParenthesis(ref i);
+            throw CreateException(ex, MathString, Context, Provider, null);
+        }
+    }
 
-                    var right = func.BuildExpression();
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
-                    return true;
-                }
-            case MathUnaryFunction<double> func:
-                {
-                    i += entity.Key.Length;
-                    if (func.OpeningSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol.Value, start, ref i);
+    /// <inheritdoc cref="Compile{T}()"/>
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    private Func<T, TResult> Compile<T, TResult>(T parameters)
+        where TResult : struct, IConvertible
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters));
 
-                    var arg = func.ClosingSymbol.HasValue
-                        ? Build(mathString, ref i, null, func.ClosingSymbol)
-                        : BuildOperand(mathString, ref i, separator, closingSymbol);
+        _parameters = new MathParameters(parameters);
+        ParameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
 
-                    if (func.ClosingSymbol.HasValue)
-                        mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol.Value, start, ref i);
+        try
+        {
+            var i = 0;
+            ExpressionTree = Build<TResult>(ref i, null, null);
 
-                    var right = func.BuildExpression(arg);
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
-                    return true;
-                }
-            case MathFunction<double> func:
-                {
-                    i += entity.Key.Length;
-                    mathString.ThrowExceptionIfNotOpened(func.OpeningSymbol, start, ref i);
-
-                    var args = new List<Expression>();
-                    while (mathString.Length > i)
-                    {
-                        var arg = Build(mathString, ref i, func.Separator, func.ClosingSymbol);
-                        args.Add(arg);
-
-                        if (mathString[i] == func.Separator)
-                        {
-                            i++; //other param
-                            continue;
-                        }
-                        break;
-                    }
-
-                    mathString.ThrowExceptionIfNotClosed(func.ClosingSymbol, start, ref i);
-
-                    var right = func.BuildExpression(args);
-                    right = BuildExponentiation(mathString, ref i, separator, closingSymbol, right);
-                    expression = expression == DoubleZero ? right : Expression.Multiply(expression, right).Reduce();
-                    return true;
-                }
-            default:
-                return false;
+            return Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression).Compile();
+        }
+        catch (Exception ex)
+        {
+            throw CreateException(ex, MathString, Context, Provider, parameters);
         }
     }
 }

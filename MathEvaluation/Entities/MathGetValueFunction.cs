@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Entities;
 
@@ -8,7 +9,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathGetValueFunction<T> : MathEntity
-    where T : struct
+    where T : struct, IConvertible
 {
     /// <summary>Gets the getting value function.</summary>
     /// <value>The getting value function.</value>
@@ -28,8 +29,36 @@ public class MathGetValueFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression BuildExpression()
+    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
     {
-        return Expression.Invoke(Expression.Constant(Fn));
+        i += Key.Length;
+        mathExpression.MathString.SkipParenthesis(ref i);
+
+        var result = Convert.ToDouble(Fn());
+        result = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, result);
+        return value == default ? result : value * result;
+    }
+
+    /// <inheritdoc/>
+    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    {
+        i += Key.Length;
+        mathExpression.MathString.SkipParenthesis(ref i);
+
+        var result = Convert.ToDecimal(Fn());
+        result = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
+        return value == default ? result : value * result;
+    }
+
+    /// <inheritdoc/>
+    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    {
+        i += Key.Length;
+        mathExpression.MathString.SkipParenthesis(ref i);
+
+        Expression right = Expression.Invoke(Expression.Constant(Fn));
+        right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;
+        right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+        return left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
     }
 }

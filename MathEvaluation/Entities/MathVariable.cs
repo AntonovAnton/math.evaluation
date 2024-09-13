@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
+using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Entities;
 
@@ -17,18 +19,32 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
     public T Value { get; } = value;
 
     /// <inheritdoc/>
-    public override Expression BuildExpression()
+    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
     {
-        return Expression.Constant(Value);
+        i += Key.Length;
+        var result = Value is double v ? v : Convert.ToDouble(Value);
+        result = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, result);
+        return value == default ? result : value * result;
     }
 
-    /// <inheritdoc cref="BuildExpression()"/>
-    public Expression BuildExpression(ParameterExpression parameters)
+    /// <inheritdoc/>
+    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
     {
-        Expression expression = Expression.Property(parameters, Key);
-        if (expression.Type != typeof(T))
-            expression = Expression.Convert(expression, typeof(T)).Reduce();
+        i += Key.Length;
+        var result = Value is decimal v ? v : Convert.ToDecimal(Value);
+        result = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
+        return value == default ? result : value * result;
+    }
 
-        return expression;
+    /// <inheritdoc/>
+    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    {
+        i += Key.Length;
+
+        Expression right = Expression.Property(mathExpression.ParameterExpression, Key);
+        right = right.Type != typeof(T) ? Expression.Convert(right, typeof(T)) : right;
+        right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;
+        right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+        return left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
     }
 }

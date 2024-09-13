@@ -58,7 +58,7 @@ public interface IMathParameters
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameters separator.</param>
+    /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <returns></returns>
     void BindFunction(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
