@@ -23,5 +23,12 @@ public abstract class MathEntity : IMathEntity
     }
 
     /// <inheritdoc/>
-    public abstract Expression BuildExpression();
+    public abstract double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value);
+
+    /// <inheritdoc/>
+    public abstract decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value);
+
+    /// <inheritdoc/>
+    public abstract Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+        where TResult : struct, IConvertible;
 }

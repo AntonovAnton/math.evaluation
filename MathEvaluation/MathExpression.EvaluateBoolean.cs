@@ -1,4 +1,5 @@
-﻿using MathEvaluation.Parameters;
+﻿using System;
+using MathEvaluation.Parameters;
 
 namespace MathEvaluation;
 
@@ -10,5 +11,5 @@ public partial class MathExpression
 
     /// <inheritdoc cref="Evaluate(IMathParameters?)"/>
     public bool EvaluateBoolean(IMathParameters? parameters)
-        => Evaluate(parameters) != default;
+        => Convert.ToBoolean(Evaluate(parameters));
 }

@@ -8,7 +8,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathOperator<T> : MathEntity
-    where T : struct
+    where T : struct, IConvertible
 {
     private readonly ExpressionType? _binaryOperatorType;
 
@@ -35,13 +35,40 @@ public class MathOperator<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression BuildExpression()
+    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
     {
-        return Expression.Constant(Fn);
+        if (typeof(T) == typeof(decimal))
+            return (double)Evaluate(mathExpression, ref i, separator, closingSymbol, (decimal)value);
+
+        i += Key.Length;
+        var right = mathExpression.Evaluate(ref i, separator, closingSymbol, Precedence);
+        return Convert.ToDouble(Fn(
+            value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
+            right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
     }
 
-    /// <inheritdoc cref="BuildExpression()"/>
-    public Expression BuildExpression(Expression left, Expression right)
+    /// <inheritdoc/>
+    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    {
+        if (typeof(T) == typeof(double))
+            return (decimal)Evaluate(mathExpression, ref i, separator, closingSymbol, (double)value);
+
+        i += Key.Length;
+        var right = mathExpression.EvaluateDecimal(ref i, separator, closingSymbol, Precedence);
+        return Convert.ToDecimal(Fn(
+            value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
+            right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
+    }
+
+    /// <inheritdoc/>
+    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    {
+        i += Key.Length;
+        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
+        return Build<TResult>(left, right);
+    }
+
+    private Expression Build<TResult>(Expression left, Expression right)
     {
         if (_binaryOperatorType.HasValue)
         {
@@ -62,15 +89,18 @@ public class MathOperator<T> : MathEntity
                 ? Expression.Not(ConvertToBoolean(right)).Reduce()
                 : Expression.MakeBinary(_binaryOperatorType.Value, left, right).Reduce();
 
-            if (typeof(T) == expression.Type)
+            if (typeof(TResult) == expression.Type)
                 return expression;
 
-            return typeof(T) == typeof(decimal) && expression.Type == typeof(bool)
+            return typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool)
                 ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
-                : Expression.Convert(expression, typeof(T)).Reduce();
+                : Expression.Convert(expression, typeof(TResult)).Reduce();
         }
 
-        return Expression.Invoke(BuildExpression(), left, right);
+        left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
+        Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
+        result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
+        return result;
     }
 
     private static Expression ConvertToBoolean(Expression expression)
