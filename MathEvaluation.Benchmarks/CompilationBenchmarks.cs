@@ -7,7 +7,9 @@ using NCalc;
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
+#pragma warning disable CA1050 // Declare types in namespaces
 public class CompilationBenchmarks
+#pragma warning restore CA1050 // Declare types in namespaces
 {
     private const double a = Math.PI / 6;
     private const double b = Math.PI / 3;
@@ -113,8 +115,10 @@ public class CompilationBenchmarks
 
     public record Variables
     {
+#pragma warning disable IDE1006 // Naming Styles
         public double a { get; set; }
         public double b { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
     }
 
     public record BooleanVariables

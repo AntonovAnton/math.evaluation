@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
-using MathEvaluation.Entities;
+﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System;
+using System.Linq.Expressions;
 
 namespace MathEvaluation;
 

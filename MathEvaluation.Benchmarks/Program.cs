@@ -1,5 +1,5 @@
-﻿using System.Text;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
+using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 

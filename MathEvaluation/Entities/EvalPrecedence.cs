@@ -32,29 +32,44 @@ namespace MathEvaluation.Entities
         LogicalImplication = -800,
 
         /// <summary>
-        /// The precedence of the logical conditional OR operator ||.
+        /// The precedence of the conditional operator ||.
         /// </summary>
         LogicalConditionalOr = -700,
 
         /// <summary>
-        /// The precedence of the logical conditional AND operator.
+        /// The precedence of the conditional operator AND.
         /// </summary>
         LogicalConditionalAnd = -600,
 
         /// <summary>
-        /// The precedence of the logical OR operator |.
+        /// The precedence of the logical OR.
         /// </summary>
         LogicalOr = -500,
 
         /// <summary>
-        /// The precedence of the logical XOR operator ^.
+        /// The precedence of the bitwise operator |.
+        /// </summary>
+        BitwiseOr = LogicalOr,
+
+        /// <summary>
+        /// The precedence of the logical XOR.
         /// </summary>
         LogicalXor = -400,
 
         /// <summary>
-        /// The precedence of the logical AND operator.
+        /// The precedence of the bitwise operator ^.
+        /// </summary>
+        BitwiseXor = LogicalXor,
+
+        /// <summary>
+        /// The precedence of the logical AND.
         /// </summary>
         LogicalAnd = -300,
+
+        /// <summary>
+        /// The precedence of the bitwise operator AND.
+        /// </summary>
+        BitwiseAnd = LogicalAnd,
 
         /// <summary>
         /// The precedence of the logical negation NOT operator.

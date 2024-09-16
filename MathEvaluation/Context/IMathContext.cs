@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using MathEvaluation.Entities;
+using System;
 using System.Runtime.CompilerServices;
-using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
 
@@ -122,13 +121,18 @@ public interface IMathContext
     /// <param name="fn">The function.</param>
     /// <param name="key">The key.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it matches a C# binary operator.</param>
-    void BindOperator(Func<double, double, double> fn, char key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null);
+    void BindOperator(Func<double, double, double> fn, char key, int precedece = (int)EvalPrecedence.Basic);
 
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int, ExpressionType?)"/>
-    void BindOperator(Func<double, double, double> fn, string key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null);
+    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)"/>
+    void BindOperator(Func<double, double, double> fn, string key, int precedece = (int)EvalPrecedence.Basic);
+
+    /// <summary>Binds the compatible math operator that matches a C# operator (it allows improve performance).</summary>
+    /// <param name="key">The key.</param>
+    /// <param name="operatorType">The operator type.</param>
+    void BindOperator(char key, OperatorType operatorType);
+
+    /// <inheritdoc cref="BindOperator(char, OperatorType)"/>
+    void BindOperator(string key, OperatorType operatorType);
 
     #region decimal
 
@@ -191,13 +195,11 @@ public interface IMathContext
     /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)"/>
     void BindOperandsOperator(Func<decimal, decimal, decimal> fn, string key, int precedece);
 
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int, ExpressionType?)"/>
-    void BindOperator(Func<decimal, decimal, decimal> fn, char key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null);
+    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)"/>
+    void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedece = (int)EvalPrecedence.Basic);
 
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int, ExpressionType?)"/>
-    void BindOperator(Func<decimal, decimal, decimal> fn, string key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null);
+    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int)"/>
+    void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedece = (int)EvalPrecedence.Basic);
 
     #endregion
 

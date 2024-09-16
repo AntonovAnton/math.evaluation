@@ -1,6 +1,6 @@
+using MathEvaluation.Parameters;
 using System;
 using System.Linq.Expressions;
-using MathEvaluation.Parameters;
 
 namespace MathEvaluation;
 

@@ -1,6 +1,6 @@
+using MathEvaluation.Entities;
 using System;
 using System.Runtime.CompilerServices;
-using MathEvaluation.Entities;
 
 namespace MathEvaluation.Parameters;
 

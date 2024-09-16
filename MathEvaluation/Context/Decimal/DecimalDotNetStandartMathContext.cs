@@ -1,6 +1,5 @@
-﻿using System;
-using System.Linq.Expressions;
-using MathEvaluation.Entities;
+﻿using MathEvaluation.Entities;
+using System;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace MathEvaluation.Context;
@@ -21,47 +20,24 @@ public class DecimalDotNetStandartMathContext : MathContext
         BindConstant(1d, "true");
         BindConstant(0d, "false");
 
-        static decimal modFn(decimal left, decimal right) => left % right;
-        BindOperator(modFn, '%', (int)EvalPrecedence.Basic, ExpressionType.Modulo);
+        BindOperator('%', OperatorType.Modulo);
 
-        static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
-        BindOperator(equalToFn, "==", (int)EvalPrecedence.Equality, ExpressionType.Equal);
+        BindOperator("==", OperatorType.Equal);
+        BindOperator("!=", OperatorType.NotEqual);
 
-        static decimal notEqualToFn(decimal left, decimal right) => left != right ? 1.0m : default;
-        BindOperator(notEqualToFn, "!=", (int)EvalPrecedence.Equality, ExpressionType.NotEqual);
+        BindOperator('>', OperatorType.GreaterThan);
+        BindOperator('<', OperatorType.LessThan);
+        BindOperator(">=", OperatorType.GreaterThanOrEqual);
+        BindOperator("<=", OperatorType.LessThanOrEqual);
 
-        static decimal greaterThanFn(decimal left, decimal right) => left > right ? 1.0m : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThan);
+        BindOperator("&&", OperatorType.LogicalConditionalAnd);
+        BindOperator("||", OperatorType.LogicalConditionalOr);
+        BindOperator('!', OperatorType.LogicalNegation);
 
-        static decimal lessThanFn(decimal left, decimal right) => left < right ? 1.0m : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThan);
-
-        static decimal greaterThanOrEqualToFn(decimal left, decimal right) => left >= right ? 1.0m : default;
-        BindOperator(greaterThanOrEqualToFn, ">=", (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThanOrEqual);
-
-        static decimal lessThanOrEqualToFn(decimal left, decimal right) => left <= right ? 1.0m : default;
-        BindOperator(lessThanOrEqualToFn, "<=", (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThanOrEqual);
-
-        static decimal andFn(decimal left, decimal right) => left != default && right != default ? 1.0m : default;
-        BindOperator(andFn, "&&", (int)EvalPrecedence.LogicalConditionalAnd, ExpressionType.AndAlso);
-
-        static decimal orFn(decimal left, decimal right) => left != default || right != default ? 1.0m : default;
-        BindOperator(orFn, "||", (int)EvalPrecedence.LogicalConditionalOr, ExpressionType.OrElse);
-
-        static decimal logicalNegationFn(decimal right) => right == default ? 1.0m : default;
-        BindOperandOperator(logicalNegationFn, '!');
-
-        static decimal logicalAndFn(decimal left, decimal right) => (long)left & (long)right;
-        BindOperator(logicalAndFn, '&', (int)EvalPrecedence.LogicalAnd, ExpressionType.And);
-
-        static decimal logicalOrFn(decimal left, decimal right) => (long)left | (long)right;
-        BindOperator(logicalOrFn, '|', (int)EvalPrecedence.LogicalOr, ExpressionType.Or);
-
-        static decimal logicalExclusiveOrFn(decimal left, decimal right) => (long)left ^ (long)right;
-        BindOperator(logicalExclusiveOrFn, '^', (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
-
-        static decimal bitwiseComplementFn(decimal right) => ~(long)right;
-        BindOperandOperator(bitwiseComplementFn, '~');
+        BindOperator('&', OperatorType.BitwiseAnd);
+        BindOperator('|', OperatorType.BitwiseOr);
+        BindOperator('^', OperatorType.BitwiseXor);
+        BindOperator('~', OperatorType.BitwiseNegation);
 
         static decimal postfixIncrementFn(decimal left) => left++;
         BindOperandOperator(postfixIncrementFn, "++ ", true);

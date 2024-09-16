@@ -10,8 +10,6 @@ namespace MathEvaluation.Entities;
 public class MathOperator<T> : MathEntity
     where T : struct, IConvertible
 {
-    private readonly ExpressionType? _binaryOperatorType;
-
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
     public Func<T, T, T> Fn { get; }
@@ -23,15 +21,12 @@ public class MathOperator<T> : MathEntity
     /// <param name="key">The key (the operator notation).</param>
     /// <param name="fn">The function.</param>
     /// <param name="precedece">The operator precedence.</param>
-    /// <param name="binaryOperatorType">The specified expression type of the operator allows improve performance if it matches a C# binary operator.</param>
     /// <exception cref="ArgumentNullException"/>
-    public MathOperator(string? key, Func<T, T, T> fn, int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
+    public MathOperator(string? key, Func<T, T, T> fn, int precedece = (int)EvalPrecedence.Basic)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
         Precedence = precedece;
-
-        _binaryOperatorType = binaryOperatorType;
     }
 
     /// <inheritdoc/>
@@ -64,60 +59,11 @@ public class MathOperator<T> : MathEntity
     public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;
-        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
-        return Build<TResult>(left, right);
-    }
-
-    private Expression Build<TResult>(Expression left, Expression right)
-    {
-        if (_binaryOperatorType.HasValue)
-        {
-            if (_binaryOperatorType.Value is ExpressionType.AndAlso or ExpressionType.OrElse)
-            {
-                left = ConvertToBoolean(left);
-                right = ConvertToBoolean(right);
-            }
-
-            if (_binaryOperatorType.Value is ExpressionType.And or ExpressionType.Or or ExpressionType.ExclusiveOr)
-            {
-                left = ConvertToLong(left);
-                right = ConvertToLong(right);
-            }
-
-            // if logical negation operation (NOT right)
-            var expression = _binaryOperatorType.Value is ExpressionType.Not
-                ? Expression.Not(ConvertToBoolean(right)).Reduce()
-                : Expression.MakeBinary(_binaryOperatorType.Value, left, right).Reduce();
-
-            if (typeof(TResult) == expression.Type)
-                return expression;
-
-            return typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool)
-                ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
-                : Expression.Convert(expression, typeof(TResult)).Reduce();
-        }
-
         left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
+        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
+
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
         result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
         return result;
-    }
-
-    private static Expression ConvertToBoolean(Expression expression)
-    {
-        if (expression.Type != typeof(bool))
-            expression = Expression.NotEqual(expression, typeof(T) == typeof(decimal)
-                ? Expression.Constant(0.0m)
-                : Expression.Constant(0.0));
-
-        return expression;
-    }
-
-    private static Expression ConvertToLong(Expression expression)
-    {
-        if (expression.Type != typeof(bool))
-            expression = Expression.Convert(expression, typeof(long));
-
-        return expression;
     }
 }
