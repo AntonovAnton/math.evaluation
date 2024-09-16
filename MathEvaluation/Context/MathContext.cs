@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using MathEvaluation.Entities;
+using MathEvaluation.Extensions;
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MathEvaluation.Entities;
-using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Context;
 
@@ -217,15 +216,23 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, char key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
-        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedece, binaryOperatorType));
+    public void BindOperator(Func<double, double, double> fn, char key, int precedece = (int)EvalPrecedence.Basic)
+        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedece));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<double, double, double> fn, string key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
-        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedece, binaryOperatorType));
+    public void BindOperator(Func<double, double, double> fn, string key, int precedece = (int)EvalPrecedence.Basic)
+        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedece));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindOperator(char key, OperatorType operatorType)
+        => _trie.AddMathEntity(new MathCompatibleOperator(key.ToString(), operatorType));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindOperator(string key, OperatorType operatorType)
+        => _trie.AddMathEntity(new MathCompatibleOperator(key, operatorType));
 
     #region decimal
 
@@ -322,15 +329,13 @@ public class MathContext : IMathContext
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, char key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedece, binaryOperatorType));
+    public void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedece = (int)EvalPrecedence.Basic)
+        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedece));
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public void BindOperator(Func<decimal, decimal, decimal> fn, string key,
-        int precedece = (int)EvalPrecedence.Basic, ExpressionType? binaryOperatorType = null)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece, binaryOperatorType));
+    public void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedece = (int)EvalPrecedence.Basic)
+        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedece));
 
     #endregion
 

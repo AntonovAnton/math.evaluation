@@ -1,5 +1,5 @@
-﻿using System;
-using MathEvaluation.Parameters;
+﻿using MathEvaluation.Parameters;
+using System;
 
 namespace MathEvaluation;
 

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq.Expressions;
-using MathEvaluation.Entities;
+﻿using MathEvaluation.Entities;
 using MathTrigonometric;
+using System;
 
 namespace MathEvaluation.Context;
 
@@ -23,26 +22,22 @@ public class ScientificMathContext : MathContext
         BindConstant(Math.PI * 2, 'τ');
         BindConstant(double.PositiveInfinity, '\u221e'); //infinity symbol
 
-        static double modFn(double left, double right) => left % right;
-        BindOperator(modFn, "mod", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
-        BindOperator(modFn, "Mod", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
-        BindOperator(modFn, "MOD", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
-        BindOperator(modFn, "modulo", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
-        BindOperator(modFn, "Modulo", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
-        BindOperator(modFn, "MODULO", (int)EvalPrecedence.Basic, ExpressionType.Modulo);
+        BindOperator("mod", OperatorType.Modulo);
+        BindOperator("Mod", OperatorType.Modulo);
+        BindOperator("MOD", OperatorType.Modulo);
+        BindOperator("modulo", OperatorType.Modulo);
+        BindOperator("Modulo", OperatorType.Modulo);
+        BindOperator("MODULO", OperatorType.Modulo);
 
-        static double divisionFn(double left, double right) => left / right;
-        BindOperator(divisionFn, '÷', (int)EvalPrecedence.Basic, ExpressionType.Divide);
+        BindOperator('÷', OperatorType.Divide);
 
         static double floorDivisionFn(double left, double right) => Math.Floor(left / right);
         BindOperator(floorDivisionFn, "//");
 
-        static double multiplicationFn(double left, double right) => left * right;
-        BindOperator(multiplicationFn, '×', (int)EvalPrecedence.Basic, ExpressionType.Multiply);
-        BindOperator(multiplicationFn, '·', (int)EvalPrecedence.Basic, ExpressionType.Multiply);
+        BindOperator('×', OperatorType.Multiply);
+        BindOperator('·', OperatorType.Multiply);
 
-        static double powFn(double x, double y) => Math.Pow(x, y);
-        BindOperandsOperator(powFn, '^', (int)EvalPrecedence.Exponentiation);
+        BindOperator('^', OperatorType.Power);
 
         static double absFn(double v) => Math.Abs(v);
         BindFunction(absFn, '|', '|');
@@ -92,31 +87,27 @@ public class ScientificMathContext : MathContext
         BindConstant(0d, 'F');
         BindConstant(0d, '⊥');
 
+        BindOperator('=', OperatorType.Equal);
+        BindOperator('≠', OperatorType.NotEqual);
+
         static double equalToFn(double left, double right) => left == right ? 1.0 : default;
-        BindOperator(equalToFn, '=', (int)EvalPrecedence.Equality, ExpressionType.Equal);
-        BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence, ExpressionType.Equal);
-        BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence, ExpressionType.Equal);
-        BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence, ExpressionType.Equal);
+        BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static double notEqualToFn(double left, double right) => left != right ? 1.0 : default;
-        BindOperator(notEqualToFn, '≠', (int)EvalPrecedence.Equality, ExpressionType.NotEqual);
-        BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence, ExpressionType.NotEqual);
-        BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence, ExpressionType.NotEqual);
-        BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence, ExpressionType.NotEqual);
+        BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
-        static double greaterThanFn(double left, double right) => left > right ? 1.0 : default;
-        BindOperator(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThan);
+        BindOperator('>', OperatorType.GreaterThan);
+        BindOperator('<', OperatorType.LessThan);
 
-        static double lessThanFn(double left, double right) => left < right ? 1.0 : default;
-        BindOperator(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThan);
+        BindOperator('≥', OperatorType.GreaterThanOrEqual);
+        BindOperator('⪰', OperatorType.GreaterThanOrEqual);
 
-        static double greaterThanOrEqualToFn(double left, double right) => left >= right ? 1.0 : default;
-        BindOperator(greaterThanOrEqualToFn, '≥', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThanOrEqual);
-        BindOperator(greaterThanOrEqualToFn, '⪰', (int)EvalPrecedence.RelationalOperator, ExpressionType.GreaterThanOrEqual);
-
-        static double lessThanOrEqualToFn(double left, double right) => left <= right ? 1.0 : default;
-        BindOperator(lessThanOrEqualToFn, '≤', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThanOrEqual);
-        BindOperator(lessThanOrEqualToFn, '⪯', (int)EvalPrecedence.RelationalOperator, ExpressionType.LessThanOrEqual);
+        BindOperator('≤', OperatorType.LessThanOrEqual);
+        BindOperator('⪯', OperatorType.LessThanOrEqual);
 
         static double implicationFn(double left, double right) => left == default || right != default ? 1.0 : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
@@ -126,31 +117,26 @@ public class ScientificMathContext : MathContext
         BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
         BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 
-        static double andFn(double left, double right) => left != default && right != default ? 1.0 : default;
-        BindOperator(andFn, '∧', (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
-        BindOperator(andFn, "and", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
-        BindOperator(andFn, "And", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
-        BindOperator(andFn, "AND", (int)EvalPrecedence.LogicalAnd, ExpressionType.AndAlso);
+        BindOperator('∧', OperatorType.LogicalAnd);
+        BindOperator("and", OperatorType.LogicalAnd);
+        BindOperator("And", OperatorType.LogicalAnd);
+        BindOperator("AND", OperatorType.LogicalAnd);
 
-        static double orFn(double left, double right) => left != default || right != default ? 1.0 : default;
-        BindOperator(orFn, '∨', (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
-        BindOperator(orFn, "or", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
-        BindOperator(orFn, "Or", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
-        BindOperator(orFn, "OR", (int)EvalPrecedence.LogicalOr, ExpressionType.OrElse);
+        BindOperator('∨', OperatorType.LogicalOr);
+        BindOperator("or", OperatorType.LogicalOr);
+        BindOperator("Or", OperatorType.LogicalOr);
+        BindOperator("OR", OperatorType.LogicalOr);
 
-        static double xorFn(double left, double right) => left != default ^ right != default ? 1.0 : default;
-        BindOperator(xorFn, '⊕', (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
-        BindOperator(xorFn, "xor", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
-        BindOperator(xorFn, "Xor", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
-        BindOperator(xorFn, "XOR", (int)EvalPrecedence.LogicalXor, ExpressionType.ExclusiveOr);
+        BindOperator('⊕', OperatorType.LogicalXor);
+        BindOperator("xor", OperatorType.LogicalXor);
+        BindOperator("Xor", OperatorType.LogicalXor);
+        BindOperator("XOR", OperatorType.LogicalXor);
 
-        static double logicalNegationFn(double right) => right == default ? 1.0 : default;
-        BindOperandOperator(logicalNegationFn, '¬');
+        BindOperator('¬', OperatorType.LogicalNegation);
 
-        static double notFn(double left, double right) => right == default ? 1.0 : default;
-        BindOperator(notFn, "not", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
-        BindOperator(notFn, "Not", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
-        BindOperator(notFn, "NOT", (int)EvalPrecedence.LogicalNot, ExpressionType.Not);
+        BindOperator("not", OperatorType.LogicalNot);
+        BindOperator("Not", OperatorType.LogicalNot);
+        BindOperator("NOT", OperatorType.LogicalNot);
 
         #endregion
 

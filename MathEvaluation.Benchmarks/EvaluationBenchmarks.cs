@@ -8,7 +8,9 @@ using NCalc;
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
+#pragma warning disable CA1050 // Declare types in namespaces
 public class EvaluationBenchmarks
+#pragma warning restore CA1050 // Declare types in namespaces
 {
     private const double a = Math.PI / 6;
     private const double b = Math.PI / 3;
@@ -97,7 +99,7 @@ public class EvaluationBenchmarks
         expression.Parameters["B"] = !a;
         expression.Parameters["C"] = a;
 
-        return (bool)expression.Evaluate();
+        return Convert.ToBoolean(expression.Evaluate());
     }
 
     [Benchmark(Description = "MathEvaluator: \"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01\"")]

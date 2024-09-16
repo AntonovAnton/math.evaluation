@@ -1,6 +1,6 @@
-﻿using System;
-using MathEvaluation.Context;
+﻿using MathEvaluation.Context;
 using MathEvaluation.Parameters;
+using System;
 
 namespace MathEvaluation.Extensions;
 
@@ -139,7 +139,7 @@ public static class StringExtensions
         var end = str.AsSpan(i).IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
         var unknownSubstring = end > i ? str[i..end] : str[i..];
 
-        throw new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
+        throw new MathExpressionException($"'{unknownSubstring}' is not recognizable.", i);
     }
 
     /// <summary>Skips meaningless chars (whitespace, tab, LF, and CR).</summary>

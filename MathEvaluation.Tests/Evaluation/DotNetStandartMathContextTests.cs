@@ -1,7 +1,7 @@
-﻿using Xunit.Abstractions;
-using MathEvaluation.Context;
+﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 

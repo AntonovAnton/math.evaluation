@@ -1,9 +1,9 @@
-﻿using System;
-using System.Globalization;
-using MathEvaluation.Context;
+﻿using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System;
+using System.Globalization;
 
 namespace MathEvaluation;
 

@@ -1,7 +1,7 @@
-﻿using System;
-using MathEvaluation.Entities;
+﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System;
 
 namespace MathEvaluation;
 

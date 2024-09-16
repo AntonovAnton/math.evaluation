@@ -8,7 +8,9 @@ using NCalc;
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
+#pragma warning disable CA1050 // Declare types in namespaces
 public class CompoundingInterestBenchmarks
+#pragma warning restore CA1050 // Declare types in namespaces
 {
     private int _count;
 
@@ -89,5 +91,7 @@ public class CompoundingInterestBenchmarks
         return _nCalcCompiledFn(parameters);
     }
 
+#pragma warning disable IDE1006 // Naming Styles
     public record CompoundInterestFormulaParams(double P = 0, double r = 0, int n = 0, int d = 0);
+#pragma warning restore IDE1006 // Naming Styles
 }

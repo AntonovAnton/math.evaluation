@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MathEvaluation.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MathEvaluation.Extensions;
 
 namespace MathEvaluation.Entities;
 
