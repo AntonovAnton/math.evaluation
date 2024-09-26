@@ -1,0 +1,1 @@
+Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes. If you enjoy my work and find it valuable, please consider becoming my [sponsor on GitHub](https://github.com/sponsors/AntonovAnton). Your support will enable me to share more open-source code. Together, we can make a positive impact in the developer community!
