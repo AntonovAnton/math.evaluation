@@ -48,14 +48,14 @@ public class MathFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
+    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
-            return (double)Evaluate(mathExpression, ref i, separator, closingSymbol, (decimal)value);
+            return (double)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (decimal)value);
 
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
-        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, tokenPosition, ref i);
 
         var args = new List<T>();
         while (mathExpression.MathString.Length > i)
@@ -70,22 +70,30 @@ public class MathFunction<T> : MathEntity
             }
             break;
         }
-        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
         var result = Convert.ToDouble(Fn([.. args]));
-        result = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !double.IsNaN(value))
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
     }
 
     /// <inheritdoc/>
-    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
-            return (decimal)Evaluate(mathExpression, ref i, separator, closingSymbol, (double)value);
+            return (decimal)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (double)value);
 
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
-        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, tokenPosition, ref i);
 
         var args = new List<T>();
         while (mathExpression.MathString.Length > i)
@@ -100,19 +108,26 @@ public class MathFunction<T> : MathEntity
             }
             break;
         }
-        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
         var result = Convert.ToDecimal(Fn([.. args]));
-        result = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result)
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
     }
 
     /// <inheritdoc/>
     public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
     {
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
-        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, tokenPosition, ref i);
 
         var args = new List<Expression>();
         while (mathExpression.MathString.Length > i)
@@ -127,7 +142,7 @@ public class MathFunction<T> : MathEntity
             }
             break;
         }
-        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, start, ref i);
+        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
         Expression right = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args));
         right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;

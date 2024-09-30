@@ -42,11 +42,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2u / 5d / 2U * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
     [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
-    public void MathExpression_Evaluate_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -104,11 +105,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Sin(0) != Math.Cos(1)", true)]
     [InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).EvaluateBoolean();
+        var value = expression.EvaluateBoolean();
 
         Assert.Equal(expectedValue, value);
     }
@@ -122,11 +124,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 & ~1 ^ 3 | 4", 5)]
     [InlineData("2345345345345345344L ^ 3", 2345345345345345344L ^ 3)]
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345344UL ^ 3)]
-    public void MathExpression_Evaluate_HasBitwiseBooleanLogic_ExpectedValue(string expression, long expectedValue)
+    public void MathExpression_Evaluate_HasBitwiseBooleanLogic_ExpectedValue(string mathString, long expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -135,11 +138,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.E", Math.E)]
     [InlineData("200 * Math.E", 200 * Math.E)]
     [InlineData("200 * Math.Pow(Math.E, -0.15)", 172.14159528501156d)]
-    public void MathExpression_Evaluate_HasLnBase_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -149,11 +153,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("((5 - 1)*Math.PI)", 4 * Math.PI)]
     [InlineData("Math.PI*((5 - 1))", 4 * Math.PI)]
     [InlineData("1/(2*Math.PI)", 1 / (2 * Math.PI))]
-    public void MathExpression_Evaluate_HasMathPI_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasMathPI_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -185,11 +190,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Tan(Math.PI/4)", 0.99999999999999989d)]
     [InlineData("Math.Sin(0) + 3", 3d)]
     [InlineData("Math.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
-    public void MathExpression_Evaluate_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -207,12 +213,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Tanh(0)", 0)]
     [InlineData("Math.Tanh( -0.54930614433405489)", -0.5d)]
     [InlineData("Math.Tanh(double.NegativeInfinity)", -1d)]
-    public void MathExpression_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
-        double expectedValue)
+    public void MathExpression_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -226,11 +232,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Acos(-1)", Math.PI)]
     [InlineData("Math.Atan(-double.PositiveInfinity)", -Math.PI / 2)]
     [InlineData("Math.Atan(-2)", -1.1071487177940904d)]
-    public void MathExpression_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -254,11 +261,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Atanh(2)", double.NaN)]
     [InlineData("Math.Atanh(double.PositiveInfinity)", double.NaN)]
     [InlineData("Math.Atanh(-2)", double.NaN)]
-    public void MathExpression_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -268,11 +276,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 / Math.Abs(  -(9/3))", 1d)]
     [InlineData("Math.Abs(Math.Sin(-3))", 0.14112000805986721d)]
     [InlineData("3 + 2* Math.Pow(Math.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_Evaluate_HasAbs_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -293,11 +302,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Sqrt(9) * Math.Pow(8, 1/3)", 6d)]
     [InlineData("Math.Pow(16, 0.25)", 2d)]
     [InlineData("1/Math.Pow(Math.Sqrt(9), 2)", 1 / 9d)]
-    public void MathExpression_Evaluate_HasRoot_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -319,11 +329,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Log(-100)", double.NaN)]
     [InlineData("Math.Log(double.PositiveInfinity)", double.PositiveInfinity)]
     [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
-    public void MathExpression_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -345,11 +356,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Floor(Math.Sin(3))", 0d)]
     [InlineData("Math.Floor(Math.Sin(-3))", -1d)]
     [InlineData("3 + 2*Math.Pow(Math.Floor(2 + 3.5) , 2)", 3 + 2 * 25d)]
-    public void MathExpression_Evaluate_HasFloor_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -372,11 +384,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Ceiling(Math.Sin(-3))", 0d)]
     [InlineData("Math.Ceiling(2 + 3.5)", 6d)]
     [InlineData("3 + 2*Math.Ceiling(2 + 3.5)", 3 + 2 * 6d)]
-    public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -389,11 +402,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Round(-0.1)", 0d)]
     [InlineData("Math.Round(-0.1, 0)", 0d)]
     [InlineData("Math.Round(-0.1, 1)", -0.10000000000000001d)]
-    public void MathExpression_Evaluate_HasRound_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasRound_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _context).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -416,5 +430,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate(parameters, _context);
 
         Assert.Equal(expectedValue, value);
+    }
+
+    private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
+    {
+        var comment = args.IsCompleted ? " //completed" : string.Empty;
+        var msg = $"{args.Step}: {args.MathString[args.Start..(args.End + 1)]} = {args.Value};{comment}";
+        testOutputHelper.WriteLine(msg);
     }
 }

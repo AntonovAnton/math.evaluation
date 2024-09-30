@@ -56,10 +56,10 @@ public partial class MathExpression
                     if (precedence >= (int)EvalPrecedence.Function)
                         return expression;
 
-                    var startParenthesis = i;
+                    var tokenPosition = i;
                     i++;
                     var right = Build<TResult>(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
+                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
                     if (isOperand)
                         return right;
 

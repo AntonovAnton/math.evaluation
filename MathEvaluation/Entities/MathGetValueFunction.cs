@@ -29,25 +29,43 @@ public class MathGetValueFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
+    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
+        var tokenPosition = i;
         i += Key.Length;
         mathExpression.MathString.SkipParenthesis(ref i);
 
         var result = Convert.ToDouble(Fn());
-        result = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !double.IsNaN(value))
+            mathExpression.OnEvaluating(start, i, result);
+
+        return value;
     }
 
     /// <inheritdoc/>
-    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
+        var tokenPosition = i;
         i += Key.Length;
         mathExpression.MathString.SkipParenthesis(ref i);
 
         var result = Convert.ToDecimal(Fn());
-        result = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result)
+            mathExpression.OnEvaluating(start, i, result);
+
+        return value;
     }
 
     /// <inheritdoc/>
