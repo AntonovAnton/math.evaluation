@@ -13,12 +13,12 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("+", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
     [InlineData("-", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
-    public void MathExpression_CompileDecimalThenInvoke_NotRecognizable_ThrowMathEvaluationException(string expression,
+    public void MathExpression_CompileDecimalThenInvoke_NotRecognizable_ThrowMathEvaluationException(string mathString,
         string errorMessage)
     {
-        testOutputHelper.WriteLine($"{expression}");
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).CompileDecimal());
+        var ex = Record.Exception(() => new MathExpression(mathString).CompileDecimal());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -53,12 +53,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \n\r 3", 2 + (5 - 1) - 3)]
-    public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -68,11 +71,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("(3 * 2)//(2 * 2)", 1d)]
     [InlineData("6//-10", -1d)]
     [InlineData("4π // (3)π", 1d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasFloorDivision_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasFloorDivision_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal(); var value = fn();
+        var fn = expression.CompileDecimal();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -81,12 +88,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
     [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
-    public void MathExpression_CompileDecimalThenInvoke_HasScientificNotation_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasScientificNotation_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -103,14 +113,18 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("22⹁888.32 ¤ * 30 / 323.34 / .5 - - 1 / (2 + 22⹁888.32 ¤) * 4 - 6", "ff-Adlm")]
     [InlineData("22 888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22 888,32 ¤) * 4 - 6", "fr")]
     [InlineData("22’888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22’888,32 ¤) * 4 - 6", "wae")]
-    public void MathExpression_CompileDecimalThenInvoke_HasNumbersInSpecificCulture_ExpectedValue(string expression, string? cultureName)
+    public void MathExpression_CompileDecimalThenInvoke_HasNumbersInSpecificCulture_ExpectedValue(string mathString, string? cultureName)
     {
         var expectedValue = 22888.32m * 30 / 323.34m / .5m - -1 / (2 + 22888.32m) * 4 - 6;
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var fn = new MathExpression(expression, null, cultureInfo).CompileDecimal();
+        using var expression = new MathExpression(mathString, null, cultureInfo);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
@@ -118,13 +132,16 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
     [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
-    public void MathExpression_CompileDecimalThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string expression, string? cultureName, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var fn = new MathExpression(expression, _scientificContext, cultureInfo).CompileDecimal();
+        using var expression = new MathExpression(mathString, _scientificContext, cultureInfo);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -136,12 +153,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("-3**4", -81)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingPower_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _programmingContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _programmingContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -155,24 +175,30 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("-3^4sin(-PI/2)", 81d)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileDecimalThenInvoke_HasScientificPower_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
 
     [Theory]
     [InlineData("4 % 3", 1)]
-    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingModulus_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _programmingContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _programmingContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -180,12 +206,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("4 mod 3", 1)]
     [InlineData("4 modulo 3 - 2", -1)]
-    public void MathExpression_CompileDecimalThenInvoke_HasScientificModulus_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasScientificModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -198,12 +227,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("6.022e23", 6.022e23)] //Avogadro's number
     [InlineData("6.626e-34", 6.626e-34)] //Planck's constant
     [InlineData(".2E3 - 2", .2E3 - 2)]
-    public void MathExpression_CompileDecimalThenInvoke_HasExpNotationNumbers_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasExpNotationNumbers_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -212,12 +244,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("e", Math.E)]
     [InlineData("200e", 543.656365691808d)]
     [InlineData("200e^- 0.1", 180.967483607192d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -241,12 +276,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("abs(sin(-3))", 0.14112000805986721d)]
     [InlineData("|sin-3|", 0.14112000805986721d)]
     [InlineData("3 + 2|-2 + -3.5|  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -264,12 +302,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("√9∛8", 6d)]
     [InlineData("∜16", 2d)]
     [InlineData("∜16∜16", 4d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -284,12 +325,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -311,12 +355,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("⌊sin3⌋", 0d)]
     [InlineData("⌊sin-3⌋", -1d)]
     [InlineData("3 + 2⌊2 + 3.5⌋  ^2", 3 + 2 * 25d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -339,12 +386,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("⌈sin-3⌉", 0d)]
     [InlineData("⌈2 + 3.5⌉", 6d)]
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -360,12 +410,15 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("2!^(3)!^2!", 68719476736d)]
     [InlineData("2!^3^2!", 512d)]
     [InlineData("2!^(3)^2!", 512d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasFactorial_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasFactorial_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -376,14 +429,16 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("2x", 0.5, 1d)]
     [InlineData("200x^- 0.15", 2, 180.25009252216600d)]
     [InlineData("PI", Math.PI, Math.PI)]
-    public void MathExpression_CompileDecimalThenInvoke_HasVariable_ExpectedValue(string expression,
+    public void MathExpression_CompileDecimalThenInvoke_HasVariable_ExpectedValue(string mathString,
         decimal varValue, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = expression.CompileDecimal(new { x = varValue, PI = varValue }, _scientificContext);
+        var fn = mathString.CompileDecimal(new { x = varValue, PI = varValue }, _scientificContext);
         var value = fn(new { x = varValue, PI = varValue });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -392,17 +447,19 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("getX1() + getX2( )", 0.5, 0.2, 0.5 + 0.2)]
     [InlineData("getX1()^2 + 2^getX2^2", 0.5, 3, 0.5 * 0.5 + 512)]
     [InlineData("ln(1/-getX1 + √(1/getX2^2 + 1))", -0.5, 0.5, 1.4436354751788103d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasGetVariableFns_ExpectedValue(string expression,
+    public void MathExpression_CompileDecimalThenInvoke_HasGetVariableFns_ExpectedValue(string mathString,
         decimal x1, decimal x2, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
         var getX1 = () => x1;
         var getX2 = () => x2;
 
-        var fn = expression.CompileDecimal(new { getX1, getX2 }, _scientificContext);
+        var fn = mathString.CompileDecimal(new { getX1, getX2 }, _scientificContext);
         var value = fn(new { getX1, getX2 });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -410,10 +467,10 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("ln100 + x1 + x2", -1, 1, 4.6051701859880918d)]
     [InlineData("ln(1/-x1 + sqrt(1/(x2*x2) + 1))", -0.5, 0.5, 1.4436354751788103d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasVariablesAndCustomLnSqrtFns_ExpectedValue(string expression,
+    public void MathExpression_CompileDecimalThenInvoke_HasVariablesAndCustomLnSqrtFns_ExpectedValue(string mathString,
         decimal x1, decimal x2, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
         var sqrt = Math.Sqrt;
@@ -422,8 +479,10 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
         var context = new MathContext(new { sqrt, ln });
         var parameters = new { x1, x2 };
 
-        var fn = expression.CompileDecimal(parameters, context);
+        var fn = mathString.CompileDecimal(parameters, context);
         var value = fn(parameters);
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -431,9 +490,9 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("1 + min(2, 1, 0.5, 4)", 1 + 0.5)]
     [InlineData("2min(-1, 1, 0.5, 4, 9999)", -2d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasCustomMinFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasCustomMinFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
 
         var min = (decimal[] args) =>
         {
@@ -446,8 +505,10 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
             return minValue;
         };
 
-        var fn = expression.CompileDecimal(new { min });
+        var fn = mathString.CompileDecimal(new { min });
         var value = fn(new { min });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -455,10 +516,10 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Fact]
     public void MathExpression_CompileDecimalThenInvoke_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
-        var expression = "0.2!";
-        testOutputHelper.WriteLine($"{expression}");
+        var mathString = "0.2!";
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).CompileDecimal()());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).CompileDecimal()());
         Assert.IsType<ArgumentException>(ex);
 
         Assert.Equal("Not integer number 0.2 isn't supported by the factorial function.", ex.Message);
@@ -467,12 +528,12 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Theory]
     [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable. Invalid token at position 4.")]
     [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable. Invalid token at position 0.")]
-    public void MathExpression_CompileDecimalThenInvoke_HasUnknowToken_ThrowMathEvaluationException(string expression,
+    public void MathExpression_CompileDecimalThenInvoke_HasUnknowToken_ThrowMathEvaluationException(string mathString,
         string errorMessage)
     {
-        testOutputHelper.WriteLine($"{expression}");
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).CompileDecimal());
+        var ex = Record.Exception(() => new MathExpression(mathString).CompileDecimal());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -480,10 +541,10 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [Fact]
     public void MathExpression_CompileDecimalThenInvoke_HasIncorrectNumberFormat_ThrowFormatException()
     {
-        var expression = "888e3.2";
-        testOutputHelper.WriteLine($"{expression}");
+        var mathString = "888e3.2";
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).CompileDecimal());
+        var ex = Record.Exception(() => new MathExpression(mathString).CompileDecimal());
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
         Assert.Equal("Error of evaluating the expression. The input string '888e3.2' was not in a correct format.", ex.Message);
@@ -545,11 +606,11 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("Tanh^-1-1")]
     [InlineData("sinh(-∞)")]
     [InlineData("Sinh^-1(-∞)")]
-    public void MathExpression_CompileDecimalThenInvoke_ReturnsNanOrInfinity_ThrowOverflowException(string expression)
+    public void MathExpression_CompileDecimalThenInvoke_ReturnsNanOrInfinity_ThrowOverflowException(string mathString)
     {
-        testOutputHelper.WriteLine($"{expression}");
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).CompileDecimal()());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).CompileDecimal()());
 
         Assert.IsType<OverflowException>(ex);
         Assert.Equal("Value was either too large or too small for a Decimal.", ex.Message);
@@ -559,11 +620,11 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("12 + 3 * (120 +5", "Error of evaluating the expression. It doesn't have the ')' closing symbol. Invalid token at position 9.")]
     [InlineData("abs(1/.5 + √(1/(0.5*0.5) + 1)", "Error of evaluating the expression. It doesn't have the ')' closing symbol. Invalid token at position 3.")]
     [InlineData("2 - 5 * ⌈-10 / 2 - 1", "Error of evaluating the expression. It doesn't have the '⌉' closing symbol. Invalid token at position 8.")]
-    public void MathExpression_CompileDecimalThenInvoke_ParenthesesOrFuncAreNotClosed_ThrowMathEvaluationException(string expression, string errorMessage)
+    public void MathExpression_CompileDecimalThenInvoke_ParenthesesOrFuncAreNotClosed_ThrowMathEvaluationException(string mathString, string errorMessage)
     {
-        testOutputHelper.WriteLine($"{expression}");
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).CompileDecimal());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).CompileDecimal());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -572,12 +633,19 @@ public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOu
     [InlineData("12 + abs()", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.")]
     [InlineData("12 + abs / 1", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 8.")]
     [InlineData("0.5 + abs+1", "Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.")]
-    public void MathExpression_CompileDecimalThenInvoke_HasInvalidOperand_ThrowMathEvaluationException(string expression, string errorMessage)
+    public void MathExpression_CompileDecimalThenInvoke_HasInvalidOperand_ThrowMathEvaluationException(string mathString, string errorMessage)
     {
-        testOutputHelper.WriteLine($"{expression}");
+        testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).CompileDecimal());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).CompileDecimal());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
+    }
+
+    private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
+    {
+        var comment = args.IsCompleted ? " //completed" : string.Empty;
+        var msg = $"{args.Step}: {args.MathString[args.Start..(args.End + 1)]} = {args.Value};{comment}";
+        testOutputHelper.WriteLine(msg);
     }
 }

@@ -161,17 +161,27 @@ public class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
         i += Key.Length;
         var right = _isProcessingOperand
             ? mathExpression.BuildOperand<TResult>(ref i, separator, closingSymbol)
             : mathExpression.Build<TResult>(ref i, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
-            right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, separator, closingSymbol, right);
+        }
 
-        return Build<TResult>(left, right);
+        var expression = Build<TResult>(left, right);
+        mathExpression.OnEvaluating(start, i, expression);
+        return expression;
     }
 
     private Expression Build<TResult>(Expression left, Expression right)

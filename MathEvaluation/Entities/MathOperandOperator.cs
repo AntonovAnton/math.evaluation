@@ -95,7 +95,7 @@ public class MathOperandOperator<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;
 
@@ -107,11 +107,14 @@ public class MathOperandOperator<T> : MathEntity
         }
         else
         {
+            start = i - Key.Length; //tokenPosition
             var right = mathExpression.Build<T>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
             result = Expression.Invoke(Expression.Constant(Fn), right);
         }
 
+        mathExpression.OnEvaluating(start, i, result);
+
         result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
-        return mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, result);
+        return mathExpression.BuildExponentiation<TResult>(start, ref i, separator, closingSymbol, result);
     }
 }

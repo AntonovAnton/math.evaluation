@@ -23,12 +23,15 @@ public partial class MathExpressionTests
     [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileBooleanThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileBooleanThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _programmingContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _programmingContext).CompileBoolean();
+        var fn = expression.CompileBoolean();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
@@ -51,12 +54,15 @@ public partial class MathExpressionTests
     [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileBooleanThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileBooleanThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileBoolean();
+        var fn = expression.CompileBoolean();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
@@ -112,12 +118,15 @@ public partial class MathExpressionTests
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
     [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileBooleanThenInvoke_HasScientificBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileBooleanThenInvoke_HasScientificBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _scientificContext).CompileBoolean();
+        var fn = expression.CompileBoolean();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
@@ -137,6 +146,8 @@ public partial class MathExpressionTests
         var fn = expression.CompileBoolean(new { A = a, B = b, C = getC }, _programmingContext);
         var value = fn(new { A = a, B = b, C = getC });
 
+        testOutputHelper.WriteLine($"result: {value}");
+
         Assert.Equal(expectedValue, value);
     }
 
@@ -152,6 +163,8 @@ public partial class MathExpressionTests
 
         var fn = expression.CompileBoolean(new { a }, context);
         var value = fn(new { a });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }

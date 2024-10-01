@@ -217,6 +217,9 @@ public partial class MathExpression : IDisposable
     public void Dispose()
     {
         Evaluating = null;
+        _parameters = null;
+        ParameterExpression = null;
+        ExpressionTree = null;
     }
 
     internal double EvaluateOperand(ref int i, char? separator, char? closingSymbol)
@@ -242,10 +245,13 @@ public partial class MathExpression : IDisposable
         return value;
     }
 
-    internal void OnEvaluating(int start, int i, object value)
+    internal void OnEvaluating<T>(int start, int i, T value)
     {
-        _evaluatingStep++;
-        Evaluating?.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value));
+        if (Evaluating != null)
+        {
+            _evaluatingStep++;
+            Evaluating.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value!));
+        }
     }
 
     private static MathExpressionException CreateException(Exception ex,

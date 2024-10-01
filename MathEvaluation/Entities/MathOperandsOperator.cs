@@ -64,17 +64,19 @@ public class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;
 
         left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
 
         var right = mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
-        right = mathExpression.BuildExponentiation<T>(ref i, separator, closingSymbol, right);
+        right = mathExpression.BuildExponentiation<T>(start, ref i, separator, closingSymbol, right);
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
         result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
+
+        mathExpression.OnEvaluating(start, i, result);
         return result;
     }
 }

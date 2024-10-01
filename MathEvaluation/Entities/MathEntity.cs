@@ -29,7 +29,7 @@ public abstract class MathEntity : IMathEntity
     public abstract decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
     /// <inheritdoc/>
-    public abstract Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, IConvertible;
 
     /// <summary> Converts to string. </summary>

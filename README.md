@@ -42,10 +42,10 @@ Below are the results of the comparison with the NCalc library:
 
 | Method        | Job      | Runtime  | Mean       | Error     | StdDev    | Gen0   | Allocated |
 |-------------- |--------- |--------- |-----------:|----------:|----------:|-------:|----------:|
-| MathEvaluator | .NET 6.0 | .NET 6.0 |   674.6 ns |   4.76 ns |   4.46 ns | 0.0057 |      80 B |
-| NCalc         | .NET 6.0 | .NET 6.0 | 8,504.8 ns | 121.32 ns | 113.48 ns | 0.3967 |    5160 B |
-| MathEvaluator | .NET 8.0 | .NET 8.0 |   575.6 ns |  10.08 ns |   9.43 ns | 0.0057 |      80 B |
-| NCalc         | .NET 8.0 | .NET 8.0 | 6,368.1 ns |  42.85 ns |  37.99 ns | 0.3510 |    4472 B |
+| MathEvaluator | .NET 6.0 | .NET 6.0 |   654.5 ns |   2.09 ns |   1.63 ns | 0.0067 |      88 B |
+| NCalc         | .NET 6.0 | .NET 6.0 | 8,408.6 ns |  42.70 ns |  39.94 ns | 0.3967 |    5160 B |
+| MathEvaluator | .NET 8.0 | .NET 8.0 |   589.9 ns |   2.58 ns |   2.41 ns | 0.0067 |      88 B |
+| NCalc         | .NET 8.0 | .NET 8.0 | 6,184.0 ns |  30.74 ns |  28.75 ns | 0.3510 |    4472 B |
 
 **NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.
 
@@ -149,6 +149,35 @@ Examples of compilation:
 
     var value2 = fn2(new { x1 = -0.5, x2 = 0.5 });
 
+## How to debug or log
+
+Added in version [2.1.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.1.0)
+
+By using the Evaluating event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
+
+    using var expression = new MathExpression("-3^4sin(-PI/2)", new ScientificMathContext());
+    expression.Evaluating += (object? sender, EvaluatingEventArgs args) =>
+    {
+        Console.WriteLine("{0}: {1} = {2};{3}",
+            args.Step,
+            args.MathString[args.Start..(args.End + 1)],
+            args.Value,
+            args.IsCompleted ? " //completed" : string.Empty);
+    };
+    
+    var value = expression.Evaluate();
+
+Output:
+
+    1: 3^4 = 81;
+    2: PI = 3.141592653589793;
+    3: PI/2 = 1.5707963267948966;
+    4: -PI/2 = -1.5707963267948966;
+    5: sin(-PI/2) = -1;
+    6: 3^4sin(-PI/2) = -81;
+    7: -3^4sin(-PI/2) = 81; //completed
+
+*NOTE: The Evaluating event is cleaned up in the Dispose method. I recommend using the **using** statement to ensure proper disposal and prevent memory leaks.*
 
 ## Supported math functions, operators, and constants
 

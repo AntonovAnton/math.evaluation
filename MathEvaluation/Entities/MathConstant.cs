@@ -52,12 +52,19 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
+        var tokenPosition = i;
         i += Key.Length;
         Expression right = Expression.Constant(Value);
+        mathExpression.OnEvaluating(tokenPosition, i, right);
+
         right = Value is not TResult ? Expression.Convert(right, typeof(TResult)) : right;
-        right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
-        return left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+
+        if (expression != right)
+            mathExpression.OnEvaluating(start, i, expression);
+        return expression;
     }
 }

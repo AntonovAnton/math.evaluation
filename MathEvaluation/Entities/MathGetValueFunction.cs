@@ -69,14 +69,22 @@ public class MathGetValueFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
+        var tokenPosition = i;
         i += Key.Length;
         mathExpression.MathString.SkipParenthesis(ref i);
 
         Expression right = Expression.Invoke(Expression.Constant(Fn));
+        mathExpression.OnEvaluating(tokenPosition, i, right);
+
         right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;
-        right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
-        return left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+
+        if (expression != right)
+            mathExpression.OnEvaluating(start, i, expression);
+
+        return expression;
     }
 }
