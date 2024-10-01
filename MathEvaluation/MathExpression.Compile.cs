@@ -56,15 +56,18 @@ public partial class MathExpression
                     if (precedence >= (int)EvalPrecedence.Function)
                         return expression;
 
-                    var startParenthesis = i;
+                    var tokenPosition = i;
                     i++;
                     var right = Build<TResult>(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
+                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
                     if (isOperand)
                         return right;
 
-                    right = BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+                    right = BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
                     expression = expression.IsZero() ? right : Expression.Multiply(expression, right).Reduce();
+
+                    if (expression != right)
+                        OnEvaluating(start, i, expression);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
@@ -74,19 +77,23 @@ public partial class MathExpression
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
                     expression = Expression.Add(expression, right).Reduce();
+
+                    OnEvaluating(start, i, expression);
                     if (isOperand)
                         return expression;
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
-                    if (precedence >=(int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
+                    var isMeaningless = MathString.IsMeaningless(start, i);
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isMeaningless)
                         return expression;
 
-                    var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = isNegativity ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
+                    expression = isMeaningless ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
                     expression = expression.Reduce();
+
+                    OnEvaluating(start, i, expression);
                     if (isOperand)
                         return expression;
                     break;
@@ -97,6 +104,8 @@ public partial class MathExpression
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Multiply(expression, right).Reduce();
+
+                    OnEvaluating(start, i, expression);
                     break;
                 case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -105,6 +114,8 @@ public partial class MathExpression
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = Expression.Divide(expression, right).Reduce();
+
+                    OnEvaluating(start, i, expression);
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
                     i++;
@@ -119,7 +130,7 @@ public partial class MathExpression
                         return expression;
 
                     if (entity != null)
-                        expression = entity.Build<TResult>(this, ref i, separator, closingSymbol, expression);
+                        expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
                     else
                         MathString.ThrowExceptionInvalidToken(i);
 
@@ -146,7 +157,7 @@ public partial class MathExpression
         return expression;
     }
 
-    internal Expression BuildExponentiation<TResult>(ref int i, char? separator, char? closingSymbol, Expression left)
+    internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, IConvertible
     {
         MathString.SkipMeaningless(ref i);
@@ -155,7 +166,7 @@ public partial class MathExpression
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
         if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
-            return entity.Build<TResult>(this, ref i, separator, closingSymbol, left);
+            return entity.Build<TResult>(this, start, ref i, separator, closingSymbol, left);
 
         return left;
     }
@@ -167,10 +178,15 @@ public partial class MathExpression
     private Func<TResult> Compile<TResult>()
         where TResult : struct, IConvertible
     {
+        _evaluatingStep = 0;
+
         try
         {
             var i = 0;
             ExpressionTree = Build<TResult>(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, ExpressionTree);
 
             return Expression.Lambda<Func<TResult>>(ExpressionTree).Compile();
         }
@@ -192,11 +208,15 @@ public partial class MathExpression
 
         _parameters = new MathParameters(parameters);
         ParameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
+        _evaluatingStep = 0;
 
         try
         {
             var i = 0;
             ExpressionTree = Build<TResult>(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, ExpressionTree);
 
             return Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression).Compile();
         }

@@ -61,18 +61,25 @@ public class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc/>
-    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double left)
+    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double left)
     {
-        var start = i;
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
         i += Key.Length;
         var right = _isProcessingOperand
             ? mathExpression.EvaluateOperand(ref i, separator, closingSymbol)
             : mathExpression.Evaluate(ref i, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
-            right = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, right);
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
+        }
 
-        return OperatorType switch
+        var value = OperatorType switch
         {
             OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0 : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0 : default,
@@ -96,23 +103,33 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Subtract => left - right,
             OperatorType.Modulo => left % right,
             OperatorType.Power => Math.Pow(left, right),
-            _ => throw new MathExpressionException($"'{Key}' is not implemented.", start)
+            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
         };
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
     }
 
     /// <inheritdoc/>
-    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal left)
+    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal left)
     {
-        var start = i;
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
         i += Key.Length;
         var right = _isProcessingOperand
             ? mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol)
             : mathExpression.EvaluateDecimal(ref i, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
-            right = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, right);
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.EvaluateExponentiationDecimal(startExponentiation, ref i, separator, closingSymbol, right);
+        }
 
-        return OperatorType switch
+        var value = OperatorType switch
         {
             OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0m : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0m : default,
@@ -136,22 +153,35 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Subtract => left - right,
             OperatorType.Modulo => left % right,
             OperatorType.Power => (decimal)Math.Pow((double)left, (double)right),
-            _ => throw new MathExpressionException($"'{Key}' is not implemented.", start)
+            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
         };
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
         i += Key.Length;
         var right = _isProcessingOperand
             ? mathExpression.BuildOperand<TResult>(ref i, separator, closingSymbol)
             : mathExpression.Build<TResult>(ref i, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
-            right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, separator, closingSymbol, right);
+        }
 
-        return Build<TResult>(left, right);
+        var expression = Build<TResult>(left, right);
+        mathExpression.OnEvaluating(start, i, expression);
+        return expression;
     }
 
     private Expression Build<TResult>(Expression left, Expression right)

@@ -30,45 +30,53 @@ public class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
+    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
-            return (double)Evaluate(mathExpression, ref i, separator, closingSymbol, (decimal)value);
+            return (double)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (decimal)value);
 
         i += Key.Length;
         var right = mathExpression.EvaluateOperand(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, right);
-        return Convert.ToDouble(Fn(
+        right = mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, right);
+        value = Convert.ToDouble(Fn(
             value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
             right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
     }
 
     /// <inheritdoc/>
-    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
-            return (decimal)Evaluate(mathExpression, ref i, separator, closingSymbol, (double)value);
+            return (decimal)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (double)value);
 
         i += Key.Length;
         var right = mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, right);
-        return Convert.ToDecimal(Fn(
+        right = mathExpression.EvaluateExponentiationDecimal(start, ref i, separator, closingSymbol, right);
+        value = Convert.ToDecimal(Fn(
             value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
             right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;
 
         left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
 
         var right = mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
-        right = mathExpression.BuildExponentiation<T>(ref i, separator, closingSymbol, right);
+        right = mathExpression.BuildExponentiation<T>(start, ref i, separator, closingSymbol, right);
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
         result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
+
+        mathExpression.OnEvaluating(start, i, result);
         return result;
     }
 }

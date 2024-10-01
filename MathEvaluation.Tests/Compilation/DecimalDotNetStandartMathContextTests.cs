@@ -22,12 +22,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("2u / 5d / 2M * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
     [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
-    public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -45,6 +48,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
         var fn = expression.CompileDecimal(new { a = 0 }, _context);
         var value = fn(new { a = 5 });
 
+        testOutputHelper.WriteLine($"result: {value}");
+
         Assert.Equal((decimal)expectedValue, value);
     }
 
@@ -60,6 +65,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
 
         var fn = expression.CompileDecimal(new { a = 0 }, _context);
         var value = fn(new { a = 5 });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -81,12 +88,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Sin(0) != Math.Cos(1)", true)]
     [InlineData("4 != 4 | 5.4 == 5.4 & !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileDecimalThenInvoke_HasBooleanLogic_ExpectedValue(string expression, bool expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value == 1.0m);
     }
@@ -100,12 +110,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("2 & ~1 ^ 3 | 4", 5)]
     [InlineData("2345345345345345344L ^ 3", 2345345345345345347)]
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345347)]
-    public void MathExpression_CompileDecimalThenInvoke_HasBitwiseBooleanLogic_ExpectedValue(string expression, long expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasBitwiseBooleanLogic_ExpectedValue(string mathString, long expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
     }
@@ -113,23 +126,27 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [Theory]
     [InlineData("Math.E", Math.E)]
     [InlineData("200 * Math.E", 543.656365691808d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
 
     [Theory]
     [InlineData("Math.PI", Math.PI)]
-    public void MathExpression_CompileDecimalThenInvoke_HasMathPI_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasMathPI_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
 
         Assert.Equal((decimal)expectedValue, value);
@@ -158,12 +175,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Tan(Math.PI/4)", 0.99999999999999989d)]
     [InlineData("Math.Sin(0) + 3", 3d)]
     [InlineData("Math.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -178,13 +198,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Tanh(0)", 0)]
     [InlineData("Math.Tanh( -0.54930614433405489)", -0.5d)]
     [InlineData("Math.Tanh(double.NegativeInfinity)", -1d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string expression,
-        double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -194,12 +216,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Acos(-1)", Math.PI)]
     [InlineData("Math.Atan(-double.PositiveInfinity)", -Math.PI / 2)]
     [InlineData("Math.Atan(-2)", -1.1071487177940904d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -213,12 +238,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Acosh(2)", 1.3169578969248166d)]
     [InlineData("Math.Atanh(0)", 0)]
     [InlineData("Math.Atanh(0.5)", 0.54930614433405489d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -228,12 +256,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("3 / Math.Abs(  -(9/3))", 1d)]
     [InlineData("Math.Abs(Math.Sin(-3))", 0.14112000805986721d)]
     [InlineData("3 + 2* Math.Pow(Math.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -250,12 +281,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Pow(Math.Pow(8, 1/3), 2)", 4d)]
     [InlineData("Math.Sqrt(9) * Math.Pow(8, 1/3)", 6d)]
     [InlineData("Math.Pow(16, 0.25)", 2d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -271,12 +305,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Log(Math.E)", 1d)]
     [InlineData("Math.Log(100)", 4.6051701859880918d)]
     [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -298,12 +335,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Floor(Math.Sin(3))", 0d)]
     [InlineData("Math.Floor(Math.Sin(-3))", -1d)]
     [InlineData("3 + 2*Math.Pow(Math.Floor(2 + 3.5) , 2)", 3 + 2 * 25d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -326,12 +366,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Ceiling(Math.Sin(-3))", 0d)]
     [InlineData("Math.Ceiling(2 + 3.5)", 6d)]
     [InlineData("3 + 2*Math.Ceiling(2 + 3.5)", 3 + 2 * 6d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -344,12 +387,15 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Round(-0.1)", 0d)]
     [InlineData("Math.Round(-0.1, 0)", 0d)]
     [InlineData("Math.Round(-0.1, 1)", -0.1d)]
-    public void MathExpression_CompileDecimalThenInvoke_HasRound_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_CompileDecimalThenInvoke_HasRound_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = new MathExpression(expression, _context).CompileDecimal();
+        var fn = expression.CompileDecimal();
         var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -367,6 +413,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
 
         var fn = expression.CompileDecimal(new { x = 0.0m, PI = 0.0m }, _context);
         var value = fn(new { x = (decimal)varValue, PI = (decimal)varValue });
+
+        testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -425,5 +473,12 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
 
         var ex = Record.Exception(() => new MathExpression(expression, _context).CompileDecimal()());
         Assert.IsType<OverflowException>(ex);
+    }
+
+    private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
+    {
+        var comment = args.IsCompleted ? " //completed" : string.Empty;
+        var msg = $"{args.Step}: {args.MathString[args.Start..(args.End + 1)]} = {args.Value};{comment}";
+        testOutputHelper.WriteLine(msg);
     }
 }

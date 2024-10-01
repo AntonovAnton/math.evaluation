@@ -158,9 +158,10 @@ public static class StringExtensions
     {
         if (str.Length > i && str[i] == '(')
         {
+            var tokenPosition = i;
             i++;
             str.SkipMeaningless(ref i);
-            str.ThrowExceptionIfNotClosed(')', i, ref i);
+            str.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
         }
     }
 

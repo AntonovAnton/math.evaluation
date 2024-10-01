@@ -24,26 +24,28 @@ public interface IMathEntity
     /// Evaluates the part in which the math entity is defined in the math expression.
     /// </summary>
     /// <param name="mathExpression">The math expression.</param>
+    /// <param name="start">The starting char index of the evaluating.</param>
     /// <param name="i">The current char index.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <param name="value">The value.</param>
     /// <returns></returns>
-    double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value);
+    /// <param name="value">The value.</param>
+    double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value);
 
-    /// <inheritdoc cref="Evaluate(MathExpression, ref int, char?, char?, double)"/>
-    decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value);
+    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)"/>
+    decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
     /// <summary>
     /// Builds the part of the expression tree in which the math entity is defined in the math expression.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="mathExpression">The math expression.</param>
+    /// <param name="start">The starting char index of the evaluating.</param>
     /// <param name="i">The current char index.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <param name="left">The expression tree of the left operand.</param>
     /// <returns></returns>
-    Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    /// <param name="left">The expression tree of the left operand.</param>
+    Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, IConvertible;
 }

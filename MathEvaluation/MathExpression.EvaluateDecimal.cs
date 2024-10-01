@@ -15,11 +15,17 @@ public partial class MathExpression
     public decimal EvaluateDecimal(IMathParameters? parameters)
     {
         _parameters = parameters;
+        _evaluatingStep = 0;
 
         try
         {
             var i = 0;
-            return EvaluateDecimal(ref i, null, null);
+            var value = EvaluateDecimal(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, value);
+
+            return value;
         }
         catch (Exception ex)
         {
@@ -60,15 +66,18 @@ public partial class MathExpression
                     if (precedence >= (int)EvalPrecedence.Function)
                         return value;
 
-                    var startParenthesis = i;
+                    var tokenPosition = i;
                     i++;
                     var result = EvaluateDecimal(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
+                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
                     if (isOperand)
                         return result;
 
-                    result = EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
+                    result = EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
+
+                    if (value != result)
+                        OnEvaluating(start, i, value);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
@@ -77,6 +86,8 @@ public partial class MathExpression
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     value += EvaluateDecimal(ref i, separator, closingSymbol, p, isOperand);
+
+                    OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
                     break;
@@ -84,11 +95,11 @@ public partial class MathExpression
                     if (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
                         return value;
 
-                    var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    result = EvaluateDecimal(ref i, separator, closingSymbol, p, isOperand);
-                    value = isNegativity ? -result : value - result; //it keeps sign
+                    value -= EvaluateDecimal(ref i, separator, closingSymbol, p, isOperand);
+
+                    OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
                     break;
@@ -98,6 +109,8 @@ public partial class MathExpression
 
                     i++;
                     value *= EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+
+                    OnEvaluating(start, i, value);
                     break;
                 case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -105,6 +118,8 @@ public partial class MathExpression
 
                     i++;
                     value /= EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+
+                    OnEvaluating(start, i, value);
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
                     i++;
@@ -119,7 +134,7 @@ public partial class MathExpression
                         return value;
 
                     if (entity != null)
-                        value = entity.Evaluate(this, ref i, separator, closingSymbol, value);
+                        value = entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
                     else
                         MathString.ThrowExceptionInvalidToken(i);
 
@@ -145,7 +160,7 @@ public partial class MathExpression
         return value;
     }
 
-    internal decimal EvaluateExponentiationDecimal(ref int i, char? separator, char? closingSymbol, decimal value)
+    internal decimal EvaluateExponentiationDecimal(int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
@@ -153,7 +168,7 @@ public partial class MathExpression
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
         if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
-            return entity.Evaluate(this, ref i, separator, closingSymbol, value);
+            return entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
 
         return value;
     }

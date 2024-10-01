@@ -10,12 +10,13 @@ namespace MathEvaluation;
 /// <summary>
 /// Evaluates and compiles mathematical expressions from strings.
 /// </summary>
-public partial class MathExpression
+public partial class MathExpression : IDisposable
 {
     private readonly NumberFormatInfo? _numberFormat;
     private readonly char _decimalSeparator;
 
     private IMathParameters? _parameters;
+    private int _evaluatingStep = 0;
 
     /// <summary>Gets the math expression string.</summary>
     /// <value>The math expression string.</value>
@@ -63,17 +64,28 @@ public partial class MathExpression
     public double Evaluate(IMathParameters? parameters)
     {
         _parameters = parameters;
+        _evaluatingStep = 0;
 
         try
         {
             var i = 0;
-            return Evaluate(ref i, null, null);
+            var value = Evaluate(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, value);
+
+            return value;
         }
         catch (Exception ex)
         {
             throw CreateException(ex, MathString, Context, Provider, parameters);
         }
     }
+
+    /// <summary>
+    /// Occurs when the <see cref="MathString">math string</see> is evaluating and triggers at each step of the evaluation.
+    /// </summary>
+    public event EventHandler<EvaluatingEventArgs>? Evaluating;
 
     internal double Evaluate(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
@@ -108,15 +120,18 @@ public partial class MathExpression
                     if (precedence >= (int)EvalPrecedence.Function)
                         return value;
 
-                    var startParenthesis = i;
+                    var tokenPosition = i;
                     i++;
                     var result = Evaluate(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', startParenthesis, ref i);
+                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
                     if (isOperand)
                         return result;
 
-                    result = EvaluateExponentiation(ref i, separator, closingSymbol, result);
+                    result = EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
+
+                    if (value != result && !double.IsNaN(value))
+                        OnEvaluating(start, i, value);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
@@ -125,18 +140,22 @@ public partial class MathExpression
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     value += Evaluate(ref i, separator, closingSymbol, p, isOperand);
+
+                    OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
+                    var isMeaningless = MathString.IsMeaningless(start, i);
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isMeaningless)
                         return value;
 
-                    var isNegativity = start == i;
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     result = Evaluate(ref i, separator, closingSymbol, p, isOperand);
-                    value = isNegativity ? -result : value - result; //it keeps sign
+                    value = isMeaningless ? -result : value - result; //it keeps sign
+
+                    OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
                     break;
@@ -146,6 +165,8 @@ public partial class MathExpression
 
                     i++;
                     value *= Evaluate(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+
+                    OnEvaluating(start, i, value);
                     break;
                 case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -153,6 +174,8 @@ public partial class MathExpression
 
                     i++;
                     value /= Evaluate(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+
+                    OnEvaluating(start, i, value);
                     break;
                 case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
                     i++;
@@ -167,7 +190,7 @@ public partial class MathExpression
                         return value;
 
                     if (entity != null)
-                        value = entity.Evaluate(this, ref i, separator, closingSymbol, value);
+                        value = entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
                     else
                         MathString.ThrowExceptionInvalidToken(i);
 
@@ -183,6 +206,22 @@ public partial class MathExpression
         return value;
     }
 
+    /// <summary> Converts to string. </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+        => $"{nameof(MathString)}: \"{MathString}\", {nameof(Context)}: {Context?.ToString() ?? "null"}, {nameof(Provider)}: {Provider?.ToString() ?? "null"}";
+
+    /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+    public void Dispose()
+    {
+        Evaluating = null;
+        _parameters = null;
+        ParameterExpression = null;
+        ExpressionTree = null;
+    }
+
     internal double EvaluateOperand(ref int i, char? separator, char? closingSymbol)
     {
         var start = i;
@@ -193,7 +232,7 @@ public partial class MathExpression
         return value;
     }
 
-    internal double EvaluateExponentiation(ref int i, char? separator, char? closingSymbol, double value)
+    internal double EvaluateExponentiation(int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
@@ -201,9 +240,18 @@ public partial class MathExpression
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
         if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
-            return entity.Evaluate(this, ref i, separator, closingSymbol, value);
+            return entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
 
         return value;
+    }
+
+    internal void OnEvaluating<T>(int start, int i, T value)
+    {
+        if (Evaluating != null)
+        {
+            _evaluatingStep++;
+            Evaluating.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value!));
+        }
     }
 
     private static MathExpressionException CreateException(Exception ex,

@@ -41,69 +41,90 @@ public class MathUnaryFunction<T> : MathEntity
     }
 
     /// <inheritdoc/>
-    public override double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value)
+    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
-            return (double)Evaluate(mathExpression, ref i, separator, closingSymbol, (decimal)value);
+            return (double)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (decimal)value);
 
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
         if (OpeningSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, tokenPosition, ref i);
 
         var arg = ClosingSymbol.HasValue
             ? mathExpression.Evaluate(ref i, null, ClosingSymbol)
             : mathExpression.EvaluateOperand(ref i, separator, closingSymbol);
 
         if (ClosingSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
         var result = Convert.ToDouble(Fn(arg is T a ? a : (T)Convert.ChangeType(arg, typeof(T))));
-        result = mathExpression.EvaluateExponentiation(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !double.IsNaN(value))
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
     }
 
     /// <inheritdoc/>
-    public override decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value)
+    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
-            return (decimal)Evaluate(mathExpression, ref i, separator, closingSymbol, (double)value);
+            return (decimal)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (double)value);
 
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
         if (OpeningSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, tokenPosition, ref i);
 
         var arg = ClosingSymbol.HasValue
             ? mathExpression.EvaluateDecimal(ref i, null, ClosingSymbol)
             : mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol);
 
         if (ClosingSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
         var result = Convert.ToDecimal(Fn(arg is T a ? a : (T)Convert.ChangeType(arg, typeof(T))));
-        result = mathExpression.EvaluateExponentiationDecimal(ref i, separator, closingSymbol, result);
-        return value == default ? result : value * result;
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result)
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
     }
 
     /// <inheritdoc/>
-    public override Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
-        var start = i;
+        var tokenPosition = i;
         i += Key.Length;
         if (OpeningSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, tokenPosition, ref i);
 
         var arg = ClosingSymbol.HasValue
             ? mathExpression.Build<T>(ref i, null, ClosingSymbol)
             : mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
 
         if (ClosingSymbol.HasValue)
-            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, start, ref i);
+            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
         Expression right = Expression.Invoke(Expression.Constant(Fn), arg);
+        mathExpression.OnEvaluating(tokenPosition, i, right);
+
         right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;
-        right = mathExpression.BuildExponentiation<TResult>(ref i, separator, closingSymbol, right);
-        return left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+
+        if (expression != right)
+            mathExpression.OnEvaluating(start, i, expression);
+
+        return expression;
     }
 }

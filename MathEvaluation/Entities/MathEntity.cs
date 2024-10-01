@@ -23,12 +23,19 @@ public abstract class MathEntity : IMathEntity
     }
 
     /// <inheritdoc/>
-    public abstract double Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, double value);
+    public abstract double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value);
 
     /// <inheritdoc/>
-    public abstract decimal Evaluate(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, decimal value);
+    public abstract decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
     /// <inheritdoc/>
-    public abstract Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
+    public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, IConvertible;
+
+    /// <summary> Converts to string. </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+        => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
 }

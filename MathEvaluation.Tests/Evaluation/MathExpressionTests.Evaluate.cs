@@ -27,6 +27,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("0/0", double.NaN)]
     [InlineData("-0", -0.0)]
+    [InlineData(" \r\n\t -0", -0.0)]
     [InlineData("0 - 0", 0.0)]
     [InlineData("-20.3", -20.3d)]
     [InlineData("2 / 5 / 2 * 5", 2d / 5 / 2 * 5)]
@@ -47,13 +48,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
-    public void MathExpression_Evaluate_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression).Evaluate();
-
-        testOutputHelper.WriteLine($"result: {value}");
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -63,11 +63,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("(3 * 2)//(2 * 2)", 1d)]
     [InlineData("6//-10", -1d)]
     [InlineData("4π // (3)π", 1d)]
-    public void MathExpression_Evaluate_HasFloorDivision_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasFloorDivision_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -76,11 +77,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("(3 + 1)(5 + 2(5 - 1))", (3 + 1) * (5 + 2 * (5 - 1)))]
     [InlineData("(3 · 2)÷(5 × 2)", 3 * 2 / (5d * 2))]
     [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
-    public void MathExpression_Evaluate_HasScientificNotation_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasScientificNotation_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -97,13 +99,15 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("22⹁888.32 ¤ * 30 / 323.34 / .5 - - 1 / (2 + 22⹁888.32 ¤) * 4 - 6", "ff-Adlm")]
     [InlineData("22 888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22 888,32 ¤) * 4 - 6", "fr")]
     [InlineData("22’888,32 ¤ * 30 / 323,34 / ,5 - - 1 / (2 + 22’888,32 ¤) * 4 - 6", "wae")]
-    public void MathExpression_Evaluate_HasNumbersInSpecificCulture_ExpectedValue(string expression, string? cultureName)
+    public void MathExpression_Evaluate_HasNumbersInSpecificCulture_ExpectedValue(string mathString, string? cultureName)
     {
         var expectedValue = 22888.32d * 30 / 323.34d / .5d - -1 / (2 + 22888.32d) * 4 - 6;
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = new MathExpression(expression, null, cultureInfo).Evaluate();
+        using var expression = new MathExpression(mathString, null, cultureInfo);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -114,14 +118,15 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("pow(,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, ,2 * 10)", 0.23 * 0.23, "af")]
-    public void MathExpression_Evaluate_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string expression, double expectedValue, string cultureName)
+    public void MathExpression_Evaluate_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
         var context = new MathContext();
         context.BindFunction(Math.Pow, "pow");
 
-        var value = new MathExpression(expression, context, new CultureInfo(cultureName)).Evaluate();
+        using var expression = new MathExpression(mathString, context, new CultureInfo(cultureName));
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -129,12 +134,13 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
     [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
-    public void MathExpression_Evaluate_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string expression, string? cultureName, double expectedValue)
+    public void MathExpression_Evaluate_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
-
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
-        var value = new MathExpression(expression, _scientificContext, cultureInfo).Evaluate();
+        using var expression = new MathExpression(mathString, _scientificContext, cultureInfo);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -148,11 +154,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("(-3)**0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_Evaluate_HasProgrammingPower_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasProgrammingPower_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _programmingContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _programmingContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -168,11 +175,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("(-3)^0.5", double.NaN)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_Evaluate_HasScientificPower_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasScientificPower_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -182,11 +190,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 - 4.5 % 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 4.5 % 3.1 * 3 * 2 + 4", 3 - 4.5 % 3.1 * 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
-    public void MathExpression_Evaluate_HasProgrammingModulus_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasProgrammingModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _programmingContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _programmingContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -200,11 +209,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("4 modulo 3 - 2", -1)]
     [InlineData("3 - 4.5 Modulo 3.1 / 3 * 2 + 4", 3 - 4.5 % 3.1 / 3 * 2 + 4)]
     [InlineData("3 - 2 / 4.5 MOD 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
-    public void MathExpression_Evaluate_HasScientificModulus_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasScientificModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -219,11 +229,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData(".2E3 - 2", .2E3 - 2)]
     [InlineData("3 - 0.4e3 / 3 * 2 + 4", 3 - 0.4e3 / 3 * 2 + 4)]
     [InlineData(".1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3", .1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3)]
-    public void MathExpression_Evaluate_HasExpNotationNumbers_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasExpNotationNumbers_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -232,11 +243,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("e", Math.E)]
     [InlineData("200e", 200 * Math.E)]
     [InlineData("200e^- 0.15", 172.14159528501156d)]
-    public void MathExpression_Evaluate_HasLnBase_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -261,11 +273,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("abs(sin(-3))", 0.14112000805986721d)]
     [InlineData("|sin-3|", 0.14112000805986721d)]
     [InlineData("3 + 2|-2 + -3.5|  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_Evaluate_HasAbs_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -288,11 +301,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("∜-16", double.NaN)]
     [InlineData("∜16∜16", 4d)]
     [InlineData("1/√9^2", 1 / 9d)]
-    public void MathExpression_Evaluate_HasRoot_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -314,11 +328,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("ln-100", double.NaN)]
     [InlineData("ln(∞)", double.PositiveInfinity)]
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
-    public void MathExpression_Evaluate_HasLogarithmFn_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -340,11 +355,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("⌊sin3⌋", 0d)]
     [InlineData("⌊sin-3⌋", -1d)]
     [InlineData("3 + 2⌊2 + 3.5⌋  ^2", 3 + 2 * 25d)]
-    public void MathExpression_Evaluate_HasFloor_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -367,11 +383,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("⌈sin-3⌉", 0d)]
     [InlineData("⌈2 + 3.5⌉", 6d)]
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
-    public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -387,11 +404,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("2!^(3)!^2!", 68719476736d)]
     [InlineData("2!^3^2!", 512d)]
     [InlineData("2!^(3)^2!", 512d)]
-    public void MathExpression_Evaluate_HasFactorial_ExpectedValue(string expression, double expectedValue)
+    public void MathExpression_Evaluate_HasFactorial_ExpectedValue(string mathString, double expectedValue)
     {
-        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        using var expression = new MathExpression(mathString, _scientificContext);
+        expression.Evaluating += SubscribeToEvaluating;
 
-        var value = new MathExpression(expression, _scientificContext).Evaluate();
+        var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
     }
@@ -547,5 +565,12 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).Evaluate());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
+    }
+
+    private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
+    {
+        var comment = args.IsCompleted ? " //completed" : string.Empty;
+        var msg = $"{args.Step}: {args.MathString[args.Start..(args.End + 1)]} = {args.Value};{comment}";
+        testOutputHelper.WriteLine(msg);
     }
 }
