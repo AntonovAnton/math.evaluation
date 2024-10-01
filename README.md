@@ -177,7 +177,7 @@ Output:
     6: 3^4sin(-PI/2) = -81;
     7: -3^4sin(-PI/2) = 81; //completed
 
-*NOTE: The Evaluating event is cleaned up in the Dispose method. I recommend using the **using** statement to ensure proper disposal and prevent memory leaks.*
+*NOTE: The Evaluating event is cleaned up in the Dispose method. So I recommend using the **using** statement to ensure proper disposal.*
 
 ## Supported math functions, operators, and constants
 
