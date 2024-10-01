@@ -211,7 +211,7 @@ public partial class MathExpression : IDisposable
     /// A <see cref="System.String" /> that represents this instance.
     /// </returns>
     public override string ToString()
-        => $"{MathString}, {Context?.ToString() ?? "<null>"}, {Provider?.ToString() ?? "<null>"}";
+        => $"{nameof(MathString)}: \"{MathString}\", {nameof(Context)}: {Context?.ToString() ?? "null"}, {nameof(Provider)}: {Provider?.ToString() ?? "null"}";
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()

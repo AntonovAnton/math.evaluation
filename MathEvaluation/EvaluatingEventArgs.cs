@@ -51,5 +51,12 @@ namespace MathEvaluation
             Value = value;
             IsCompleted = start == 0 && mathString.Length == end + 1;
         }
+
+        /// <summary> Converts to string. </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+            => $"{nameof(MathString)}: \"{MathString}\", {nameof(Start)}: {Start}, {nameof(End)}: {End}, {nameof(Step)}: {Step}, {nameof(Value)}: {Value}, {nameof(IsCompleted)}: {IsCompleted}";
     }
 }

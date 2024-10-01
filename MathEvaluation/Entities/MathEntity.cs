@@ -31,4 +31,11 @@ public abstract class MathEntity : IMathEntity
     /// <inheritdoc/>
     public abstract Expression Build<TResult>(MathExpression mathExpression, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, IConvertible;
+
+    /// <summary> Converts to string. </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+        => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
 }
