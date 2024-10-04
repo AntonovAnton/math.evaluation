@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
-public partial class MathExpressionTests_DecimalContext(ITestOutputHelper testOutputHelper)
+public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
     private readonly DecimalProgrammingMathContext _programmingContext = new();

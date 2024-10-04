@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation.Entities;
 
@@ -10,7 +11,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathFunction<T> : MathEntity
-    where T : struct, IConvertible
+    where T : struct
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
@@ -61,7 +62,7 @@ public class MathFunction<T> : MathEntity
         while (mathExpression.MathString.Length > i)
         {
             var arg = mathExpression.Evaluate(ref i, Separator, ClosingSymbol);
-            args.Add(arg is T a ? a : (T)Convert.ChangeType(arg, typeof(T)));
+            args.Add(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
 
             if (mathExpression.MathString[i] == Separator)
             {
@@ -72,14 +73,14 @@ public class MathFunction<T> : MathEntity
         }
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var result = Convert.ToDouble(Fn([.. args]));
-
+        var result = Fn([.. args]);
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
-        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
-        value = value == default ? result : value * result;
+        var dResult = ConvertToDouble(result);
+        dResult = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, dResult);
+        value = value == default ? dResult : value * dResult;
 
-        if (value != result && !double.IsNaN(value))
+        if (value != dResult && !double.IsNaN(value))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
@@ -99,7 +100,7 @@ public class MathFunction<T> : MathEntity
         while (mathExpression.MathString.Length > i)
         {
             var arg = mathExpression.EvaluateDecimal(ref i, Separator, ClosingSymbol);
-            args.Add(arg is T a ? a : (T)Convert.ChangeType(arg, typeof(T)));
+            args.Add(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
 
             if (mathExpression.MathString[i] == Separator)
             {
@@ -110,13 +111,57 @@ public class MathFunction<T> : MathEntity
         }
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var result = Convert.ToDecimal(Fn([.. args]));
+        var result = Fn([.. args]);
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
-        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
-        value = value == default ? result : value * result;
+        var dResult = ConvertToDecimal(result);
+        dResult = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, dResult);
+        value = value == default ? dResult : value * dResult;
 
-        if (value != result)
+        if (value != dResult)
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
+    }
+
+    /// <inheritdoc/>
+    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
+    {
+        if (typeof(T) != typeof(Complex))
+        {
+            if (value.Imaginary == default)
+                return (Complex)Evaluate(mathExpression, start, ref i, separator, closingSymbol, value.Real);
+
+            throw new NotSupportedException(NotComplexErrorMessage);
+        }
+
+        var tokenPosition = i;
+        i += Key.Length;
+        mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, tokenPosition, ref i);
+
+        var args = new List<T>();
+        while (mathExpression.MathString.Length > i)
+        {
+            var arg = mathExpression.EvaluateComplex(ref i, Separator, ClosingSymbol);
+            args.Add(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
+
+            if (mathExpression.MathString[i] == Separator)
+            {
+                i++; //other param
+                continue;
+            }
+            break;
+        }
+        mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
+
+        var result = Fn([.. args]);
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        var dResult = result is Complex r ? r : ConvertToDouble(result);
+        dResult = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, dResult);
+        value = value == default ? dResult : value * dResult;
+
+        if (value != dResult && !double.IsNaN(value.Real))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;

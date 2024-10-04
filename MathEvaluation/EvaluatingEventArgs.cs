@@ -52,7 +52,7 @@ namespace MathEvaluation
             IsCompleted = start == 0 && mathString.Length == end + 1;
         }
 
-        /// <summary> Converts to string. </summary>
+        /// <summary> Converts to string.</summary>
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>

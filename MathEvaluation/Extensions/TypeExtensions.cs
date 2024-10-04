@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace MathEvaluation.Extensions;
 
@@ -12,5 +13,7 @@ internal static class TypeExtensions
         _ => false
     };
 
-    public static bool IsDecimal(this Type type) => Type.GetTypeCode(type) == TypeCode.Decimal;
+    public static bool IsDecimal(this Type type) => type == typeof(decimal);
+
+    public static bool IsComplex(this Type type) => type == typeof(Complex);
 }

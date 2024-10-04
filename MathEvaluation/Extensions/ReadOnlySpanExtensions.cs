@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Numerics;
 
 namespace MathEvaluation.Extensions;
 
@@ -43,6 +44,70 @@ internal static class ReadOnlySpanExtensions
         return decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
+    /// <summary>Parses the complex number in format a + bi.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="i">The current char index.</param>
+    /// <param name="onlyImaginary"><c>true</c> if it should parse only the imaginary part of the complex number; otherwise, <c>false</c>.</param>
+    /// <returns>The value.</returns>
+    internal static Complex ParseComplexNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i, bool onlyImaginary = false)
+    {
+        if (str.Length > i && str[i] == 'i')
+        {
+            i++;
+            return Complex.One;
+        }
+
+        var start = i;
+
+        var numberStr = str.GetNumberString(numberFormat, ref i);
+        if (numberStr.IsEmpty)
+            return new Complex(double.NaN, double.NaN);
+
+        var number = double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+
+        if (str.Length > i && str[i] == 'i')
+        {
+            i++;
+            return new Complex(0d, number);
+        }
+
+        if (onlyImaginary)
+        {
+            //it's not an imaginary part of the complex number.
+            i = start;
+            return new Complex(double.NaN, double.NaN);
+        }
+
+        var real = number;
+        var imaginary = 0d;
+
+        str.SkipMeaningless(ref i);
+        if (str.Length > i)
+        {
+            start = i;
+            if (str[i] is '+' or '-')
+            {
+                var isNegative = str[i] == '-';
+
+                i++;
+                str.SkipMeaningless(ref i);
+
+                var c = str.ParseComplexNumber(numberFormat, ref i, true);
+                if (double.IsNaN(c.Imaginary))
+                {
+                    //it's not an imaginary part of the complex number so its add or subtract operation.
+                    i = start;
+                    return new Complex(real, 0d);
+                }
+
+                imaginary = isNegative ? -c.Imaginary : c.Imaginary;
+            }
+        }
+
+        return new Complex(real, imaginary);
+    }
+
     /// <summary>Parses the number.</summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="str">The math expression string.</param>
@@ -50,7 +115,7 @@ internal static class ReadOnlySpanExtensions
     /// <param name="i">The current char index.</param>
     /// <returns>The value.</returns>
     internal static TResult ParseNumber<TResult>(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         var numberStr = str.GetNumberString(numberFormat, ref i);
         if (typeof(TResult) == typeof(decimal))

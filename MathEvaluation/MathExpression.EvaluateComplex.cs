@@ -2,17 +2,18 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
+using System.Numerics;
 
 namespace MathEvaluation;
 
 public partial class MathExpression
 {
     /// <inheritdoc cref="Evaluate(object?)"/>
-    public decimal EvaluateDecimal(object? parameters = null)
-        => EvaluateDecimal(parameters != null ? new MathParameters(parameters) : null);
+    public Complex EvaluateComplex(object? parameters = null)
+        => EvaluateComplex(parameters != null ? new MathParameters(parameters) : null);
 
     /// <inheritdoc cref="Evaluate(IMathParameters?)"/>
-    public decimal EvaluateDecimal(IMathParameters? parameters)
+    public Complex EvaluateComplex(IMathParameters? parameters)
     {
         _parameters = parameters;
         _evaluatingStep = 0;
@@ -20,7 +21,7 @@ public partial class MathExpression
         try
         {
             var i = 0;
-            var value = EvaluateDecimal(ref i, null, null);
+            var value = EvaluateComplex(ref i, null, null);
 
             if (_evaluatingStep == 0)
                 OnEvaluating(0, i, value);
@@ -33,11 +34,11 @@ public partial class MathExpression
         }
     }
 
-    internal decimal EvaluateDecimal(ref int i, char? separator, char? closingSymbol,
+    internal Complex EvaluateComplex(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
     {
         var span = MathString.AsSpan();
-        var value = default(decimal);
+        var value = default(Complex);
 
         var start = i;
         while (span.Length > i)
@@ -51,12 +52,16 @@ public partial class MathExpression
                 return value;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator) //number
+            if (span[i] is >= '0' and <= '9' or 'i' || span[i] == _decimalSeparator) //number
             {
                 if (isOperand)
-                    return EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
+                    return EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                value = span.ParseDecimalNumber(_numberFormat, ref i);
+                var tokenPosition = i;
+                value = span.ParseComplexNumber(_numberFormat, ref i);
+
+                if (value.Imaginary != default)
+                    OnEvaluating(tokenPosition, i, value);
                 continue;
             }
 
@@ -68,15 +73,15 @@ public partial class MathExpression
 
                     var tokenPosition = i;
                     i++;
-                    var result = EvaluateDecimal(ref i, null, ')');
+                    var result = EvaluateComplex(ref i, null, ')');
                     MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
                     if (isOperand)
                         return result;
 
-                    result = EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+                    result = EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
 
-                    if (value != result)
+                    if (value != result && !double.IsNaN(value.Real))
                         OnEvaluating(start, i, value);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
@@ -85,19 +90,21 @@ public partial class MathExpression
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    value += EvaluateDecimal(ref i, separator, closingSymbol, p, isOperand);
+                    value += EvaluateComplex(ref i, separator, closingSymbol, p, isOperand);
 
                     OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
+                    var isMeaningless = MathString.IsMeaningless(start, i);
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isMeaningless)
                         return value;
 
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    value -= EvaluateDecimal(ref i, separator, closingSymbol, p, isOperand);
+                    result = EvaluateComplex(ref i, separator, closingSymbol, p, isOperand);
+                    value = isMeaningless ? -result : value - result; //it keeps sign
 
                     OnEvaluating(start, i, value);
                     if (isOperand)
@@ -108,7 +115,7 @@ public partial class MathExpression
                         return value;
 
                     i++;
-                    value *= EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value *= EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
                     OnEvaluating(start, i, value);
                     break;
@@ -117,7 +124,7 @@ public partial class MathExpression
                         return value;
 
                     i++;
-                    value /= EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value /= EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
                     OnEvaluating(start, i, value);
                     break;
@@ -152,17 +159,17 @@ public partial class MathExpression
         return value;
     }
 
-    internal decimal EvaluateOperandDecimal(ref int i, char? separator, char? closingSymbol)
+    internal Complex EvaluateOperandComplex(ref int i, char? separator, char? closingSymbol)
     {
         var start = i;
-        var value = EvaluateDecimal(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        var value = EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
         if (value == default)
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return value;
     }
 
-    internal decimal EvaluateExponentiationDecimal(int start, ref int i, char? separator, char? closingSymbol, decimal value)
+    internal Complex EvaluateExponentiationComplex(int start, ref int i, char? separator, char? closingSymbol, Complex value)
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)

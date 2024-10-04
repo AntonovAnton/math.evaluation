@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Extensions;
 using System;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation.Entities;
 
@@ -9,7 +10,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathVariable<T>(string? key, T value) : MathEntity(key)
-    where T : struct, IConvertible
+    where T : struct
 {
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
@@ -23,7 +24,7 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = Value is double v ? v : Convert.ToDouble(Value);
+        var result = ConvertToDouble(Value);
 
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
@@ -31,7 +32,7 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
         value = value == default ? result : value * result;
 
         if (value != result && !double.IsNaN(value))
-            mathExpression.OnEvaluating(start, i, result);
+            mathExpression.OnEvaluating(start, i, value);
 
         return value;
     }
@@ -41,7 +42,7 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = Value is decimal v ? v : Convert.ToDecimal(Value);
+        var result = ConvertToDecimal(Value);
 
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
@@ -49,7 +50,25 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
         value = value == default ? result : value * result;
 
         if (value != result)
-            mathExpression.OnEvaluating(start, i, result);
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
+    }
+
+    /// <inheritdoc/>
+    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
+    {
+        var tokenPosition = i;
+        i += Key.Length;
+        var result = Value is Complex v ? v : ConvertToDouble(Value);
+
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !double.IsNaN(value.Real))
+            mathExpression.OnEvaluating(start, i, value);
 
         return value;
     }

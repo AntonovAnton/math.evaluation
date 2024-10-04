@@ -9,17 +9,17 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4249/23H2/2023Update/SunValley3
 
 
 ```
-| Method                                | Job      | Runtime  | Mean         | Error      | StdDev     | Gen0   | Gen1   | Allocated |
-|-------------------------------------- |--------- |--------- |-------------:|-----------:|-----------:|-------:|-------:|----------:|
-| &#39;MathEvaluator evaluation&#39;            | .NET 6.0 | .NET 6.0 |  1,106.74 ns |   4.030 ns |   3.770 ns | 0.1144 |      - |    1440 B |
-| &#39;NCalc evaluation&#39;                    | .NET 6.0 | .NET 6.0 |  8,097.10 ns |  30.933 ns |  28.935 ns | 0.2899 |      - |    3736 B |
-| &#39;MathEvaluator compilation&#39;           | .NET 6.0 | .NET 6.0 | 72,504.29 ns | 410.599 ns | 363.985 ns | 0.4883 | 0.2441 |    7548 B |
-| &#39;NCalc compilation&#39;                   | .NET 6.0 | .NET 6.0 | 88,633.35 ns | 576.985 ns | 539.712 ns | 0.6104 | 0.2441 |    8542 B |
-| &#39;MathEvaluator invoke fn(P, r, n, d)&#39; | .NET 6.0 | .NET 6.0 |     25.66 ns |   0.101 ns |   0.095 ns | 0.0032 |      - |      40 B |
-| &#39;NCalc invoke fn(P, r, n, d)&#39;         | .NET 6.0 | .NET 6.0 |     25.81 ns |   0.311 ns |   0.291 ns | 0.0032 |      - |      40 B |
-| &#39;MathEvaluator evaluation&#39;            | .NET 8.0 | .NET 8.0 |    667.42 ns |   1.876 ns |   1.663 ns | 0.1144 |      - |    1440 B |
-| &#39;NCalc evaluation&#39;                    | .NET 8.0 | .NET 8.0 |  6,365.22 ns |  22.383 ns |  20.937 ns | 0.2899 |      - |    3688 B |
-| &#39;MathEvaluator compilation&#39;           | .NET 8.0 | .NET 8.0 | 68,243.64 ns | 380.348 ns | 355.778 ns | 0.4883 | 0.3662 |    7548 B |
-| &#39;NCalc compilation&#39;                   | .NET 8.0 | .NET 8.0 | 82,426.41 ns | 265.248 ns | 207.088 ns | 0.4883 | 0.2441 |    8490 B |
-| &#39;MathEvaluator invoke fn(P, r, n, d)&#39; | .NET 8.0 | .NET 8.0 |     24.73 ns |   0.075 ns |   0.063 ns | 0.0032 |      - |      40 B |
-| &#39;NCalc invoke fn(P, r, n, d)&#39;         | .NET 8.0 | .NET 8.0 |     24.74 ns |   0.075 ns |   0.066 ns | 0.0032 |      - |      40 B |
+| Method                                | Job      | Runtime  | Mean         | Error        | StdDev       | Gen0   | Gen1   | Allocated |
+|-------------------------------------- |--------- |--------- |-------------:|-------------:|-------------:|-------:|-------:|----------:|
+| &#39;MathEvaluator evaluation&#39;            | .NET 6.0 | .NET 6.0 |  1,122.61 ns |     3.980 ns |     3.528 ns | 0.1163 |      - |    1472 B |
+| &#39;NCalc evaluation&#39;                    | .NET 6.0 | .NET 6.0 |  8,589.07 ns |    26.480 ns |    23.474 ns | 0.2899 |      - |    3736 B |
+| &#39;MathEvaluator compilation&#39;           | .NET 6.0 | .NET 6.0 | 72,645.90 ns |   385.938 ns |   361.007 ns | 0.4883 | 0.2441 |    7580 B |
+| &#39;NCalc compilation&#39;                   | .NET 6.0 | .NET 6.0 | 89,795.21 ns | 1,413.747 ns | 1,322.420 ns | 0.6104 | 0.2441 |    8542 B |
+| &#39;MathEvaluator invoke fn(P, r, n, d)&#39; | .NET 6.0 | .NET 6.0 |     25.68 ns |     0.263 ns |     0.233 ns | 0.0032 |      - |      40 B |
+| &#39;NCalc invoke fn(P, r, n, d)&#39;         | .NET 6.0 | .NET 6.0 |     25.71 ns |     0.280 ns |     0.262 ns | 0.0032 |      - |      40 B |
+| &#39;MathEvaluator evaluation&#39;            | .NET 8.0 | .NET 8.0 |    700.77 ns |    13.926 ns |    19.973 ns | 0.1173 |      - |    1472 B |
+| &#39;NCalc evaluation&#39;                    | .NET 8.0 | .NET 8.0 |  7,111.84 ns |   134.107 ns |   125.444 ns | 0.2899 |      - |    3688 B |
+| &#39;MathEvaluator compilation&#39;           | .NET 8.0 | .NET 8.0 | 70,347.74 ns | 1,366.943 ns | 1,342.521 ns | 0.4883 | 0.3662 |    7580 B |
+| &#39;NCalc compilation&#39;                   | .NET 8.0 | .NET 8.0 | 83,434.31 ns | 1,287.808 ns | 1,204.616 ns | 0.4883 | 0.2441 |    8490 B |
+| &#39;MathEvaluator invoke fn(P, r, n, d)&#39; | .NET 8.0 | .NET 8.0 |     26.63 ns |     0.546 ns |     0.650 ns | 0.0032 |      - |      40 B |
+| &#39;NCalc invoke fn(P, r, n, d)&#39;         | .NET 8.0 | .NET 8.0 |     26.22 ns |     0.549 ns |     0.610 ns | 0.0032 |      - |      40 B |

@@ -24,7 +24,7 @@ public partial class MathExpression
 
     internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         var span = MathString.AsSpan();
         Expression expression = Expression.Constant(default(TResult));
@@ -122,17 +122,19 @@ public partial class MathExpression
                     break;
                 default:
                     var entity = FirstMathEntity(span[i..]);
-                    if (entity == null && span.TryParseCurrency(_numberFormat, ref i))
-                        break;
+                    if (entity == null)
+                    {
+                        if (span.TryParseCurrency(_numberFormat, ref i))
+                            break;
+
+                        throw CreateExceptionInvalidToken(span, i);
+                    }
 
                     //highest precedence is evaluating first
-                    if (precedence >= entity?.Precedence)
+                    if (precedence >= entity.Precedence)
                         return expression;
 
-                    if (entity != null)
-                        expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
-                    else
-                        MathString.ThrowExceptionInvalidToken(i);
+                    expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
 
                     if (isOperand)
                         return expression;
@@ -147,7 +149,7 @@ public partial class MathExpression
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         var start = i;
         var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
@@ -158,7 +160,7 @@ public partial class MathExpression
     }
 
     internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
@@ -176,7 +178,7 @@ public partial class MathExpression
     /// <returns>A delegate that represents the compiled expression.</returns>
     /// <exception cref="MathExpressionException"/>
     private Func<TResult> Compile<TResult>()
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         _evaluatingStep = 0;
 
@@ -201,7 +203,7 @@ public partial class MathExpression
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException">parameters</exception>
     private Func<T, TResult> Compile<T, TResult>(T parameters)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));

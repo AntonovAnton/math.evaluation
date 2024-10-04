@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Reflection;
 
 namespace MathEvaluation.Entities;
@@ -153,6 +154,56 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Subtract => left - right,
             OperatorType.Modulo => left % right,
             OperatorType.Power => (decimal)Math.Pow((double)left, (double)right),
+            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
+        };
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
+    }
+
+    /// <inheritdoc/>
+    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex left)
+    {
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
+        i += Key.Length;
+        var right = _isProcessingOperand
+            ? mathExpression.EvaluateOperandComplex(ref i, separator, closingSymbol)
+            : mathExpression.EvaluateComplex(ref i, separator, closingSymbol, Precedence);
+
+        if (_isProcessingOperand)
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.EvaluateExponentiationComplex(startExponentiation, ref i, separator, closingSymbol, right);
+        }
+
+        var value = OperatorType switch
+        {
+            OperatorType.LogicalConditionalOr => left != default || right != default ? Complex.One : default,
+            OperatorType.LogicalConditionalAnd => left != default && right != default ? Complex.One : default,
+            OperatorType.LogicalOr => left != default || right != default ? Complex.One : default,
+            OperatorType.BitwiseOr => (long)left.Real | (long)right.Real,
+            OperatorType.LogicalXor => left != default ^ right != default ? Complex.One : default,
+            OperatorType.BitwiseXor => (long)left.Real ^ (long)right.Real,
+            OperatorType.LogicalAnd => left != default && right != default ? Complex.One : default,
+            OperatorType.BitwiseAnd => (long)left.Real & (long)right.Real,
+            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? Complex.One : default,
+            OperatorType.BitwiseNegation => ~(long)right.Real,
+            OperatorType.Equal => left == right ? Complex.One : default,
+            OperatorType.NotEqual => left != right ? Complex.One : default,
+            OperatorType.LessThan => left.Real < right.Real ? Complex.One : default,
+            OperatorType.LessThanOrEqual => left.Real <= right.Real ? Complex.One : default,
+            OperatorType.GreaterThan => left.Real > right.Real ? Complex.One : default,
+            OperatorType.GreaterThanOrEqual => left.Real >= right.Real ? Complex.One : default,
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+            OperatorType.Modulo => left.Real % right.Real,
+            OperatorType.Power => Complex.Pow(left, right),
             _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
         };
 
