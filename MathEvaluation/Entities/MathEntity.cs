@@ -13,7 +13,8 @@ public abstract class MathEntity : IMathEntity
     /// <summary>
     /// The not complex error message.
     /// </summary>
-    protected static string NotComplexErrorMessage = "Evaluation the imaginary component of a complex number only supports functions designed for complex numbers. Please use a context configured for complex number operations.";
+    protected static string NotComplexErrorMessage = "Evaluation the imaginary component of a complex number only supports functions designed for complex numbers. " +
+        "Please use a context configured for complex number operations.";
 
     /// <inheritdoc/>
     public string Key { get; }

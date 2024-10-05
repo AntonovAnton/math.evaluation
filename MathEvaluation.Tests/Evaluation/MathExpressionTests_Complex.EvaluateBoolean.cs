@@ -140,4 +140,22 @@ public partial class MathExpressionTests_Complex
 
         Assert.Equal(expectedValue, value != Complex.Zero);
     }
+
+    [Theory]
+    [InlineData("if(3 % a = 1, true, false)", 2d, true)]
+    [InlineData("if(3 % a = 1, true, false)", 1d, false)]
+    public void MathExpression_EvaluateComplex_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var context = new ProgrammingMathContext();
+        context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
+
+        var parameters = new MathParameters();
+        parameters.BindVariable(a);
+
+        var value = expression.EvaluateComplex(parameters, context);
+
+        Assert.Equal(expectedValue, value == Complex.One);
+    }
 }

@@ -52,7 +52,8 @@ public partial class MathExpression
                 return value;
             }
 
-            if (span[i] is >= '0' and <= '9' or 'i' || span[i] == _decimalSeparator) //number
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
+                (span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1])))) //number
             {
                 if (isOperand)
                     return EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
