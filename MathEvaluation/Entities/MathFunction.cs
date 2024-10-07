@@ -192,9 +192,9 @@ public class MathFunction<T> : MathEntity
         Expression right = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args));
         mathExpression.OnEvaluating(tokenPosition, i, right);
 
-        right = right.Type != typeof(TResult) ? Expression.Convert(right, typeof(TResult)) : right;
+        right = BuildConvert<TResult>(right);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        var expression = MathExpression.BuildMultipyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
             mathExpression.OnEvaluating(start, i, expression);

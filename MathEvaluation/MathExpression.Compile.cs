@@ -3,6 +3,7 @@ using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation;
 
@@ -35,18 +36,25 @@ public partial class MathExpression
             if (separator.HasValue && IsParamSeparator(separator.Value, start, i) ||
                 closingSymbol.HasValue && span[i] == closingSymbol.Value)
             {
-                if (expression.IsZero())
+                if (expression.IsDefault())
                     MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
                 return expression;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator) //number
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
+                typeof(TResult) == typeof(Complex) &&
+                span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1]))) //number
             {
                 if (isOperand)
                     return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                expression = Expression.Constant(span.ParseNumber<TResult>(_numberFormat, ref i));
+                var tokenPosition = i;
+                var value = span.ParseNumber<TResult>(_numberFormat, ref i);
+                expression = Expression.Constant(value);
+
+                if (value is Complex c && c.Imaginary != default)
+                    OnEvaluating(tokenPosition, i, expression);
                 continue;
             }
 
@@ -64,7 +72,7 @@ public partial class MathExpression
                         return right;
 
                     right = BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-                    expression = expression.IsZero() ? right : Expression.Multiply(expression, right).Reduce();
+                    expression = BuildMultipyIfLeftNotDefault<TResult>(expression, right);
 
                     if (expression != right)
                         OnEvaluating(start, i, expression);
@@ -142,10 +150,22 @@ public partial class MathExpression
             }
         }
 
-        if (expression.IsZero())
+        if (expression.IsDefault())
             MathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
 
         return expression.Reduce();
+    }
+
+    internal static Expression BuildMultipyIfLeftNotDefault<TResult>(Expression left, Expression right)
+    {
+        if (left.IsDefault())
+            return right;
+
+        if (left is ConstantExpression)
+            return Expression.Multiply(left, right).Reduce();
+
+        var equalToDefaultExpr = Expression.Equal(left, Expression.Default(left.Type)).Reduce();
+        return Expression.Condition(equalToDefaultExpr, right, Expression.Multiply(left, right).Reduce());
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
@@ -153,7 +173,7 @@ public partial class MathExpression
     {
         var start = i;
         var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        if (expression.IsZero())
+        if (expression.IsDefault())
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;

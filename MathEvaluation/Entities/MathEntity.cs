@@ -1,5 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Numerics;
 
@@ -43,19 +42,27 @@ public abstract class MathEntity : IMathEntity
     public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct;
 
+    /// <summary> Converts to string. </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+        => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
+
     /// <inheritdoc cref="Convert.ChangeType(object, Type)"/>
     protected static object ChangeType<T>(T value, Type conversionType)
-        where T : struct
     {
-        if (conversionType == typeof(Complex) && typeof(T).IsConvertibleToDouble())
+        if (conversionType == typeof(Complex))
             return new Complex(Convert.ToDouble(value), 0d);
 
-        if (value is Complex c && conversionType.IsConvertibleToDouble())
+        if (value is Complex c)
         {
             if (c.Imaginary != default)
                 throw new NotSupportedException(NotComplexErrorMessage);
 
-            return c.Real;
+            return conversionType == typeof(double)
+                ? c.Real
+                : Convert.ChangeType(c.Real, conversionType);
         }
 
         return Convert.ChangeType(value, conversionType);
@@ -101,10 +108,52 @@ public abstract class MathEntity : IMathEntity
         return Convert.ToDecimal(value);
     }
 
-    /// <summary> Converts to string. </summary>
-    /// <returns>
-    /// A <see cref="System.String" /> that represents this instance.
-    /// </returns>
-    public override string ToString()
-        => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
+    /// <summary>
+    /// Builds the convertion operation.
+    /// </summary>
+    /// <typeparam name="TResult">A <see cref="System.Type"/> to set the System.Linq.Expressions.Expression.Type property equal to.</typeparam>
+    /// <param name="expression">The expression tree.</param>
+    /// <returns></returns>
+    protected static Expression BuildConvert<TResult>(Expression expression)
+    {
+        if (expression.Type == typeof(TResult))
+            return expression;
+
+        if (expression is ConstantExpression c)
+            return Expression.Constant(ChangeType(c.Value, typeof(TResult)));
+
+        if (typeof(TResult) == typeof(Complex))
+        {
+            //convert to Complex
+            var real = BuildConvert<double>(expression);
+            var imaginary = Expression.Constant(0.0);
+            return Expression.New(typeof(Complex).GetConstructor([typeof(double), typeof(double)]), real, imaginary);
+        }
+
+        if (typeof(TResult) == typeof(bool))
+        {
+            //if it is default then false overwise true
+            return Expression.NotEqual(expression, Expression.Default(expression.Type)).Reduce();
+        }
+
+        if (expression.Type == typeof(Complex))
+        {
+            //if Imaginary is default use Real, overwise throw exception
+            var real = Expression.Property(expression, nameof(Complex.Real));
+            var imaginary = Expression.Property(expression, nameof(Complex.Imaginary));
+
+            var constructorInfo = typeof(NotSupportedException).GetConstructor([typeof(string)]);
+            var exceptionExpr = Expression.Throw(Expression.New(constructorInfo, Expression.Constant(NotComplexErrorMessage)), typeof(double));
+
+            expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(typeof(double))), real, exceptionExpr);
+        }
+
+        if (expression.Type == typeof(bool))
+            expression = Expression.Condition(expression, Expression.Constant(1.0), Expression.Constant(0.0));
+
+        if (expression.Type == typeof(TResult))
+            return expression;
+
+        return Expression.Convert(expression, typeof(TResult)).Reduce();
+    }
 }

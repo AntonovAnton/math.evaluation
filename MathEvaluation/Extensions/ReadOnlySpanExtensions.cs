@@ -117,6 +117,12 @@ internal static class ReadOnlySpanExtensions
     internal static TResult ParseNumber<TResult>(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
         where TResult : struct
     {
+        if (typeof(TResult) == typeof(Complex))
+        {
+            var value = ParseComplexNumber(str, numberFormat, ref i);
+            return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
+        }
+
         var numberStr = str.GetNumberString(numberFormat, ref i);
         if (typeof(TResult) == typeof(decimal))
         {

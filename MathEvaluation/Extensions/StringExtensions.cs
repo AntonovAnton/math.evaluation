@@ -102,6 +102,18 @@ public static class StringExtensions
     public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
 
+    /// <inheritdoc cref="MathExpression.CompileComplex()"/>
+    public static Func<Complex> CompileComplex(this string mathString, IMathContext context)
+        => new MathExpression(mathString, context).CompileComplex();
+
+    /// <inheritdoc cref="MathExpression.CompileComplex()"/>
+    public static Func<Complex> CompileComplex(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileComplex();
+
+    /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)"/>
+    public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileComplex(parameters);
+
     #region internal static Methods
 
     /// <summary>Throws the exception if missing opening symbol.</summary>

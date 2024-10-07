@@ -1,6 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Numerics;
 
 namespace MathEvaluation.Entities;
@@ -24,10 +22,10 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
+
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
+
         var result = ConvertToDouble(Value);
-
-        mathExpression.OnEvaluating(tokenPosition, i, result);
-
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
@@ -41,9 +39,9 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = ConvertToDecimal(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
 
+        var result = ConvertToDecimal(Value);
         result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
@@ -57,9 +55,9 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = Value is Complex v ? v : ConvertToDouble(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
 
+        var result = Value is Complex v ? v : ConvertToDouble(Value);
         result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
@@ -76,9 +74,9 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
         Expression right = Expression.Constant(Value);
         mathExpression.OnEvaluating(tokenPosition, i, right);
 
-        right = Value is not TResult ? Expression.Convert(right, typeof(TResult)) : right;
+        right = BuildConvert<TResult>(right);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        var expression = MathExpression.BuildMultipyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
             mathExpression.OnEvaluating(start, i, expression);

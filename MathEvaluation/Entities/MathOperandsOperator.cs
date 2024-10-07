@@ -97,15 +97,15 @@ public class MathOperandsOperator<T> : MathEntity
     {
         i += Key.Length;
 
-        left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
-
+        left = BuildConvert<T>(left);
         var right = mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
         right = mathExpression.BuildExponentiation<T>(start, ref i, separator, closingSymbol, right);
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
-        result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
 
         mathExpression.OnEvaluating(start, i, result);
+
+        result = BuildConvert<TResult>(result);
         return result;
     }
 }

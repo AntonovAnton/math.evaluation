@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathEvaluation.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -239,64 +240,46 @@ public class MathCompatibleOperator : MathEntity
     {
         if (ExpressionType is ExpressionType.AndAlso or ExpressionType.OrElse)
         {
-            left = ConvertToBoolean<TResult>(left);
-            right = ConvertToBoolean<TResult>(right);
+            left = BuildConvert<bool>(left);
+            right = BuildConvert<bool>(right);
         }
 
         if (ExpressionType is ExpressionType.And or ExpressionType.Or or ExpressionType.ExclusiveOr)
         {
-            left = ConvertToLong(left);
-            right = ConvertToLong(right);
+            left = BuildConvert<long>(left);
+            right = BuildConvert<long>(right);
         }
 
         if (ExpressionType is ExpressionType.Not)
         {
             right = OperatorType is OperatorType.BitwiseNegation
-                ? ConvertToLong(right)
-                : ConvertToBoolean<TResult>(right);
+                ? BuildConvert<long>(right)
+                : BuildConvert<bool>(right);
         }
 
         if (ExpressionType is ExpressionType.Power)
         {
-            left = ConvertToDouble(left);
-            right = ConvertToDouble(right);
+            if (typeof(TResult) == typeof(Complex))
+            {
+                left = BuildConvert<Complex>(left);
+                right = BuildConvert<Complex>(right);
+                return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [left.Type, right.Type]), left, right);
+            }
+
+            left = BuildConvert<double>(left);
+            right = BuildConvert<double>(right);
+        }
+
+        if (ExpressionType is ExpressionType.Modulo && typeof(TResult) == typeof(Complex))
+        {
+            left = BuildConvert<double>(left);
+            right = BuildConvert<double>(right);
         }
 
         var expression = ExpressionType is ExpressionType.Not
             ? Expression.MakeUnary(ExpressionType, right, null).Reduce()
             : Expression.MakeBinary(ExpressionType, left, right).Reduce();
 
-        if (typeof(TResult) == expression.Type)
-            return expression;
-
-        return typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool)
-            ? Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m))
-            : Expression.Convert(expression, typeof(TResult)).Reduce();
-    }
-
-    private static Expression ConvertToBoolean<TResult>(Expression expression)
-    {
-        if (expression.Type != typeof(bool))
-            expression = Expression.NotEqual(expression, typeof(TResult) == typeof(decimal)
-                ? Expression.Constant(0.0m)
-                : Expression.Constant(0.0));
-
-        return expression;
-    }
-
-    private static Expression ConvertToLong(Expression expression)
-    {
-        if (expression.Type != typeof(bool))
-            expression = Expression.Convert(expression, typeof(long));
-
-        return expression;
-    }
-
-    private static Expression ConvertToDouble(Expression expression)
-    {
-        if (expression.Type != typeof(double))
-            expression = Expression.Convert(expression, typeof(double));
-
-        return expression;
+        return BuildConvert<TResult>(expression);
     }
 }

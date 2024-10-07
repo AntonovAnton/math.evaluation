@@ -134,7 +134,7 @@ public class MathOperandOperator<T> : MathEntity
         Expression result;
         if (IsProcessingLeft)
         {
-            left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
+            left = BuildConvert<T>(left);
             result = Expression.Invoke(Expression.Constant(Fn), left);
         }
         else
@@ -146,7 +146,7 @@ public class MathOperandOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
+        result = BuildConvert<TResult>(result);
         return mathExpression.BuildExponentiation<TResult>(start, ref i, separator, closingSymbol, result);
     }
 }

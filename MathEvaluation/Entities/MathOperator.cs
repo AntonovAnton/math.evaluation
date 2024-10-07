@@ -93,13 +93,14 @@ public class MathOperator<T> : MathEntity
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;
-        left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
-        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
 
+        left = BuildConvert<T>(left);
+        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
-        result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
 
         mathExpression.OnEvaluating(start, i, result);
+
+        result = BuildConvert<TResult>(result);
         return result;
     }
 }

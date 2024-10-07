@@ -53,7 +53,7 @@ public partial class MathExpression
             }
 
             if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
-                (span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1])))) //number
+                span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1]))) //number
             {
                 if (isOperand)
                     return EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);

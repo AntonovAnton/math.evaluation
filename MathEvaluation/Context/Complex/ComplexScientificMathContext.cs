@@ -44,21 +44,21 @@ public class ComplexScientificMathContext : ScientificMathContext
 
         #region boolean logic
 
-        static Complex equalToFn(Complex left, Complex right) => left == right ? 1.0 : default;
+        static Complex equalToFn(Complex left, Complex right) => left == right ? Complex.One : default;
         BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
-        static Complex notEqualToFn(Complex left, Complex right) => left != right ? 1.0 : default;
+        static Complex notEqualToFn(Complex left, Complex right) => left != right ? Complex.One : default;
         BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
         BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
-        static Complex implicationFn(Complex left, Complex right) => left == default || right != default ? 1.0 : default;
+        static Complex implicationFn(Complex left, Complex right) => left == default || right != default ? Complex.One : default;
         BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
         BindOperator(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
 
-        static Complex reverseImplicationFn(Complex left, Complex right) => left != default || right == default ? 1.0 : default;
+        static Complex reverseImplicationFn(Complex left, Complex right) => left != default || right == default ? Complex.One : default;
         BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
         BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 

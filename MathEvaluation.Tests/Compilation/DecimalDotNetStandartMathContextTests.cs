@@ -472,7 +472,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _context).CompileDecimal()());
-        Assert.IsType<OverflowException>(ex);
+        Assert.IsType<OverflowException>(ex.InnerException ?? ex);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
