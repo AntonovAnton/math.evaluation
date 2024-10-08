@@ -169,10 +169,10 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("2/3**4", 2 / 81d)]
     [InlineData("0.5**2*3", 0.75d)]
     [InlineData("-3**4", -81)]
-    [InlineData("(-3)**0.5", double.NaN)]
+    [InlineData("(-3)**0.5", 1.0605752387249068E-16, -1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileComplexThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
         using var expression = new MathExpression(mathString, _programmingContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -182,7 +182,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -193,10 +193,10 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("-3^4", -81d)]
     [InlineData("2^3pi", 687.29133511454552d)]
     [InlineData("-3^4sin(-PI/2)", 81d)]
-    [InlineData("(-3)^0.5", double.NaN)]
+    [InlineData("(-3)^0.5", 1.0605752387249068E-16, -1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void MathExpression_CompileComplexThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -206,7 +206,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -325,7 +325,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [Theory]
     [InlineData("\u221a25", 5d)]
     [InlineData("√0", 0d)]
-    [InlineData("√-25", double.NaN)]
+    [InlineData("√-25", 0, 5)]
     [InlineData("√(9*9)", 9d)]
     [InlineData("√9√9", 9d)]
     [InlineData("√9(1 + 2)", 9d)]
@@ -333,14 +333,14 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("√1", 1d)]
     [InlineData("1/√9", 1 / 3d)]
     [InlineData("∛8", 2)]
-    [InlineData("∛-8", double.NaN)]
+    [InlineData("∛-8", 1.0000000000000002, -1.7320508075688772)]
     [InlineData("∛8∛8", 4d)]
     [InlineData("√9∛8", 6d)]
     [InlineData("∜16", 2d)]
-    [InlineData("∜-16", double.NaN)]
+    [InlineData("∜-16", 1.4142135623730951, -1.4142135623730951)]
     [InlineData("∜16∜16", 4d)]
     [InlineData("1/√9^2", 1 / 9d)]
-    public void MathExpression_CompileComplexThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -350,16 +350,16 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
     [InlineData("log(0)", double.NegativeInfinity)]
     [InlineData("Log(1)", 0d)]
-    [InlineData("LOG(10)", 1d)]
-    [InlineData("LOG(e)", 0.43429448190325182d)]
-    [InlineData("log100", 2d)]
-    [InlineData("log(-100)", double.NaN)]
+    [InlineData("LOG(10)", 0.9999999999999959, 0)]
+    [InlineData("LOG(e)", 0.43429448190325d)]
+    [InlineData("log100", 1.9999999999999918)]
+    [InlineData("log(-100)", 1.9999999999999918, -1.3643763538418354)]
     [InlineData("log(∞)", double.PositiveInfinity)]
     [InlineData("ln(0)", double.NegativeInfinity)]
     [InlineData("Ln(1)", 0d)]
@@ -367,10 +367,10 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("LN(10)^2", 2.3025850929940459d * 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
-    [InlineData("ln-100", double.NaN)]
+    [InlineData("ln-100", 4.605170185988092, -3.141592653589793)]
     [InlineData("ln(∞)", double.PositiveInfinity)]
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
-    public void MathExpression_CompileComplexThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -380,7 +380,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
