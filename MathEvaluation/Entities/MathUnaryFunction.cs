@@ -133,7 +133,7 @@ public class MathUnaryFunction<T> : MathEntity
         dResult = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, dResult);
         value = value == default ? dResult : value * dResult;
 
-        if (value != dResult && !double.IsNaN(value.Real))
+        if (value != dResult && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;

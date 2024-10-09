@@ -65,7 +65,7 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
         result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
-        if (value != result && !double.IsNaN(value.Real))
+        if (value != result && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;

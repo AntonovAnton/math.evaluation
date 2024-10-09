@@ -155,7 +155,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3^4^2", 81d * 81 * 81 * 81)]
     [InlineData("0.5^2*3", 0.75d)]
     [InlineData("-3^4", -81d)]
-    [InlineData("2^3pi", 687.29133511454552d)]
+    [InlineData("2^3pi", 687.291335114541d)]
     [InlineData("-3^4sin(-PI/2)", 81d)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]

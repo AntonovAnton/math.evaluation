@@ -10,7 +10,7 @@ namespace MathEvaluation.Context;
 /// The scientific math context for <see cref="Complex">complex</see> numbers supports all trigonometric functions, logarithms, other scientific math functions, and constants. 
 /// For a complete list of features and supported functions, please refer to the documentation at <see href="https://github.com/AntonovAnton/math.evaluation"/>.
 /// </summary>
-/// <seealso cref="MathEvaluation.Context.ScientificMathContext" />
+/// <seealso cref="MathEvaluation.Context.MathContext" />
 public class ComplexScientificMathContext : ScientificMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>

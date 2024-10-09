@@ -58,7 +58,7 @@ public abstract class MathEntity : IMathEntity
         if (value is Complex c)
         {
             if (c.Imaginary != default)
-                throw new NotSupportedException(NotComplexErrorMessage);
+                throw new InvalidCastException($"Cannot convert the Complex number to a {conversionType.Name}, value = {value}.");
 
             return conversionType == typeof(double)
                 ? c.Real
@@ -80,7 +80,7 @@ public abstract class MathEntity : IMathEntity
         if (value is Complex c)
         {
             if (c.Imaginary != default)
-                throw new NotSupportedException(NotComplexErrorMessage);
+                throw new InvalidCastException($"Cannot convert the Complex number to a Double, value = {value}.");
 
             return c.Real;
         }
@@ -100,7 +100,7 @@ public abstract class MathEntity : IMathEntity
         if (value is Complex c)
         {
             if (c.Imaginary != default)
-                throw new NotSupportedException(NotComplexErrorMessage);
+                throw new InvalidCastException($"Cannot convert the Complex number to a Decimal, value = {value}.");
 
             return (decimal)c.Real;
         }
@@ -142,8 +142,9 @@ public abstract class MathEntity : IMathEntity
             var real = Expression.Property(expression, nameof(Complex.Real));
             var imaginary = Expression.Property(expression, nameof(Complex.Imaginary));
 
-            var constructorInfo = typeof(NotSupportedException).GetConstructor([typeof(string)]);
-            var exceptionExpr = Expression.Throw(Expression.New(constructorInfo, Expression.Constant(NotComplexErrorMessage)), typeof(double));
+            var constructorInfo = typeof(InvalidCastException).GetConstructor([typeof(string)]);
+            const string message = "Cannot convert a Complex number to a Double.";
+            var exceptionExpr = Expression.Throw(Expression.New(constructorInfo, Expression.Constant(message)), typeof(double));
 
             expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(typeof(double))), real, exceptionExpr);
         }

@@ -82,7 +82,7 @@ public partial class MathExpression
                     result = EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
 
-                    if (value != result && !double.IsNaN(value.Real))
+                    if (value != result && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
                         OnEvaluating(start, i, value);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
