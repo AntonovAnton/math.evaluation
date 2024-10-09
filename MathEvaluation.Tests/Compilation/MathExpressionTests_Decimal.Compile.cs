@@ -29,9 +29,10 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine("0/0");
 
         var ex = Record.Exception(() => new MathExpression("0/0").CompileDecimal()());
-        Assert.IsType<DivideByZeroException>(ex);
+        Assert.IsType<MathExpressionException>(ex);
+        Assert.IsType<DivideByZeroException>(ex.InnerException);
 
-        Assert.Equal("Attempted to divide by zero.", ex.Message);
+        Assert.Equal("Error of evaluating the expression. Attempted to divide by zero.", ex.Message);
     }
 
     [Theory]
@@ -526,8 +527,8 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable. Invalid token at position 0.")]
+    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
     public void MathExpression_CompileDecimalThenInvoke_HasUnknowToken_ThrowMathEvaluationException(string mathString,
         string errorMessage)
     {

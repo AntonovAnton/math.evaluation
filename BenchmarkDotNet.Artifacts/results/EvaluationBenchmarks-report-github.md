@@ -9,25 +9,25 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4249/23H2/2023Update/SunValley3
 
 
 ```
-| Method                                                                       | Job      | Runtime  | Mean       | Error     | StdDev    | Median     | Gen0   | Allocated |
-|----------------------------------------------------------------------------- |--------- |--------- |-----------:|----------:|----------:|-----------:|-------:|----------:|
-| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 6.0 | .NET 6.0 |   652.8 ns |   3.93 ns |   3.67 ns |   652.9 ns | 0.0067 |      88 B |
-| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;         | .NET 6.0 | .NET 6.0 | 8,650.6 ns |  56.31 ns |  49.92 ns | 8,642.5 ns | 0.3967 |    5160 B |
-| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 6.0 | .NET 6.0 |   444.3 ns |   1.42 ns |   1.19 ns |   444.5 ns | 0.0067 |      88 B |
-| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                             | .NET 6.0 | .NET 6.0 | 6,944.4 ns |  33.56 ns |  29.75 ns | 6,947.8 ns | 0.2899 |    3688 B |
-| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 6.0 | .NET 6.0 |   478.0 ns |   5.77 ns |   5.39 ns |   478.0 ns | 0.0563 |     712 B |
-| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                   | .NET 6.0 | .NET 6.0 | 5,895.3 ns | 117.72 ns | 161.14 ns | 5,871.4 ns | 0.1984 |    2496 B |
-| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 6.0 | .NET 6.0 |   614.1 ns |   5.72 ns |   5.35 ns |   612.6 ns | 0.0687 |     872 B |
-| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                           | .NET 6.0 | .NET 6.0 | 6,307.1 ns |  27.26 ns |  22.76 ns | 6,311.6 ns | 0.1678 |    2168 B |
-| &#39;MathEvaluator: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                 | .NET 6.0 | .NET 6.0 |   975.8 ns |   4.46 ns |   3.96 ns |   975.6 ns | 0.0687 |     872 B |
-| &#39;NCalc: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                         | .NET 6.0 | .NET 6.0 | 8,282.8 ns |  30.51 ns |  28.54 ns | 8,283.8 ns | 0.3967 |    5104 B |
-| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 8.0 | .NET 8.0 |   598.1 ns |   2.43 ns |   2.15 ns |   597.4 ns | 0.0067 |      88 B |
-| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;         | .NET 8.0 | .NET 8.0 | 6,598.9 ns |  42.96 ns |  40.19 ns | 6,588.8 ns | 0.3510 |    4472 B |
-| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 8.0 | .NET 8.0 |   347.7 ns |   1.67 ns |   1.56 ns |   347.8 ns | 0.0067 |      88 B |
-| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                             | .NET 8.0 | .NET 8.0 | 5,473.5 ns |  36.21 ns |  33.87 ns | 5,464.5 ns | 0.2823 |    3592 B |
-| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 8.0 | .NET 8.0 |   343.1 ns |   5.07 ns |   4.74 ns |   342.1 ns | 0.0567 |     712 B |
-| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                   | .NET 8.0 | .NET 8.0 | 4,572.6 ns |  16.68 ns |  14.79 ns | 4,574.3 ns | 0.1984 |    2496 B |
-| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 8.0 | .NET 8.0 |   462.1 ns |   8.66 ns |  10.31 ns |   461.1 ns | 0.0691 |     872 B |
-| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                           | .NET 8.0 | .NET 8.0 | 5,180.7 ns |  80.58 ns |  75.38 ns | 5,143.7 ns | 0.1678 |    2168 B |
-| &#39;MathEvaluator: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                 | .NET 8.0 | .NET 8.0 |   808.3 ns |  15.99 ns |  39.23 ns |   792.3 ns | 0.0687 |     872 B |
-| &#39;NCalc: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                         | .NET 8.0 | .NET 8.0 | 6,661.8 ns |  91.56 ns |  71.49 ns | 6,668.1 ns | 0.3738 |    4704 B |
+| Method                                                                       | Job      | Runtime  | Mean       | Error    | StdDev    | Median     | Gen0   | Allocated |
+|----------------------------------------------------------------------------- |--------- |--------- |-----------:|---------:|----------:|-----------:|-------:|----------:|
+| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 6.0 | .NET 6.0 |   674.1 ns |  2.21 ns |   1.84 ns |   673.7 ns | 0.0067 |      88 B |
+| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;         | .NET 6.0 | .NET 6.0 | 8,721.4 ns | 41.61 ns |  38.92 ns | 8,722.3 ns | 0.3967 |    5160 B |
+| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 6.0 | .NET 6.0 |   440.2 ns |  1.16 ns |   1.03 ns |   439.8 ns | 0.0067 |      88 B |
+| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                             | .NET 6.0 | .NET 6.0 | 6,857.0 ns | 34.87 ns |  30.91 ns | 6,856.3 ns | 0.2899 |    3688 B |
+| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 6.0 | .NET 6.0 |   464.2 ns |  2.01 ns |   1.78 ns |   463.8 ns | 0.0553 |     696 B |
+| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                   | .NET 6.0 | .NET 6.0 | 5,718.6 ns | 65.98 ns |  58.49 ns | 5,701.9 ns | 0.1984 |    2496 B |
+| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 6.0 | .NET 6.0 |   601.5 ns |  2.96 ns |   2.63 ns |   600.4 ns | 0.0668 |     848 B |
+| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                           | .NET 6.0 | .NET 6.0 | 6,164.9 ns | 37.58 ns |  35.15 ns | 6,159.9 ns | 0.1678 |    2168 B |
+| &#39;MathEvaluator: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                 | .NET 6.0 | .NET 6.0 | 1,008.2 ns |  8.73 ns |   8.17 ns | 1,004.9 ns | 0.0668 |     848 B |
+| &#39;NCalc: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                         | .NET 6.0 | .NET 6.0 | 8,506.2 ns | 75.43 ns |  70.56 ns | 8,511.5 ns | 0.3967 |    5104 B |
+| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 8.0 | .NET 8.0 |   597.2 ns |  6.65 ns |   6.22 ns |   596.9 ns | 0.0067 |      88 B |
+| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;         | .NET 8.0 | .NET 8.0 | 6,689.5 ns | 75.87 ns |  70.97 ns | 6,659.2 ns | 0.3510 |    4472 B |
+| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 8.0 | .NET 8.0 |   343.5 ns |  1.42 ns |   1.26 ns |   343.4 ns | 0.0067 |      88 B |
+| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                             | .NET 8.0 | .NET 8.0 | 5,442.0 ns | 20.57 ns |  16.06 ns | 5,444.9 ns | 0.2823 |    3592 B |
+| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 8.0 | .NET 8.0 |   337.2 ns |  2.01 ns |   1.88 ns |   337.4 ns | 0.0553 |     696 B |
+| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                   | .NET 8.0 | .NET 8.0 | 4,642.0 ns | 92.34 ns | 161.72 ns | 4,559.0 ns | 0.1984 |    2496 B |
+| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 8.0 | .NET 8.0 |   425.7 ns |  1.91 ns |   1.70 ns |   425.0 ns | 0.0672 |     848 B |
+| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                           | .NET 8.0 | .NET 8.0 | 4,956.1 ns | 16.12 ns |  13.46 ns | 4,957.0 ns | 0.1678 |    2168 B |
+| &#39;MathEvaluator: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                 | .NET 8.0 | .NET 8.0 |   732.6 ns |  4.09 ns |   3.62 ns |   732.1 ns | 0.0668 |     848 B |
+| &#39;NCalc: &quot;A != B &amp;&amp; !C ^ -2.9 &gt;= -12.9 + 0.1 / 0.01&quot;&#39;                         | .NET 8.0 | .NET 8.0 | 6,115.6 ns | 24.51 ns |  22.92 ns | 6,111.2 ns | 0.3738 |    4704 B |

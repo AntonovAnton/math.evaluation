@@ -148,11 +148,11 @@ public abstract class MathEntity : IMathEntity
             expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(typeof(double))), real, exceptionExpr);
         }
 
-        if (expression.Type == typeof(bool))
-            expression = Expression.Condition(expression, Expression.Constant(1.0), Expression.Constant(0.0));
-
         if (expression.Type == typeof(TResult))
             return expression;
+
+        if (typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool))
+            return Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m));
 
         return Expression.Convert(expression, typeof(TResult)).Reduce();
     }

@@ -1,5 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -81,32 +80,7 @@ public class MathCompatibleOperator : MathEntity
             right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
         }
 
-        var value = OperatorType switch
-        {
-            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0 : default,
-            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0 : default,
-            OperatorType.LogicalOr => left != default || right != default ? 1.0 : default,
-            OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => left != default ^ right != default ? 1.0 : default,
-            OperatorType.BitwiseXor => (long)left ^ (long)right,
-            OperatorType.LogicalAnd => left != default && right != default ? 1.0 : default,
-            OperatorType.BitwiseAnd => (long)left & (long)right,
-            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0 : default,
-            OperatorType.BitwiseNegation => ~(long)right,
-            OperatorType.Equal => left == right ? 1.0 : default,
-            OperatorType.NotEqual => left != right ? 1.0 : default,
-            OperatorType.LessThan => left < right ? 1.0 : default,
-            OperatorType.LessThanOrEqual => left <= right ? 1.0 : default,
-            OperatorType.GreaterThan => left > right ? 1.0 : default,
-            OperatorType.GreaterThanOrEqual => left >= right ? 1.0 : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo => left % right,
-            OperatorType.Power => Math.Pow(left, right),
-            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
-        };
+        var value = Calculate(OperatorType, left, right);
 
         mathExpression.OnEvaluating(start, i, value);
         return value;
@@ -131,32 +105,7 @@ public class MathCompatibleOperator : MathEntity
             right = mathExpression.EvaluateExponentiationDecimal(startExponentiation, ref i, separator, closingSymbol, right);
         }
 
-        var value = OperatorType switch
-        {
-            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0m : default,
-            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0m : default,
-            OperatorType.LogicalOr => left != default || right != default ? 1.0m : default,
-            OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => left != default ^ right != default ? 1.0m : default,
-            OperatorType.BitwiseXor => (long)left ^ (long)right,
-            OperatorType.LogicalAnd => left != default && right != default ? 1.0m : default,
-            OperatorType.BitwiseAnd => (long)left & (long)right,
-            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0m : default,
-            OperatorType.BitwiseNegation => ~(long)right,
-            OperatorType.Equal => left == right ? 1.0m : default,
-            OperatorType.NotEqual => left != right ? 1.0m : default,
-            OperatorType.LessThan => left < right ? 1.0m : default,
-            OperatorType.LessThanOrEqual => left <= right ? 1.0m : default,
-            OperatorType.GreaterThan => left > right ? 1.0m : default,
-            OperatorType.GreaterThanOrEqual => left >= right ? 1.0m : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo => left % right,
-            OperatorType.Power => (decimal)Math.Pow((double)left, (double)right),
-            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
-        };
+        var value = Calculate(OperatorType, left, right);
 
         mathExpression.OnEvaluating(start, i, value);
         return value;
@@ -181,32 +130,7 @@ public class MathCompatibleOperator : MathEntity
             right = mathExpression.EvaluateExponentiationComplex(startExponentiation, ref i, separator, closingSymbol, right);
         }
 
-        var value = OperatorType switch
-        {
-            OperatorType.LogicalConditionalOr => left != default || right != default ? Complex.One : default,
-            OperatorType.LogicalConditionalAnd => left != default && right != default ? Complex.One : default,
-            OperatorType.LogicalOr => left != default || right != default ? Complex.One : default,
-            OperatorType.BitwiseOr => (long)left.Real | (long)right.Real,
-            OperatorType.LogicalXor => left != default ^ right != default ? Complex.One : default,
-            OperatorType.BitwiseXor => (long)left.Real ^ (long)right.Real,
-            OperatorType.LogicalAnd => left != default && right != default ? Complex.One : default,
-            OperatorType.BitwiseAnd => (long)left.Real & (long)right.Real,
-            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? Complex.One : default,
-            OperatorType.BitwiseNegation => ~(long)right.Real,
-            OperatorType.Equal => left == right ? Complex.One : default,
-            OperatorType.NotEqual => left != right ? Complex.One : default,
-            OperatorType.LessThan => left.Real < right.Real ? Complex.One : default,
-            OperatorType.LessThanOrEqual => left.Real <= right.Real ? Complex.One : default,
-            OperatorType.GreaterThan => left.Real > right.Real ? Complex.One : default,
-            OperatorType.GreaterThanOrEqual => left.Real >= right.Real ? Complex.One : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo => left.Real % right.Real,
-            OperatorType.Power => Complex.Pow(left, right),
-            _ => throw new MathExpressionException($"'{Key}' is not implemented.", tokenPosition)
-        };
+        var value = Calculate(OperatorType, left, right);
 
         mathExpression.OnEvaluating(start, i, value);
         return value;
@@ -231,33 +155,137 @@ public class MathCompatibleOperator : MathEntity
             right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, separator, closingSymbol, right);
         }
 
-        var expression = Build<TResult>(left, right);
+        var expression = Build<TResult>(OperatorType, left, right);
+
         mathExpression.OnEvaluating(start, i, expression);
         return expression;
     }
 
-    private Expression Build<TResult>(Expression left, Expression right)
+    internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
     {
-        if (ExpressionType is ExpressionType.AndAlso or ExpressionType.OrElse)
+        return left is ConstantExpression l && right is ConstantExpression r
+            ? BuildConstant<TResult>(type, l, r)
+            : BuildNotConstant<TResult>(type, left, right);
+    }
+
+    #region private static Methods
+
+    private static double Calculate(OperatorType type, double left, double right)
+    {
+        return type switch
+        {
+            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0 : default,
+            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0 : default,
+            OperatorType.LogicalOr => left != default || right != default ? 1.0 : default,
+            OperatorType.BitwiseOr => (long)left | (long)right,
+            OperatorType.LogicalXor => left != default ^ right != default ? 1.0 : default,
+            OperatorType.BitwiseXor => (long)left ^ (long)right,
+            OperatorType.LogicalAnd => left != default && right != default ? 1.0 : default,
+            OperatorType.BitwiseAnd => (long)left & (long)right,
+            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0 : default,
+            OperatorType.BitwiseNegation => ~(long)right,
+            OperatorType.Equal => left == right ? 1.0 : default,
+            OperatorType.NotEqual => left != right ? 1.0 : default,
+            OperatorType.LessThan => left < right ? 1.0 : default,
+            OperatorType.LessThanOrEqual => left <= right ? 1.0 : default,
+            OperatorType.GreaterThan => left > right ? 1.0 : default,
+            OperatorType.GreaterThanOrEqual => left >= right ? 1.0 : default,
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+            OperatorType.Modulo => left % right,
+            OperatorType.Power => Math.Pow(left, right),
+            OperatorType.Negate => -right,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static decimal Calculate(OperatorType type, decimal left, decimal right)
+    {
+        return type switch
+        {
+            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0m : default,
+            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0m : default,
+            OperatorType.LogicalOr => left != default || right != default ? 1.0m : default,
+            OperatorType.BitwiseOr => (long)left | (long)right,
+            OperatorType.LogicalXor => left != default ^ right != default ? 1.0m : default,
+            OperatorType.BitwiseXor => (long)left ^ (long)right,
+            OperatorType.LogicalAnd => left != default && right != default ? 1.0m : default,
+            OperatorType.BitwiseAnd => (long)left & (long)right,
+            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0m : default,
+            OperatorType.BitwiseNegation => ~(long)right,
+            OperatorType.Equal => left == right ? 1.0m : default,
+            OperatorType.NotEqual => left != right ? 1.0m : default,
+            OperatorType.LessThan => left < right ? 1.0m : default,
+            OperatorType.LessThanOrEqual => left <= right ? 1.0m : default,
+            OperatorType.GreaterThan => left > right ? 1.0m : default,
+            OperatorType.GreaterThanOrEqual => left >= right ? 1.0m : default,
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+            OperatorType.Modulo => left % right,
+            OperatorType.Power => (decimal)Math.Pow((double)left, (double)right),
+            OperatorType.Negate => -right,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static Complex Calculate(OperatorType type, Complex left, Complex right)
+    {
+        return type switch
+        {
+            OperatorType.LogicalConditionalOr => ConvertToBoolean(left) || ConvertToBoolean(right) ? Complex.One : default,
+            OperatorType.LogicalConditionalAnd => ConvertToBoolean(left) && ConvertToBoolean(right) ? Complex.One : default,
+            OperatorType.LogicalOr => ConvertToBoolean(left) || ConvertToBoolean(right) ? Complex.One : default,
+            OperatorType.BitwiseOr => (long)ConvertToDouble(left) | (long)ConvertToDouble(right),
+            OperatorType.LogicalXor => ConvertToBoolean(left) ^ ConvertToBoolean(right) ? Complex.One : default,
+            OperatorType.BitwiseXor => (long)ConvertToDouble(left) ^ (long)ConvertToDouble(right),
+            OperatorType.LogicalAnd => ConvertToBoolean(left) && ConvertToBoolean(right) ? Complex.One : default,
+            OperatorType.BitwiseAnd => (long)ConvertToDouble(left) & (long)ConvertToDouble(right),
+            OperatorType.LogicalNot or OperatorType.LogicalNegation => ConvertToBoolean(right) ? default : Complex.One,
+            OperatorType.BitwiseNegation => ~(long)ConvertToDouble(right),
+            OperatorType.Equal => left == right ? Complex.One : default,
+            OperatorType.NotEqual => left != right ? Complex.One : default,
+            OperatorType.LessThan => ConvertToDouble(left) < ConvertToDouble(right) ? Complex.One : default,
+            OperatorType.LessThanOrEqual => ConvertToDouble(left) <= ConvertToDouble(right) ? Complex.One : default,
+            OperatorType.GreaterThan => ConvertToDouble(left) > ConvertToDouble(right) ? Complex.One : default,
+            OperatorType.GreaterThanOrEqual => ConvertToDouble(left) >= ConvertToDouble(right) ? Complex.One : default,
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+            OperatorType.Modulo => ConvertToDouble(left) % ConvertToDouble(right),
+            OperatorType.Power => Complex.Pow(left, right),
+            OperatorType.Negate => -right,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static Expression BuildNotConstant<TResult>(OperatorType type, Expression left, Expression right)
+    {
+        if (type is OperatorType.LogicalConditionalAnd or OperatorType.LogicalAnd
+            or OperatorType.LogicalConditionalOr or OperatorType.LogicalOr)
         {
             left = BuildConvert<bool>(left);
             right = BuildConvert<bool>(right);
         }
 
-        if (ExpressionType is ExpressionType.And or ExpressionType.Or or ExpressionType.ExclusiveOr)
+        if (type is OperatorType.BitwiseAnd or OperatorType.BitwiseOr
+            or OperatorType.LogicalXor or OperatorType.BitwiseXor)
         {
             left = BuildConvert<long>(left);
             right = BuildConvert<long>(right);
         }
 
-        if (ExpressionType is ExpressionType.Not)
-        {
-            right = OperatorType is OperatorType.BitwiseNegation
-                ? BuildConvert<long>(right)
-                : BuildConvert<bool>(right);
-        }
+        if (type is OperatorType.LogicalNot or OperatorType.LogicalNegation)
+            right = BuildConvert<bool>(right);
 
-        if (ExpressionType is ExpressionType.Power)
+        if (type is OperatorType.BitwiseNegation)
+            right = BuildConvert<long>(right);
+
+        if (type is OperatorType.Power)
         {
             if (typeof(TResult) == typeof(Complex))
             {
@@ -270,16 +298,43 @@ public class MathCompatibleOperator : MathEntity
             right = BuildConvert<double>(right);
         }
 
-        if (ExpressionType is ExpressionType.Modulo && typeof(TResult) == typeof(Complex))
+        if (typeof(TResult) == typeof(Complex) &&
+            type is OperatorType.Modulo or OperatorType.LessThan or OperatorType.LessThanOrEqual or OperatorType.GreaterThan or OperatorType.GreaterThanOrEqual)
         {
             left = BuildConvert<double>(left);
             right = BuildConvert<double>(right);
         }
 
-        var expression = ExpressionType is ExpressionType.Not
-            ? Expression.MakeUnary(ExpressionType, right, null).Reduce()
-            : Expression.MakeBinary(ExpressionType, left, right).Reduce();
+        var expression = type is OperatorType.LogicalNot or OperatorType.LogicalNegation or OperatorType.BitwiseNegation or OperatorType.Negate
+            ? Expression.MakeUnary(ExpressionTypeByOperatorType[type], right, null).Reduce()
+            : Expression.MakeBinary(ExpressionTypeByOperatorType[type], left, right).Reduce();
 
         return BuildConvert<TResult>(expression);
     }
+
+    private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
+    {
+        object value;
+        if (left.Value is Complex lc)
+        {
+            var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
+            value = Calculate(type, lc, rc);
+        }
+        else if (left.Value is decimal ld)
+        {
+            var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
+            value = Calculate(type, ld, rd);
+        }
+        else
+        {
+            value = Calculate(type, ConvertToDouble(left.Value), ConvertToDouble(right.Value));
+        }
+
+        return BuildConvert<TResult>(Expression.Constant(value));
+    }
+
+    private static bool ConvertToBoolean<Complex>(Complex value)
+        => (bool)ChangeType(value, typeof(bool));
+
+    #endregion
 }

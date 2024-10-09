@@ -472,8 +472,8 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable. Invalid token at position 0.")]
+    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
     public void MathExpression_EvaluateDecimal_HasUnknowToken_ThrowMathEvaluationException(string expression,
         string errorMessage)
     {

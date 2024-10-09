@@ -273,7 +273,7 @@ public partial class MathExpression : IDisposable
         var end = span[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
         var unknownSubstring = end > i ? span[i..end] : span[i..];
 
-        return new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable.", i);
+        return new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable, maybe setting the appropriate MathContext could help.", i);
     }
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)

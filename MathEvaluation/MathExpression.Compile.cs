@@ -44,7 +44,7 @@ public partial class MathExpression
 
             if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
                 typeof(TResult) == typeof(Complex) &&
-                span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1]))) //number
+                span[i] == 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //number
             {
                 if (isOperand)
                     return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -84,7 +84,7 @@ public partial class MathExpression
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = Expression.Add(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Add, expression, right);
 
                     OnEvaluating(start, i, expression);
                     if (isOperand)
@@ -98,8 +98,9 @@ public partial class MathExpression
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = isMeaningless ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
-                    expression = expression.Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(isMeaningless
+                        ? OperatorType.Negate //it keeps sign
+                        : OperatorType.Subtract, expression, right);
 
                     OnEvaluating(start, i, expression);
                     if (isOperand)
@@ -111,7 +112,7 @@ public partial class MathExpression
 
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
-                    expression = Expression.Multiply(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, expression, right);
 
                     OnEvaluating(start, i, expression);
                     break;
@@ -121,7 +122,7 @@ public partial class MathExpression
 
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
-                    expression = Expression.Divide(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Divide, expression, right);
 
                     OnEvaluating(start, i, expression);
                     break;
@@ -162,7 +163,7 @@ public partial class MathExpression
             return right;
 
         if (left is ConstantExpression)
-            return Expression.Multiply(left, right).Reduce();
+            return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
 
         var equalToDefaultExpr = Expression.Equal(left, Expression.Default(left.Type)).Reduce();
         return Expression.Condition(equalToDefaultExpr, right, Expression.Multiply(left, right).Reduce());
