@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>CompoundingInterestBenchmarks-20241009-195055</title>
+<title>CompoundingInterestBenchmarks-20241011-022712</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,7 +13,7 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4249/23H2/2023Update/SunValley3)
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4317/23H2/2023Update/SunValley3)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
 .NET SDK 8.0.400
   [Host]   : .NET 6.0.33 (6.0.3324.36610), X64 RyuJIT AVX2
@@ -23,20 +23,20 @@ BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4249/23H2/2023Update/SunValley3
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method                         </th><th>Job</th><th>Runtime</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+<thead><tr><th>Method                         </th><th>Job</th><th>Runtime</th><th>Mean  </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;MathEvaluator evaluation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>1,123.15 ns</td><td>20.331 ns</td><td>18.023 ns</td><td>0.1144</td><td>-</td><td>1440 B</td>
-</tr><tr><td>&#39;NCalc evaluation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>8,567.93 ns</td><td>20.023 ns</td><td>18.730 ns</td><td>0.2899</td><td>-</td><td>3736 B</td>
-</tr><tr><td>&#39;MathEvaluator compilation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>75,224.48 ns</td><td>411.253 ns</td><td>364.565 ns</td><td>0.4883</td><td>0.2441</td><td>7548 B</td>
-</tr><tr><td>&#39;NCalc compilation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>90,576.45 ns</td><td>674.868 ns</td><td>631.272 ns</td><td>0.6104</td><td>0.2441</td><td>8542 B</td>
-</tr><tr><td>&#39;MathEvaluator invoke fn(P, r, n, d)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>25.64 ns</td><td>0.201 ns</td><td>0.179 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
-</tr><tr><td>&#39;NCalc invoke fn(P, r, n, d)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>25.45 ns</td><td>0.121 ns</td><td>0.101 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
-</tr><tr><td>&#39;MathEvaluator evaluation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>631.23 ns</td><td>3.150 ns</td><td>2.946 ns</td><td>0.1144</td><td>-</td><td>1440 B</td>
-</tr><tr><td>&#39;NCalc evaluation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>6,806.79 ns</td><td>27.848 ns</td><td>26.049 ns</td><td>0.2899</td><td>-</td><td>3688 B</td>
-</tr><tr><td>&#39;MathEvaluator compilation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>64,485.58 ns</td><td>368.758 ns</td><td>344.937 ns</td><td>0.4883</td><td>0.3662</td><td>7548 B</td>
-</tr><tr><td>&#39;NCalc compilation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>77,866.98 ns</td><td>524.961 ns</td><td>491.049 ns</td><td>0.4883</td><td>0.2441</td><td>8490 B</td>
-</tr><tr><td>&#39;MathEvaluator invoke fn(P, r, n, d)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>27.85 ns</td><td>0.577 ns</td><td>0.730 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
-</tr><tr><td>&#39;NCalc invoke fn(P, r, n, d)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>26.54 ns</td><td>0.241 ns</td><td>0.201 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
+</thead><tbody><tr><td>&#39;MathEvaluator evaluation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>1,130.55 ns</td><td>17.670 ns</td><td>16.529 ns</td><td>0.1144</td><td>-</td><td>1440 B</td>
+</tr><tr><td>&#39;NCalc evaluation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>8,487.97 ns</td><td>72.387 ns</td><td>64.169 ns</td><td>0.2899</td><td>-</td><td>3736 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>74,502.07 ns</td><td>396.670 ns</td><td>371.046 ns</td><td>0.4883</td><td>0.2441</td><td>7549 B</td>
+</tr><tr><td>&#39;NCalc compilation&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>93,812.82 ns</td><td>1,445.593 ns</td><td>1,281.480 ns</td><td>0.6104</td><td>0.2441</td><td>8543 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(P, r, n, d)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>25.46 ns</td><td>0.104 ns</td><td>0.087 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
+</tr><tr><td>&#39;NCalc invoke fn(P, r, n, d)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>25.49 ns</td><td>0.120 ns</td><td>0.112 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
+</tr><tr><td>&#39;MathEvaluator evaluation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>649.44 ns</td><td>12.544 ns</td><td>12.320 ns</td><td>0.1144</td><td>-</td><td>1440 B</td>
+</tr><tr><td>&#39;NCalc evaluation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>7,186.19 ns</td><td>139.594 ns</td><td>166.176 ns</td><td>0.2899</td><td>-</td><td>3688 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>67,485.25 ns</td><td>1,186.975 ns</td><td>1,110.297 ns</td><td>0.4883</td><td>0.3662</td><td>7548 B</td>
+</tr><tr><td>&#39;NCalc compilation&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>81,352.15 ns</td><td>1,035.397 ns</td><td>968.511 ns</td><td>0.4883</td><td>0.2441</td><td>8570 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(P, r, n, d)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>25.22 ns</td><td>0.385 ns</td><td>0.360 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
+</tr><tr><td>&#39;NCalc invoke fn(P, r, n, d)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>24.95 ns</td><td>0.219 ns</td><td>0.194 ns</td><td>0.0032</td><td>-</td><td>40 B</td>
 </tr></tbody></table>
 </body>
 </html>

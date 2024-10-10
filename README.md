@@ -180,9 +180,8 @@ Output:
 
 Added in version [2.2.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.2.0)
 
-Complex numbers are written in the form a ± bi, where a is the real part and bi is the imaginary part. 
-In mathematical expressions involving complex numbers, it's advisable to use parentheses to ensure clarity and obtain the expected result. 
-If parentheses are not used and the result is unexpected, you can review the evaluation steps using the Evaluating event, as shown in the example above. 
+Complex numbers are written in the form **a ± bi**, where **a** is the real part and **bi** is the imaginary part. 
+In mathematical expressions involving complex numbers, it's advisable to use parentheses () to ensure clarity and obtain the expected result.
 
 ## Supported math functions, operators, and constants
 
@@ -287,7 +286,7 @@ If parentheses are not used and the result is unexpected, you can review the eva
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate a C# math expression string
-DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class, and supports equlity, comparision, logical boolean operators.
+DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
 
 Example of evaluating C# expression:
 
