@@ -127,14 +127,6 @@ public class MathFunction<T> : MathEntity
     /// <inheritdoc/>
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
     {
-        if (typeof(T) != typeof(Complex))
-        {
-            if (value.Imaginary == default)
-                return (Complex)Evaluate(mathExpression, start, ref i, separator, closingSymbol, value.Real);
-
-            throw new NotSupportedException(NotComplexErrorMessage);
-        }
-
         var tokenPosition = i;
         i += Key.Length;
         mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol, tokenPosition, ref i);

@@ -6,7 +6,7 @@ namespace MathEvaluation.Extensions;
 
 internal static class ReadOnlySpanExtensions
 {
-    /// <summary>Tries to parse the currency symbol.</summary>
+    /// <summary>Tries to parse a currency symbol.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format info that defines the currency symbol.</param>
     /// <param name="i">The current char index.</param>
@@ -22,7 +22,7 @@ internal static class ReadOnlySpanExtensions
         return true;
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a number.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
@@ -33,7 +33,7 @@ internal static class ReadOnlySpanExtensions
         return double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a number.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
@@ -44,71 +44,31 @@ internal static class ReadOnlySpanExtensions
         return decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    /// <summary>Parses the complex number in format a + bi.</summary>
+    /// <summary>Parses a complex number, format: a + bi.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
-    /// <param name="onlyImaginary"><c>true</c> if it should parse only the imaginary part of the complex number; otherwise, <c>false</c>.</param>
     /// <returns>The value.</returns>
-    internal static Complex ParseComplexNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i, bool onlyImaginary = false)
+    internal static Complex ParseComplexNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
-        if (str.Length > i && str[i] == 'i')
+        str.SkipMeaningless(ref i);
+        if (str[i] == 'i')
         {
             i++;
-            return Complex.One;
+            return Complex.ImaginaryOne;
         }
 
-        var start = i;
-
-        var numberStr = str.GetNumberString(numberFormat, ref i);
-        if (numberStr.IsEmpty)
-            return new Complex(double.NaN, double.NaN);
-
-        var number = double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
-
+        var number = str.ParseNumber(numberFormat, ref i);
         if (str.Length > i && str[i] == 'i')
         {
             i++;
             return new Complex(0d, number);
         }
 
-        if (onlyImaginary)
-        {
-            //it's not an imaginary part of the complex number.
-            i = start;
-            return new Complex(double.NaN, double.NaN);
-        }
-
-        var real = number;
-        var imaginary = 0d;
-
-        str.SkipMeaningless(ref i);
-        if (str.Length > i)
-        {
-            start = i;
-            if (str[i] is '+' or '-')
-            {
-                var isNegative = str[i] == '-';
-
-                i++;
-                str.SkipMeaningless(ref i);
-
-                var c = str.ParseComplexNumber(numberFormat, ref i, true);
-                if (double.IsNaN(c.Imaginary))
-                {
-                    //it's not an imaginary part of the complex number so its add or subtract operation.
-                    i = start;
-                    return new Complex(real, 0d);
-                }
-
-                imaginary = isNegative ? -c.Imaginary : c.Imaginary;
-            }
-        }
-
-        return new Complex(real, imaginary);
+        return new Complex(number, 0d);
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a number.</summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
@@ -123,15 +83,14 @@ internal static class ReadOnlySpanExtensions
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
 
-        var numberStr = str.GetNumberString(numberFormat, ref i);
         if (typeof(TResult) == typeof(decimal))
         {
-            var value = decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+            var value = ParseDecimalNumber(str, numberFormat, ref i);
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
         else
         {
-            var value = double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+            var value = ParseNumber(str, numberFormat, ref i);
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
     }

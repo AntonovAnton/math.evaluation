@@ -42,9 +42,9 @@ public partial class MathExpression
                 return expression;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a number.
                 typeof(TResult) == typeof(Complex) &&
-                span[i] == 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //number
+                span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //the imaginary part of a complex number.
             {
                 if (isOperand)
                     return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);

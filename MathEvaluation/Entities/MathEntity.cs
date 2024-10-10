@@ -9,12 +9,6 @@ namespace MathEvaluation.Entities;
 /// </summary>
 public abstract class MathEntity : IMathEntity
 {
-    /// <summary>
-    /// The not complex error message.
-    /// </summary>
-    protected static string NotComplexErrorMessage = "Evaluation the imaginary component of a complex number only supports functions designed for complex numbers. " +
-        "Please use a context configured for complex number operations.";
-
     /// <inheritdoc/>
     public string Key { get; }
 
@@ -48,6 +42,8 @@ public abstract class MathEntity : IMathEntity
     /// </returns>
     public override string ToString()
         => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
+
+    #region protected static Convert Methods
 
     /// <inheritdoc cref="Convert.ChangeType(object, Type)"/>
     protected static object ChangeType<T>(T value, Type conversionType)
@@ -157,4 +153,6 @@ public abstract class MathEntity : IMathEntity
 
         return Expression.Convert(expression, typeof(TResult)).Reduce();
     }
+
+    #endregion
 }

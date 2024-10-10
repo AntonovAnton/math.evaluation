@@ -50,36 +50,33 @@ public class DotNetStandartMathContext : MathContext
         BindOperandOperator(postfixDecrementFn, "--\r", true);
         BindOperandOperator(postfixDecrementFn, "--\n", true);
 
-        static double emptyFn(double value) => value;
-        BindOperandOperator(emptyFn, 'f', true);
-        BindOperandOperator(emptyFn, 'd', true);
-        BindOperandOperator(emptyFn, 'm', true);
-        BindOperandOperator(emptyFn, 'l', true);
-        BindOperandOperator(emptyFn, 'u', true);
-        BindOperandOperator(emptyFn, "ul", true);
-        BindOperandOperator(emptyFn, "lu", true);
-        BindOperandOperator(emptyFn, 'F', true);
-        BindOperandOperator(emptyFn, 'D', true);
-        BindOperandOperator(emptyFn, 'M', true);
-        BindOperandOperator(emptyFn, 'L', true);
-        BindOperandOperator(emptyFn, "Lu", true);
-        BindOperandOperator(emptyFn, "LU", true);
-        BindOperandOperator(emptyFn, 'U', true);
-        BindOperandOperator(emptyFn, "Ul", true);
-        BindOperandOperator(emptyFn, "UL", true);
-        BindOperandOperator(emptyFn, "double", true);
-        BindOperandOperator(emptyFn, "float", true);
-        BindOperandOperator(emptyFn, "short", true);
-        BindOperandOperator(emptyFn, "ushort", true);
-        BindOperandOperator(emptyFn, "long", true);
-        BindOperandOperator(emptyFn, "ulong", true);
-        BindOperandOperator(emptyFn, "int", true);
-        BindOperandOperator(emptyFn, "uint", true);
-        BindOperandOperator(emptyFn, "byte", true);
-        BindOperandOperator(emptyFn, "sbyte", true);
-
-        static decimal emptyDecimalFn(decimal value) => value;
-        BindOperandOperator(emptyDecimalFn, "decimal", true);
+        BindConstant(1d, 'f');
+        BindConstant(1d, 'd');
+        BindConstant(1d, 'm');
+        BindConstant(1d, 'l');
+        BindConstant(1d, 'u');
+        BindConstant(1d, "ul");
+        BindConstant(1d, "lu");
+        BindConstant(1d, 'F');
+        BindConstant(1d, 'D');
+        BindConstant(1m, 'M');
+        BindConstant(1d, 'L');
+        BindConstant(1d, "Lu");
+        BindConstant(1d, "LU");
+        BindConstant(1d, 'U');
+        BindConstant(1d, "Ul");
+        BindConstant(1d, "UL");
+        BindConstant(1d, "double");
+        BindConstant(1d, "float");
+        BindConstant(1d, "short");
+        BindConstant(1d, "ushort");
+        BindConstant(1d, "long");
+        BindConstant(1d, "ulong");
+        BindConstant(1d, "int");
+        BindConstant(1d, "uint");
+        BindConstant(1d, "byte");
+        BindConstant(1d, "sbyte");
+        BindConstant(1m, "decimal");
 
         BindConstant(Math.PI);
         BindConstant(Math.E);
@@ -245,8 +242,7 @@ public class DotNetStandartMathContext : MathContext
 
         #region
 
-        static Complex emptyComplexFn(Complex value) => value;
-        BindOperandOperator(emptyComplexFn, "Complex", true);
+        BindConstant(Complex.One, "Complex");
 
         BindConstant(Complex.Zero);
         BindConstant(Complex.One);

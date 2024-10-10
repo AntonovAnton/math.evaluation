@@ -52,8 +52,8 @@ public partial class MathExpression
                 return value;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator ||
-                span[i] == 'i' && (span.Length == i + 1 || !Char.IsLetterOrDigit(span[i + 1]))) //number
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a complex number.
+                span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //the imaginary part of a complex number.
             {
                 if (isOperand)
                     return EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -105,7 +105,9 @@ public partial class MathExpression
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     result = EvaluateComplex(ref i, separator, closingSymbol, p, isOperand);
-                    value = isMeaningless ? -result : value - result; //it keeps sign
+                    value = isMeaningless
+                        ? new Complex(result.Real == 0.0 ? result.Real : -result.Real, result.Imaginary == 0.0 ? result.Imaginary : -result.Imaginary)
+                        : value - result; //it keeps sign
 
                     OnEvaluating(start, i, value);
                     if (isOperand)

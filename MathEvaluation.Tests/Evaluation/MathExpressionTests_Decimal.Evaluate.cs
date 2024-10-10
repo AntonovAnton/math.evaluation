@@ -2,6 +2,7 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
+using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
@@ -20,6 +21,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -30,6 +32,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine("0/0");
 
         var ex = Record.Exception(() => new MathExpression("0/0").EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<DivideByZeroException>(ex.InnerException);
 
@@ -480,6 +483,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -491,8 +495,10 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
+
         Assert.Equal("Error of evaluating the expression. The input string '888e3.2' was not in a correct format.", ex.Message);
         Assert.Equal("The input string '888e3.2' was not in a correct format.", ex.InnerException.Message);
     }
@@ -573,6 +579,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -586,6 +593,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateDecimal());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }

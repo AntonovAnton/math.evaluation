@@ -8,6 +8,7 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
     public void MathExpression_MathStringNull_ThrowArgumentNullException()
     {
         var ex = Record.Exception(() => new MathExpression(null!));
+
         Assert.IsType<ArgumentNullException>(ex);
     }
 
@@ -20,6 +21,7 @@ public class MathExpressionTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression));
+
         Assert.IsType<ArgumentException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }

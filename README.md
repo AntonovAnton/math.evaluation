@@ -77,6 +77,8 @@ Examples of using string extentions:
     "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
     "¬⊥∧⊤∨¬⊤⇒¬⊤".EvaluateBoolean(new ScientificMathContext());
+    
+    "sin(2 + 3i) * arctan(4i)/(1 - 6i)".EvaluateComplex(new ComplexScientificMathContext());
 
 Examples of using an instance of the MathExpression class:
         
@@ -99,6 +101,8 @@ Examples of using an instance of the MathExpression class:
     new MathExpression("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
     new MathExpression("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
+    
+    new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).EvaluateComplex();
 
 Examples of passing custom variables and functions as parameters:
         
@@ -171,6 +175,14 @@ Output:
     7: -3^4sin(-PI/2) = 81; //completed
 
 ***NOTE**: To prevent memory leaks, it’s important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
+
+## Complex numbers
+
+Added in version [2.2.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.2.0)
+
+Complex numbers are written in the form a ± bi, where a is the real part and bi is the imaginary part. 
+In mathematical expressions involving complex numbers, it's advisable to use parentheses to ensure clarity and obtain the expected result. 
+If parentheses are not used and the result is unexpected, you can review the evaluation steps using the Evaluating event, as shown in the example above. 
 
 ## Supported math functions, operators, and constants
 

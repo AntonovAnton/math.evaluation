@@ -31,24 +31,6 @@ public class DecimalDotNetStandartMathContext : DotNetStandartMathContext
         BindOperandOperator(postfixDecrementFn, "--\r", true);
         BindOperandOperator(postfixDecrementFn, "--\n", true);
 
-        static decimal emptyFn(decimal value) => value;
-        BindOperandOperator(emptyFn, 'f', true);
-        BindOperandOperator(emptyFn, 'd', true);
-        BindOperandOperator(emptyFn, 'm', true);
-        BindOperandOperator(emptyFn, 'l', true);
-        BindOperandOperator(emptyFn, 'u', true);
-        BindOperandOperator(emptyFn, "ul", true);
-        BindOperandOperator(emptyFn, "lu", true);
-        BindOperandOperator(emptyFn, 'F', true);
-        BindOperandOperator(emptyFn, 'D', true);
-        BindOperandOperator(emptyFn, 'M', true);
-        BindOperandOperator(emptyFn, 'L', true);
-        BindOperandOperator(emptyFn, "Lu", true);
-        BindOperandOperator(emptyFn, "LU", true);
-        BindOperandOperator(emptyFn, 'U', true);
-        BindOperandOperator(emptyFn, "Ul", true);
-        BindOperandOperator(emptyFn, "UL", true);
-
         static decimal absFn(decimal v) => Math.Abs(v);
         BindFunction(absFn, "Math.Abs");
 

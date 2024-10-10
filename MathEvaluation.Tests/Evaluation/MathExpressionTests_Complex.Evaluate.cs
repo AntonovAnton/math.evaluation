@@ -1,4 +1,5 @@
 ﻿using MathEvaluation.Context;
+using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
@@ -21,6 +22,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -49,6 +51,21 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("2 - 5 * -10 / -2 / - 2 - 1", 2 - 5 * -10d / -2 / -2 - 1)]
     [InlineData("1 - -1", 1 - -1)]
     [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
+    [InlineData("-3 + 0i", -3, 0)]
+    [InlineData("i * i", -1)]
+    [InlineData("i", 0, 1)]
+    [InlineData("-i", 0, -1)]
+    [InlineData("-.3i", 0, -0.3)]
+    [InlineData("2-3i + i", 2, -2)]
+    [InlineData("2-3i + -i", 2, -4)]
+    [InlineData("2-3i + 3-i", 5, -4)]
+    [InlineData("(2 + 6i)/3i", 2, -0.6666666666666666)]
+    [InlineData("(2 + 6i)/-2i", -3, 1)]
+    [InlineData("(2 - 6i)/-2i", 3, 1)]
+    [InlineData("(2 - 6i)/2i", -3, -1)]
+    [InlineData("-2.324 - .6i/.2i", -5.324)]
+    [InlineData("(-2.324 - .6i)/.2i", -2.9999999999999996, 11.62)]
+    [InlineData("(-2.324 -i) * (2 + 6i)", 1.3520000000000003, -15.943999999999999)]
     public void MathExpression_EvaluateComplex_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
         using var expression = new MathExpression(mathString);
@@ -152,7 +169,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("2/3**4", 2 / 81d)]
     [InlineData("0.5**2*3", 0.75d)]
     [InlineData("-3**4", -81)]
-    [InlineData("(-3)**0.5", 1.0605752387249068E-16, -1.7320508075688772)]
+    [InlineData("(-3)**0.5", 1.0605752387249068E-16, 1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_EvaluateComplex_HasProgrammingPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
@@ -166,6 +183,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Theory]
+    [InlineData("i^2", -1d, 1.2246467991473532E-16)]
     [InlineData("3^4", 81d)]
     [InlineData("3^4^2", 81d * 81 * 81 * 81)]
     [InlineData("2/3^4", 2 / 81d)]
@@ -173,7 +191,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("-3^4", -81d)]
     [InlineData("2^3pi", 687.29133511454552d)]
     [InlineData("-3^4sin(-PI/2)", 81d)]
-    [InlineData("(-3)^0.5", 1.0605752387249068E-16, -1.7320508075688772)]
+    [InlineData("(-3)^0.5", 1.0605752387249068E-16, 1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_EvaluateComplex_HasScientificPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
@@ -295,11 +313,11 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("√1", 1d)]
     [InlineData("1/√9", 1 / 3d)]
     [InlineData("∛8", 2)]
-    [InlineData("∛-8", 1.0000000000000002, -1.7320508075688772)]
+    [InlineData("∛-8", 1.0000000000000002, 1.7320508075688772)]
     [InlineData("∛8∛8", 4d)]
     [InlineData("√9∛8", 6d)]
     [InlineData("∜16", 2d)]
-    [InlineData("∜-16", 1.4142135623730951, -1.4142135623730951)]
+    [InlineData("∜-16", 1.4142135623730951, 1.4142135623730951)]
     [InlineData("∜16∜16", 4d)]
     [InlineData("1/√9^2", 1 / 9d)]
     public void MathExpression_EvaluateComplex_HasRoot_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
@@ -318,7 +336,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("LOG(10)", 0.9999999999999959, 0)]
     [InlineData("LOG(e)", 0.43429448190325d)]
     [InlineData("log100", 1.9999999999999918)]
-    [InlineData("log(-100)", 1.9999999999999918, -1.3643763538418354)]
+    [InlineData("log(-100)", 1.9999999999999918, 1.3643763538418354)]
     [InlineData("log(∞)", double.PositiveInfinity)]
     [InlineData("ln(0)", double.NegativeInfinity)]
     [InlineData("Ln(1)", 0d)]
@@ -326,7 +344,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("LN(10)^2", 2.3025850929940459d * 2.3025850929940459d)]
     [InlineData("LNe", 1d)]
     [InlineData("ln100", 4.6051701859880918d)]
-    [InlineData("ln-100", 4.605170185988092, -3.141592653589793)]
+    [InlineData("ln-100", 4.605170185988092, 3.141592653589793)]
     [InlineData("ln(∞)", double.PositiveInfinity)]
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void MathExpression_EvaluateComplex_HasLogarithmFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
@@ -510,6 +528,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<ArgumentException>(ex.InnerException);
 
@@ -525,6 +544,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -536,8 +556,10 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
+
         Assert.Equal("Error of evaluating the expression. The input string '888e3.2' was not in a correct format.", ex.Message);
         Assert.Equal("The input string '888e3.2' was not in a correct format.", ex.InnerException.Message);
     }
@@ -551,6 +573,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -564,8 +587,23 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateComplex());
+
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("(12 - i) mod 3", 12, -1)]
+    public void MathExpression_EvaluateComplex_ComplexArgToNotComplexFn_ThrowInvalidCastException(string expression, double real, double imaginary)
+    {
+        testOutputHelper.WriteLine($"{expression}");
+
+        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext).EvaluateComplex());
+
+        Assert.IsType<MathExpressionException>(ex);
+        Assert.IsType<InvalidCastException>(ex.InnerException);
+
+        Assert.Equal($"Cannot convert the Complex number to a Double, value = {new Complex(real, imaginary)}.", ex.InnerException.Message);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)

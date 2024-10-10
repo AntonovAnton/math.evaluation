@@ -103,6 +103,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("CSC(90°)", 1d)]
     [InlineData("sin0 + 3", 3d)]
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
+    [InlineData("sin(2 + 3i) * arctan(4i)/(1 - 6i)", 1.1001786515830083, 2.3907445385260218)]
     public void MathExpression_CompileComplexThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _scientificContext);

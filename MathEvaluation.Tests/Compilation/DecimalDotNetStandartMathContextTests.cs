@@ -22,6 +22,12 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("2u / 5d / 2M * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
     [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
+    [InlineData("(double)2 / (decimal)5 / (float)2 * (int)5", 2d / 5 / 2 * 5)]
+    [InlineData("(ulong)2 / (double) 5 / (long) 2 * (short) 5f", 2d / 5 / 2 * 5)]
+    [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
+    [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
+    [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
     public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
