@@ -3,6 +3,7 @@ using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation;
 
@@ -24,7 +25,7 @@ public partial class MathExpression
 
     internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         var span = MathString.AsSpan();
         Expression expression = Expression.Constant(default(TResult));
@@ -35,18 +36,25 @@ public partial class MathExpression
             if (separator.HasValue && IsParamSeparator(separator.Value, start, i) ||
                 closingSymbol.HasValue && span[i] == closingSymbol.Value)
             {
-                if (expression.IsZero())
+                if (expression.IsDefault())
                     MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
                 return expression;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator) //number
+            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a number.
+                typeof(TResult) == typeof(Complex) &&
+                span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //the imaginary part of a complex number.
             {
                 if (isOperand)
                     return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
 
-                expression = Expression.Constant(span.ParseNumber<TResult>(_numberFormat, ref i));
+                var tokenPosition = i;
+                var value = span.ParseNumber<TResult>(_numberFormat, ref i);
+                expression = Expression.Constant(value);
+
+                if (value is Complex c && c.Imaginary != default)
+                    OnEvaluating(tokenPosition, i, expression);
                 continue;
             }
 
@@ -64,7 +72,7 @@ public partial class MathExpression
                         return right;
 
                     right = BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-                    expression = expression.IsZero() ? right : Expression.Multiply(expression, right).Reduce();
+                    expression = BuildMultipyIfLeftNotDefault<TResult>(expression, right);
 
                     if (expression != right)
                         OnEvaluating(start, i, expression);
@@ -76,7 +84,7 @@ public partial class MathExpression
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = Expression.Add(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Add, expression, right);
 
                     OnEvaluating(start, i, expression);
                     if (isOperand)
@@ -90,8 +98,9 @@ public partial class MathExpression
                     i++;
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = isMeaningless ? Expression.Negate(right) : Expression.Subtract(expression, right); //it keeps sign
-                    expression = expression.Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(isMeaningless
+                        ? OperatorType.Negate //it keeps sign
+                        : OperatorType.Subtract, expression, right);
 
                     OnEvaluating(start, i, expression);
                     if (isOperand)
@@ -103,7 +112,7 @@ public partial class MathExpression
 
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
-                    expression = Expression.Multiply(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, expression, right);
 
                     OnEvaluating(start, i, expression);
                     break;
@@ -113,7 +122,7 @@ public partial class MathExpression
 
                     i++;
                     right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
-                    expression = Expression.Divide(expression, right).Reduce();
+                    expression = MathCompatibleOperator.Build<TResult>(OperatorType.Divide, expression, right);
 
                     OnEvaluating(start, i, expression);
                     break;
@@ -122,17 +131,19 @@ public partial class MathExpression
                     break;
                 default:
                     var entity = FirstMathEntity(span[i..]);
-                    if (entity == null && span.TryParseCurrency(_numberFormat, ref i))
-                        break;
+                    if (entity == null)
+                    {
+                        if (span.TryParseCurrency(_numberFormat, ref i))
+                            break;
+
+                        throw CreateExceptionInvalidToken(span, i);
+                    }
 
                     //highest precedence is evaluating first
-                    if (precedence >= entity?.Precedence)
+                    if (precedence >= entity.Precedence)
                         return expression;
 
-                    if (entity != null)
-                        expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
-                    else
-                        MathString.ThrowExceptionInvalidToken(i);
+                    expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
 
                     if (isOperand)
                         return expression;
@@ -140,25 +151,37 @@ public partial class MathExpression
             }
         }
 
-        if (expression.IsZero())
+        if (expression.IsDefault())
             MathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
 
         return expression.Reduce();
     }
 
+    internal static Expression BuildMultipyIfLeftNotDefault<TResult>(Expression left, Expression right)
+    {
+        if (left.IsDefault())
+            return right;
+
+        if (left is ConstantExpression)
+            return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
+
+        var equalToDefaultExpr = Expression.Equal(left, Expression.Default(left.Type)).Reduce();
+        return Expression.Condition(equalToDefaultExpr, right, Expression.Multiply(left, right).Reduce());
+    }
+
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         var start = i;
         var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        if (expression.IsZero())
+        if (expression.IsDefault())
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;
     }
 
     internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
@@ -176,7 +199,7 @@ public partial class MathExpression
     /// <returns>A delegate that represents the compiled expression.</returns>
     /// <exception cref="MathExpressionException"/>
     private Func<TResult> Compile<TResult>()
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         _evaluatingStep = 0;
 
@@ -201,7 +224,7 @@ public partial class MathExpression
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException">parameters</exception>
     private Func<T, TResult> Compile<T, TResult>(T parameters)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));

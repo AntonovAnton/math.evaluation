@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation.Entities;
 
@@ -8,7 +9,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathOperandsOperator<T> : MathEntity
-    where T : struct, IConvertible
+    where T : struct
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
@@ -38,12 +39,14 @@ public class MathOperandsOperator<T> : MathEntity
         i += Key.Length;
         var right = mathExpression.EvaluateOperand(ref i, separator, closingSymbol);
         right = mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, right);
-        value = Convert.ToDouble(Fn(
-            value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
-            right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
+        var result = Fn(
+            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
+            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
 
-        mathExpression.OnEvaluating(start, i, value);
-        return value;
+        mathExpression.OnEvaluating(start, i, result);
+
+        var dResult = ConvertToDouble(result);
+        return dResult;
     }
 
     /// <inheritdoc/>
@@ -55,12 +58,30 @@ public class MathOperandsOperator<T> : MathEntity
         i += Key.Length;
         var right = mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol);
         right = mathExpression.EvaluateExponentiationDecimal(start, ref i, separator, closingSymbol, right);
-        value = Convert.ToDecimal(Fn(
-            value is T v ? v : (T)Convert.ChangeType(value, typeof(T)),
-            right is T r ? r : (T)Convert.ChangeType(right, typeof(T))));
+        var result = Fn(
+            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
+            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
 
-        mathExpression.OnEvaluating(start, i, value);
-        return value;
+        mathExpression.OnEvaluating(start, i, result);
+
+        var dResult = ConvertToDecimal(result);
+        return dResult;
+    }
+
+    /// <inheritdoc/>
+    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
+    {
+        i += Key.Length;
+        var right = mathExpression.EvaluateOperandComplex(ref i, separator, closingSymbol);
+        right = mathExpression.EvaluateExponentiationComplex(start, ref i, separator, closingSymbol, right);
+        var result = Fn(
+            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
+            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
+
+        mathExpression.OnEvaluating(start, i, result);
+
+        var dResult = result is Complex r ? r : ConvertToDouble(result);
+        return dResult;
     }
 
     /// <inheritdoc/>
@@ -68,15 +89,15 @@ public class MathOperandsOperator<T> : MathEntity
     {
         i += Key.Length;
 
-        left = left.Type != typeof(T) ? Expression.Convert(left, typeof(T)) : left;
-
+        left = BuildConvert<T>(left);
         var right = mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
         right = mathExpression.BuildExponentiation<T>(start, ref i, separator, closingSymbol, right);
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
-        result = result.Type != typeof(TResult) ? Expression.Convert(result, typeof(TResult)) : result;
 
         mathExpression.OnEvaluating(start, i, result);
+
+        result = BuildConvert<TResult>(result);
         return result;
     }
 }

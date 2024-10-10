@@ -1,6 +1,5 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation.Entities;
 
@@ -9,7 +8,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathConstant<T>(string? key, T value) : MathEntity(key)
-    where T : struct, IConvertible
+    where T : struct
 {
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Constant;
@@ -23,9 +22,9 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = Value is double v ? v : Convert.ToDouble(Value);
 
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var result = ConvertToDouble(Value);
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
@@ -40,8 +39,9 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     {
         var tokenPosition = i;
         i += Key.Length;
-        var result = Value is decimal v ? v : Convert.ToDecimal(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        var result = ConvertToDecimal(Value);
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
 
         result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
@@ -52,16 +52,34 @@ public class MathConstant<T>(string? key, T value) : MathEntity(key)
     }
 
     /// <inheritdoc/>
+    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
+    {
+        var tokenPosition = i;
+        i += Key.Length;
+
+        var result = Value is Complex v ? v : ConvertToDouble(Value);
+        mathExpression.OnEvaluating(tokenPosition, i, Value);
+
+        result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
+            mathExpression.OnEvaluating(start, i, value);
+        return value;
+    }
+
+    /// <inheritdoc/>
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         var tokenPosition = i;
         i += Key.Length;
+
         Expression right = Expression.Constant(Value);
+        right = BuildConvert<TResult>(right);
         mathExpression.OnEvaluating(tokenPosition, i, right);
 
-        right = Value is not TResult ? Expression.Convert(right, typeof(TResult)) : right;
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-        var expression = left.IsZero() ? right : Expression.Multiply(left, right).Reduce();
+        var expression = MathExpression.BuildMultipyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
             mathExpression.OnEvaluating(start, i, expression);

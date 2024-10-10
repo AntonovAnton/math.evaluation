@@ -1,9 +1,10 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Numerics;
 
 namespace MathEvaluation.Tests.Compilation;
 
-public partial class MathExpressionTests_DecimalContext
+public partial class MathExpressionTests_Complex
 {
     [Theory]
     [InlineData("false = true", false)]
@@ -23,17 +24,17 @@ public partial class MathExpressionTests_DecimalContext
     [InlineData("4 <> 4 OR 5.4 = 5.4", true)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileDecimalThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
         using var expression = new MathExpression(mathString, _programmingContext);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = expression.CompileDecimal();
+        var fn = expression.CompileComplex();
         var value = fn();
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value != 0.0m);
+        Assert.Equal(expectedValue, value != Complex.Zero);
     }
 
     [Theory]
@@ -54,17 +55,17 @@ public partial class MathExpressionTests_DecimalContext
     [InlineData("4 ≠ 4 OR 5.4 = 5.4", true)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT true", false)]
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileDecimalThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = expression.CompileDecimal();
+        var fn = expression.CompileComplex();
         var value = fn();
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value != 0.0m);
+        Assert.Equal(expectedValue, value != Complex.Zero);
     }
 
     [Theory]
@@ -118,17 +119,17 @@ public partial class MathExpressionTests_DecimalContext
     [InlineData("¬⊥∧⊤∨¬⊤⇒¬⊤ ≡ ⊥∨⊤∧¬⊤⊕¬(⊥ ⇎ ⊥) ⇔ ⊥", true)]
     [InlineData("F ∨ T ∧ ¬(F < T) ⊕ F ≥ F", true)]
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
-    public void MathExpression_CompileDecimalThenInvoke_HasScientificBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasScientificBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var fn = expression.CompileDecimal();
+        var fn = expression.CompileComplex();
         var value = fn();
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value != 0.0m);
+        Assert.Equal(expectedValue, value == Complex.One);
     }
 
     [Theory]
@@ -138,34 +139,34 @@ public partial class MathExpressionTests_DecimalContext
     [InlineData("A or not B and C", true, false, false, true)]
     [InlineData("A or not B and (C or B)", true, false, true, true)]
     [InlineData("A or not B and (C or B)", false, true, false, false)]
-    public void MathExpression_CompileDecimalThenInvoke_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasVariables_ExpectedValue(string expression, bool a, bool b, bool c, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var fn = expression.CompileDecimal(new { A = a, B = b, C = getC }, _programmingContext);
+        var fn = expression.CompileComplex(new { A = a, B = b, C = getC }, _programmingContext);
         var value = fn(new { A = a, B = b, C = getC });
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value != 0.0m);
+        Assert.Equal(expectedValue, value != Complex.Zero);
     }
 
     [Theory]
     [InlineData("if(3 % a = 1, true, false)", 2d, true)]
     [InlineData("if(3 % a = 1, true, false)", 1d, false)]
-    public void MathExpression_CompileDecimalThenInvoke_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasCustomFunction_ExpectedValue(string expression, double a, bool expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var context = new ProgrammingMathContext();
         context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
-        var fn = expression.CompileDecimal(new { a }, context);
+        var fn = expression.CompileComplex(new { a }, context);
         var value = fn(new { a });
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value != 0.0m);
+        Assert.Equal(expectedValue, value != Complex.Zero);
     }
 }

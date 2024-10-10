@@ -1,6 +1,6 @@
 ﻿namespace MathEvaluation.Tests.Evaluation;
 
-public partial class MathExpressionTests_DecimalContext
+public partial class MathExpressionTests_Decimal
 {
     [Theory]
     [InlineData("π", Math.PI)]

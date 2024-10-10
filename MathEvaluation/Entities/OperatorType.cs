@@ -146,4 +146,10 @@ public enum OperatorType : int
     /// </summary>
     [Operator(ExpressionType.Power, EvalPrecedence.Exponentiation)]
     Power = 23,
+
+    /// <summary>
+    /// An arithmetic negation operation, such as (-a).
+    /// </summary>
+    [Operator(ExpressionType.Negate, EvalPrecedence.Basic)]
+    Negate = 24,
 }

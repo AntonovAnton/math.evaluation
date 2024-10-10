@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -59,10 +60,12 @@ public class MathParameters : IMathParameters
             if (valueType.IsConvertibleToDouble())
             {
                 if (valueType.IsDecimal())
-                    BindVariable(Convert.ToDecimal(value), key);
+                    BindVariable((decimal)value, key);
                 else
                     BindVariable(Convert.ToDouble(value), key);
             }
+            else if (value is Complex c)
+                BindVariable(c, key);
             else if (value is Func<double> fn1)
                 BindFunction(fn1, key);
             else if (value is Func<double, double> fn2)
@@ -93,10 +96,24 @@ public class MathParameters : IMathParameters
                 BindFunction(decimalFns, key);
             else if (value is Func<bool> boolFn1)
                 BindFunction(boolFn1, key);
+            else if (value is Func<Complex> complexFn1)
+                BindFunction(complexFn1, key);
+            else if (value is Func<Complex, Complex> complexFn2)
+                BindFunction(complexFn2, key);
+            else if (value is Func<Complex, Complex, Complex> complexFn3)
+                BindFunction(complexFn3, key);
+            else if (value is Func<Complex, Complex, Complex, Complex> complexFn4)
+                BindFunction(complexFn4, key);
+            else if (value is Func<Complex, Complex, Complex, Complex, Complex> complexFn5)
+                BindFunction(complexFn5, key);
+            else if (value is Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6)
+                BindFunction(complexFn6, key);
+            else if (value is Func<Complex[], Complex> complexFns)
+                BindFunction(complexFns, key);
             else
             {
                 if (propertyInfo.PropertyType.FullName.StartsWith("System.Func"))
-                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<double[], double> or Func<decimal[], decimal> istead.");
+                    throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported, you can use Func<T[], T> istead.");
 
                 throw new NotSupportedException($"{propertyInfo.PropertyType} isn't supported.");
             }
@@ -270,6 +287,71 @@ public class MathParameters : IMathParameters
     /// <exception cref="ArgumentNullException"/>
     public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
+
+    #endregion
+
+    #region complex
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindVariable(Complex value, char key)
+        => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindVariable(Complex value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _trie.AddMathEntity(new MathVariable<Complex>(key, value));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex> fn, char key)
+        => _trie.AddMathEntity(new MathGetValueFunction<Complex>(key.ToString(), fn));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _trie.AddMathEntity(new MathGetValueFunction<Complex>(key, fn));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null)
+        => _trie.AddMathEntity(new MathUnaryFunction<Complex>(key, fn, openingSymbol, closingSymbol));
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        => BindFunction((Complex[] args) => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        => BindFunction((Complex[] args) => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        => BindFunction((Complex[] args) => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex, Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        => BindFunction((Complex[] args) => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public void BindFunction(Func<Complex[], Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        => _trie.AddMathEntity(new MathFunction<Complex>(key, fn, openingSymbol, separator, closingSymbol));
 
     #endregion
 }

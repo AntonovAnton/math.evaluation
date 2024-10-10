@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using System.Numerics;
 
 namespace MathEvaluation.Entities;
 
@@ -35,6 +35,9 @@ public interface IMathEntity
     /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)"/>
     decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
+    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)"/>
+    Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value);
+
     /// <summary>
     /// Builds the part of the expression tree in which the math entity is defined in the math expression.
     /// </summary>
@@ -47,5 +50,5 @@ public interface IMathEntity
     /// <returns></returns>
     /// <param name="left">The expression tree of the left operand.</param>
     Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
-        where TResult : struct, IConvertible;
+        where TResult : struct;
 }

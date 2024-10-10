@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
@@ -42,6 +43,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2u / 5d / 2U * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
     [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
+    [InlineData("(double)2 / (decimal)5 / (float)2 * (int)5", 2d / 5 / 2 * 5)]
+    [InlineData("(ulong)2 / (double) 5 / (long) 2 * (short) 5f", 2d / 5 / 2 * 5)]
+    [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
+    [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
+    [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
     public void MathExpression_Evaluate_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
@@ -201,6 +208,43 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("Complex.Sin(Math.PI / 6)", 0.49999999999999994d)]
+    [InlineData("Complex.Sin(0.5 * Math.PI)", 1d)]
+    [InlineData("Complex.Sin(0.5)/2", 0.2397127693021015d)]
+    [InlineData("Complex.Cos(1)", 0.54030230586813977d)]
+    [InlineData("Complex.Cos(1)*(1 + 2)", 0.54030230586813977d * 3)]
+    [InlineData("(Complex.Cos(1)*(1 + 2)) % Complex.Cos(1)+0.5", 0.5d)]
+    [InlineData("Complex.Sin(-3)/Complex.Cos(1)", -0.14112000805986721d / 0.54030230586813977d)]
+    [InlineData("Complex.Sin(-3)*Complex.Cos(1)", -0.14112000805986721d * 0.54030230586813977d)]
+    [InlineData("Complex.Cos(Complex.Pow(1,4))", 0.54030230586813977d)]
+    [InlineData("Complex.Cos(Complex.Pow(1,4))/2", 0.54030230586813977d / 2)]
+    [InlineData("Complex.Sin(Math.PI/12 + Math.PI/12)", 0.49999999999999994d)]
+    [InlineData("Complex.Sin((1/6)*Math.PI)", 0.49999999999999994d)]
+    [InlineData("Complex.Sin(1 + 2.4)", -0.25554110202683122d)]
+    [InlineData("Complex.Sin(3.4)", -0.25554110202683122d)]
+    [InlineData("Complex.Sin( +3.4)", -0.25554110202683122d)]
+    [InlineData("Complex.Sin( -3 * 2)", 0.27941549819892586d)]
+    [InlineData("Complex.Sin(-3)", -0.14112000805986721d)]
+    [InlineData("3 + 2 * Complex.Sin(Math.PI)", 3.0000000000000004d)]
+    [InlineData("Complex.Cos(Math.PI/3)", 0.50000000000000011d)]
+    [InlineData("Complex.Cos(Math.PI/6 + Math.PI/6)", 0.50000000000000011d)]
+    [InlineData("Complex.Cos((1/3)*Math.PI)", 0.50000000000000011d)]
+    [InlineData("Complex.Sin(Math.PI/6) + Complex.Cos(Math.PI/3)", 1d)]
+    [InlineData("Complex.Tan(0)", 0)]
+    [InlineData("Complex.Tan(Math.PI/4)", 1d)]
+    [InlineData("Complex.Sin(0) + new Complex(3, 0)", 3d)]
+    [InlineData("Complex.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
+    public void MathExpression_EvaluateComplex_HasComplexTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+    }
+
+    [Theory]
     [InlineData("Math.Sinh(0)", 0d)]
     [InlineData("Math.Sinh(0.88137358701954305)", 1d)]
     [InlineData("Math.Sinh(double.PositiveInfinity)", double.PositiveInfinity)]
@@ -224,6 +268,29 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("Complex.Sinh(0)", 0d)]
+    [InlineData("Complex.Sinh(0.88137358701954305)", 0.9999999999999999d)]
+    [InlineData("Complex.Sinh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+    [InlineData("Complex.Sinh( -0.48121182505960347)", -0.5d)]
+    [InlineData("Complex.Sinh(-0.88137358701954305)", -1d)]
+    [InlineData("Complex.Sinh(double.NegativeInfinity)", double.NegativeInfinity, double.NaN)]
+    [InlineData("Complex.Cosh(0)", 1d)]
+    [InlineData("Complex.Cosh(1.3169578969248166)", 1.9999999999999998d)]
+    [InlineData("Complex.Cosh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+    [InlineData("Complex.Tanh(0)", 0)]
+    [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
+    [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
+    public void MathExpression_EvaluateComplex_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+    }
+
+    [Theory]
     [InlineData("Math.Asin(double.NegativeInfinity)", double.NaN)]
     [InlineData("Math.Asin(double.PositiveInfinity)", double.NaN)]
     [InlineData("Math.Asin(-2)", double.NaN)]
@@ -240,6 +307,24 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Asin(double.NegativeInfinity)", -1.5707963267948966, double.PositiveInfinity)]
+    [InlineData("Complex.Asin(double.PositiveInfinity)", 1.5707963267948966, double.PositiveInfinity)]
+    [InlineData("Complex.Asin(-2)", -1.5707963267948966, 1.3169578969248166)]
+    [InlineData("Complex.Asin(-1)", -Math.PI / 2)]
+    [InlineData("Complex.Acos(-2)", 3.141592653589793, 1.3169578969248166)]
+    [InlineData("Complex.Acos(-1)", Math.PI)]
+    [InlineData("Complex.Atan(new Complex(-2, 0))", -1.1071487177940904d)]
+    public void MathExpression_EvaluateComplex_HasComplexInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -287,6 +372,21 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("3 * Complex.Abs(  -5)", 15d)]
+    [InlineData("3 / Complex.Abs(  -(9/3))", 1d)]
+    [InlineData("Complex.Abs(Complex.Sin(-3))", 0.14112000805986721d)]
+    [InlineData("3 + 2* Complex.Pow(Complex.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
+    public void MathExpression_EvaluateComplex_HasComplexAbs_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("Math.Sqrt(25)", 5d)]
     [InlineData("Math.Sqrt(0)", 0d)]
     [InlineData("Math.Sqrt(-25)", double.NaN)]
@@ -310,6 +410,32 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Sqrt(25)", 5d)]
+    [InlineData("Complex.Sqrt(0)", 0d)]
+    [InlineData("Complex.Sqrt(-25)", 0d, 5d)]
+    [InlineData("Complex.Sqrt(9*9)", 9d)]
+    [InlineData("Complex.Sqrt(9)*Complex.Sqrt(9)", 9d)]
+    [InlineData("Complex.Sqrt(9)*(1 + 2)", 9d)]
+    [InlineData("Complex.Sqrt(9)/Complex.Sqrt(9)", 1d)]
+    [InlineData("Complex.Sqrt(1)", 1d)]
+    [InlineData("1/Complex.Sqrt(9)", 1 / 3d)]
+    [InlineData("Complex.Pow(8, 1/3)", 2)]
+    [InlineData("Complex.Pow(-8, 1/3)", 1.0000000000000002, 1.7320508075688772)]
+    [InlineData("Complex.Pow(Complex.Pow(8, 1/3), 2)", 4d)]
+    [InlineData("Complex.Sqrt(9) * Complex.Pow(8, 1/3)", 6d)]
+    [InlineData("Complex.Pow(16, 0.25)", 2d)]
+    [InlineData("1/Complex.Pow(Complex.Sqrt(9), 2)", 1 / 9d)]
+    public void MathExpression_EvaluateComplex_HasComplexRoot_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -337,6 +463,33 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate();
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Log10(0)", double.NegativeInfinity)]
+    [InlineData("Complex.Log10(1)", 0d)]
+    [InlineData("Complex.Log10(10)", 0.9999999999999959d)]
+    [InlineData("Complex.Log10(Math.E)", 0.43429448190325d)]
+    [InlineData("Complex.Log10(100)", 1.9999999999999918d)]
+    [InlineData("Complex.Log10(-100)", 1.9999999999999918, 1.3643763538418354)]
+    [InlineData("Complex.Log10(double.PositiveInfinity)", double.PositiveInfinity)]
+    [InlineData("Complex.Log(0)", double.NegativeInfinity)]
+    [InlineData("Complex.Log(1)", 0d)]
+    [InlineData("Complex.Log(10)", 2.3025850929940459d)]
+    [InlineData("Complex.Log(10, Math.E)", 2.3025850929940459d)]
+    [InlineData("Complex.Log(Math.E)", 1d)]
+    [InlineData("Complex.Log(100)", 4.6051701859880918d)]
+    [InlineData("Complex.Log(-100)", 4.605170185988092, 3.141592653589793)]
+    [InlineData("Complex.Log(double.PositiveInfinity)", double.PositiveInfinity)]
+    [InlineData("-2*Complex.Log(1/0.5 + Complex.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
+    public void MathExpression_EvaluateComplex_HasComplexLogarithmFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -428,6 +581,22 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         parameters.BindVariable(varValue, varName);
 
         var value = expression.Evaluate(parameters, _context);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Log(1/x + Complex.Sqrt(1/(x*x) + 1))", "x", 0.5, 1.4436354751788103d)]
+    public void MathExpression_EvaluateComplex_HasVariable_ExpectedValue(string expression, string varName,
+        double varValue, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"{varName} = {varValue}");
+
+        var parameters = new MathParameters();
+        parameters.BindVariable(varValue, varName);
+
+        var value = expression.EvaluateComplex(parameters, _context);
 
         Assert.Equal(expectedValue, value);
     }

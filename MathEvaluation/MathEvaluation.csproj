@@ -17,13 +17,13 @@
         <PackageTags>math; math-expressions; evaluation; evaluator; mathematical-expressions; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate-expressions; math-expression-evaluator; math-expression-parser; mathexpression; math-eval-calc; csharp-maths; math-evaluator; math-evaluation;</PackageTags>
         <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
-Evaluates to double, boolean, or decimal.
+Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions.
 Extensible with custom functions and operators.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.1.0</Version>
+        <Version>2.2.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>
@@ -48,7 +48,7 @@ Extensible with custom functions and operators.
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MathTrigonometric" Version="1.0.7" />
+        <PackageReference Include="MathTrigonometric" Version="1.1.0" />
     </ItemGroup>
 
 </Project>

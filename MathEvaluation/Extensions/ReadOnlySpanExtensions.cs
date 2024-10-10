@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Globalization;
+using System.Numerics;
 
 namespace MathEvaluation.Extensions;
 
 internal static class ReadOnlySpanExtensions
 {
-    /// <summary>Tries to parse the currency symbol.</summary>
+    /// <summary>Tries to parse a currency symbol.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format info that defines the currency symbol.</param>
     /// <param name="i">The current char index.</param>
@@ -21,7 +22,7 @@ internal static class ReadOnlySpanExtensions
         return true;
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a number.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
@@ -32,7 +33,7 @@ internal static class ReadOnlySpanExtensions
         return double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a number.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
@@ -43,24 +44,53 @@ internal static class ReadOnlySpanExtensions
         return decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    /// <summary>Parses the number.</summary>
+    /// <summary>Parses a complex number, format: a + bi.</summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="i">The current char index.</param>
+    /// <returns>The value.</returns>
+    internal static Complex ParseComplexNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
+    {
+        str.SkipMeaningless(ref i);
+        if (str[i] == 'i')
+        {
+            i++;
+            return Complex.ImaginaryOne;
+        }
+
+        var number = str.ParseNumber(numberFormat, ref i);
+        if (str.Length > i && str[i] == 'i')
+        {
+            i++;
+            return new Complex(0d, number);
+        }
+
+        return new Complex(number, 0d);
+    }
+
+    /// <summary>Parses a number.</summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
     /// <returns>The value.</returns>
     internal static TResult ParseNumber<TResult>(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
-        where TResult : struct, IConvertible
+        where TResult : struct
     {
-        var numberStr = str.GetNumberString(numberFormat, ref i);
+        if (typeof(TResult) == typeof(Complex))
+        {
+            var value = ParseComplexNumber(str, numberFormat, ref i);
+            return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
+        }
+
         if (typeof(TResult) == typeof(decimal))
         {
-            var value = decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+            var value = ParseDecimalNumber(str, numberFormat, ref i);
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
         else
         {
-            var value = double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+            var value = ParseNumber(str, numberFormat, ref i);
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
     }

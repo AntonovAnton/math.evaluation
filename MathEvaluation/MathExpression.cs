@@ -182,17 +182,19 @@ public partial class MathExpression : IDisposable
                     break;
                 default:
                     var entity = FirstMathEntity(span[i..]);
-                    if (entity == null && span.TryParseCurrency(_numberFormat, ref i))
-                        break;
+                    if (entity == null)
+                    {
+                        if (span.TryParseCurrency(_numberFormat, ref i))
+                            break;
+
+                        throw CreateExceptionInvalidToken(span, i);
+                    }
 
                     //highest precedence is evaluating first
-                    if (precedence >= entity?.Precedence)
+                    if (precedence >= entity.Precedence)
                         return value;
 
-                    if (entity != null)
-                        value = entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
-                    else
-                        MathString.ThrowExceptionInvalidToken(i);
+                    value = entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
 
                     if (isOperand)
                         return value;
@@ -206,7 +208,7 @@ public partial class MathExpression : IDisposable
         return value;
     }
 
-    /// <summary> Converts to string. </summary>
+    /// <summary> Converts to string.</summary>
     /// <returns>
     /// A <see cref="System.String" /> that represents this instance.
     /// </returns>
@@ -262,7 +264,16 @@ public partial class MathExpression : IDisposable
         ex.Data[nameof(context)] = context;
         ex.Data[nameof(provider)] = provider;
         ex.Data[nameof(parameters)] = parameters;
-        throw ex;
+        return (MathExpressionException)ex;
+    }
+
+    private static MathExpressionException CreateExceptionInvalidToken(ReadOnlySpan<char> span, int invalidTokenPosition)
+    {
+        var i = invalidTokenPosition;
+        var end = span[i..].IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
+        var unknownSubstring = end > i ? span[i..end] : span[i..];
+
+        return new MathExpressionException($"'{unknownSubstring.ToString()}' is not recognizable, maybe setting the appropriate MathContext could help.", i);
     }
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)

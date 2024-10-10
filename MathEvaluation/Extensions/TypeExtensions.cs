@@ -12,5 +12,5 @@ internal static class TypeExtensions
         _ => false
     };
 
-    public static bool IsDecimal(this Type type) => Type.GetTypeCode(type) == TypeCode.Decimal;
+    public static bool IsDecimal(this Type type) => type == typeof(decimal);
 }

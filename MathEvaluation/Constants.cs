@@ -1,6 +1,6 @@
 ﻿namespace MathEvaluation;
 
-internal class Constants
+internal static class Constants
 {
     /// <summary>
     /// The default function parameters separator.

@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Parameters;
 using System;
+using System.Numerics;
 
 namespace MathEvaluation.Extensions;
 
@@ -13,14 +14,6 @@ public static class StringExtensions
     public static double Evaluate(this string mathString, IMathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate();
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)"/>
-    public static decimal EvaluateDecimal(this string mathString, IMathContext? context, IFormatProvider? provider = null)
-        => new MathExpression(mathString, context, provider).EvaluateDecimal();
-
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)"/>
-    public static bool EvaluateBoolean(this string mathString, IMathContext? context, IFormatProvider? provider = null)
-        => new MathExpression(mathString, context, provider).EvaluateBoolean();
-
     /// <inheritdoc cref="MathExpression.Evaluate(object?)"/>
     public static double Evaluate(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
@@ -30,6 +23,10 @@ public static class StringExtensions
     public static double Evaluate(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
+
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)"/>
+    public static decimal EvaluateDecimal(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).EvaluateDecimal();
 
     /// <inheritdoc cref="MathExpression.EvaluateDecimal(object?)"/>
     public static decimal EvaluateDecimal(this string mathString,
@@ -41,6 +38,10 @@ public static class StringExtensions
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)"/>
+    public static bool EvaluateBoolean(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).EvaluateBoolean();
+
     /// <inheritdoc cref="MathExpression.EvaluateBoolean(object?)"/>
     public static bool EvaluateBoolean(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
@@ -50,6 +51,20 @@ public static class StringExtensions
     public static bool EvaluateBoolean(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
+
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)"/>
+    public static Complex EvaluateComplex(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).EvaluateComplex();
+
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(object?)"/>
+    public static Complex EvaluateComplex(this string mathString,
+        object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
+
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)"/>
+    public static Complex EvaluateComplex(this string mathString,
+        IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
     /// <inheritdoc cref="MathExpression.Compile()"/>
     public static Func<double> Compile(this string mathString, IMathContext context)
@@ -86,6 +101,18 @@ public static class StringExtensions
     /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)"/>
     public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
+
+    /// <inheritdoc cref="MathExpression.CompileComplex()"/>
+    public static Func<Complex> CompileComplex(this string mathString, IMathContext context)
+        => new MathExpression(mathString, context).CompileComplex();
+
+    /// <inheritdoc cref="MathExpression.CompileComplex()"/>
+    public static Func<Complex> CompileComplex(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileComplex();
+
+    /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)"/>
+    public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        => new MathExpression(mathString, context, provider).CompileComplex(parameters);
 
     #region internal static Methods
 
@@ -129,23 +156,17 @@ public static class StringExtensions
             throw new MathExpressionException($"{(isOperand ? "The operand" : "It")} is not recognizable.", invalidTokenPosition);
     }
 
-    /// <summary>Throws the exception about invalid token.</summary>
-    /// <param name="str">The math expression string.</param>
-    /// <param name="invalidTokenPosition">The invalid token position.</param>
-    /// <exception cref="MathEvaluation.MathExpressionException">'{unknownSubstring.ToString()}' is not recognizable.</exception>
-    internal static void ThrowExceptionInvalidToken(this string str, int invalidTokenPosition)
-    {
-        var i = invalidTokenPosition;
-        var end = str.AsSpan(i).IndexOfAny("(0123456789.,٫+-*/ \t\n\r") + i;
-        var unknownSubstring = end > i ? str[i..end] : str[i..];
-
-        throw new MathExpressionException($"'{unknownSubstring}' is not recognizable.", i);
-    }
-
     /// <summary>Skips meaningless chars (whitespace, tab, LF, and CR).</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="i">The current char index.</param>
     internal static void SkipMeaningless(this string str, ref int i)
+    {
+        while (str.Length > i && IsMeaningless(str[i]))
+            i++;
+    }
+
+    /// <inheritdoc cref="SkipMeaningless(string, ref int)"/>
+    internal static void SkipMeaningless(this ReadOnlySpan<char> str, ref int i)
     {
         while (str.Length > i && IsMeaningless(str[i]))
             i++;

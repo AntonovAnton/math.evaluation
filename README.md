@@ -6,11 +6,11 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
-- Evaluates to double, boolean, or decimal.
+- Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 - Provides variable support within math expressions.
 - Extensible with custom functions and operators.
-- Fast and comprehensive. More than 1300 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 3000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
@@ -47,7 +47,7 @@ Below are the results of the comparison with the NCalc library:
 | MathEvaluator | .NET 8.0 | .NET 8.0 |   589.9 ns |   2.58 ns |   2.41 ns | 0.0067 |      88 B |
 | NCalc         | .NET 8.0 | .NET 8.0 | 6,184.0 ns |  30.74 ns |  28.75 ns | 0.3510 |    4472 B |
 
-**NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.
+***NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
@@ -68,19 +68,17 @@ Examples of using string extentions:
 
     "ln(1/-0.5 + √(1/(0.5^2) + 1))".Evaluate(new ScientificMathContext());
     
-    "ln(1/-0,5 + √(1/(0,5^2) + 1))".Evaluate(new ScientificMathContext(), new CultureInfo("fr"));
-    
-    "ln(1/-0.5 + √(1/(0.5^2) + 1))".EvaluateDecimal(new DecimalScientificMathContext());
-    
-    "ln(1/-0,5 + √(1/(0,5^2) + 1))".EvaluateDecimal(new DecimalScientificMathContext(), new CultureInfo("fr"));
+    "P * (1 + r/n)^d".EvaluateDecimal(new { P = 10000, r = 0.05, n = 365, d = 31 }, new DecimalScientificMathContext());
     
     "4 % 3".Evaluate(new ProgrammingMathContext());
     
-    "4 mod 3".EvaluateDecimal(new DecimalScientificMathContext());
+    "4 mod 3".Evaluate(new ScientificMathContext());
 
     "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
     "¬⊥∧⊤∨¬⊤⇒¬⊤".EvaluateBoolean(new ScientificMathContext());
+    
+    "sin(2 + 3i) * arctan(4i)/(1 - 6i)".EvaluateComplex(new ComplexScientificMathContext());
 
 Examples of using an instance of the MathExpression class:
         
@@ -93,20 +91,18 @@ Examples of using an instance of the MathExpression class:
     new MathExpression("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, new CultureInfo("de-CH")).EvaluateDecimal();
     
     new MathExpression("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext()).Evaluate();
-    
-    new MathExpression("ln(1/-0,5 + √(1/(0,5^2) + 1))", new ScientificMathContext(), new CultureInfo("fr")).Evaluate();
-    
-    new MathExpression("ln(1/-0.5 + √(1/(0.5^2) + 1))", new DecimalScientificMathContext()).EvaluateDecimal();
-    
-    new MathExpression("ln(1/-0,5 + √(1/(0,5^2) + 1))", new DecimalScientificMathContext(), new CultureInfo("fr")).EvaluateDecimal();
+
+    new MathExpression("P * (1 + r/n)^d", new DecimalScientificMathContext()).EvaluateDecimal(new { P = 10000, r = 0.05, n = 365, d = 31 });
     
     new MathExpression("4 % 3", new ProgrammingMathContext()).Evaluate();
     
-    new MathExpression("4 mod 3", new DecimalScientificMathContext()).EvaluateDecimal();
+    new MathExpression("4 mod 3", new ScientificMathContext()).Evaluate();
 
     new MathExpression("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
 
     new MathExpression("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
+    
+    new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).EvaluateComplex();
 
 Examples of passing custom variables and functions as parameters:
         
@@ -119,8 +115,8 @@ Examples of passing custom variables and functions as parameters:
         .Evaluate(new { x1, x2, sqrt, ln });
 
     var parameters = new MathParameters();
-    parameters.BindVariable(0.5, "x1");
-    parameters.BindVariable(-0.5, "x2");
+    parameters.BindVariable(x1);
+    parameters.BindVariable(x2);
     parameters.BindFunction(Math.Sqrt);
     parameters.BindFunction(d => Math.Log(d), "ln");
 
@@ -156,6 +152,7 @@ Added in version [2.1.0](https://github.com/AntonovAnton/math.evaluation/release
 By using the Evaluating event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
 
     using var expression = new MathExpression("-3^4sin(-PI/2)", new ScientificMathContext());
+
     expression.Evaluating += (object? sender, EvaluatingEventArgs args) =>
     {
         Console.WriteLine("{0}: {1} = {2};{3}",
@@ -177,7 +174,14 @@ Output:
     6: 3^4sin(-PI/2) = -81;
     7: -3^4sin(-PI/2) = 81; //completed
 
-*NOTE: The Evaluating event is cleaned up in the Dispose method. So I recommend using the **using** statement to ensure proper disposal.*
+***NOTE**: To prevent memory leaks, it’s important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
+
+## Complex numbers
+
+Added in version [2.2.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.2.0)
+
+Complex numbers are written in the form **a ± bi**, where **a** is the real part and **bi** is the imaginary part. 
+In mathematical expressions involving complex numbers, it's advisable to use parentheses () to ensure clarity and obtain the expected result.
 
 ## Supported math functions, operators, and constants
 
@@ -281,14 +285,14 @@ Output:
 | Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 | 200 |
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
-#### How to evaluate C# math string expression
-DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math class, and supports equlity, comparision, logical boolean operators.
+#### How to evaluate a C# math expression string
+DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
 
 Example of evaluating C# expression:
 
     "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandartMathContext());
 
-*NOTE: More math functions could be added to the math expression evaluator based on user needs.*
+***NOTE**: More math functions could be added to the math expression evaluator based on user needs.*
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

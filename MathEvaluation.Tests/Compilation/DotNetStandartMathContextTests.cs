@@ -1,5 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
@@ -41,6 +42,12 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2u / 5d / 2U * 5lU", 2d / 5 / 2 * 5)]
     [InlineData("2M + (5l - 1L)", 2 + (5 - 1))]
     [InlineData("2lu + (5Lu - 1LU)", 2 + (5 - 1))]
+    [InlineData("(double)2 / (decimal)5 / (float)2 * (int)5", 2d / 5 / 2 * 5)]
+    [InlineData("(ulong)2 / (double) 5 / (long) 2 * (short) 5f", 2d / 5 / 2 * 5)]
+    [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
+    [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
+    [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
     public void MathExpression_CompileThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
@@ -241,6 +248,32 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"result: {value}");
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Sinh(0)", 0d)]
+    [InlineData("Complex.Sinh(0.88137358701954305)", 0.9999999999999999d)]
+    [InlineData("Complex.Sinh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+    [InlineData("Complex.Sinh( -0.48121182505960347)", -0.5d)]
+    [InlineData("Complex.Sinh(-0.88137358701954305)", -1d)]
+    [InlineData("Complex.Sinh(double.NegativeInfinity)", double.NegativeInfinity, double.NaN)]
+    [InlineData("Complex.Cosh(0)", 1d)]
+    [InlineData("Complex.Cosh(1.3169578969248166)", 1.9999999999999998d)]
+    [InlineData("Complex.Cosh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+    [InlineData("Complex.Tanh(0)", 0)]
+    [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
+    [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
+    public void MathExpression_CompileComplexThenInvoke_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    {
+        using var expression = new MathExpression(mathString, _context);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileComplex();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
     }
 
     [Theory]
@@ -469,6 +502,22 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
         var fn = expression.Compile(new { x = 0.0, PI = 0.0 }, _context);
+        var value = fn(new { x = varValue, PI = varValue });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("Complex.Log(1/x + Complex.Sqrt(1/(x*x) + 1))", 0.5, 1.4436354751788103d)]
+    public void MathExpression_CompileComplexThenInvoke_HasVariable_ExpectedValue(string expression,
+        double varValue, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"variable value = {varValue}");
+
+        var fn = expression.CompileComplex(new { x = 0.0, PI = 0.0 }, _context);
         var value = fn(new { x = varValue, PI = varValue });
 
         testOutputHelper.WriteLine($"result: {value}");

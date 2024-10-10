@@ -1,5 +1,6 @@
 ﻿using MathEvaluation.Entities;
 using System;
+using System.Numerics;
 
 namespace MathEvaluation.Context;
 
@@ -49,23 +50,33 @@ public class DotNetStandartMathContext : MathContext
         BindOperandOperator(postfixDecrementFn, "--\r", true);
         BindOperandOperator(postfixDecrementFn, "--\n", true);
 
-        static double emptyFn(double value) => value;
-        BindOperandOperator(emptyFn, 'f', true);
-        BindOperandOperator(emptyFn, 'd', true);
-        BindOperandOperator(emptyFn, 'm', true);
-        BindOperandOperator(emptyFn, 'l', true);
-        BindOperandOperator(emptyFn, 'u', true);
-        BindOperandOperator(emptyFn, "ul", true);
-        BindOperandOperator(emptyFn, "lu", true);
-        BindOperandOperator(emptyFn, 'F', true);
-        BindOperandOperator(emptyFn, 'D', true);
-        BindOperandOperator(emptyFn, 'M', true);
-        BindOperandOperator(emptyFn, 'L', true);
-        BindOperandOperator(emptyFn, "Lu", true);
-        BindOperandOperator(emptyFn, "LU", true);
-        BindOperandOperator(emptyFn, 'U', true);
-        BindOperandOperator(emptyFn, "Ul", true);
-        BindOperandOperator(emptyFn, "UL", true);
+        BindConstant(1d, 'f');
+        BindConstant(1d, 'd');
+        BindConstant(1d, 'm');
+        BindConstant(1d, 'l');
+        BindConstant(1d, 'u');
+        BindConstant(1d, "ul");
+        BindConstant(1d, "lu");
+        BindConstant(1d, 'F');
+        BindConstant(1d, 'D');
+        BindConstant(1m, 'M');
+        BindConstant(1d, 'L');
+        BindConstant(1d, "Lu");
+        BindConstant(1d, "LU");
+        BindConstant(1d, 'U');
+        BindConstant(1d, "Ul");
+        BindConstant(1d, "UL");
+        BindConstant(1d, "double");
+        BindConstant(1d, "float");
+        BindConstant(1d, "short");
+        BindConstant(1d, "ushort");
+        BindConstant(1d, "long");
+        BindConstant(1d, "ulong");
+        BindConstant(1d, "int");
+        BindConstant(1d, "uint");
+        BindConstant(1d, "byte");
+        BindConstant(1d, "sbyte");
+        BindConstant(1m, "decimal");
 
         BindConstant(Math.PI);
         BindConstant(Math.E);
@@ -228,6 +239,88 @@ public class DotNetStandartMathContext : MathContext
         BindConstant((double)Int64.MinValue, "Int64.MinValue");
         BindConstant((double)UInt64.MaxValue, "UInt64.MaxValue");
         BindConstant((double)UInt64.MinValue, "UInt64.MinValue");
+
+        #region
+
+        BindConstant(Complex.One, "Complex");
+
+        BindConstant(Complex.Zero);
+        BindConstant(Complex.One);
+        BindConstant(Complex.ImaginaryOne);
+
+        static Complex newComplexFn(Complex arg1, Complex arg2) => new Complex(arg1.Real, arg2.Real);
+        BindFunction(newComplexFn, "new Complex");
+
+        static Complex absComplexFn(Complex v) => Complex.Abs(v);
+        BindFunction(absComplexFn, "Complex.Abs");
+
+        static Complex acosComplexFn(Complex v) => Complex.Acos(v);
+        BindFunction(acosComplexFn, "Complex.Acos");
+
+        static Complex asinComplexFn(Complex v) => Complex.Asin(v);
+        BindFunction(asinComplexFn, "Complex.Asin");
+
+        static Complex atanComplexFn(Complex v) => Complex.Atan(v);
+        BindFunction(atanComplexFn, "Complex.Atan");
+
+        static Complex cosComplexFn(Complex value) => Complex.Cos(value);
+        BindFunction(cosComplexFn, "Complex.Cos");
+
+        static Complex coshComplexFn(Complex value) => Complex.Cosh(value);
+        BindFunction(coshComplexFn, "Complex.Cosh");
+
+        static Complex expComplexFn(Complex value) => Complex.Exp(value);
+        BindFunction(expComplexFn, "Complex.Exp");
+
+        static Complex logComplexFn(Complex[] args) => args.Length == 1 ? Complex.Log(args[0]) : Complex.Log(args[0], args[1].Real);
+        BindFunction(logComplexFn, "Complex.Log");
+
+        static Complex log10ComplexFn(Complex value) => Complex.Log10(value);
+        BindFunction(log10ComplexFn, "Complex.Log10");
+
+        static Complex powComplexFn(Complex x, Complex y) => Complex.Pow(x, y);
+        BindFunction(powComplexFn, "Complex.Pow");
+
+        static Complex sinComplexFn(Complex value) => Complex.Sin(value);
+        BindFunction(sinComplexFn, "Complex.Sin");
+
+        static Complex sinhComplexFn(Complex value) => Complex.Sinh(value);
+        BindFunction(sinhComplexFn, "Complex.Sinh");
+
+        static Complex sqrtComplexFn(Complex value) => Complex.Sqrt(value);
+        BindFunction(sqrtComplexFn, "Complex.Sqrt");
+
+        static Complex tanComplexFn(Complex value) => Complex.Tan(value);
+        BindFunction(tanComplexFn, "Complex.Tan");
+
+        static Complex tanhComplexFn(Complex value) => Complex.Tanh(value);
+        BindFunction(tanhComplexFn, "Complex.Tanh");
+
+        static Complex addComplexFn(Complex left, Complex right) => Complex.Add(left, right);
+        BindFunction(addComplexFn, "Complex.Add");
+
+        static Complex conjugateComplexFn(Complex value) => Complex.Conjugate(value);
+        BindFunction(conjugateComplexFn, "Complex.Conjugate");
+
+        static Complex divideComplexFn(Complex left, Complex right) => Complex.Divide(left, right);
+        BindFunction(divideComplexFn, "Complex.Divide");
+
+        static Complex fpcComplexFn(Complex magnitude, Complex phase) => Complex.FromPolarCoordinates(magnitude.Real, phase.Real);
+        BindFunction(fpcComplexFn, "Complex.FromPolarCoordinates");
+
+        static Complex multiplyComplexFn(Complex left, Complex right) => Complex.Multiply(left, right);
+        BindFunction(multiplyComplexFn, "Complex.Multiply");
+
+        static Complex negateComplexFn(Complex value) => Complex.Negate(value);
+        BindFunction(negateComplexFn, "Complex.Negate");
+
+        static Complex reciprocalComplexFn(Complex value) => Complex.Reciprocal(value);
+        BindFunction(reciprocalComplexFn, "Complex.Reciprocal");
+
+        static Complex subtractComplexFn(Complex left, Complex right) => Complex.Subtract(left, right);
+        BindFunction(subtractComplexFn, "Complex.Subtract");
+
+        #endregion
     }
 }
 
