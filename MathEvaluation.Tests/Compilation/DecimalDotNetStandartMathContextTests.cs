@@ -51,7 +51,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var fn = expression.CompileDecimal(new { a = 0 }, _context);
+        var fn = expression.CompileDecimal(_context, null, new { a = 0 });
         var value = fn(new { a = 5 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -69,7 +69,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var fn = expression.CompileDecimal(new { a = 0 }, _context);
+        var fn = expression.CompileDecimal(_context, null, new { a = 0 });
         var value = fn(new { a = 5 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -417,7 +417,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = expression.CompileDecimal(new { x = 0.0m, PI = 0.0m }, _context);
+        var fn = expression.CompileDecimal(_context, null, new { x = 0.0m, PI = 0.0m });
         var value = fn(new { x = (decimal)varValue, PI = (decimal)varValue });
 
         testOutputHelper.WriteLine($"result: {value}");

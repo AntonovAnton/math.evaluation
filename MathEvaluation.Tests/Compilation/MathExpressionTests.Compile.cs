@@ -482,7 +482,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var parameters = new { x = varValue, PI = varValue };
 
-        var fn = mathString.Compile(parameters, _scientificContext);
+        var fn = mathString.Compile(_scientificContext, null, parameters);
         var value = fn(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -506,7 +506,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var getX1 = () => x1;
         var getX2 = () => x2;
 
-        var fn = mathString.Compile(new { getX1, getX2 }, _scientificContext);
+        var fn = mathString.Compile(_scientificContext, null, new { getX1, getX2 });
         var value = fn(new { getX1, getX2 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -529,7 +529,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var context = new MathContext(new { sqrt, ln });
         var parameters = new { x1, x2 };
 
-        var fn = mathString.Compile(parameters, context);
+        var fn = mathString.Compile(context, null, parameters);
         var value = fn(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -555,7 +555,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
             return minValue;
         };
 
-        var fn = mathString.Compile(new { min });
+        var fn = mathString.Compile(null, null, new { min });
         var value = fn(new { min });
 
         testOutputHelper.WriteLine($"result: {value}");

@@ -67,51 +67,35 @@ public static class StringExtensions
         => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
     /// <inheritdoc cref="MathExpression.Compile()"/>
-    public static Func<double> Compile(this string mathString, IMathContext context)
-        => new MathExpression(mathString, context).Compile();
-
-    /// <inheritdoc cref="MathExpression.Compile()"/>
     public static Func<double> Compile(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile();
 
     /// <inheritdoc cref="MathExpression.Compile{T}(T)"/>
-    public static Func<T, double> Compile<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, double> Compile<T>(this string mathString, IMathContext? context, IFormatProvider? provider, T parameters)
         => new MathExpression(mathString, context, provider).Compile(parameters);
-
-    /// <inheritdoc cref="MathExpression.CompileDecimal()"/>
-    public static Func<decimal> CompileDecimal(this string mathString, IMathContext context)
-        => new MathExpression(mathString, context).CompileDecimal();
 
     /// <inheritdoc cref="MathExpression.CompileDecimal()"/>
     public static Func<decimal> CompileDecimal(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileDecimal();
 
     /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)"/>
-    public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, decimal> CompileDecimal<T>(this string mathString, IMathContext? context, IFormatProvider? provider, T parameters)
         => new MathExpression(mathString, context, provider).CompileDecimal(parameters);
-
-    /// <inheritdoc cref="MathExpression.CompileBoolean()"/>
-    public static Func<bool> CompileBoolean(this string mathString, IMathContext context)
-        => new MathExpression(mathString, context).CompileBoolean();
 
     /// <inheritdoc cref="MathExpression.CompileBoolean()"/>
     public static Func<bool> CompileBoolean(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileBoolean();
 
     /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)"/>
-    public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, bool> CompileBoolean<T>(this string mathString, IMathContext? context, IFormatProvider? provider, T parameters)
         => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
-
-    /// <inheritdoc cref="MathExpression.CompileComplex()"/>
-    public static Func<Complex> CompileComplex(this string mathString, IMathContext context)
-        => new MathExpression(mathString, context).CompileComplex();
 
     /// <inheritdoc cref="MathExpression.CompileComplex()"/>
     public static Func<Complex> CompileComplex(this string mathString, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileComplex();
 
     /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)"/>
-    public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, Complex> CompileComplex<T>(this string mathString, IMathContext? context, IFormatProvider? provider, T parameters)
         => new MathExpression(mathString, context, provider).CompileComplex(parameters);
 
     #region internal static Methods
