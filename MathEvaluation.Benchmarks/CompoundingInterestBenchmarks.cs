@@ -56,7 +56,7 @@ public class CompoundingInterestBenchmarks
     [Benchmark(Description = "MathEvaluator compilation")]
     public Func<CompoundInterestFormulaParams, double> MathEvaluator_Compile()
     {
-        return "P * (1 + r/n)^d".Compile(new CompoundInterestFormulaParams(), _mathContext);
+        return "P * (1 + r/n)^d".Compile(_mathContext, null, new CompoundInterestFormulaParams());
     }
 
     [Benchmark(Description = "NCalc compilation")]

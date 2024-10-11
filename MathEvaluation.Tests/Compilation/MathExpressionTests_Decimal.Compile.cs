@@ -436,7 +436,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = mathString.CompileDecimal(new { x = varValue, PI = varValue }, _scientificContext);
+        var fn = mathString.CompileDecimal(_scientificContext, null, new { x = varValue, PI = varValue });
         var value = fn(new { x = varValue, PI = varValue });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -457,7 +457,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         var getX1 = () => x1;
         var getX2 = () => x2;
 
-        var fn = mathString.CompileDecimal(new { getX1, getX2 }, _scientificContext);
+        var fn = mathString.CompileDecimal(_scientificContext, null, new { getX1, getX2 });
         var value = fn(new { getX1, getX2 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -480,7 +480,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         var context = new MathContext(new { sqrt, ln });
         var parameters = new { x1, x2 };
 
-        var fn = mathString.CompileDecimal(parameters, context);
+        var fn = mathString.CompileDecimal(context, null, parameters);
         var value = fn(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -506,7 +506,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
             return minValue;
         };
 
-        var fn = mathString.CompileDecimal(new { min });
+        var fn = mathString.CompileDecimal(null, null, new { min });
         var value = fn(new { min });
 
         testOutputHelper.WriteLine($"result: {value}");

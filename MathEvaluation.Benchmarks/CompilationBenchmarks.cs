@@ -60,7 +60,7 @@ public class CompilationBenchmarks
     public Func<BooleanVariables, bool> MathExpression_CompileBoolean_HasVariables()
     {
         return "A or not B and (C or B)"
-            .CompileBoolean(new BooleanVariables { A = true, B = false, C = true }, _programmingContext);
+            .CompileBoolean(_programmingContext, null, new BooleanVariables { A = true, B = false, C = true });
     }
 
     [Benchmark(Description = "NCalc: \"A or not B and (C or B)\"")]
@@ -102,7 +102,7 @@ public class CompilationBenchmarks
     [Benchmark(Description = "MathEvaluator: \"Sin(a) + Cos(b)\"")]
     public Func<Variables, double> MathExpression_CompileSinCos_HasVariables()
     {
-        return "Sin(a) + Cos(b)".Compile(new Variables { a = a, b = b }, _scientificContext);
+        return "Sin(a) + Cos(b)".Compile(_scientificContext, null, new Variables { a = a, b = b });
     }
 
     [Benchmark(Description = "NCalc: \"Sin(a) + Cos(b)\"")]
