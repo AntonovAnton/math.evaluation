@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using MathEvaluation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using NCalc;
@@ -29,7 +30,7 @@ public class CompilationBenchmarks
     [Benchmark(Description = "MathEvaluator: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
     public Func<double> MathExpression_Compile()
     {
-        return "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Compile();
+        return new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Compile();
     }
 
     [Benchmark(Description = "NCalc: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
@@ -44,8 +45,8 @@ public class CompilationBenchmarks
     [Benchmark(Description = "MathEvaluator: \"true or not false and (true or false)\"")]
     public Func<bool> MathExpression_CompileBoolean()
     {
-        return "true or not false and (true or false)"
-            .CompileBoolean(_programmingContext);
+        return new MathExpression("true or not false and (true or false)", _programmingContext)
+            .CompileBoolean();
     }
 
     [Benchmark(Description = "NCalc: \"true or not false and (true or false)\"")]
@@ -86,7 +87,7 @@ public class CompilationBenchmarks
     [Benchmark(Description = "MathEvaluator: \"Sin(pi/6) + Cos(pi/3)\"")]
     public Func<double> MathExpression_CompileSinCos()
     {
-        return "Sin(pi/6) + Cos(pi/3)".Compile(_scientificContext);
+        return new MathExpression("Sin(pi/6) + Cos(pi/3)", _scientificContext).Compile();
     }
 
     [Benchmark(Description = "NCalc: \"Sin(pi/6) + Cos(pi/3)\"")]
