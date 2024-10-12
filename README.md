@@ -134,15 +134,10 @@ Example of using custom context:
 
 Examples of compilation:
 
-    Func<decimal> fn1 = "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6"
-        .CompileDecimal(null, new CultureInfo("de-CH"));
-    
-    var value1 = fn1();
-    
-    var fn2 = "ln(1/x1 + √(1/(x2*x2) + 1))"
-        .Compile(new ScientificMathContext(), null, new { x1 = 0.0, x2 = 0.0 });
+    var fn = "ln(1/x1 + √(1/(x2*x2) + 1))"
+        .Compile(new { x1 = 0.0, x2 = 0.0 }, new ScientificMathContext());
         
-    var value2 = fn2(new { x1 = -0.5, x2 = 0.5 });
+    var value = fn(new { x1 = -0.5, x2 = 0.5 });
 
 ## How to debug or log
 

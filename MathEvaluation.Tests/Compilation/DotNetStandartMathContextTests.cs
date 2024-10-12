@@ -71,7 +71,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var fn = expression.Compile(_context, null, new { a = 0 });
+        var fn = expression.Compile(new { a = 0 }, _context);
         var value = fn(new { a = 5 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -89,7 +89,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var fn = expression.Compile(_context, null, new { a = 0 });
+        var fn = expression.Compile(new { a = 0 }, _context);
         var value = fn(new { a = 5 });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -501,7 +501,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = expression.Compile(_context, null, new { x = 0.0, PI = 0.0 });
+        var fn = expression.Compile(new { x = 0.0, PI = 0.0 }, _context);
         var value = fn(new { x = varValue, PI = varValue });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -517,7 +517,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = expression.CompileComplex(_context, null, new { x = 0.0, PI = 0.0 });
+        var fn = expression.CompileComplex(new { x = 0.0, PI = 0.0 }, _context);
         var value = fn(new { x = varValue, PI = varValue });
 
         testOutputHelper.WriteLine($"result: {value}");

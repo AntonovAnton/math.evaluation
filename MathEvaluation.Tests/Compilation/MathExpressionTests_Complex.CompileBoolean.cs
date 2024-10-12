@@ -144,7 +144,7 @@ public partial class MathExpressionTests_Complex
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var fn = expression.CompileComplex(_programmingContext, null, new { A = a, B = b, C = getC });
+        var fn = expression.CompileComplex(new { A = a, B = b, C = getC }, _programmingContext);
         var value = fn(new { A = a, B = b, C = getC });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -162,7 +162,7 @@ public partial class MathExpressionTests_Complex
         var context = new ProgrammingMathContext();
         context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
-        var fn = expression.CompileComplex(context, null, new { a });
+        var fn = expression.CompileComplex(new { a }, context);
         var value = fn(new { a });
 
         testOutputHelper.WriteLine($"result: {value}");
