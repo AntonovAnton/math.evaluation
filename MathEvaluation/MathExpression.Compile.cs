@@ -96,11 +96,24 @@ public partial class MathExpression
                         return expression;
 
                     i++;
+                    var numberPosition = i;
+
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
-                    expression = MathCompatibleOperator.Build<TResult>(isMeaningless
-                        ? OperatorType.Negate //it keeps sign
-                        : OperatorType.Subtract, expression, right);
+
+                    //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
+                    if (right is ConstantExpression c && c.Value is Complex value)
+                    {
+                        if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out bool isImaginaryPart))
+                            expression = Expression.Constant(isImaginaryPart ? Complex.Conjugate(value) : new Complex(-value.Real, value.Imaginary));
+                        else
+                            expression = MathCompatibleOperator.Build<TResult>(OperatorType.Subtract, expression, right);
+                    }
+                    else
+                    {
+                        var operatorType = isMeaningless ? OperatorType.Negate : OperatorType.Subtract;
+                        expression = MathCompatibleOperator.Build<TResult>(operatorType, expression, right);
+                    }
 
                     OnEvaluating(start, i, expression);
                     if (isOperand)

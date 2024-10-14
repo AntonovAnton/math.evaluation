@@ -23,5 +23,13 @@ public class DecimalProgrammingMathContext : ProgrammingMathContext
 
         static decimal floorDivisionFn(decimal left, decimal right) => Math.Floor(left / right);
         BindOperator(floorDivisionFn, "//");
+
+        static decimal iifFn(decimal[] args) => args[0] != default
+            ? args.Length > 1 ? args[1] : 1m
+            : args.Length > 2 ? args[2] : args.Length > 3 ? throw new ArgumentOutOfRangeException("Count of args > 3") : 0m;
+
+        BindFunction(iifFn, "iif");
+        BindFunction(iifFn, "Iif");
+        BindFunction(iifFn, "IIF");
     }
 }

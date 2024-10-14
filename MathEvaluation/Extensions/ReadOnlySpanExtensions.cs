@@ -95,6 +95,39 @@ internal static class ReadOnlySpanExtensions
         }
     }
 
+    /// <summary>
+    /// Determines whether the string is a complex number part. Complex numbers are written in the form a ± bi, where a is the real part and bi is the imaginary part.
+    /// </summary>
+    /// <param name="str">The math expression string.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="isImaginaryPart">if set to <c>true</c> is the imaginary part of a complex number.</param>
+    /// <returns>
+    ///   <c>true</c> if it's a part of a complex number; otherwise, <c>false</c>.
+    /// </returns>
+    internal static bool IsComplexNumberPart(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, out bool isImaginaryPart)
+    {
+        isImaginaryPart = false;
+
+        if (!str.IsEmpty)
+        {
+            int i = 0;
+            str.SkipMeaningless(ref i);
+
+            var numberStr = str.GetNumberString(numberFormat, ref i);
+
+            // GetNumberString sets the 'i' to the next index after the number part. 
+            if (str.Length == i + 1 && str[i] == 'i')
+            {
+                isImaginaryPart = true;
+                return true;
+            }
+
+            return !numberStr.IsEmpty && str.Length == i;
+        }
+
+        return false;
+    }
+
     /// <summary>Gets the number string.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>

@@ -160,4 +160,19 @@ public partial class MathExpressionTests
 
         Assert.Equal(expectedValue, value);
     }
+
+    [Theory]
+    [InlineData("IIF(3 % a = 1)", 2d, true)]
+    [InlineData("Iif(3 % a = 1, true)", 1d, false)]
+    [InlineData("iif(3 % a = 1, false, true)", 1d, true)]
+    public void MathExpression_EvaluateBoolean_HasIif_ExpectedValue(string expression, double a, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var value = expression.EvaluateBoolean(new { a }, _programmingContext);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
 }

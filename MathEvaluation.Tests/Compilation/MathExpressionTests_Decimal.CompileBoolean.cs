@@ -168,4 +168,20 @@ public partial class MathExpressionTests_Decimal
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
+
+    [Theory]
+    [InlineData("IIF(3 % a = 1)", 2d, true)]
+    [InlineData("Iif(3 % a = 1, true)", 1d, false)]
+    [InlineData("iif(3 % a = 1, false, true)", 1d, true)]
+    public void MathExpression_CompileDecimalThenInvoke_HasIif_ExpectedValue(string expression, double a, bool expectedValue)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+
+        var fn = expression.CompileDecimal(new { a }, _programmingContext);
+        var value = fn(new { a });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value != 0.0m);
+    }
 }

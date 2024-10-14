@@ -258,7 +258,7 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Subtract => left - right,
             OperatorType.Modulo => ConvertToDouble(left) % ConvertToDouble(right),
             OperatorType.Power => Complex.Pow(left, right),
-            OperatorType.Negate => new Complex(right.Real == 0.0 ? right.Real : -right.Real, right.Imaginary == 0.0 ? right.Imaginary : -right.Imaginary),
+            OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
     }
