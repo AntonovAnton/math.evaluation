@@ -212,6 +212,7 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Logical AND  | and, And, AND | -300 |
 | Logical exclusive OR  | xor, Xor, XOR | -400 |
 | Logical OR  | or, Or, OR | -500 |
+| Conditional operation: `IIF(condition, valueIfTrue, valueIfFalse)`, where the `valueIfTrue` and `valueIfFalse` args are optional | iif, Iif, IIF | 200 |
 
 #### Scientific Math Context (using ScientificMathContext class):
 

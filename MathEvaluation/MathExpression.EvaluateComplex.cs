@@ -103,11 +103,16 @@ public partial class MathExpression
                         return value;
 
                     i++;
+                    var numberPosition = i;
+
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     result = EvaluateComplex(ref i, separator, closingSymbol, p, isOperand);
-                    value = isMeaningless
-                        ? new Complex(result.Real == 0.0 ? result.Real : -result.Real, result.Imaginary == 0.0 ? result.Imaginary : -result.Imaginary)
-                        : value - result; //it keeps sign
+
+                    //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
+                    if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out bool isImaginaryPart))
+                        value = isImaginaryPart ? Complex.Conjugate(result) : new Complex(-result.Real, result.Imaginary);
+                    else
+                        value -= result;
 
                     OnEvaluating(start, i, value);
                     if (isOperand)

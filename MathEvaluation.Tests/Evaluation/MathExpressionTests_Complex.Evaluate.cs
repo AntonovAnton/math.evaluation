@@ -1,5 +1,4 @@
 ﻿using MathEvaluation.Context;
-using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;

@@ -51,5 +51,13 @@ public class ProgrammingMathContext : MathContext
         BindOperator("not", OperatorType.LogicalNot);
         BindOperator("Not", OperatorType.LogicalNot);
         BindOperator("NOT", OperatorType.LogicalNot);
+
+        static double iifFn(double[] args) => args[0] != default
+            ? args.Length > 1 ? args[1] : 1d
+            : args.Length > 2 ? args[2] : args.Length > 3 ? throw new ArgumentOutOfRangeException("Count of args > 3") : 0d;
+
+        BindFunction(iifFn, "iif");
+        BindFunction(iifFn, "Iif");
+        BindFunction(iifFn, "IIF");
     }
 }
