@@ -4,6 +4,8 @@ using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Numerics;
 
+namespace MathEvaluation.Benchmarks;
+
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net80)]
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
@@ -53,6 +55,7 @@ public class ComplexNumbersBenchmarks
     }
 
 #pragma warning disable IDE1006 // Naming Styles
+    // ReSharper disable once InconsistentNaming
     public record SinArg(Complex a);
 #pragma warning restore IDE1006 // Naming Styles
 }

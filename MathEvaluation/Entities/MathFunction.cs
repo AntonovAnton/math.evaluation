@@ -7,7 +7,7 @@ using System.Numerics;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The function with multiple parameters, so opening, separator, and closing symbol are required.
+///     The function with multiple parameters, so opening, separator, and closing symbol are required.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathFunction<T> : MathEntity
@@ -38,7 +38,7 @@ public class MathFunction<T> : MathEntity
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="ArgumentNullException" />
     public MathFunction(string? key, Func<T[], T> fn, char openingSymbol, char separator, char closingSymbol)
         : base(key)
     {
@@ -48,7 +48,7 @@ public class MathFunction<T> : MathEntity
         ClosingSymbol = closingSymbol;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
@@ -69,24 +69,26 @@ public class MathFunction<T> : MathEntity
                 i++; //other param
                 continue;
             }
+
             break;
         }
+
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var result = Fn([.. args]);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn([.. args]);
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = ConvertToDouble(result);
-        dResult = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = ConvertToDouble(fnResult);
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult && !double.IsNaN(value))
+        if (value != result && !double.IsNaN(value))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
@@ -107,24 +109,26 @@ public class MathFunction<T> : MathEntity
                 i++; //other param
                 continue;
             }
+
             break;
         }
+
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var result = Fn([.. args]);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn([.. args]);
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = ConvertToDecimal(result);
-        dResult = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = ConvertToDecimal(fnResult);
+        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult)
+        if (value != result)
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
     {
         var tokenPosition = i;
@@ -142,24 +146,26 @@ public class MathFunction<T> : MathEntity
                 i++; //other param
                 continue;
             }
+
             break;
         }
+
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var result = Fn([.. args]);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn([.. args]);
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = result is Complex r ? r : ConvertToDouble(result);
-        dResult = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = fnResult is Complex r ? r : ConvertToDouble(fnResult);
+        result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
+        if (value != result && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         var tokenPosition = i;
@@ -177,8 +183,10 @@ public class MathFunction<T> : MathEntity
                 i++; //other param
                 continue;
             }
+
             break;
         }
+
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
         Expression right = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args));
@@ -186,7 +194,7 @@ public class MathFunction<T> : MathEntity
 
         right = BuildConvert<TResult>(right);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-        var expression = MathExpression.BuildMultipyIfLeftNotDefault<TResult>(left, right);
+        var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
             mathExpression.OnEvaluating(start, i, expression);

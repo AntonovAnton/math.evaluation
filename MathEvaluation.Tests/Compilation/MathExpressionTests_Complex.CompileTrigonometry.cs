@@ -2,6 +2,7 @@
 
 namespace MathEvaluation.Tests.Compilation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Complex
 {
     [Theory]
@@ -144,7 +145,8 @@ public partial class MathExpressionTests_Complex
     [InlineData("CSCH(-∞)", 0d)]
     [InlineData("CSCH -1.4436354751788103", -0.5d)]
     [InlineData("Csch-0.88137358701954294", -1.0000000000000002d)]
-    public void MathExpression_CompileComplexThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_CompileComplexThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -198,7 +200,8 @@ public partial class MathExpressionTests_Complex
     [InlineData("Cot^-1(0)", Math.PI / 2)]
     [InlineData("cot^-11", Math.PI / 4)]
     [InlineData("COT^-1(2)", 0.46364760900080609d)]
-    public void MathExpression_CompileComplexThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_CompileComplexThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;
@@ -267,7 +270,8 @@ public partial class MathExpressionTests_Complex
     [InlineData("Csch^-1-1", -0.88137358701954294d)]
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
     [InlineData("csch^-1(-∞)", 0)]
-    public void MathExpression_CompileComplexThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_CompileComplexThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _scientificContext);
         expression.Evaluating += SubscribeToEvaluating;

@@ -2,6 +2,7 @@
 
 namespace MathEvaluation.Tests.Evaluation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Complex
 {
     [Theory]

@@ -1,11 +1,12 @@
 using MathEvaluation.Entities;
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace MathEvaluation.Parameters;
 
 /// <summary>
-/// It allows for the search of custom variables that are used as parameters within a mathematical expression.
+///     It allows for the search of custom variables that are used as parameters within a mathematical expression.
 /// </summary>
 public interface IMathParameters
 {
@@ -19,11 +20,11 @@ public interface IMathParameters
     /// <returns></returns>
     void Bind(object parameters);
 
-    /// <inheritdoc cref="BindVariable(double, char)"/>
+    /// <inheritdoc cref="BindVariable(double, char)" />
     void BindVariable<T>(T value, char key)
         where T : struct;
 
-    /// <inheritdoc cref="BindVariable(double, char)"/>
+    /// <inheritdoc cref="BindVariable(double, char)" />
     void BindVariable<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
         where T : struct;
 
@@ -33,7 +34,7 @@ public interface IMathParameters
     /// <returns></returns>
     void BindVariable(double value, char key);
 
-    /// <inheritdoc cref="BindVariable(double, char)"/>
+    /// <inheritdoc cref="BindVariable(double, char)" />
     void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
     /// <summary>Binds the getting value function.</summary>
@@ -42,7 +43,7 @@ public interface IMathParameters
     /// <returns></returns>
     void BindFunction(Func<double> fn, char key);
 
-    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
     void BindFunction(Func<double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
 
     /// <summary>Binds the unary function.</summary>
@@ -65,64 +66,65 @@ public interface IMathParameters
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<double, double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<double[], double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
     #region decimal
 
-    /// <inheritdoc cref="BindVariable(double, char)"/>
+    /// <inheritdoc cref="BindVariable(double, char)" />
     void BindVariable(decimal value, char key);
 
-    /// <inheritdoc cref="BindVariable(double, string?)"/>
+    /// <inheritdoc cref="BindVariable(double, string?)" />
     void BindVariable(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
-    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
     void BindFunction(Func<decimal> fn, char key);
 
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)"/>
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
     void BindFunction(Func<decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
     void BindFunction(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char? openingSymbol = null, char? closingSymbol = null);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
     void BindFunction(Func<decimal, decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator, char closingSymbol = Constants.DefaultClosingSymbol);
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
     void BindFunction(Func<decimal[], decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol);
@@ -131,17 +133,62 @@ public interface IMathParameters
 
     #region boolean
 
-    /// <inheritdoc cref="BindVariable(double, char)"/>
+    /// <inheritdoc cref="BindVariable(double, char)" />
     void BindVariable(bool value, char key);
 
-    /// <inheritdoc cref="BindVariable(double, string?)"/>
+    /// <inheritdoc cref="BindVariable(double, string?)" />
     void BindVariable(bool value, [CallerArgumentExpression(nameof(value))] string? key = null);
 
-    /// <inheritdoc cref="BindFunction(Func{double}, char)"/>
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
     void BindFunction(Func<bool> fn, char key);
 
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)"/>
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
     void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
+
+    #endregion
+
+    #region complex
+
+    /// <inheritdoc cref="BindVariable(double, char)" />
+    void BindVariable(Complex value, char key);
+
+    /// <inheritdoc cref="BindVariable(double, string?)" />
+    void BindVariable(Complex value, [CallerArgumentExpression(nameof(value))] string? key = null);
+
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
+    void BindFunction(Func<Complex> fn, char key);
+
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
+    void BindFunction(Func<Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
+    void BindFunction(Func<Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
+    void BindFunction(Func<Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
+    void BindFunction(Func<Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
+    void BindFunction(Func<Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
+    void BindFunction(Func<Complex, Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
+    void BindFunction(Func<Complex[], Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol);
 
     #endregion
 }

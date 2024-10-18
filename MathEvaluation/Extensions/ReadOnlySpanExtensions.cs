@@ -11,7 +11,7 @@ internal static class ReadOnlySpanExtensions
     /// <param name="numberFormat">The number format info that defines the currency symbol.</param>
     /// <param name="i">The current char index.</param>
     /// <returns>
-    ///   <c>true</c> if it's the currency symbol; otherwise, <c>false</c>.
+    ///     <c>true</c> if it's the currency symbol; otherwise, <c>false</c>.
     /// </returns>
     internal static bool TryParseCurrency(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
@@ -59,13 +59,11 @@ internal static class ReadOnlySpanExtensions
         }
 
         var number = str.ParseNumber(numberFormat, ref i);
-        if (str.Length > i && str[i] == 'i')
-        {
-            i++;
-            return new Complex(0d, number);
-        }
+        if (str.Length <= i || str[i] != 'i')
+            return new Complex(number, 0d);
 
-        return new Complex(number, 0d);
+        i++;
+        return new Complex(0d, number);
     }
 
     /// <summary>Parses a number.</summary>
@@ -96,36 +94,33 @@ internal static class ReadOnlySpanExtensions
     }
 
     /// <summary>
-    /// Determines whether the string is a complex number part. Complex numbers are written in the form a ± bi, where a is the real part and bi is the imaginary part.
+    ///     Determines whether the string is a complex number part. Complex numbers are written in the form a ± bi, where a is
+    ///     the real part and bi is the imaginary part.
     /// </summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="isImaginaryPart">if set to <c>true</c> is the imaginary part of a complex number.</param>
     /// <returns>
-    ///   <c>true</c> if it's a part of a complex number; otherwise, <c>false</c>.
+    ///     <c>true</c> if it's a part of a complex number; otherwise, <c>false</c>.
     /// </returns>
     internal static bool IsComplexNumberPart(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, out bool isImaginaryPart)
     {
         isImaginaryPart = false;
 
-        if (!str.IsEmpty)
-        {
-            int i = 0;
-            str.SkipMeaningless(ref i);
+        if (str.IsEmpty)
+            return false;
 
-            var numberStr = str.GetNumberString(numberFormat, ref i);
+        var i = 0;
+        str.SkipMeaningless(ref i);
 
-            // GetNumberString sets the 'i' to the next index after the number part. 
-            if (str.Length == i + 1 && str[i] == 'i')
-            {
-                isImaginaryPart = true;
-                return true;
-            }
+        var numberStr = str.GetNumberString(numberFormat, ref i);
 
+        // GetNumberString sets the 'i' to the next index after the number part. 
+        if (str.Length != i + 1 || str[i] != 'i')
             return !numberStr.IsEmpty && str.Length == i;
-        }
 
-        return false;
+        isImaginaryPart = true;
+        return true;
     }
 
     /// <summary>Gets the number string.</summary>
@@ -139,7 +134,7 @@ internal static class ReadOnlySpanExtensions
         while (str.Length > i)
         {
             if (str[i] is >= '0' and <= '9' ||
-                numberFormat?.NumberDecimalSeparator == null && str[i] is '.')
+                (numberFormat?.NumberDecimalSeparator == null && str[i] is '.'))
             {
                 i++;
                 continue;
@@ -153,20 +148,21 @@ internal static class ReadOnlySpanExtensions
                 continue;
             }
 
-            if (TryParseNumberFormatSeparator(str, numberFormat?.NumberDecimalSeparator, ref i) ||
-                TryParseNumberFormatSeparator(str, numberFormat?.NumberGroupSeparator, ref i))
+            if (tryParseNumberFormatSeparator(str, numberFormat?.NumberDecimalSeparator, ref i) ||
+                tryParseNumberFormatSeparator(str, numberFormat?.NumberGroupSeparator, ref i))
                 continue;
+
             break;
         }
 
         return str[start..i];
 
-        static bool TryParseNumberFormatSeparator(ReadOnlySpan<char> str, string? numberFormatSeparator, ref int i)
+        static bool tryParseNumberFormatSeparator(ReadOnlySpan<char> str, string? numberFormatSeparator, ref int i)
         {
             if (string.IsNullOrEmpty(numberFormatSeparator) ||
                 !str[i..].StartsWith(numberFormatSeparator) ||
-                str.Length > i + numberFormatSeparator.Length &&
-                str[i + numberFormatSeparator.Length] is not >= '0' and <= '9')
+                (str.Length > i + numberFormatSeparator.Length &&
+                 str[i + numberFormatSeparator.Length] is < '0' or > '9'))
                 return false;
 
             i += numberFormatSeparator.Length;

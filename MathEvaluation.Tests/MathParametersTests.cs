@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace MathEvaluation.Tests;
 
-public class MathParametersTests()
+public class MathParametersTests
 {
     [Fact]
     public void MathParameters_Bind_HasNotSupportedCustomSystemFunc_ThrowNotSupportedException()
@@ -13,7 +13,9 @@ public class MathParametersTests()
         var ex = Record.Exception(() => new MathParameters().Bind(new { min }));
 
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("System.Func`7[System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double] isn't supported, you can use Func<T[], T> istead.", ex.Message);
+        Assert.Equal(
+            "System.Func`7[System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double] isn't supported, you can use Func<T[], T> instead.",
+            ex.Message);
     }
 
     [Fact]

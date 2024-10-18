@@ -6,7 +6,7 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
-    /// <inheritdoc cref="Compile()"/>
+    /// <inheritdoc cref="Compile()" />
     public Func<bool> CompileBoolean()
     {
         try
@@ -23,7 +23,7 @@ public partial class MathExpression
         }
     }
 
-    /// <inheritdoc cref="Compile{T}(T)"/>
+    /// <inheritdoc cref="Compile{T}(T)" />
     public Func<T, bool> CompileBoolean<T>(T parameters)
     {
         if (parameters == null)

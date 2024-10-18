@@ -8,14 +8,14 @@ using System.Reflection;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The math operator processes the left and right expressions.
+///     The math operator processes the left and right expressions.
 /// </summary>
 public class MathCompatibleOperator : MathEntity
 {
     private static readonly Dictionary<OperatorType, ExpressionType> ExpressionTypeByOperatorType = [];
     private static readonly Dictionary<OperatorType, EvalPrecedence> EvalPrecedenceByOperatorType = [];
 
-    private readonly bool _isProcessingOperand = false;
+    private readonly bool _isProcessingOperand;
 
     /// <summary>Gets the type of the expression node.</summary>
     /// <value>The type of the expression node.</value>
@@ -34,7 +34,7 @@ public class MathCompatibleOperator : MathEntity
         {
             var attributes = fieldInfo.GetCustomAttributes(typeof(OperatorAttribute), false);
             var operatorAttribute = (OperatorAttribute?)attributes.FirstOrDefault(a => a is OperatorAttribute)
-                ?? throw new Exception($"The Operator attribute isn't set for {fieldInfo.Name}.");
+                                    ?? throw new Exception($"The Operator attribute isn't set for {fieldInfo.Name}.");
 
             var expressionType = operatorAttribute.ExpressionType;
             var precedence = operatorAttribute.Precedence;
@@ -48,8 +48,11 @@ public class MathCompatibleOperator : MathEntity
 
     /// <summary>Initializes a new instance of the <see cref="MathOperator{T}" /> class.</summary>
     /// <param name="key">The key (the operator notation).</param>
-    /// <param name="operatorType">The specified type of the operator allows improve performance if it matches a C# operator.</param>
-    /// <exception cref="ArgumentNullException"/>
+    /// <param name="operatorType">
+    ///     The specified type of the operator allows to improve performance if it matches a C#
+    ///     operator.
+    /// </param>
+    /// <exception cref="ArgumentNullException" />
     public MathCompatibleOperator(string? key, OperatorType operatorType)
         : base(key)
     {
@@ -61,7 +64,7 @@ public class MathCompatibleOperator : MathEntity
         _isProcessingOperand = precedence is EvalPrecedence.OperandUnaryOperator or EvalPrecedence.Exponentiation;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double left)
     {
         var tokenPosition = i;
@@ -86,7 +89,7 @@ public class MathCompatibleOperator : MathEntity
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal left)
     {
         var tokenPosition = i;
@@ -111,7 +114,7 @@ public class MathCompatibleOperator : MathEntity
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex left)
     {
         var tokenPosition = i;
@@ -136,7 +139,7 @@ public class MathCompatibleOperator : MathEntity
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         var tokenPosition = i;
@@ -162,23 +165,20 @@ public class MathCompatibleOperator : MathEntity
     }
 
     internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
-    {
-        return left is ConstantExpression l && right is ConstantExpression r
+        => left is ConstantExpression l && right is ConstantExpression r
             ? BuildConstant<TResult>(type, l, r)
             : BuildNotConstant<TResult>(type, left, right);
-    }
 
     #region private static Methods
 
     private static double Calculate(OperatorType type, double left, double right)
-    {
-        return type switch
+        => type switch
         {
             OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0 : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0 : default,
             OperatorType.LogicalOr => left != default || right != default ? 1.0 : default,
             OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => left != default ^ right != default ? 1.0 : default,
+            OperatorType.LogicalXor => (left != default) ^ (right != default) ? 1.0 : default,
             OperatorType.BitwiseXor => (long)left ^ (long)right,
             OperatorType.LogicalAnd => left != default && right != default ? 1.0 : default,
             OperatorType.BitwiseAnd => (long)left & (long)right,
@@ -199,17 +199,15 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
-    }
 
     private static decimal Calculate(OperatorType type, decimal left, decimal right)
-    {
-        return type switch
+        => type switch
         {
             OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0m : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0m : default,
             OperatorType.LogicalOr => left != default || right != default ? 1.0m : default,
             OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => left != default ^ right != default ? 1.0m : default,
+            OperatorType.LogicalXor => (left != default) ^ (right != default) ? 1.0m : default,
             OperatorType.BitwiseXor => (long)left ^ (long)right,
             OperatorType.LogicalAnd => left != default && right != default ? 1.0m : default,
             OperatorType.BitwiseAnd => (long)left & (long)right,
@@ -230,11 +228,9 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
-    }
 
     private static Complex Calculate(OperatorType type, Complex left, Complex right)
-    {
-        return type switch
+        => type switch
         {
             OperatorType.LogicalConditionalOr => ConvertToBoolean(left) || ConvertToBoolean(right) ? Complex.One : default,
             OperatorType.LogicalConditionalAnd => ConvertToBoolean(left) && ConvertToBoolean(right) ? Complex.One : default,
@@ -261,48 +257,37 @@ public class MathCompatibleOperator : MathEntity
             OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
-    }
 
     private static Expression BuildNotConstant<TResult>(OperatorType type, Expression left, Expression right)
     {
-        if (type is OperatorType.LogicalConditionalAnd or OperatorType.LogicalAnd
-            or OperatorType.LogicalConditionalOr or OperatorType.LogicalOr)
+        switch (type)
         {
-            left = BuildConvert<bool>(left);
-            right = BuildConvert<bool>(right);
-        }
-
-        if (type is OperatorType.BitwiseAnd or OperatorType.BitwiseOr
-            or OperatorType.LogicalXor or OperatorType.BitwiseXor)
-        {
-            left = BuildConvert<long>(left);
-            right = BuildConvert<long>(right);
-        }
-
-        if (type is OperatorType.LogicalNot or OperatorType.LogicalNegation)
-            right = BuildConvert<bool>(right);
-
-        if (type is OperatorType.BitwiseNegation)
-            right = BuildConvert<long>(right);
-
-        if (type is OperatorType.Power)
-        {
-            if (typeof(TResult) == typeof(Complex))
-            {
+            case OperatorType.LogicalConditionalAnd or OperatorType.LogicalAnd
+                or OperatorType.LogicalConditionalOr or OperatorType.LogicalOr:
+                left = BuildConvert<bool>(left);
+                right = BuildConvert<bool>(right);
+                break;
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr
+                or OperatorType.LogicalXor or OperatorType.BitwiseXor:
+                left = BuildConvert<long>(left);
+                right = BuildConvert<long>(right);
+                break;
+            case OperatorType.LogicalNot or OperatorType.LogicalNegation:
+                right = BuildConvert<bool>(right);
+                break;
+            case OperatorType.BitwiseNegation:
+                right = BuildConvert<long>(right);
+                break;
+            case OperatorType.Power when typeof(TResult) == typeof(Complex):
                 left = BuildConvert<Complex>(left);
                 right = BuildConvert<Complex>(right);
-                return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [left.Type, right.Type]), left, right);
-            }
-
-            left = BuildConvert<double>(left);
-            right = BuildConvert<double>(right);
-        }
-
-        if (typeof(TResult) == typeof(Complex) &&
-            type is OperatorType.Modulo or OperatorType.LessThan or OperatorType.LessThanOrEqual or OperatorType.GreaterThan or OperatorType.GreaterThanOrEqual)
-        {
-            left = BuildConvert<double>(left);
-            right = BuildConvert<double>(right);
+                return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [left.Type, right.Type])!, left, right);
+            case OperatorType.Modulo or OperatorType.LessThan or OperatorType.LessThanOrEqual or OperatorType.GreaterThan or OperatorType.GreaterThanOrEqual
+                when typeof(TResult) == typeof(Complex):
+            case OperatorType.Power:
+                left = BuildConvert<double>(left);
+                right = BuildConvert<double>(right);
+                break;
         }
 
         var expression = type is OperatorType.LogicalNot or OperatorType.LogicalNegation or OperatorType.BitwiseNegation or OperatorType.Negate
@@ -315,25 +300,29 @@ public class MathCompatibleOperator : MathEntity
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
     {
         object value;
-        if (left.Value is Complex lc)
+        switch (left.Value)
         {
-            var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
-            value = Calculate(type, lc, rc);
-        }
-        else if (left.Value is decimal ld)
-        {
-            var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
-            value = Calculate(type, ld, rd);
-        }
-        else
-        {
-            value = Calculate(type, ConvertToDouble(left.Value), ConvertToDouble(right.Value));
+            case Complex lc:
+            {
+                var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
+                value = Calculate(type, lc, rc);
+                break;
+            }
+            case decimal ld:
+            {
+                var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
+                value = Calculate(type, ld, rd);
+                break;
+            }
+            default:
+                value = Calculate(type, ConvertToDouble(left.Value), ConvertToDouble(right.Value));
+                break;
         }
 
         return BuildConvert<TResult>(Expression.Constant(value));
     }
 
-    private static bool ConvertToBoolean<Complex>(Complex value)
+    private static bool ConvertToBoolean(Complex value)
         => (bool)ChangeType(value, typeof(bool));
 
     #endregion

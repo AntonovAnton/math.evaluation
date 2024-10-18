@@ -2,6 +2,9 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable RedundantLogicalConditionalExpressionOperand
+
 namespace MathEvaluation.Tests.Evaluation;
 
 public partial class MathExpressionTests
@@ -14,8 +17,8 @@ public partial class MathExpressionTests
     [InlineData("True xor True", false)]
     [InlineData("200 >= 2.4", 200 >= 2.4)]
     [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1.0 >= 0.1 and 5.4 <= 5.4", (1.0 >= 0.1) & (5.4 <= 5.4))]
+    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
@@ -43,7 +46,7 @@ public partial class MathExpressionTests
     [InlineData("200 ≥ 2.4", 200 >= 2.4)]
     [InlineData("200 ≤ 2.4", 200 <= 2.4)]
     [InlineData("1.0 ⪯ 0.1 and 5.4 ≤ 5.4", 1.0 <= 0.1 && 5.4 <= 5.4)]
-    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1 > -0 And 2 < 3 Or 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 AND 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 ⪰ 0.1", 1.0 - 1.95 >= 0.1)]

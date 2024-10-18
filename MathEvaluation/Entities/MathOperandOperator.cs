@@ -5,8 +5,8 @@ using System.Numerics;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The math operator that performs an action on one math operand. 
-/// For example, degrees, factorial, decrement, increment, or negation.
+///     The math operator that performs an action on one math operand.
+///     For example, degrees, factorial, decrement, increment, or negation.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathOperandOperator<T> : MathEntity
@@ -20,18 +20,18 @@ public class MathOperandOperator<T> : MathEntity
     public override int Precedence => (int)EvalPrecedence.OperandUnaryOperator;
 
     /// <summary>
-    /// Gets a value indicating whether this instance is processing left operand.
+    ///     Gets a value indicating whether this instance is processing left operand.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
+    ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </value>
-    public bool IsProcessingLeft { get; } = false;
+    public bool IsProcessingLeft { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this instance is processing right operand.
+    ///     Gets a value indicating whether this instance is processing right operand.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance is processing right operand; otherwise, <c>false</c>.
+    ///     <c>true</c> if this instance is processing right operand; otherwise, <c>false</c>.
     /// </value>
     public bool IsProcessingRight => !IsProcessingLeft;
 
@@ -39,9 +39,9 @@ public class MathOperandOperator<T> : MathEntity
     /// <param name="key">The key.</param>
     /// <param name="fn">The function.</param>
     /// <param name="isProcessingLeft">
-    ///   <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
+    ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
-    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="ArgumentNullException" />
     public MathOperandOperator(string? key, Func<T, T> fn, bool isProcessingLeft = false)
         : base(key)
     {
@@ -49,7 +49,7 @@ public class MathOperandOperator<T> : MathEntity
         IsProcessingLeft = isProcessingLeft;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
@@ -69,11 +69,11 @@ public class MathOperandOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = ConvertToDouble(result);
-        return mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, dResult);
+        value = ConvertToDouble(result);
+        return mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, value);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
@@ -93,11 +93,11 @@ public class MathOperandOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = ConvertToDecimal(result);
-        return mathExpression.EvaluateExponentiationDecimal(start, ref i, separator, closingSymbol, dResult);
+        value = ConvertToDecimal(result);
+        return mathExpression.EvaluateExponentiationDecimal(start, ref i, separator, closingSymbol, value);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
     {
         i += Key.Length;
@@ -114,11 +114,11 @@ public class MathOperandOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = result is Complex r ? r : ConvertToDouble(result);
-        return mathExpression.EvaluateExponentiationComplex(start, ref i, separator, closingSymbol, dResult);
+        value = result is Complex r ? r : ConvertToDouble(result);
+        return mathExpression.EvaluateExponentiationComplex(start, ref i, separator, closingSymbol, value);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;

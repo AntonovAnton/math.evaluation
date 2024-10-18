@@ -7,6 +7,7 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHelper)
 {
     private readonly ComplexScientificMathContext _scientificContext = new();
@@ -489,7 +490,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         Func<double, double> ln = Math.Log;
 
         var context = new MathContext(new { sqrt, ln });
-        var value = expression.EvaluateComplex(new { x1, x2 }, context); ;
+        var value = expression.EvaluateComplex(new { x1, x2 }, context);
 
         Assert.Equal(expectedValue, value);
     }
@@ -509,6 +510,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
                 if (args[i] < minValue)
                     minValue = args[i];
             }
+
             return minValue;
         };
 
@@ -536,9 +538,11 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
-    public void MathExpression_EvaluateComplex_HasUnknowToken_ThrowMathEvaluationException(string expression, string errorMessage)
+    [InlineData("1 + ctng(3 + 4)",
+        "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p",
+        "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
+    public void MathExpression_EvaluateComplex_HasUnknownToken_ThrowMathEvaluationException(string expression, string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");
 

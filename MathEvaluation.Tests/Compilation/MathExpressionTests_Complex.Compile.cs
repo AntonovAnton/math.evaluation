@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHelper)
 {
     private readonly ComplexScientificMathContext _scientificContext = new();
@@ -146,7 +147,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("pow(,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, ,2 * 10)", 0.23 * 0.23, "af")]
-    public void MathExpression_CompileComplexThenInvoke_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
+    public void MathExpression_CompileComplexThenInvoke_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue,
+        string cultureName)
     {
         var context = new MathContext();
         context.BindFunction(Math.Pow, "pow");
@@ -165,7 +167,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [Theory]
     [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
     [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
-    public void MathExpression_CompileComplexThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName, double expectedValue)
+    public void MathExpression_CompileComplexThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName,
+        double expectedValue)
     {
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
         using var expression = new MathExpression(mathString, _scientificContext, cultureInfo);
@@ -569,6 +572,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
                 if (args[i] < minValue)
                     minValue = args[i];
             }
+
             return minValue;
         };
 
@@ -593,9 +597,11 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
-    public void MathExpression_CompileComplexThenInvoke_HasUnknowToken_ThrowMathEvaluationException(string mathString, string errorMessage)
+    [InlineData("1 + ctng(3 + 4)",
+        "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p",
+        "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
+    public void MathExpression_CompileComplexThenInvoke_HasUnknownToken_ThrowMathEvaluationException(string mathString, string errorMessage)
     {
         testOutputHelper.WriteLine($"{mathString}");
 
