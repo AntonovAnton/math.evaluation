@@ -1,5 +1,6 @@
 ﻿namespace MathEvaluation.Tests.Compilation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal
 {
     [Theory]

@@ -8,11 +8,11 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
-    /// <inheritdoc cref="Evaluate(object?)"/>
+    /// <inheritdoc cref="Evaluate(object?)" />
     public Complex EvaluateComplex(object? parameters = null)
         => EvaluateComplex(parameters != null ? new MathParameters(parameters) : null);
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?)"/>
+    /// <inheritdoc cref="Evaluate(IMathParameters?)" />
     public Complex EvaluateComplex(IMathParameters? parameters)
     {
         _parameters = parameters;
@@ -43,8 +43,8 @@ public partial class MathExpression
         var start = i;
         while (span.Length > i)
         {
-            if (separator.HasValue && IsParamSeparator(separator.Value, start, i) ||
-                closingSymbol.HasValue && span[i] == closingSymbol.Value)
+            if ((separator.HasValue && IsParamSeparator(separator.Value, start, i)) ||
+                (closingSymbol.HasValue && span[i] == closingSymbol.Value))
             {
                 if (value == default)
                     MathString.ThrowExceptionIfNotEvaluated(true, start, i);
@@ -53,7 +53,7 @@ public partial class MathExpression
             }
 
             if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a complex number.
-                span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1]))) //the imaginary part of a complex number.
+                (span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1])))) //the imaginary part of a complex number.
             {
                 if (isOperand)
                     return EvaluateComplex(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
@@ -86,7 +86,7 @@ public partial class MathExpression
                         OnEvaluating(start, i, value);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
-                    if (isOperand || precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i))
+                    if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i)))
                         return value;
 
                     i++;
@@ -96,6 +96,7 @@ public partial class MathExpression
                     OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
+
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
                     var isMeaningless = MathString.IsMeaningless(start, i);
@@ -109,7 +110,7 @@ public partial class MathExpression
                     result = EvaluateComplex(ref i, separator, closingSymbol, p, isOperand);
 
                     //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
-                    if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out bool isImaginaryPart))
+                    if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out var isImaginaryPart))
                         value = isImaginaryPart ? Complex.Conjugate(result) : new Complex(-result.Real, result.Imaginary);
                     else
                         value -= result;
@@ -117,6 +118,7 @@ public partial class MathExpression
                     OnEvaluating(start, i, value);
                     if (isOperand)
                         return value;
+
                     break;
                 case '*' when span.Length == i + 1 || span[i + 1] != '*':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -136,7 +138,7 @@ public partial class MathExpression
 
                     OnEvaluating(start, i, value);
                     break;
-                case ' ' or '\t' or '\n' or '\r': //space or tab or LF or CR
+                case ' ' or '\t' or '\n' or '\r': //whitespace, tab, LF, or CR
                     i++;
                     break;
                 default:
@@ -157,6 +159,7 @@ public partial class MathExpression
 
                     if (isOperand)
                         return value;
+
                     break;
             }
         }
@@ -184,9 +187,8 @@ public partial class MathExpression
             return value;
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
-        if (entity != null && entity.Precedence >= (int)EvalPrecedence.Exponentiation)
-            return entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
-
-        return value;
+        return entity is { Precedence: >= (int)EvalPrecedence.Exponentiation }
+            ? entity.Evaluate(this, start, ref i, separator, closingSymbol, value)
+            : value;
     }
 }

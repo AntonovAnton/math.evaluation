@@ -59,14 +59,14 @@ public class MathUnaryFunction<T> : MathEntity
         if (ClosingSymbol.HasValue)
             mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
-        var result = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = ConvertToDouble(result);
-        dResult = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = ConvertToDouble(fnResult);
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult && !double.IsNaN(value))
+        if (value != result && !double.IsNaN(value))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
@@ -90,14 +90,14 @@ public class MathUnaryFunction<T> : MathEntity
         if (ClosingSymbol.HasValue)
             mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
-        var result = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = ConvertToDecimal(result);
-        dResult = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = ConvertToDecimal(fnResult);
+        result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult)
+        if (value != result)
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
@@ -118,14 +118,14 @@ public class MathUnaryFunction<T> : MathEntity
         if (ClosingSymbol.HasValue)
             mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
-        var result = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        var fnResult = Fn(arg is T a ? a : (T)ChangeType(arg, typeof(T)));
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
 
-        var dResult = result is Complex r ? r : ConvertToDouble(result);
-        dResult = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, dResult);
-        value = value == default ? dResult : value * dResult;
+        var result = fnResult is Complex r ? r : ConvertToDouble(fnResult);
+        result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
 
-        if (value != dResult && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
+        if (value != result && !double.IsNaN(value.Real) && !double.IsNaN(value.Imaginary))
             mathExpression.OnEvaluating(start, i, value);
 
         return value;
@@ -151,7 +151,7 @@ public class MathUnaryFunction<T> : MathEntity
 
         right = BuildConvert<TResult>(right);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
-        var expression = MathExpression.BuildMultipyIfLeftNotDefault<TResult>(left, right);
+        var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
             mathExpression.OnEvaluating(start, i, expression);

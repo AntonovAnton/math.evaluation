@@ -471,7 +471,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         Func<double, double> ln = Math.Log;
 
         var context = new MathContext(new { sqrt, ln });
-        var value = expression.Evaluate(new { x1, x2 }, context); ;
+        var value = expression.Evaluate(new { x1, x2 }, context);
 
         Assert.Equal(expectedValue, value);
     }
@@ -491,6 +491,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
                 if (args[i] < minValue)
                     minValue = args[i];
             }
+
             return minValue;
         };
 
@@ -517,9 +518,11 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
-    public void MathExpression_Evaluate_HasUnknowToken_ThrowMathEvaluationException(string expression, string errorMessage)
+    [InlineData("1 + ctng(3 + 4)",
+        "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p",
+        "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
+    public void MathExpression_Evaluate_HasUnknownToken_ThrowMathEvaluationException(string expression, string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");
 

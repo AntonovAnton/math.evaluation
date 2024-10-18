@@ -3,6 +3,9 @@ using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using Xunit.Abstractions;
 
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable RedundantLogicalConditionalExpressionOperand
+
 namespace MathEvaluation.Tests.Evaluation;
 
 public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
@@ -77,8 +80,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("true ^ true", false)]
     [InlineData("200 >= 2.4", 200 >= 2.4)]
     [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", (1.0 >= 0.1) & (5.4 <= 5.4))]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]

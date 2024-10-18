@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>MathEvaluation.Benchmarks.ComplexNumbersBenchmarks-20241019-012144</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4317/23H2/2023Update/SunValley3)
+11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 8.0.403
+  [Host]   : .NET 6.0.35 (6.0.3524.45918), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.35 (6.0.3524.45918), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                                             </th><th>Job</th><th>Runtime</th><th>Mean   </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>795.20 ns</td><td>7.187 ns</td><td>6.722 ns</td><td>0.0439</td><td>552 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>255,247.64 ns</td><td>1,470.631 ns</td><td>1,375.629 ns</td><td>0.4883</td><td>8881 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 6.0</td><td>.NET 6.0</td><td>67.94 ns</td><td>0.209 ns</td><td>0.195 ns</td><td>0.0025</td><td>32 B</td>
+</tr><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>627.77 ns</td><td>5.963 ns</td><td>5.578 ns</td><td>0.0439</td><td>552 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>263,693.22 ns</td><td>368.845 ns</td><td>287.970 ns</td><td>0.4883</td><td>8881 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>73.88 ns</td><td>0.242 ns</td><td>0.214 ns</td><td>0.0025</td><td>32 B</td>
+</tr></tbody></table>
+</body>
+</html>

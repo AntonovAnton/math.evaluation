@@ -6,79 +6,79 @@ using System.Numerics;
 namespace MathEvaluation.Extensions;
 
 /// <summary>
-/// Extends the string class to evaluate or compile mathematical expressions.
+///     Extends the string class to evaluate or compile mathematical expressions.
 /// </summary>
 public static class StringExtensions
 {
-    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)" />
     public static double Evaluate(this string mathString, IMathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate();
 
-    /// <inheritdoc cref="MathExpression.Evaluate(object?)"/>
+    /// <inheritdoc cref="MathExpression.Evaluate(object?)" />
     public static double Evaluate(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)" />
     public static double Evaluate(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)" />
     public static decimal EvaluateDecimal(this string mathString, IMathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal();
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(object?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(object?)" />
     public static decimal EvaluateDecimal(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)" />
     public static decimal EvaluateDecimal(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)" />
     public static bool EvaluateBoolean(this string mathString, IMathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean();
 
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(object?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(object?)" />
     public static bool EvaluateBoolean(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)" />
     public static bool EvaluateBoolean(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)" />
     public static Complex EvaluateComplex(this string mathString, IMathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex();
 
-    /// <inheritdoc cref="MathExpression.EvaluateComplex(object?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(object?)" />
     public static Complex EvaluateComplex(this string mathString,
         object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)"/>
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)" />
     public static Complex EvaluateComplex(this string mathString,
         IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
-    /// <inheritdoc cref="MathExpression.Compile{T}(T)"/>
+    /// <inheritdoc cref="MathExpression.Compile{T}(T)" />
     public static Func<T, double> Compile<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile(parameters);
 
-    /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)"/>
+    /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)" />
     public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileDecimal(parameters);
 
-    /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)"/>
+    /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)" />
     public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
 
-    /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)"/>
+    /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)" />
     public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileComplex(parameters);
 
@@ -133,7 +133,7 @@ public static class StringExtensions
             i++;
     }
 
-    /// <inheritdoc cref="SkipMeaningless(string, ref int)"/>
+    /// <inheritdoc cref="SkipMeaningless(string, ref int)" />
     internal static void SkipMeaningless(this ReadOnlySpan<char> str, ref int i)
     {
         while (str.Length > i && IsMeaningless(str[i]))
@@ -145,23 +145,23 @@ public static class StringExtensions
     /// <param name="i">The current char index.</param>
     internal static void SkipParenthesis(this string str, ref int i)
     {
-        if (str.Length > i && str[i] == '(')
-        {
-            var tokenPosition = i;
-            i++;
-            str.SkipMeaningless(ref i);
-            str.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
-        }
+        if (str.Length <= i || str[i] != '(')
+            return;
+
+        var tokenPosition = i;
+        i++;
+        str.SkipMeaningless(ref i);
+        str.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
     }
 
     /// <summary>
-    /// Determines whether the part of the math expression string is meaningless (has only whitespace, tab, LF, or CR).
+    ///     Determines whether the part of the math expression string is meaningless (has only whitespace, tab, LF, or CR).
     /// </summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="start">The starting position.</param>
     /// <param name="end">The ending position.</param>
     /// <returns>
-    ///   <c>true</c> if the specified string is meaningless; otherwise, <c>false</c>.
+    ///     <c>true</c> if the specified string is meaningless; otherwise, <c>false</c>.
     /// </returns>
     internal static bool IsMeaningless(this string str, int start, int end)
     {
@@ -174,11 +174,11 @@ public static class StringExtensions
     #endregion
 
     /// <summary>
-    /// Determines whether the specified char is meaningless (is whitespace, tab, LF, or CR).
+    ///     Determines whether the specified char is meaningless (is whitespace, tab, LF, or CR).
     /// </summary>
     /// <param name="c">The char.</param>
     /// <returns>
-    ///   <c>true</c> if the specified char is meaningless; otherwise, <c>false</c>.
+    ///     <c>true</c> if the specified char is meaningless; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsMeaningless(char c)
         => c is ' ' or '\t' or '\n' or '\r';

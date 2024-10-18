@@ -148,7 +148,8 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("|-2 CHF|^2 CHF * 30", "de-CH", 4d * 30)]
     [InlineData("|$-2|^$2 * 30", "en-US", 4d * 30)]
-    public void MathExpression_CompileThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName, double expectedValue)
+    public void MathExpression_CompileThenInvoke_HasNumbersInSpecificCultureAsOperand_ExpectedValue(string mathString, string? cultureName,
+        double expectedValue)
     {
         var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
         using var expression = new MathExpression(mathString, _scientificContext, cultureInfo);
@@ -552,6 +553,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
                 if (args[i] < minValue)
                     minValue = args[i];
             }
+
             return minValue;
         };
 
@@ -576,9 +578,11 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
-    public void MathExpression_CompileThenInvoke_HasUnknowToken_ThrowMathEvaluationException(string mathString, string errorMessage)
+    [InlineData("1 + ctng(3 + 4)",
+        "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p",
+        "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
+    public void MathExpression_CompileThenInvoke_HasUnknownToken_ThrowMathEvaluationException(string mathString, string errorMessage)
     {
         testOutputHelper.WriteLine($"{mathString}");
 

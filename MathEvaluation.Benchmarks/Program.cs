@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
+using MathEvaluation.Benchmarks;
 using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;

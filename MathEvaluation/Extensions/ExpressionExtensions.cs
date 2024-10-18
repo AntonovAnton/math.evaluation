@@ -8,5 +8,5 @@ internal static class ExpressionExtensions
 {
     internal static bool IsDefault(this Expression expression)
         => expression is ConstantExpression c &&
-            (c.Value is Complex complex ? complex == default : Convert.ToDouble(c.Value) == default);
+           (c.Value is Complex complex ? complex == default : Convert.ToDouble(c.Value) == default);
 }

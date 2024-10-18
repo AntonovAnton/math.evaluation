@@ -5,7 +5,7 @@ using System.Numerics;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// The math operator processes the left and right math operands.
+///     The math operator processes the left and right math operands.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class MathOperandsOperator<T> : MathEntity
@@ -21,16 +21,16 @@ public class MathOperandsOperator<T> : MathEntity
     /// <summary>Initializes a new instance of the <see cref="MathOperandsOperator{T}" /> class.</summary>
     /// <param name="key">The key (the operator notation).</param>
     /// <param name="fn">The function.</param>
-    /// <param name="precedece">The operator precedence.</param>
-    /// <exception cref="ArgumentNullException"/>
-    public MathOperandsOperator(string? key, Func<T, T, T> fn, int precedece)
+    /// <param name="precedence">The operator precedence.</param>
+    /// <exception cref="ArgumentNullException" />
+    public MathOperandsOperator(string? key, Func<T, T, T> fn, int precedence)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
-        Precedence = precedece;
+        Precedence = precedence;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
     {
         if (typeof(T) == typeof(decimal))
@@ -45,11 +45,10 @@ public class MathOperandsOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = ConvertToDouble(result);
-        return dResult;
+        return ConvertToDouble(result);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
     {
         if (typeof(T) == typeof(double))
@@ -64,11 +63,10 @@ public class MathOperandsOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = ConvertToDecimal(result);
-        return dResult;
+        return ConvertToDecimal(result);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
     {
         i += Key.Length;
@@ -80,11 +78,10 @@ public class MathOperandsOperator<T> : MathEntity
 
         mathExpression.OnEvaluating(start, i, result);
 
-        var dResult = result is Complex r ? r : ConvertToDouble(result);
-        return dResult;
+        return result is Complex r ? r : ConvertToDouble(result);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
     {
         i += Key.Length;

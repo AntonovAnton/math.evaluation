@@ -4,7 +4,7 @@ using System.Numerics;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-/// Math entity interface.
+///     Math entity interface.
 /// </summary>
 public interface IMathEntity
 {
@@ -13,15 +13,15 @@ public interface IMathEntity
     string Key { get; }
 
     /// <summary>
-    /// Gets the evaluation precedence.
+    ///     Gets the evaluation precedence.
     /// </summary>
     /// <value>
-    /// The evaluation precedence.
+    ///     The evaluation precedence.
     /// </value>
     int Precedence { get; }
 
     /// <summary>
-    /// Evaluates the part in which the math entity is defined in the math expression.
+    ///     Evaluates the part in which the math entity is defined in the math expression.
     /// </summary>
     /// <param name="mathExpression">The math expression.</param>
     /// <param name="start">The starting char index of the evaluating.</param>
@@ -32,14 +32,14 @@ public interface IMathEntity
     /// <param name="value">The value.</param>
     double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value);
 
-    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)"/>
+    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)" />
     decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
-    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)"/>
+    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)" />
     Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value);
 
     /// <summary>
-    /// Builds the part of the expression tree in which the math entity is defined in the math expression.
+    ///     Builds the part of the expression tree in which the math entity is defined in the math expression.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="mathExpression">The math expression.</param>

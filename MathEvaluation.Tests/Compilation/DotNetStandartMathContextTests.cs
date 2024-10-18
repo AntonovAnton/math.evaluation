@@ -2,6 +2,8 @@
 using MathEvaluation.Extensions;
 using System.Numerics;
 using Xunit.Abstractions;
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable RedundantLogicalConditionalExpressionOperand
 
 namespace MathEvaluation.Tests.Compilation;
 
@@ -47,7 +49,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
     [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
     [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
-    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0) + 2)]
     public void MathExpression_CompileThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
@@ -62,8 +64,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("0++ -2/5", 0d - 2/5d)]
-    [InlineData("a++ -2/5", 5d - 2/5d)]
+    [InlineData("0++ -2/5", 0d - 2 / 5d)]
+    [InlineData("a++ -2/5", 5d - 2 / 5d)]
     [InlineData("2 / 5d / a++ * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a++\n * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d / 2 * a++\r + 5d", 2 / 5d / 2 * 5 + 5)]
@@ -80,8 +82,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("0-- -2/5", 0d - 2/5d)]
-    [InlineData("a-- -2/5", 5d - 2/5d)]
+    [InlineData("0-- -2/5", 0d - 2 / 5d)]
+    [InlineData("a-- -2/5", 5d - 2 / 5d)]
     [InlineData("2 / 5d / a-- * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a--\n * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d / 2 * a--\r + 5d", 2 / 5d / 2 * 5 + 5)]
@@ -105,8 +107,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("true ^ true", false)]
     [InlineData("200 >= 2.4", 200 >= 2.4)]
     [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", (1.0 >= 0.1) & (5.4 <= 5.4))]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
@@ -263,7 +265,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.Tanh(0)", 0)]
     [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
     [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
-    public void MathExpression_CompileComplexThenInvoke_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_CompileComplexThenInvoke_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _context);
         expression.Evaluating += SubscribeToEvaluating;

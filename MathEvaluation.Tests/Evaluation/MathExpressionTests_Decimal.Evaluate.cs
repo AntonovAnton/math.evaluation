@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 
+// ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
@@ -450,6 +451,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
                 if (args[i] < minValue)
                     minValue = args[i];
             }
+
             return minValue;
         };
 
@@ -474,9 +476,11 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     }
 
     [Theory]
-    [InlineData("1 + ctng(3 + 4)", "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
-    [InlineData("p", "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
-    public void MathExpression_EvaluateDecimal_HasUnknowToken_ThrowMathEvaluationException(string expression,
+    [InlineData("1 + ctng(3 + 4)",
+        "Error of evaluating the expression. 'ctng' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 4.")]
+    [InlineData("p",
+        "Error of evaluating the expression. 'p' is not recognizable, maybe setting the appropriate MathContext could help. Invalid token at position 0.")]
+    public void MathExpression_EvaluateDecimal_HasUnknownToken_ThrowMathEvaluationException(string expression,
         string errorMessage)
     {
         testOutputHelper.WriteLine($"{expression}");

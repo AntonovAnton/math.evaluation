@@ -1,6 +1,8 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using Xunit.Abstractions;
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable RedundantLogicalConditionalExpressionOperand
 
 namespace MathEvaluation.Tests.Compilation;
 
@@ -27,7 +29,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
     [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
     [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
-    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0) + 2)]
     public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
@@ -42,8 +44,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("0++ -2/5", 0d - 2/5d)]
-    [InlineData("a++ -2/5", 5d - 2/5d)]
+    [InlineData("0++ -2/5", 0d - 2 / 5d)]
+    [InlineData("a++ -2/5", 5d - 2 / 5d)]
     [InlineData("2 / 5d / a++ * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a++\n * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d / 2 * a++ + 5d", 2 / 5d / 2 * 5 + 5)]
@@ -60,8 +62,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("0-- -2/5", 0d - 2/5d)]
-    [InlineData("a-- -2/5", 5d - 2/5d)]
+    [InlineData("0-- -2/5", 0d - 2 / 5d)]
+    [InlineData("a-- -2/5", 5d - 2 / 5d)]
     [InlineData("2 / 5d / a-- * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d /a--\n * 5", 2 / 5d / 5 * 5)]
     [InlineData("2 / 5d / 2 * a-- + 5d", 2 / 5d / 2 * 5 + 5)]
@@ -85,8 +87,8 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
     [InlineData("true ^ true", false)]
     [InlineData("200 >= 2.4", 200 >= 2.4)]
     [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", (1.0 >= 0.1) & (5.4 <= 5.4))]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
@@ -478,7 +480,7 @@ public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputH
         testOutputHelper.WriteLine($"{expression}");
 
         var ex = Record.Exception(() => new MathExpression(expression, _context).CompileDecimal()());
-        Assert.IsType<OverflowException>(ex.InnerException ?? ex);
+        Assert.IsType<OverflowException>(ex?.InnerException ?? ex);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)

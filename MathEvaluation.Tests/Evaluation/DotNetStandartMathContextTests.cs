@@ -4,6 +4,9 @@ using MathEvaluation.Parameters;
 using System.Numerics;
 using Xunit.Abstractions;
 
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable RedundantLogicalConditionalExpressionOperand
+
 namespace MathEvaluation.Tests.Evaluation;
 
 public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
@@ -48,7 +51,7 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("(uint)2 / 5d / 2 * (ushort)5", 2d / 5 / 2 * 5)]
     [InlineData("(decimal)2 + ((long)5 - 1)", 2 + (5 - 1))]
     [InlineData("(uint)2 + ((byte)5 - (sbyte)1)", 2 + (5 - 1))]
-    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0 + 2))]
+    [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0) + 2)]
     public void MathExpression_Evaluate_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _context);
@@ -103,8 +106,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("true ^ true", false)]
     [InlineData("200 >= 2.4", 200 >= 2.4)]
     [InlineData("200 <= 2.4", 200 <= 2.4)]
-    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", 1.0 >= 0.1 & 5.4 <= 5.4)]
-    [InlineData("1 > -0 && 2 < 3 || 2 > 1", 1 > -0 && 2 < 1 || 2 > 1)]
+    [InlineData("1.0 >= 0.1 & 5.4 <= 5.4", (1.0 >= 0.1) & (5.4 <= 5.4))]
+    [InlineData("1 > -0 && 2 < 3 || 2 > 1", (1 > -0 && 2 < 1) || 2 > 1)]
     [InlineData("5.4 < 5.4", 5.4 < 5.4)]
     [InlineData("1.0 > 1.0 + -0.7 && 5.4 < 5.5", 1.0 > 1.0 + -0.7 && 5.4 < 5.5)]
     [InlineData("1.0 - 1.95 >= 0.1", 1.0 - 1.95 >= 0.1)]
@@ -280,7 +283,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.Tanh(0)", 0)]
     [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
     [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
-    public void MathExpression_EvaluateComplex_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_EvaluateComplex_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _context);
         expression.Evaluating += SubscribeToEvaluating;
@@ -317,7 +321,8 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.Acos(-2)", 3.141592653589793, 1.3169578969248166)]
     [InlineData("Complex.Acos(-1)", Math.PI)]
     [InlineData("Complex.Atan(new Complex(-2, 0))", -1.1071487177940904d)]
-    public void MathExpression_EvaluateComplex_HasComplexInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void MathExpression_EvaluateComplex_HasComplexInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new MathExpression(mathString, _context);
         expression.Evaluating += SubscribeToEvaluating;
