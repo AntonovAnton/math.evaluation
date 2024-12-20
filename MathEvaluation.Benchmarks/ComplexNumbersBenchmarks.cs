@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
@@ -6,8 +7,8 @@ using System.Numerics;
 
 namespace MathEvaluation.Benchmarks;
 
-[SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net80)]
-[SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net90)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
 #pragma warning disable CA1050 // Declare types in namespaces

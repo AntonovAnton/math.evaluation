@@ -6,5 +6,6 @@ namespace System.Runtime.CompilerServices;
 [AttributeUsage(AttributeTargets.Parameter)]
 internal sealed class CallerArgumentExpressionAttribute(string parameterName) : Attribute
 {
+    // ReSharper disable once UnusedMember.Global
     public string ParameterName { get; } = parameterName;
 }

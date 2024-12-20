@@ -1,19 +1,19 @@
 ```
 
-BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.4317/23H2/2023Update/SunValley3)
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.2605)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 8.0.403
-  [Host]   : .NET 6.0.35 (6.0.3524.45918), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.35 (6.0.3524.45918), X64 RyuJIT AVX2
-  .NET 8.0 : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.101
+  [Host]   : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 8.0 : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 9.0 : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 
 
 ```
 | Method                                                    | Job      | Runtime  | Mean          | Error        | StdDev       | Gen0   | Allocated |
 |---------------------------------------------------------- |--------- |--------- |--------------:|-------------:|-------------:|-------:|----------:|
-| &#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;  | .NET 6.0 | .NET 6.0 |     795.20 ns |     7.187 ns |     6.722 ns | 0.0439 |     552 B |
-| &#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39; | .NET 6.0 | .NET 6.0 | 255,247.64 ns | 1,470.631 ns | 1,375.629 ns | 0.4883 |    8881 B |
-| &#39;MathEvaluator invoke fn(a)&#39;                              | .NET 6.0 | .NET 6.0 |      67.94 ns |     0.209 ns |     0.195 ns | 0.0025 |      32 B |
-| &#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;  | .NET 8.0 | .NET 8.0 |     627.77 ns |     5.963 ns |     5.578 ns | 0.0439 |     552 B |
-| &#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39; | .NET 8.0 | .NET 8.0 | 263,693.22 ns |   368.845 ns |   287.970 ns | 0.4883 |    8881 B |
-| &#39;MathEvaluator invoke fn(a)&#39;                              | .NET 8.0 | .NET 8.0 |      73.88 ns |     0.242 ns |     0.214 ns | 0.0025 |      32 B |
+| &#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;  | .NET 8.0 | .NET 8.0 |     649.27 ns |     4.214 ns |     3.941 ns | 0.0439 |     552 B |
+| &#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39; | .NET 8.0 | .NET 8.0 | 272,715.71 ns | 3,094.186 ns | 2,894.303 ns | 0.4883 |    8881 B |
+| &#39;MathEvaluator invoke fn(a)&#39;                              | .NET 8.0 | .NET 8.0 |      68.21 ns |     0.253 ns |     0.224 ns | 0.0025 |      32 B |
+| &#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;  | .NET 9.0 | .NET 9.0 |     594.06 ns |     3.031 ns |     2.687 ns | 0.0439 |     552 B |
+| &#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39; | .NET 9.0 | .NET 9.0 | 252,173.57 ns | 1,625.641 ns | 1,520.625 ns | 0.4883 |    8881 B |
+| &#39;MathEvaluator invoke fn(a)&#39;                              | .NET 9.0 | .NET 9.0 |      69.09 ns |     0.440 ns |     0.390 ns | 0.0025 |      32 B |

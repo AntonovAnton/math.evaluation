@@ -64,58 +64,84 @@ public class MathParameters : IMathParameters
                 else
                     BindVariable(Convert.ToDouble(value), key);
             }
-            else if (value is Complex c)
-                BindVariable(c, key);
-            else if (value is Func<double> fn1)
-                BindFunction(fn1, key);
-            else if (value is Func<double, double> fn2)
-                BindFunction(fn2, key);
-            else if (value is Func<double, double, double> fn3)
-                BindFunction(fn3, key);
-            else if (value is Func<double, double, double, double> fn4)
-                BindFunction(fn4, key);
-            else if (value is Func<double, double, double, double, double> fn5)
-                BindFunction(fn5, key);
-            else if (value is Func<double, double, double, double, double, double> fn6)
-                BindFunction(fn6, key);
-            else if (value is Func<double[], double> fns)
-                BindFunction(fns, key);
-            else if (value is Func<decimal> decimalFn1)
-                BindFunction(decimalFn1, key);
-            else if (value is Func<decimal, decimal> decimalFn2)
-                BindFunction(decimalFn2, key);
-            else if (value is Func<decimal, decimal, decimal> decimalFn3)
-                BindFunction(decimalFn3, key);
-            else if (value is Func<decimal, decimal, decimal, decimal> decimalFn4)
-                BindFunction(decimalFn4, key);
-            else if (value is Func<decimal, decimal, decimal, decimal, decimal> decimalFn5)
-                BindFunction(decimalFn5, key);
-            else if (value is Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6)
-                BindFunction(decimalFn6, key);
-            else if (value is Func<decimal[], decimal> decimalFns)
-                BindFunction(decimalFns, key);
-            else if (value is Func<bool> boolFn1)
-                BindFunction(boolFn1, key);
-            else if (value is Func<Complex> complexFn1)
-                BindFunction(complexFn1, key);
-            else if (value is Func<Complex, Complex> complexFn2)
-                BindFunction(complexFn2, key);
-            else if (value is Func<Complex, Complex, Complex> complexFn3)
-                BindFunction(complexFn3, key);
-            else if (value is Func<Complex, Complex, Complex, Complex> complexFn4)
-                BindFunction(complexFn4, key);
-            else if (value is Func<Complex, Complex, Complex, Complex, Complex> complexFn5)
-                BindFunction(complexFn5, key);
-            else if (value is Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6)
-                BindFunction(complexFn6, key);
-            else if (value is Func<Complex[], Complex> complexFns)
-                BindFunction(complexFns, key);
-            else
+            else switch (value)
             {
-                if (propertyType.FullName?.StartsWith("System.Func") == true)
-                    throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
+                case Complex c:
+                    BindVariable(c, key);
+                    break;
+                case Func<double> fn1:
+                    BindFunction(fn1, key);
+                    break;
+                case Func<double, double> fn2:
+                    BindFunction(fn2, key);
+                    break;
+                case Func<double, double, double> fn3:
+                    BindFunction(fn3, key);
+                    break;
+                case Func<double, double, double, double> fn4:
+                    BindFunction(fn4, key);
+                    break;
+                case Func<double, double, double, double, double> fn5:
+                    BindFunction(fn5, key);
+                    break;
+                case Func<double, double, double, double, double, double> fn6:
+                    BindFunction(fn6, key);
+                    break;
+                case Func<double[], double> fns:
+                    BindFunction(fns, key);
+                    break;
+                case Func<decimal> decimalFn1:
+                    BindFunction(decimalFn1, key);
+                    break;
+                case Func<decimal, decimal> decimalFn2:
+                    BindFunction(decimalFn2, key);
+                    break;
+                case Func<decimal, decimal, decimal> decimalFn3:
+                    BindFunction(decimalFn3, key);
+                    break;
+                case Func<decimal, decimal, decimal, decimal> decimalFn4:
+                    BindFunction(decimalFn4, key);
+                    break;
+                case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
+                    BindFunction(decimalFn5, key);
+                    break;
+                case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
+                    BindFunction(decimalFn6, key);
+                    break;
+                case Func<decimal[], decimal> decimalFns:
+                    BindFunction(decimalFns, key);
+                    break;
+                case Func<bool> boolFn1:
+                    BindFunction(boolFn1, key);
+                    break;
+                case Func<Complex> complexFn1:
+                    BindFunction(complexFn1, key);
+                    break;
+                case Func<Complex, Complex> complexFn2:
+                    BindFunction(complexFn2, key);
+                    break;
+                case Func<Complex, Complex, Complex> complexFn3:
+                    BindFunction(complexFn3, key);
+                    break;
+                case Func<Complex, Complex, Complex, Complex> complexFn4:
+                    BindFunction(complexFn4, key);
+                    break;
+                case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
+                    BindFunction(complexFn5, key);
+                    break;
+                case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
+                    BindFunction(complexFn6, key);
+                    break;
+                case Func<Complex[], Complex> complexFns:
+                    BindFunction(complexFns, key);
+                    break;
+                default:
+                {
+                    if (propertyType.FullName?.StartsWith("System.Func") == true)
+                        throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
 
-                throw new NotSupportedException($"{propertyType} isn't supported.");
+                    throw new NotSupportedException($"{propertyType} isn't supported.");
+                }
             }
         }
     }
