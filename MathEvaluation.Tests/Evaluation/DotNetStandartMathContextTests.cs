@@ -272,7 +272,6 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("Complex.Sinh(0)", 0d)]
-    [InlineData("Complex.Sinh(0.88137358701954305)", 0.9999999999999999d)]
     [InlineData("Complex.Sinh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
     [InlineData("Complex.Sinh( -0.48121182505960347)", -0.5d)]
     [InlineData("Complex.Sinh(-0.88137358701954305)", -1d)]
@@ -281,8 +280,14 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.Cosh(1.3169578969248166)", 1.9999999999999998d)]
     [InlineData("Complex.Cosh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
     [InlineData("Complex.Tanh(0)", 0)]
-    [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
     [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
+#if NET9_0_OR_GREATER
+    [InlineData("Complex.Sinh(0.88137358701954305)", 1d)]
+    [InlineData("Complex.Tanh( -0.54930614433405489)", -0.5d)]
+#else
+    [InlineData("Complex.Sinh(0.88137358701954305)", 0.9999999999999999d)]
+    [InlineData("Complex.Tanh( -0.54930614433405489)", -0.49999999999999994d)]
+#endif
     public void MathExpression_EvaluateComplex_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {

@@ -23,7 +23,7 @@ Provides variable support within math expressions.
 Extensible with custom functions and operators.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.2.4</Version>
+        <Version>2.2.5</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>
@@ -48,7 +48,7 @@ Extensible with custom functions and operators.
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MathTrigonometric" Version="1.1.0" />
+        <PackageReference Include="MathTrigonometric" Version="1.2.0" />
     </ItemGroup>
 
 </Project>
