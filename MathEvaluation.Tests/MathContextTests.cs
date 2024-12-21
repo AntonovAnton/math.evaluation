@@ -8,7 +8,7 @@ public class MathContextTests
     [Fact]
     public void MathContext_Bind_HasNotSupportedCustomSystemFunc_ThrowNotSupportedException()
     {
-        Func<double, double, double, double, double, double, double> min = (a, b, c, d, e, v) => 0d;
+        Func<double, double, double, double, double, double, double> min = (_, _, _, _, _, _) => 0d;
 
         var ex = Record.Exception(() => new MathContext().Bind(new { min }));
 
@@ -30,7 +30,7 @@ public class MathContextTests
     [Fact]
     public void MathContext_Bind_HasNotSupportedSystemString_ThrowNotSupportedException()
     {
-        var min = "3";
+        const string min = "3";
 
         var ex = Record.Exception(() => new MathContext().Bind(new { min }));
 

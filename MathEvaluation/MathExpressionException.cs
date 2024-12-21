@@ -49,20 +49,16 @@ public class MathExpressionException : ApplicationException
 
     private static string BuildMessage(string message, int invalidTokenPosition)
     {
-        var sb = new StringBuilder();
-        sb.Append(DefaultMessage);
+        var sb = new StringBuilder(DefaultMessage);
         if (!string.IsNullOrWhiteSpace(message))
         {
-            sb.Append(' ');
-            sb.Append(message);
+            sb.Append(' ').Append(message);
         }
 
-        if (invalidTokenPosition < 0)
-            return sb.ToString();
-
-        sb.Append(" Invalid token at position ");
-        sb.Append(invalidTokenPosition);
-        sb.Append('.');
+        if (invalidTokenPosition >= 0)
+        {
+            sb.Append(" Invalid token at position ").Append(invalidTokenPosition).Append('.');
+        }
 
         return sb.ToString();
     }

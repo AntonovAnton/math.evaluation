@@ -42,10 +42,10 @@ Below are the results of the comparison with the NCalc library:
 
 | Method        | Job      | Runtime  | Mean       | Error     | StdDev    | Gen0   | Allocated |
 |-------------- |--------- |--------- |-----------:|----------:|----------:|-------:|----------:|
-| MathEvaluator | .NET 6.0 | .NET 6.0 |   654.5 ns |   2.09 ns |   1.63 ns | 0.0067 |      88 B |
-| NCalc         | .NET 6.0 | .NET 6.0 | 8,408.6 ns |  42.70 ns |  39.94 ns | 0.3967 |    5160 B |
-| MathEvaluator | .NET 8.0 | .NET 8.0 |   589.9 ns |   2.58 ns |   2.41 ns | 0.0067 |      88 B |
-| NCalc         | .NET 8.0 | .NET 8.0 | 6,184.0 ns |  30.74 ns |  28.75 ns | 0.3510 |    4472 B |
+| MathEvaluator | .NET 8.0 | .NET 8.0 |   608.8 ns |   1.77 ns |   1.48 ns | 0.0067 |      88 B |
+| NCalc         | .NET 8.0 | .NET 8.0 | 6,262.8 ns |  47.27 ns |  44.22 ns | 0.3510 |    4496 B |
+| MathEvaluator | .NET 9.0 | .NET 9.0 |   526.4 ns |   2.81 ns |   2.63 ns | 0.0067 |      88 B |
+| NCalc         | .NET 9.0 | .NET 9.0 | 5,643.3 ns |  29.76 ns |  27.84 ns | 0.3510 |    4496 B |
 
 ***NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
 
@@ -132,7 +132,7 @@ Example of using custom context:
     "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
 
-Examples of compilation:
+Example of compilation:
 
     var fn = "ln(1/x1 + √(1/(x2*x2) + 1))"
         .Compile(new { x1 = 0.0, x2 = 0.0 }, new ScientificMathContext());

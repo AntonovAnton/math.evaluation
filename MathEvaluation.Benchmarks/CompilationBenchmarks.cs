@@ -7,7 +7,7 @@ using NCalc;
 namespace MathEvaluation.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net90)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
 #pragma warning disable CA1050 // Declare types in namespaces
