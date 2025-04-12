@@ -7,7 +7,7 @@ namespace MathEvaluation.Entities;
 /// <summary>
 ///     Base class for a math entity.
 /// </summary>
-public abstract class MathEntity : IMathEntity
+internal abstract class MathEntity : IMathEntity
 {
     /// <inheritdoc />
     public string Key { get; }

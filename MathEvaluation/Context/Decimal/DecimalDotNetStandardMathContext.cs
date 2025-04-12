@@ -5,19 +5,26 @@
 namespace MathEvaluation.Context;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
+/// <inheritdoc />
+public class DecimalDotNetStandardMathContext : DecimalDotNetStandartMathContext;
+
 /// <summary>
-/// The .NET Standart 2.1 programming math context 
+/// The .NET Standard 2.1 programming math context 
 /// supports all constants and functions provided by <see cref="System.Math" /> class.
 /// Provides evaluating C# math expressions.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-public class DecimalDotNetStandartMathContext : DotNetStandartMathContext
+[Obsolete("Use DecimalDotNetStandardMathContext instead.", false)]
+public class DecimalDotNetStandartMathContext : DotNetStandardMathContext
 {
-    /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandartMathContext" /> class.</summary>
+    /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandardMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()
     {
         BindConstant(1m, "true");
         BindConstant(0m, "false");
+
+        BindConstant(0m, "default");
+        BindConstant(0m, "default(T)");
 
         static decimal postfixIncrementFn(decimal left) => left;
 

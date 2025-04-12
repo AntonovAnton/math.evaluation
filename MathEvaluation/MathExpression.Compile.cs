@@ -244,8 +244,9 @@ public partial class MathExpression
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
 
+        const string parameterName = "p";
         _parameters = new MathParameters(parameters);
-        ParameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
+        ParameterExpression = Expression.Parameter(typeof(T), parameterName);
         _evaluatingStep = 0;
 
         try

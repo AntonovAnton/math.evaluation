@@ -10,7 +10,7 @@ namespace MathEvaluation.Entities;
 /// <summary>
 ///     The math operator processes the left and right expressions.
 /// </summary>
-public class MathCompatibleOperator : MathEntity
+internal class MathCompatibleOperator : MathEntity
 {
     private static readonly Dictionary<OperatorType, ExpressionType> ExpressionTypeByOperatorType = [];
     private static readonly Dictionary<OperatorType, EvalPrecedence> EvalPrecedenceByOperatorType = [];

@@ -132,12 +132,24 @@ Example of using custom context:
     "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
 
-Example of compilation:
+Example of compilation with an object as a parameter:
 
     var fn = "ln(1/x1 + √(1/(x2*x2) + 1))"
         .Compile(new { x1 = 0.0, x2 = 0.0 }, new ScientificMathContext());
         
     var value = fn(new { x1 = -0.5, x2 = 0.5 });
+
+Example of compilation with a Dictionary as a parameter (Added in version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0)):
+
+    var dict = new Dictionary<string, double>();
+    dict.Add("x1", 3.0);
+    dict.Add("x2", 2.0);
+
+    var fn = "x1 + Math.Sin(x2) * 0.5"
+        .Compile(dict, new DotNetStandardMathContext());
+
+    var value = fn(dict);
+    Console.WriteLine(value); // 3.4546487...
 
 ## How to debug or log
 
@@ -281,11 +293,11 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate a C# math expression string
-DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
+DotNetStandardMathContext is the .NET Standard 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
 
 Example of evaluating C# expression:
 
-    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandartMathContext());
+    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandardMathContext());
 
 ***NOTE**: More math functions could be added to the math expression evaluator based on user needs.*
 

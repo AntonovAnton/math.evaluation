@@ -1,5 +1,6 @@
 using MathEvaluation.Entities;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -10,10 +11,10 @@ namespace MathEvaluation.Parameters;
 /// </summary>
 public interface IMathParameters
 {
-    /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
-    /// <param name="mathString">The math expression string.</param>
-    /// <returns><see cref="IMathEntity" /> instance or null.</returns>
-    IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
+    /// <summary>Binds custom variables.</summary>
+    /// <param name="parameters">A dictionary containing variables.</param>
+    /// <returns></returns>
+    void Bind<TValue>(IDictionary<string, TValue> parameters);
 
     /// <summary>Binds custom variables.</summary>
     /// <param name="parameters">An object containing variables and functions.</param>
@@ -191,4 +192,9 @@ public interface IMathParameters
         char closingSymbol = Constants.DefaultClosingSymbol);
 
     #endregion
+
+    /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <returns><see cref="IMathEntity" /> instance or null.</returns>
+    internal IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
 }

@@ -279,7 +279,19 @@ public partial class MathExpression : IDisposable
     }
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
-        => Context?.FirstMathEntity(mathString) ?? _parameters?.FirstMathEntity(mathString);
+    {
+        var p = _parameters?.FirstMathEntity(mathString);
+        if (p != null)
+        {
+            var c = Context?.FirstMathEntity(mathString);
+            if (c != null) //parameter and context entity are found so compare them to get the longest key it says what entity is found
+                return c.Key.Length > p.Key.Length ? c : p;
+
+            return p;
+        }
+
+        return Context?.FirstMathEntity(mathString);
+    }
 
     private bool IsParamSeparator(char separator, int start, int i)
         => MathString[i] == separator && (_decimalSeparator != separator || !MathString.IsMeaningless(start, i));

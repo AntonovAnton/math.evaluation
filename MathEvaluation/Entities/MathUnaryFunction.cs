@@ -9,7 +9,7 @@ namespace MathEvaluation.Entities;
 /// The function with one parameter, so opening and closing symbols are optional.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathUnaryFunction<T> : MathEntity
+internal class MathUnaryFunction<T> : MathEntity
     where T : struct
 {
     /// <summary>Gets the function.</summary>

@@ -5,19 +5,52 @@ using MathEvaluation.Entities;
 
 namespace MathEvaluation.Context;
 
+/// <inheritdoc />
+public class DotNetStandardMathContext : DotNetStandartMathContext;
+
 /// <summary>
-///     The .NET Standart 2.1 programming math context
+///     The .NET Standard 2.1 programming math context
 ///     supports all constants and functions provided by <see cref="System.Math" /> class.
 ///     Provides evaluating C# math expressions.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
+[Obsolete("Use DotNetStandardMathContext instead.", false)]
 public class DotNetStandartMathContext : MathContext
 {
-    /// <summary>Initializes a new instance of the <see cref="DotNetStandartMathContext" /> class.</summary>
+    /// <summary>Initializes a new instance of the <see cref="DotNetStandardMathContext" /> class.</summary>
     public DotNetStandartMathContext()
     {
         BindConstant(1d, "true");
         BindConstant(0d, "false");
+
+        BindConstant(0d, "default");
+        BindConstant(0d, "default(T)");
+        BindConstant(0d, "default(bool)");
+        BindConstant(0d, "default(double)");
+        BindConstant(0d, "default(float)");
+        BindConstant(0m, "default(decimal)");
+        BindConstant(0d, "default(int)");
+        BindConstant(0d, "default(uint)");
+        BindConstant(0d, "default(long)");
+        BindConstant(0d, "default(ulong)");
+        BindConstant(0d, "default(byte)");
+        BindConstant(0d, "default(sbyte)");
+        BindConstant(0d, "default(short)");
+        BindConstant(0d, "default(ushort)");
+        BindConstant(0d, "default(char)");
+        BindConstant(0d, "default(Boolean)");
+        BindConstant(0d, "default(Double)");
+        BindConstant(0d, "default(Single)");
+        BindConstant(0m, "default(Decimal)");
+        BindConstant(0d, "default(Int32)");
+        BindConstant(0d, "default(UInt32)");
+        BindConstant(0d, "default(Int64)");
+        BindConstant(0d, "default(UInt64)");
+        BindConstant(0d, "default(Byte)");
+        BindConstant(0d, "default(SByte)");
+        BindConstant(0d, "default(Int16)");
+        BindConstant(0d, "default(UInt16)");
+        BindConstant(0d, "default(Char)");
 
         BindOperator('%', OperatorType.Modulo);
 
@@ -54,7 +87,7 @@ public class DotNetStandartMathContext : MathContext
 
         BindConstant(1d, 'f');
         BindConstant(1d, 'd');
-        BindConstant(1d, 'm');
+        BindConstant(1m, 'm');
         BindConstant(1d, 'l');
         BindConstant(1d, 'u');
         BindConstant(1d, "ul");
@@ -70,15 +103,28 @@ public class DotNetStandartMathContext : MathContext
         BindConstant(1d, "UL");
         BindConstant(1d, "double");
         BindConstant(1d, "float");
+        BindConstant(1m, "decimal");
         BindConstant(1d, "short");
         BindConstant(1d, "ushort");
-        BindConstant(1d, "long");
-        BindConstant(1d, "ulong");
         BindConstant(1d, "int");
         BindConstant(1d, "uint");
+        BindConstant(1d, "long");
+        BindConstant(1d, "ulong");
         BindConstant(1d, "byte");
         BindConstant(1d, "sbyte");
-        BindConstant(1m, "decimal");
+        BindConstant(1d, "char");
+        BindConstant(1d, "Double");
+        BindConstant(1d, "Single");
+        BindConstant(1m, "Decimal");
+        BindConstant(1d, "Int16");
+        BindConstant(1d, "UInt16");
+        BindConstant(1d, "Int32");
+        BindConstant(1d, "UInt32");
+        BindConstant(1d, "Int64");
+        BindConstant(1d, "UInt64");
+        BindConstant(1d, "Byte");
+        BindConstant(1d, "SByte");
+        BindConstant(1d, "Char");
 
         BindConstant(Math.PI);
         BindConstant(Math.E);
@@ -276,6 +322,7 @@ public class DotNetStandartMathContext : MathContext
 
         BindConstant(Complex.One, "Complex");
 
+        BindConstant(Complex.Zero, "default(Complex)");
         BindConstant(Complex.Zero);
         BindConstant(Complex.One);
         BindConstant(Complex.ImaginaryOne);

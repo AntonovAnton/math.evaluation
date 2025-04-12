@@ -1,6 +1,9 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -33,12 +36,30 @@ public class MathParameters : IMathParameters
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
 
+        if (parameters is IEnumerable dictionary)
+        {
+            Bind(dictionary);
+            return;
+        }
+
         Bind(parameters);
     }
 
     /// <inheritdoc />
-    public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
-        => _trie.FirstMathEntity(expression);
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException"></exception>
+    public void Bind<TValue>(IDictionary<string, TValue> parameters)
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters), "The parameters argument cannot be null.");
+
+        foreach (var pair in parameters)
+        {
+            var key = pair.Key;
+            var value = pair.Value;
+            BindKeyValue(true, key, value);
+        }
+    }
 
     /// <inheritdoc />
     /// <exception cref="ArgumentNullException">parameters</exception>
@@ -56,93 +77,7 @@ public class MathParameters : IMathParameters
 
             var key = propertyInfo.Name;
             var value = propertyInfo.GetValue(parameters, null);
-            var propertyType = propertyInfo.PropertyType;
-            if (propertyType.IsConvertibleToDouble())
-            {
-                if (propertyType.IsDecimal())
-                    BindVariable((decimal)value, key);
-                else
-                    BindVariable(Convert.ToDouble(value), key);
-            }
-            else switch (value)
-            {
-                case Complex c:
-                    BindVariable(c, key);
-                    break;
-                case Func<double> fn1:
-                    BindFunction(fn1, key);
-                    break;
-                case Func<double, double> fn2:
-                    BindFunction(fn2, key);
-                    break;
-                case Func<double, double, double> fn3:
-                    BindFunction(fn3, key);
-                    break;
-                case Func<double, double, double, double> fn4:
-                    BindFunction(fn4, key);
-                    break;
-                case Func<double, double, double, double, double> fn5:
-                    BindFunction(fn5, key);
-                    break;
-                case Func<double, double, double, double, double, double> fn6:
-                    BindFunction(fn6, key);
-                    break;
-                case Func<double[], double> fns:
-                    BindFunction(fns, key);
-                    break;
-                case Func<decimal> decimalFn1:
-                    BindFunction(decimalFn1, key);
-                    break;
-                case Func<decimal, decimal> decimalFn2:
-                    BindFunction(decimalFn2, key);
-                    break;
-                case Func<decimal, decimal, decimal> decimalFn3:
-                    BindFunction(decimalFn3, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal> decimalFn4:
-                    BindFunction(decimalFn4, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
-                    BindFunction(decimalFn5, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
-                    BindFunction(decimalFn6, key);
-                    break;
-                case Func<decimal[], decimal> decimalFns:
-                    BindFunction(decimalFns, key);
-                    break;
-                case Func<bool> boolFn1:
-                    BindFunction(boolFn1, key);
-                    break;
-                case Func<Complex> complexFn1:
-                    BindFunction(complexFn1, key);
-                    break;
-                case Func<Complex, Complex> complexFn2:
-                    BindFunction(complexFn2, key);
-                    break;
-                case Func<Complex, Complex, Complex> complexFn3:
-                    BindFunction(complexFn3, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex> complexFn4:
-                    BindFunction(complexFn4, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
-                    BindFunction(complexFn5, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
-                    BindFunction(complexFn6, key);
-                    break;
-                case Func<Complex[], Complex> complexFns:
-                    BindFunction(complexFns, key);
-                    break;
-                default:
-                {
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
-
-                    throw new NotSupportedException($"{propertyType} isn't supported.");
-                }
-            }
+            BindKeyValue(false, key, value);
         }
     }
 
@@ -380,4 +315,147 @@ public class MathParameters : IMathParameters
         => _trie.AddMathEntity(new MathFunction<Complex>(key, fn, openingSymbol, separator, closingSymbol));
 
     #endregion
+
+    /// <summary>
+    /// Binds variables and functions from a dictionary.
+    /// </summary>
+    /// <param name="parameters">A dictionary containing variables and functions.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException"></exception>
+    private void Bind(IEnumerable parameters)
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters), "The parameters argument cannot be null.");
+
+        var type = parameters.GetType();
+        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
+        {
+            foreach (DictionaryEntry pair in (IDictionary)parameters)
+            {
+                if (pair.Key is not string key)
+                    throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                BindKeyValue(true, key, pair.Value);
+            }
+
+            return;
+        }
+
+        throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+    }
+
+    /// <summary>
+    /// Handles the binding logic for a key-value pair.
+    /// </summary>
+    /// <param name="isDictionaryItem"></param>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <exception cref="NotSupportedException"></exception>
+    private void BindKeyValue(bool isDictionaryItem, string key, object? value)
+    {
+        var propertyType = (value?.GetType()) ?? throw new NotSupportedException("Null values are not supported.");
+        if (propertyType.IsConvertibleToDouble())
+        {
+            if (propertyType.IsDecimal())
+                BindVariable(isDictionaryItem, key, (decimal)value);
+            else
+                BindVariable(isDictionaryItem, key, Convert.ToDouble(value));
+
+            return;
+        }
+
+        switch (value)
+        {
+            case Complex c:
+                BindVariable(isDictionaryItem, key, c);
+                break;
+            case Func<double> fn1:
+                BindFunction(fn1, key);
+                break;
+            case Func<double, double> fn2:
+                BindFunction(fn2, key);
+                break;
+            case Func<double, double, double> fn3:
+                BindFunction(fn3, key);
+                break;
+            case Func<double, double, double, double> fn4:
+                BindFunction(fn4, key);
+                break;
+            case Func<double, double, double, double, double> fn5:
+                BindFunction(fn5, key);
+                break;
+            case Func<double, double, double, double, double, double> fn6:
+                BindFunction(fn6, key);
+                break;
+            case Func<double[], double> fns:
+                BindFunction(fns, key);
+                break;
+            case Func<decimal> decimalFn1:
+                BindFunction(decimalFn1, key);
+                break;
+            case Func<decimal, decimal> decimalFn2:
+                BindFunction(decimalFn2, key);
+                break;
+            case Func<decimal, decimal, decimal> decimalFn3:
+                BindFunction(decimalFn3, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal> decimalFn4:
+                BindFunction(decimalFn4, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
+                BindFunction(decimalFn5, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
+                BindFunction(decimalFn6, key);
+                break;
+            case Func<decimal[], decimal> decimalFns:
+                BindFunction(decimalFns, key);
+                break;
+            case Func<bool> boolFn1:
+                BindFunction(boolFn1, key);
+                break;
+            case Func<Complex> complexFn1:
+                BindFunction(complexFn1, key);
+                break;
+            case Func<Complex, Complex> complexFn2:
+                BindFunction(complexFn2, key);
+                break;
+            case Func<Complex, Complex, Complex> complexFn3:
+                BindFunction(complexFn3, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex> complexFn4:
+                BindFunction(complexFn4, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
+                BindFunction(complexFn5, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
+                BindFunction(complexFn6, key);
+                break;
+            case Func<Complex[], Complex> complexFns:
+                BindFunction(complexFns, key);
+                break;
+            default:
+                {
+                    if (propertyType.FullName?.StartsWith("System.Func") == true)
+                        throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
+
+                    throw new NotSupportedException($"{propertyType} isn't supported.");
+                }
+        }
+    }
+
+    private void BindVariable(bool isDictionaryItem, string key, double value)
+        => _trie.AddMathEntity(new MathVariable<double>(key.ToString(), value, isDictionaryItem));
+
+    private void BindVariable(bool isDictionaryItem, string key, decimal value)
+        => _trie.AddMathEntity(new MathVariable<decimal>(key.ToString(), value, isDictionaryItem));
+
+    private void BindVariable(bool isDictionaryItem, string key, Complex value)
+        => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
+
+    /// <inheritdoc />
+    IMathEntity? IMathParameters.FirstMathEntity(ReadOnlySpan<char> expression)
+        => _trie.FirstMathEntity(expression);
+
 }

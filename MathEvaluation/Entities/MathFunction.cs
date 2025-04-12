@@ -10,7 +10,7 @@ namespace MathEvaluation.Entities;
 ///     The function with multiple parameters, so opening, separator, and closing symbol are required.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathFunction<T> : MathEntity
+internal class MathFunction<T> : MathEntity
     where T : struct
 {
     /// <summary>Gets the function.</summary>

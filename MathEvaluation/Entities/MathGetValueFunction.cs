@@ -9,7 +9,7 @@ namespace MathEvaluation.Entities;
 ///     The getting value function.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathGetValueFunction<T> : MathEntity
+internal class MathGetValueFunction<T> : MathEntity
     where T : struct
 {
     /// <summary>Gets the getting value function.</summary>

@@ -10,11 +10,6 @@ namespace MathEvaluation.Context;
 /// </summary>
 public interface IMathContext
 {
-    /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
-    /// <param name="mathString">The math expression string.</param>
-    /// <returns><see cref="IMathEntity" /> instance or null.</returns>
-    IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
-
     /// <summary>Binds constants and functions.</summary>
     /// <param name="context">An object containing constants and functions.</param>
     /// <returns></returns>
@@ -297,4 +292,9 @@ public interface IMathContext
     void BindOperator(Func<Complex, Complex, Complex> fn, string key, int precedence = (int)EvalPrecedence.Basic);
 
     #endregion
+
+    /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <returns><see cref="IMathEntity" /> instance or null.</returns>
+    internal IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString);
 }

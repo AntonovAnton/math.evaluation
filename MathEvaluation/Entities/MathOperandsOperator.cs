@@ -8,7 +8,7 @@ namespace MathEvaluation.Entities;
 ///     The math operator processes the left and right math operands.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathOperandsOperator<T> : MathEntity
+internal class MathOperandsOperator<T> : MathEntity
     where T : struct
 {
     /// <summary>Gets the function.</summary>

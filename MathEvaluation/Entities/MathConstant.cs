@@ -7,7 +7,7 @@ namespace MathEvaluation.Entities;
 ///     The math constant.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathConstant<T>(string? key, T value) : MathEntity(key)
+internal class MathConstant<T>(string? key, T value) : MathEntity(key)
     where T : struct
 {
     /// <inheritdoc />

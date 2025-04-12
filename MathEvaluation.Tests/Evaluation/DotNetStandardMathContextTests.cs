@@ -9,11 +9,15 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 
-public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
+public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly DotNetStandartMathContext _context = new();
+    private readonly DotNetStandardMathContext _context = new();
 
     [Theory]
+    [InlineData("default", 0.0)]
+    [InlineData("default(T)", 0.0)]
+    [InlineData("default(int)", 0.0)]
+    [InlineData("default(Int32)", 0.0)]
     [InlineData("double.NaN", double.NaN)]
     [InlineData("double.PositiveInfinity", double.PositiveInfinity)]
     [InlineData("Infinity", double.PositiveInfinity)]
@@ -607,6 +611,32 @@ public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
         parameters.BindVariable(varValue, varName);
 
         var value = expression.EvaluateComplex(parameters, _context);
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("a + Math.Sin(b) * 0.5", 3.454648713412841, 3.0, 2.0)]
+    [InlineData("a + Math.Sin(b) * 0.5", 5.6215987523460358, 6.0, 4.0)]
+    [InlineData("1d + Math.Sin(a) * Math.Cos(c)", 2.4056435374876961, 2.0, 0.0, 4.0, 3.0)]
+    public void MathExpression_Evaluate_HasVariablesInDictionary_ExpectedValue(string expression,
+       double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"a = {var_a}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+        testOutputHelper.WriteLine($"c = {var_c}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+
+        var dict = new Dictionary<string, double>
+        {
+            { "a", var_a },
+            { "b", var_b },
+            { "c", var_c },
+            { "d", var_d }
+        };
+
+        var value = expression.Evaluate(dict, _context);
 
         Assert.Equal(expectedValue, value);
     }

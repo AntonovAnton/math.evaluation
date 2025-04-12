@@ -37,10 +37,6 @@ public class MathContext : IMathContext
     }
 
     /// <inheritdoc />
-    public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
-        => _trie.FirstMathEntity(expression);
-
-    /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException">parameters</exception>
     /// <exception cref="System.NotSupportedException"></exception>
     public void Bind(object context)
@@ -65,84 +61,84 @@ public class MathContext : IMathContext
                     BindConstant(Convert.ToDouble(value), key);
             }
             else switch (value)
-            {
-                case Complex c:
-                    BindConstant(c, key);
-                    break;
-                case Func<double> fn1:
-                    BindFunction(fn1, key);
-                    break;
-                case Func<double, double> fn2:
-                    BindFunction(fn2, key);
-                    break;
-                case Func<double, double, double> fn3:
-                    BindFunction(fn3, key);
-                    break;
-                case Func<double, double, double, double> fn4:
-                    BindFunction(fn4, key);
-                    break;
-                case Func<double, double, double, double, double> fn5:
-                    BindFunction(fn5, key);
-                    break;
-                case Func<double, double, double, double, double, double> fn6:
-                    BindFunction(fn6, key);
-                    break;
-                case Func<double[], double> fns:
-                    BindFunction(fns, key);
-                    break;
-                case Func<decimal> decimalFn1:
-                    BindFunction(decimalFn1, key);
-                    break;
-                case Func<decimal, decimal> decimalFn2:
-                    BindFunction(decimalFn2, key);
-                    break;
-                case Func<decimal, decimal, decimal> decimalFn3:
-                    BindFunction(decimalFn3, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal> decimalFn4:
-                    BindFunction(decimalFn4, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
-                    BindFunction(decimalFn5, key);
-                    break;
-                case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
-                    BindFunction(decimalFn6, key);
-                    break;
-                case Func<decimal[], decimal> decimalFns:
-                    BindFunction(decimalFns, key);
-                    break;
-                case Func<bool> boolFn1:
-                    BindFunction(boolFn1, key);
-                    break;
-                case Func<Complex> complexFn1:
-                    BindFunction(complexFn1, key);
-                    break;
-                case Func<Complex, Complex> complexFn2:
-                    BindFunction(complexFn2, key);
-                    break;
-                case Func<Complex, Complex, Complex> complexFn3:
-                    BindFunction(complexFn3, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex> complexFn4:
-                    BindFunction(complexFn4, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
-                    BindFunction(complexFn5, key);
-                    break;
-                case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
-                    BindFunction(complexFn6, key);
-                    break;
-                case Func<Complex[], Complex> complexFns:
-                    BindFunction(complexFns, key);
-                    break;
-                default:
                 {
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
+                    case Complex c:
+                        BindConstant(c, key);
+                        break;
+                    case Func<double> fn1:
+                        BindFunction(fn1, key);
+                        break;
+                    case Func<double, double> fn2:
+                        BindFunction(fn2, key);
+                        break;
+                    case Func<double, double, double> fn3:
+                        BindFunction(fn3, key);
+                        break;
+                    case Func<double, double, double, double> fn4:
+                        BindFunction(fn4, key);
+                        break;
+                    case Func<double, double, double, double, double> fn5:
+                        BindFunction(fn5, key);
+                        break;
+                    case Func<double, double, double, double, double, double> fn6:
+                        BindFunction(fn6, key);
+                        break;
+                    case Func<double[], double> fns:
+                        BindFunction(fns, key);
+                        break;
+                    case Func<decimal> decimalFn1:
+                        BindFunction(decimalFn1, key);
+                        break;
+                    case Func<decimal, decimal> decimalFn2:
+                        BindFunction(decimalFn2, key);
+                        break;
+                    case Func<decimal, decimal, decimal> decimalFn3:
+                        BindFunction(decimalFn3, key);
+                        break;
+                    case Func<decimal, decimal, decimal, decimal> decimalFn4:
+                        BindFunction(decimalFn4, key);
+                        break;
+                    case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
+                        BindFunction(decimalFn5, key);
+                        break;
+                    case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
+                        BindFunction(decimalFn6, key);
+                        break;
+                    case Func<decimal[], decimal> decimalFns:
+                        BindFunction(decimalFns, key);
+                        break;
+                    case Func<bool> boolFn1:
+                        BindFunction(boolFn1, key);
+                        break;
+                    case Func<Complex> complexFn1:
+                        BindFunction(complexFn1, key);
+                        break;
+                    case Func<Complex, Complex> complexFn2:
+                        BindFunction(complexFn2, key);
+                        break;
+                    case Func<Complex, Complex, Complex> complexFn3:
+                        BindFunction(complexFn3, key);
+                        break;
+                    case Func<Complex, Complex, Complex, Complex> complexFn4:
+                        BindFunction(complexFn4, key);
+                        break;
+                    case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
+                        BindFunction(complexFn5, key);
+                        break;
+                    case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
+                        BindFunction(complexFn6, key);
+                        break;
+                    case Func<Complex[], Complex> complexFns:
+                        BindFunction(complexFns, key);
+                        break;
+                    default:
+                        {
+                            if (propertyType.FullName?.StartsWith("System.Func") == true)
+                                throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
 
-                    throw new NotSupportedException($"{propertyType} isn't supported.");
+                            throw new NotSupportedException($"{propertyType} isn't supported.");
+                        }
                 }
-            }
         }
     }
 
@@ -510,4 +506,8 @@ public class MathContext : IMathContext
         => _trie.AddMathEntity(new MathOperator<Complex>(key, fn, precedence));
 
     #endregion
+
+    /// <inheritdoc />
+    IMathEntity? IMathContext.FirstMathEntity(ReadOnlySpan<char> expression)
+        => _trie.FirstMathEntity(expression);
 }

@@ -6,7 +6,7 @@ namespace MathEvaluation.Entities;
 /// <summary>
 ///     Math entity interface.
 /// </summary>
-public interface IMathEntity
+internal interface IMathEntity
 {
     /// <summary>Gets the key.</summary>
     /// <value>The key (name, notation, or symbol).</value>
