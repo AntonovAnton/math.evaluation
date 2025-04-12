@@ -132,12 +132,24 @@ Example of using custom context:
     "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
 
-Example of compilation:
+Example of compilation with an object as a parameter:
 
     var fn = "ln(1/x1 + √(1/(x2*x2) + 1))"
         .Compile(new { x1 = 0.0, x2 = 0.0 }, new ScientificMathContext());
         
     var value = fn(new { x1 = -0.5, x2 = 0.5 });
+
+Example of compilation with a Dictionary as a parameter (Added in version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0)):
+
+    var dict = new Dictionary<string, double>();
+    dict.Add("x1", 3.0);
+    dict.Add("x2", 2.0);
+
+    var fn = "x1 + Math.Sin(x2) * 0.5"
+        .Compile(dict, new DotNetStandardMathContext());
+
+    var value = fn(dict);
+    Console.WriteLine(value); // 3.4546487...
 
 ## How to debug or log
 
