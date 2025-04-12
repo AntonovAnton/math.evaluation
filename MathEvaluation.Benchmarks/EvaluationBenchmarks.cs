@@ -22,7 +22,7 @@ public class EvaluationBenchmarks
 
     private readonly IMathContext _programmingMathContext = new ProgrammingMathContext();
     private readonly IMathContext _scientificContext = new ScientificMathContext();
-    private readonly IMathContext _dotNetStandartMathContext = new DotNetStandartMathContext();
+    private readonly IMathContext _dotNetStandardMathContext = new DotNetStandardMathContext();
 
     private int _count;
 
@@ -119,7 +119,7 @@ public class EvaluationBenchmarks
     }
 
     [Benchmark(Description = "MathEvaluator: \"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01\"")]
-    public bool MathEvaluator_EvaluateBoolean_DotNetStandartMathContext()
+    public bool MathEvaluator_EvaluateBoolean_DotNetStandardMathContext()
     {
         _count++;
         var value = _count % 2 == 0; //randomizing values
@@ -130,7 +130,7 @@ public class EvaluationBenchmarks
         parameters.BindVariable(value, "C");
 
         return "A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"
-            .EvaluateBoolean(parameters, _dotNetStandartMathContext);
+            .EvaluateBoolean(parameters, _dotNetStandardMathContext);
     }
 
     [Benchmark(Description = "NCalc: \"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01\"")]

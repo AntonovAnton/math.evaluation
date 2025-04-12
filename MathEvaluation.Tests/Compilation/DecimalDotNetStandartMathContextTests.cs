@@ -6,9 +6,9 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
-public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
+public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly DecimalDotNetStandartMathContext _context = new();
+    private readonly DecimalDotNetStandardMathContext _context = new();
 
     [Theory]
     [InlineData("double.Epsilon", double.Epsilon)]

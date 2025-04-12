@@ -7,11 +7,15 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
-public class DotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
+public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly DotNetStandartMathContext _context = new();
+    private readonly DotNetStandardMathContext _context = new();
 
     [Theory]
+    [InlineData("default", 0.0)]
+    [InlineData("default(T)", 0.0)]
+    [InlineData("default(int)", 0.0)]
+    [InlineData("default(Int32)", 0.0)]
     [InlineData("double.NaN", double.NaN)]
     [InlineData("double.PositiveInfinity", double.PositiveInfinity)]
     [InlineData("Infinity", double.PositiveInfinity)]

@@ -8,11 +8,15 @@ using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 
-public class DecimalDotNetStandartMathContextTests(ITestOutputHelper testOutputHelper)
+public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly DecimalDotNetStandartMathContext _context = new();
+    private readonly DecimalDotNetStandardMathContext _context = new();
 
     [Theory]
+    [InlineData("default", 0.0)]
+    [InlineData("default(T)", 0.0)]
+    [InlineData("default(decimal)", 0.0)]
+    [InlineData("default(Decimal)", 0.0)]
     [InlineData("double.Epsilon", double.Epsilon)]
     [InlineData("float.Epsilon", float.Epsilon)]
     [InlineData("Single.Epsilon", float.Epsilon)]

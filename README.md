@@ -281,11 +281,11 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate a C# math expression string
-DotNetStandartMathContext is the .NET Standart 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
+DotNetStandardMathContext is the .NET Standard 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
 
 Example of evaluating C# expression:
 
-    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandartMathContext());
+    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandardMathContext());
 
 ***NOTE**: More math functions could be added to the math expression evaluator based on user needs.*
 
