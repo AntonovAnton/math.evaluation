@@ -17,7 +17,7 @@ public class DecimalDotNetStandardMathContext : DecimalDotNetStandartMathContext
 [Obsolete("Use DecimalDotNetStandardMathContext instead.", false)]
 public class DecimalDotNetStandartMathContext : DotNetStandardMathContext
 {
-    /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandartMathContext" /> class.</summary>
+    /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandardMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()
     {
         BindConstant(1m, "true");
