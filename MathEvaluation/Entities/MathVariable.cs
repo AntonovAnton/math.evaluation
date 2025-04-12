@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Numerics;
 
 namespace MathEvaluation.Entities;
@@ -7,7 +8,7 @@ namespace MathEvaluation.Entities;
 ///     The math variable uses as a parameter.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathVariable<T>(string? key, T value) : MathEntity(key)
+public class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
     where T : struct
 {
     /// <inheritdoc />
@@ -77,7 +78,22 @@ public class MathVariable<T>(string? key, T value) : MathEntity(key)
         var tokenPosition = i;
         i += Key.Length;
 
-        Expression right = Expression.Property(mathExpression.ParameterExpression!, Key);
+        Expression right;
+        if (isDictinaryItem)
+        {
+            // Fix: Use Expression.MakeIndex with appropriate arguments
+            var dictionaryProperty = mathExpression.ParameterExpression!.Type.GetProperty("Item");
+            if (dictionaryProperty == null)
+                throw new InvalidOperationException("The parameter expression does not have an indexer property.");
+
+            var keyExpression = Expression.Constant(Key);
+            right = Expression.MakeIndex(mathExpression.ParameterExpression!, dictionaryProperty, [keyExpression]);
+        }
+        else
+        {
+            right = Expression.Property(mathExpression.ParameterExpression!, Key);
+        }
+
         right = BuildConvert<TResult>(right);
         mathExpression.OnEvaluating(tokenPosition, i, right);
 

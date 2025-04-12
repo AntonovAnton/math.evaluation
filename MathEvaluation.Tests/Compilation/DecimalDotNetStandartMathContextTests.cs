@@ -428,6 +428,35 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     }
 
     [Theory]
+    [InlineData("a + b * 0.5", 4.0, 3.0, 2.0)]
+    [InlineData("a + b * 0.5", 8.0, 6.0, 4.0)]
+    [InlineData("1d + a * c", 11.0, 2.0, 0.0, 4.0, 3.0)]
+    public void MathExpression_EvaluateDecimal_HasVariablesInDictionary_ExpectedValue(string expression,
+       double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"a = {var_a}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+        testOutputHelper.WriteLine($"c = {var_c}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+
+        var dict = new Dictionary<string, decimal>
+        {
+            { "a", (decimal)var_a },
+            { "b", (decimal)var_b },
+            { "c", (decimal)var_c },
+            { "d", (decimal)var_d }
+        };
+
+        var fn = expression.CompileDecimal(dict, _context);
+        var value = fn(dict);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("Infinity")]
     [InlineData("∞")]
     [InlineData("double.NaN")]

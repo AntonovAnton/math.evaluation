@@ -279,7 +279,7 @@ public partial class MathExpression : IDisposable
     }
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
-        => Context?.FirstMathEntity(mathString) ?? _parameters?.FirstMathEntity(mathString);
+        => _parameters?.FirstMathEntity(mathString) ?? Context?.FirstMathEntity(mathString);
 
     private bool IsParamSeparator(char separator, int start, int i)
         => MathString[i] == separator && (_decimalSeparator != separator || !MathString.IsMeaningless(start, i));

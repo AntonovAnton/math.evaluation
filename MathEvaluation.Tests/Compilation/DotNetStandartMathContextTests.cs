@@ -522,6 +522,35 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("a + Math.Sin(b) * 0.5", 3.454648713412841, 3.0, 2.0)]
+    [InlineData("a + Math.Sin(b) * 0.5", 5.6215987523460358, 6.0, 4.0)]
+    [InlineData("1d + Math.Sin(a) * Math.Cos(c)", 2.4056435374876961, 2.0, 0.0, 4.0, 3.0)]
+    public void MathExpression_CompileThenInvoke_HasVariablesInDictionary_ExpectedValue(string expression,
+       double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
+    {
+        testOutputHelper.WriteLine($"{expression} = {expectedValue}");
+        testOutputHelper.WriteLine($"a = {var_a}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+        testOutputHelper.WriteLine($"c = {var_c}");
+        testOutputHelper.WriteLine($"b = {var_b}");
+
+        var dict = new Dictionary<string, double>
+        {
+            { "a", var_a },
+            { "b", var_b },
+            { "c", var_c },
+            { "d", var_d }
+        };
+
+        var fn = expression.Compile(dict, _context);
+        var value = fn(dict);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("Complex.Log(1/x + Complex.Sqrt(1/(x*x) + 1))", 0.5, 1.4436354751788103d)]
     public void MathExpression_CompileComplexThenInvoke_HasVariable_ExpectedValue(string expression,
         double varValue, double expectedValue)
