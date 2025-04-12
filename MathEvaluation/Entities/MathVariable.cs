@@ -8,7 +8,7 @@ namespace MathEvaluation.Entities;
 ///     The math variable uses as a parameter.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
+internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
     where T : struct
 {
     /// <inheritdoc />

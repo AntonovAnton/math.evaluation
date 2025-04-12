@@ -46,10 +46,6 @@ public class MathParameters : IMathParameters
     }
 
     /// <inheritdoc />
-    public IMathEntity? FirstMathEntity(ReadOnlySpan<char> expression)
-        => _trie.FirstMathEntity(expression);
-
-    /// <inheritdoc />
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException"></exception>
     public void Bind<TValue>(IDictionary<string, TValue> parameters)
@@ -457,4 +453,9 @@ public class MathParameters : IMathParameters
 
     private void BindVariable(bool isDictionaryItem, string key, Complex value)
         => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
+
+    /// <inheritdoc />
+    IMathEntity? IMathParameters.FirstMathEntity(ReadOnlySpan<char> expression)
+        => _trie.FirstMathEntity(expression);
+
 }

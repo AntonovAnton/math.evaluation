@@ -9,7 +9,7 @@ namespace MathEvaluation.Entities;
 ///     For example, degrees, factorial, decrement, increment, or negation.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MathOperandOperator<T> : MathEntity
+internal class MathOperandOperator<T> : MathEntity
     where T : struct
 {
     /// <summary>Gets the function.</summary>

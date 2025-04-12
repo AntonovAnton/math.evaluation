@@ -23,7 +23,7 @@ Provides variable support within math expressions.
 Extensible with custom functions and operators.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.2.5</Version>
+        <Version>2.3.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
     </PropertyGroup>
