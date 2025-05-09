@@ -23,9 +23,10 @@ Provides variable support within math expressions.
 Extensible with custom functions and operators.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.3.0</Version>
+        <Version>2.3.1</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
+        <PackageIcon>logo.png</PackageIcon>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -49,6 +50,10 @@ Extensible with custom functions and operators.
 
     <ItemGroup>
         <PackageReference Include="MathTrigonometric" Version="1.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="logo.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

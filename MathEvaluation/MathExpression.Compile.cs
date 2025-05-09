@@ -226,7 +226,10 @@ public partial class MathExpression
             if (_evaluatingStep == 0)
                 OnEvaluating(0, i, ExpressionTree);
 
-            return Expression.Lambda<Func<TResult>>(ExpressionTree).Compile();
+            var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
+            ExpressionTree = lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
@@ -257,7 +260,10 @@ public partial class MathExpression
             if (_evaluatingStep == 0)
                 OnEvaluating(0, i, ExpressionTree);
 
-            return Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression).Compile();
+            var lambda = Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
+            ExpressionTree = lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
