@@ -9,12 +9,12 @@
         <Authors>Anton Antonov</Authors>
         <Description>The MathEvaluator .NET library allows you to evaluate and compile any mathematical expressions from a string dynamically. It supports a wide range of operations and allows for the use of custom variables, operators, and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <Copyright>Copyright © 2024 Anton Antonov</Copyright>
+        <Copyright>Copyright © 2025 Anton Antonov</Copyright>
         <PackageProjectUrl>https://github.com/AntonovAnton/math.evaluation</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AntonovAnton/math.evaluation</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>math; math-expressions; evaluation; evaluator; mathematical-expressions; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate-expressions; math-expression-evaluator; math-expression-parser; mathexpression; math-eval-calc; csharp-maths; math-evaluator; math-evaluation;</PackageTags>
+        <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile;</PackageTags>
         <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
@@ -53,7 +53,10 @@ Extensible with custom functions and operators.
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="logo.png" Pack="true" PackagePath="\" />
+        <None Include="..\logo.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>

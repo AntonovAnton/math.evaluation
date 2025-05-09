@@ -21,7 +21,7 @@ public class CompilationBenchmarks
     // ReSharper disable once InconsistentNaming
     private const double b = Math.PI / 3;
 
-    private IExpressionCompiler _fastCompiler = new FastExpressionCompiler();
+    private readonly IExpressionCompiler _fastCompiler = new FastExpressionCompiler();
 
     private readonly IMathContext _scientificContext = new ScientificMathContext();
     private readonly IMathContext _programmingContext = new ProgrammingMathContext();

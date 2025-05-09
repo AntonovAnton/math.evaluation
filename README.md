@@ -1,14 +1,10 @@
-﻿<div align="center">
-    <img src="logo.png" alt="MathEvaluator logo" style="width:100px;"/>
-    <h1>Math Expression Evaluator in .NET</h1>
-    <a href="https://nuget.org/packages/MathEvaluator" style="text-decoration: none;">
-      <img src="https://img.shields.io/nuget/dt/MathEvaluator?style=for-the-badge" alt="MathEvaluator Downloads" />
-    </a>
-    <a href="https://nuget.org/packages/MathEvaluator" style="text-decoration: none;">
-      <img src="https://img.shields.io/nuget/v/MathEvaluator?style=for-the-badge" alt="MathEvaluator Version" />
-    </a>
+﻿<div style="display:flex;gap:16px;align-items:center;">
+    <img src="logo.png" alt="logo" style="width:64px;height:64px;"/>
+    <h1 style="flex:1 1 auto;">Math Expression Evaluator in .NET</h1>
 </div>
-<br/ >
+
+[![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator?style=for-the-badge)](https://nuget.org/packages/MathEvaluator/)
+[![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator?style=for-the-badge)](https://nuget.org/packages/MathEvaluator/)
 
 MathEvaluator is a .NET library that allows you to evaluate and compile any mathematical expressions from a string dynamically.
 
