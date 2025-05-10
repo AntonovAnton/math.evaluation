@@ -1,6 +1,6 @@
-﻿<div style="display:flex;gap:16px;align-items:center;">
+﻿<div>
     <img src="logo.png" alt="logo" style="width:64px;height:64px;"/>
-    <h1 style="flex:1 1 auto;">Math Expression Evaluator in .NET</h1>
+    <h1>Math Expression Evaluator in .NET</h1>
 </div>
 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator?style=for-the-badge)](https://nuget.org/packages/MathEvaluator/)
@@ -56,14 +56,14 @@ Below are the results of the comparison with the NCalc library:
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
 
-By using compilation, you can convert any mathematical expression string into a delegate, such as Func\<T, TResult> or Func\<TResult>, which significantly improves performance when evaluating the expression. 
+By using compilation, you can convert any mathematical expression string into a delegate, such as `Func<T, TResult>` or `Func<TResult>`, which significantly improves performance when evaluating the expression. 
 However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 200 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results) for detailed performance insights.
 
 The compiled delegate can be executed with different parameters, allowing you to pass variables and functions as arguments. This feature is particularly useful for scenarios where the same expression needs to be evaluated with different variable values or functions.
 
 In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when dealing with dynamic or unknown variable names at compile time.
 
-In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added IExpressionCompiler interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
+In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
 
 ## How to use
 Examples of using string extentions:

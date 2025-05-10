@@ -178,11 +178,7 @@ public partial class MathExpression
         if (left.IsDefault())
             return right;
 
-        if (left is ConstantExpression)
-            return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
-
-        var equalToDefaultExpr = Expression.Equal(left, Expression.Default(left.Type)).Reduce();
-        return Expression.Condition(equalToDefaultExpr, right, Expression.Multiply(left, right).Reduce());
+        return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
