@@ -9,13 +9,22 @@ public partial class MathExpression
     /// <inheritdoc cref="Compile()" />
     public Func<bool> CompileBoolean()
     {
+        _evaluatingStep = 0;
+
         try
         {
             var i = 0;
             ExpressionTree = Build<double>(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, ExpressionTree);
+
             ExpressionTree = Expression.NotEqual(ExpressionTree, Expression.Constant(default(double)));
 
-            return Expression.Lambda<Func<bool>>(ExpressionTree).Compile();
+            var lambda = Expression.Lambda<Func<bool>>(ExpressionTree);
+            ExpressionTree =  lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
@@ -31,14 +40,22 @@ public partial class MathExpression
 
         _parameters = new MathParameters(parameters);
         ParameterExpression = Expression.Parameter(typeof(T), nameof(parameters));
+        _evaluatingStep = 0;
 
         try
         {
             var i = 0;
             ExpressionTree = Build<double>(ref i, null, null);
+
+            if (_evaluatingStep == 0)
+                OnEvaluating(0, i, ExpressionTree);
+
             ExpressionTree = Expression.NotEqual(ExpressionTree, Expression.Constant(default(double)));
 
-            return Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression).Compile();
+            var lambda = Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression);
+            ExpressionTree = lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {

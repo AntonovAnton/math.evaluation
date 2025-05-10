@@ -1,9 +1,11 @@
-﻿using MathEvaluation.Context;
+﻿using MathEvaluation.Compilation;
+using MathEvaluation.Context;
 using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
 using System.Globalization;
+using System.Linq.Expressions;
 
 namespace MathEvaluation;
 
@@ -12,6 +14,7 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathExpression : IDisposable
 {
+    private readonly IExpressionCompiler? _compiler;
     private readonly NumberFormatInfo? _numberFormat;
     private readonly char _decimalSeparator;
 
@@ -34,9 +37,11 @@ public partial class MathExpression : IDisposable
     /// <param name="mathString">The math expression string.</param>
     /// <param name="context">The math context.</param>
     /// <param name="provider">The specified format provider.</param>
+    /// <param name="compiler">The specified expression compiler. If null, the <see cref="LambdaExpression.Compile()" /> method will be used.</param>
     /// <exception cref="System.ArgumentNullException">mathString</exception>
     /// <exception cref="System.ArgumentException">Expression string is empty or white space. - mathString</exception>
-    public MathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null)
+    public MathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null,
+        IExpressionCompiler? compiler = null)
     {
         if (mathString == null)
             throw new ArgumentNullException(nameof(mathString));
@@ -48,6 +53,7 @@ public partial class MathExpression : IDisposable
         Context = context;
         Provider = provider;
 
+        _compiler = compiler;
         _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
         _decimalSeparator = _numberFormat?.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }

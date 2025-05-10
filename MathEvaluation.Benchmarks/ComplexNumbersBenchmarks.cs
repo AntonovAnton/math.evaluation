@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using MathEvaluation.Compilation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
@@ -18,12 +19,15 @@ public class ComplexNumbersBenchmarks
     private int _count;
 
     private readonly IMathContext _mathContext = new ComplexScientificMathContext();
+    private readonly IExpressionCompiler _fastCompiler = new FastExpressionCompiler();
 
     private readonly Func<SinArg, Complex> _mathEvalCompiledFn;
+    private readonly Func<SinArg, Complex> _mathEvalFastCompiledFn;
 
     public ComplexNumbersBenchmarks()
     {
         _mathEvalCompiledFn = MathEvaluator_Compile();
+        _mathEvalFastCompiledFn = MathEvaluator_FastExpressionCompiler_Compile();
     }
 
     [Benchmark(Description = "MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)")]
@@ -45,6 +49,13 @@ public class ComplexNumbersBenchmarks
         return "sin(a) * arctan(4i)/(1 - 6i)".CompileComplex(new SinArg(Complex.Zero), _mathContext);
     }
 
+    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)")]
+    public Func<SinArg, Complex> MathEvaluator_FastExpressionCompiler_Compile()
+    {
+        return new MathExpression("sin(a) * arctan(4i)/(1 - 6i)", _mathContext, null, _fastCompiler)
+            .CompileComplex(new SinArg(Complex.Zero));
+    }
+
     [Benchmark(Description = "MathEvaluator invoke fn(a)")]
     public Complex MathEvaluator_InvokeCompiled()
     {
@@ -53,6 +64,16 @@ public class ComplexNumbersBenchmarks
         var i = r - 1;
 
         return _mathEvalCompiledFn(new SinArg(new Complex(r, i)));
+    }
+
+    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler invoke fn(a)")]
+    public Complex MathEvaluator_FastExpressionCompiler_InvokeCompiled()
+    {
+        _count++;
+        var r = _count % 3; //randomizing values
+        var i = r - 1;
+
+        return _mathEvalFastCompiledFn(new SinArg(new Complex(r, i)));
     }
 
 #pragma warning disable IDE1006 // Naming Styles
