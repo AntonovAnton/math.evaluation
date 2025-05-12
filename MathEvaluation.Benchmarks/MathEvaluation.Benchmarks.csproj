@@ -9,11 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-    <PackageReference Include="FastExpressionCompiler" Version="5.1.1" />
     <PackageReference Include="NCalcSync" Version="5.4.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MathEvaluation.FastExpressionCompiler\MathEvaluation.FastExpressionCompiler.csproj" />
     <ProjectReference Include="..\MathEvaluation\MathEvaluation.csproj" />
   </ItemGroup>
 

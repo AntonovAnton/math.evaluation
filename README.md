@@ -3,8 +3,10 @@
     <h1>Math Expression Evaluator in .NET</h1>
 </div>
 
-[![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator?style=for-the-badge)](https://nuget.org/packages/MathEvaluator/)
-[![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator?style=for-the-badge)](https://nuget.org/packages/MathEvaluator/)
+NuGet packages:
+
+- MathEvaluator [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator)
+- MathEvaluator.FastExpressionCompiler [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator)
 
 MathEvaluator is a .NET library that allows you to evaluate and compile any mathematical expressions from a string dynamically.
 
@@ -18,16 +20,6 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
-
-[Compilation of a Math Expression into a delegate.](https://medium.com/@AntonAntonov88/compile-any-math-expression-from-string-dynamically-at-runtime-in-c-net-710f8bbbb880)
-
-## Installation
-
-    dotnet add package MathEvaluator
-
-Alternatively, you can install the package using the NuGet Package Manager Console:
-
-    Install-Package MathEvaluator
 
 ## Perfomance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher. 
@@ -64,6 +56,10 @@ The compiled delegate can be executed with different parameters, allowing you to
 In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when dealing with dynamic or unknown variable names at compile time.
 
 In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
+
+**MathEvaluator.FastExpressionCompiler** is an extension of the MathEvaluator library that uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to provide performance improvements of up to 10-40x compared to the built-in .NET `LambdaExpression.Compile()` method.  
+
+This library includes all features of the MathEvaluator library but adds a dependency on FastExpressionCompiler. For more details, refer to the [documentation](https://github.com/AntonovAnton/math.evaluation/tree/main/MathEvaluation.FastExpressionCompiler).
 
 ## How to use
 Examples of using string extentions:
@@ -315,11 +311,10 @@ Example of evaluating C# expression:
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.
 If you enjoy my work and find it valuable, please consider becoming my [sponsor on GitHub](https://github.com/sponsors/AntonovAnton). Your support will enable me to share more open-source code. Together, we can make a positive impact in the developer community!
 
-Looking to localize your project? Check out [l10n.dev](https://l10n.dev), an AI-powered localization service. [Translate JSON](https://l10n.dev/ws/translate-json) files while preserving format, keys, and placeholders. Supports 165+ languages with an easy-to-use API and UI. Get started for free!
+Looking to localize your project? Check out [l10n.dev](https://l10n.dev), an AI-powered localization service. [Translate JSON](https://l10n.dev/ws/translate-json) files while preserving format, keys, and placeholders. Supports 165 languages with an easy-to-use API and UI. Get started for free!
 
 ## License
 This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](https://github.com/AntonovAnton/math.evaluation?tab=License-1-ov-file) file for details.
 
 ## Contact
 If you have any questions or suggestions, feel free to open an issue or contact me directly.
-For localization needs, consider using [l10n.dev](https://l10n.dev) to improve your translation process.

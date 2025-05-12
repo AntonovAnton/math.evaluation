@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using FastExpressionCompiler;
 using MathEvaluation.Compilation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
@@ -21,7 +20,7 @@ public class CompilationBenchmarks
     // ReSharper disable once InconsistentNaming
     private const double b = Math.PI / 3;
 
-    private readonly IExpressionCompiler _fastCompiler = new FastExpressionCompiler();
+    private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
     private readonly IMathContext _scientificContext = new ScientificMathContext();
     private readonly IMathContext _programmingContext = new ProgrammingMathContext();
@@ -171,18 +170,5 @@ public class CompilationBenchmarks
         public bool A { get; set; }
         public bool B { get; set; }
         public bool C { get; set; }
-    }
-}
-
-public sealed class FastExpressionCompiler : IExpressionCompiler
-{
-    public Func<TResult> Compile<TResult>(System.Linq.Expressions.Expression<Func<TResult>> expression) where TResult : struct
-    {
-        return expression.CompileFast();
-    }
-
-    public Func<T, TResult> Compile<T, TResult>(System.Linq.Expressions.Expression<Func<T, TResult>> expression) where TResult : struct
-    {
-        return expression.CompileFast();
     }
 }

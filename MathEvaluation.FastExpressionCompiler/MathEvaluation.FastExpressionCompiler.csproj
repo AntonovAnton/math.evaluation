@@ -5,28 +5,31 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <Title>Math Expression Evaluator</Title>
+        <Title>Math Expression Fast Compiler</Title>
         <Authors>Anton Antonov</Authors>
-        <Description>The MathEvaluator .NET library allows you to evaluate and compile any mathematical expressions from a string dynamically. It supports a wide range of operations and allows for the use of custom variables, operators, and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool.</Description>
+        <Description>The MathEvaluator.FastExpressionCompiler .NET library allows you to evaluate and compile any math expressions from a string dynamically. It supports a wide range of operations and allows for the use of custom variables, operators, and functions. The evaluator can be configured for different contexts, such as scientific or programming math expressions, making it highly versatile for various use cases. This flexibility, combined with its high performance, makes it an excellent choice for developers needing a robust mathematical evaluation tool. Extended with the FastExpressionCompiler's CompileFast() methods, it is 10-40x faster than the traditional Compile() method.</Description>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Copyright>Copyright © 2025 Anton Antonov</Copyright>
         <PackageProjectUrl>https://github.com/AntonovAnton/math.evaluation</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AntonovAnton/math.evaluation</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile;</PackageTags>
+        <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile; FastExpressionCompiler;</PackageTags>
         <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions.
 Extensible with custom functions and operators.
+Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40x faster performance compared to the traditional Compile() method.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <Version>2.3.1</Version>
-        <PackageId>MathEvaluator</PackageId>
-        <Product>MathEvaluator</Product>
+        <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
+        <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>
+        <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".FastExpressionCompiler", ""))</RootNamespace>
+        <UserSecretsId>0bc007e0-0836-4fd9-87cd-9fba60f83090</UserSecretsId>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -42,14 +45,10 @@ Extensible with custom functions and operators.
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>
         </None>
-        <None Include="..\README.md">
+        <None Include="README.md">
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="MathTrigonometric" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,6 +56,14 @@ Extensible with custom functions and operators.
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FastExpressionCompiler" Version="5.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MathEvaluation\MathEvaluation.csproj" />
     </ItemGroup>
 
 </Project>
