@@ -178,11 +178,7 @@ public partial class MathExpression
         if (left.IsDefault())
             return right;
 
-        if (left is ConstantExpression)
-            return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
-
-        var equalToDefaultExpr = Expression.Equal(left, Expression.Default(left.Type)).Reduce();
-        return Expression.Condition(equalToDefaultExpr, right, Expression.Multiply(left, right).Reduce());
+        return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
@@ -226,7 +222,10 @@ public partial class MathExpression
             if (_evaluatingStep == 0)
                 OnEvaluating(0, i, ExpressionTree);
 
-            return Expression.Lambda<Func<TResult>>(ExpressionTree).Compile();
+            var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
+            ExpressionTree = lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
@@ -257,7 +256,10 @@ public partial class MathExpression
             if (_evaluatingStep == 0)
                 OnEvaluating(0, i, ExpressionTree);
 
-            return Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression).Compile();
+            var lambda = Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
+            ExpressionTree = lambda;
+
+            return _compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
