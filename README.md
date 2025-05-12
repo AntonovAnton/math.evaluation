@@ -5,7 +5,7 @@
 NuGet packages:
 
 - MathEvaluator [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator)
-- MathEvaluator.FastExpressionCompiler [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator)
+- MathEvaluator.FastExpressionCompiler [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler)
 
 MathEvaluator is a .NET library that allows you to evaluate and compile any mathematical expressions from a string dynamically.
 

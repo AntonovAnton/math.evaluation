@@ -5,7 +5,7 @@
 NuGet packages:
 
 - MathEvaluator [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator)](https://www.nuget.org/packages/MathEvaluator)
-- MathEvaluator.FastExpressionCompiler [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator)
+- MathEvaluator.FastExpressionCompiler [![NuGet Version](https://img.shields.io/nuget/v/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler) [![NuGet Downloads](https://img.shields.io/nuget/dt/MathEvaluator.FastExpressionCompiler)](https://www.nuget.org/packages/MathEvaluator.FastExpressionCompiler)
 
 MathEvaluator.FastExpressionCompiler is an extension of the [MathEvaluator](https://nuget.org/packages/MathEvaluator) library that uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) library to provide high-performance compilation of mathematical expressions.
 
