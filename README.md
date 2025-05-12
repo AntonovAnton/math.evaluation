@@ -1,7 +1,6 @@
-﻿<div>
-    <img src="logo.png" alt="logo" style="width:64px;height:64px;"/>
-    <h1>Math Expression Evaluator in .NET</h1>
-</div>
+﻿<img src="logo.png" alt="logo" style="width:64px;height:64px;"/>
+
+# Math Expression Evaluator in .NET
 
 NuGet packages:
 

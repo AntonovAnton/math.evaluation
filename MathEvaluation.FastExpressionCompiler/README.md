@@ -1,7 +1,6 @@
-<div>
-    <img src="../logo.png" alt="logo" style="width:64px;height:64px;"/>
-    <h1>Math Expression Fast Compiler in .NET</h1>
-</div>
+<img src="../logo.png" alt="logo" style="width:64px;height:64px;"/>
+
+# Fast Math Expression Compiler in .NET
 
 NuGet packages:
 
@@ -60,7 +59,7 @@ The `FastMathExpression` class is a high-performance alternative to `MathExpress
 
 
 ### FastMathExpressionCompiler class
-The `FastMathExpressionCompiler` class implements the `IExpressionCompiler` interface (Added in version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1)) and uses the the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to compile LINQ expressions into delegates.
+The `FastMathExpressionCompiler` class implements the `IExpressionCompiler` interface (Added in version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1)) and uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to compile LINQ expressions into delegates.
 
 ## Performance
 By leveraging `FastExpressionCompiler`, this library significantly reduces the time required to compile mathematical expressions. This makes it ideal for scenarios where expressions need to be compiled and executed repeatedly.
