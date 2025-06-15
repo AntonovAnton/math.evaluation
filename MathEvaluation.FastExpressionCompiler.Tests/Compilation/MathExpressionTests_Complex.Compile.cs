@@ -53,7 +53,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("(-2.324 -i) * (2 + 6i)", 1.3520000000000003, -15.943999999999999)]
     public void FastMathExpression_CompileComplexThenInvoke_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new FastMathExpression(mathString);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -71,7 +71,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("4π // (3)π", 1d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasFloorDivision_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -88,7 +88,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
     public void FastMathExpression_CompileComplexThenInvoke_HasScientificNotation_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -115,7 +115,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         var expectedValue = 22888.32d * 30 / 323.34d / .5d - -1 / (2 + 22888.32d) * 4 - 6;
 
-        var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
+        var cultureInfo = cultureName == null ? CultureInfo.InvariantCulture : new CultureInfo(cultureName);
         using var expression = new FastMathExpression(mathString, null, cultureInfo);
         expression.Evaluating += SubscribeToEvaluating;
 
@@ -179,7 +179,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileComplexThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
-        using var expression = new FastMathExpression(mathString, _programmingContext);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -203,7 +203,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileComplexThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -221,7 +221,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     public void FastMathExpression_CompileComplexThenInvoke_HasProgrammingModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _programmingContext);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -243,7 +243,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 - 2 / 4.5 MOD 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     public void FastMathExpression_CompileComplexThenInvoke_HasScientificModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -266,7 +266,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData(".1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3", .1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3)]
     public void FastMathExpression_CompileComplexThenInvoke_HasExpNotationNumbers_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -283,7 +283,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("200e^- 0.15", 172.14159528501156d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -316,7 +316,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 + 2|-2 + -3.5|  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileComplexThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -347,7 +347,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("1/√9^2", 1 / 9d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -377,7 +377,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -407,7 +407,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 + 2⌊2 + 3.5⌋  ^2", 3 + 2 * 25d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -438,7 +438,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -462,7 +462,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("2!^(3)^2!", 512d)]
     public void FastMathExpression_CompileComplexThenInvoke_HasFactorial_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -488,7 +488,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var parameters = new { x = varValue, PI = varValue };
 
-        var fn = mathString.CompileComplexFast(parameters, _scientificContext);
+        var fn = mathString.CompileComplexFast(parameters, _scientificContext, CultureInfo.InvariantCulture);
         var value = fn(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -562,7 +562,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
             return minValue;
         };
 
-        var fn = mathString.CompileComplexFast(new { min });
+        var fn = mathString.CompileComplexFast(new { min }, null, CultureInfo.InvariantCulture);
         var value = fn(new { min });
 
         testOutputHelper.WriteLine($"result: {value}");

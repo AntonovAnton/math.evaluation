@@ -1,4 +1,6 @@
-﻿namespace MathEvaluation.Tests.Evaluation;
+﻿using System.Globalization;
+
+namespace MathEvaluation.Tests.Evaluation;
 
 public partial class MathExpressionTests
 {
@@ -20,7 +22,7 @@ public partial class MathExpressionTests
     [InlineData("1/2PI", 1 / (2 * Math.PI))]
     public void MathExpression_Evaluate_HasPi_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -42,7 +44,7 @@ public partial class MathExpressionTests
     [InlineData("+ττ", Math.Tau * Math.Tau)]
     public void MathExpression_Evaluate_HasTau_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -97,7 +99,7 @@ public partial class MathExpressionTests
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathExpression_Evaluate_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -135,7 +137,7 @@ public partial class MathExpressionTests
     public void MathExpression_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString,
         double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -186,7 +188,7 @@ public partial class MathExpressionTests
     [InlineData("COT^-1(2)", 0.46364760900080609d)]
     public void MathExpression_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -252,7 +254,7 @@ public partial class MathExpressionTests
     [InlineData("csch^-1(-∞)", 0)]
     public void MathExpression_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();

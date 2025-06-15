@@ -44,7 +44,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("2 + \n(5 - 1) - \n\r 3", 2 + (5 - 1) - 3)]
     public void FastMathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -62,7 +62,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("4π // (3)π", 1d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasFloorDivision_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -79,7 +79,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
     public void FastMathExpression_CompileDecimalThenInvoke_HasScientificNotation_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -106,7 +106,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     {
         var expectedValue = 22888.32m * 30 / 323.34m / .5m - -1 / (2 + 22888.32m) * 4 - 6;
 
-        var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
+        var cultureInfo = cultureName == null ? CultureInfo.InvariantCulture : new CultureInfo(cultureName);
         using var expression = new FastMathExpression(mathString, null, cultureInfo);
         expression.Evaluating += SubscribeToEvaluating;
 
@@ -145,7 +145,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileDecimalThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _programmingContext);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -167,7 +167,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileDecimalThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -182,7 +182,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("4 % 3", 1)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasProgrammingModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _programmingContext);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -198,7 +198,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("4 modulo 3 - 2", -1)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasScientificModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -219,7 +219,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData(".2E3 - 2", .2E3 - 2)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasExpNotationNumbers_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -236,7 +236,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("200e^- 0.1", 180.967483607192d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -268,7 +268,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3 + 2|-2 + -3.5|  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void FastMathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -294,7 +294,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("∜16∜16", 4d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -317,7 +317,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -347,7 +347,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3 + 2⌊2 + 3.5⌋  ^2", 3 + 2 * 25d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -378,7 +378,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -402,7 +402,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("2!^(3)^2!", 512d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasFactorial_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -425,7 +425,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = mathString.CompileDecimalFast(new { x = varValue, PI = varValue }, _scientificContext);
+        var fn = mathString.CompileDecimalFast(new { x = varValue, PI = varValue }, _scientificContext, CultureInfo.InvariantCulture);
         var value = fn(new { x = varValue, PI = varValue });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -496,7 +496,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
             return minValue;
         };
 
-        var fn = mathString.CompileDecimalFast(new { min });
+        var fn = mathString.CompileDecimalFast(new { min }, null, CultureInfo.InvariantCulture);
         var value = fn(new { min });
 
         testOutputHelper.WriteLine($"result: {value}");

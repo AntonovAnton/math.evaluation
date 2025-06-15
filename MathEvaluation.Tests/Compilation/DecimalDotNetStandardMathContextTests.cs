@@ -1,5 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Globalization;
 using Xunit.Abstractions;
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
@@ -32,7 +33,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0) + 2)]
     public void MathExpression_CompileDecimalThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -98,7 +99,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     public void MathExpression_CompileDecimalThenInvoke_HasBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -120,7 +121,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345347)]
     public void MathExpression_CompileDecimalThenInvoke_HasBitwiseBooleanLogic_ExpectedValue(string mathString, long expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -136,7 +137,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("200 * Math.E", 543.656365691808d)]
     public void MathExpression_CompileDecimalThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -151,7 +152,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.PI", Math.PI)]
     public void MathExpression_CompileDecimalThenInvoke_HasMathPI_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -166,8 +167,8 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Cos(1)", 0.54030230586813977d)]
     [InlineData("Math.Cos(1)*(1 + 2)", 0.54030230586813977d * 3)]
     [InlineData("(Math.Cos(1)*(1 + 2)) % Math.Cos(1)+0.5", 0.5d)]
-    [InlineData("Math.Cos(Math.Pow(1,4))", 0.54030230586813977d)]
-    [InlineData("Math.Cos(Math.Pow(1,4))/2", 0.54030230586813977d / 2)]
+    [InlineData("Math.Cos(Math.Pow(1, 4))", 0.54030230586813977d)]
+    [InlineData("Math.Cos(Math.Pow(1, 4))/2", 0.54030230586813977d / 2)]
     [InlineData("Math.Sin(Math.PI/12 + Math.PI/12)", 0.49999999999999994d)]
     [InlineData("Math.Sin((1/6)*Math.PI)", 0.49999999999999994d)]
     [InlineData("Math.Sin(1 + 2.4)", -0.25554110202683122d)]
@@ -185,7 +186,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathExpression_CompileDecimalThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -208,7 +209,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Tanh(double.NegativeInfinity)", -1d)]
     public void MathExpression_CompileDecimalThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -226,7 +227,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Atan(-2)", -1.1071487177940904d)]
     public void MathExpression_CompileDecimalThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -248,7 +249,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Atanh(0.5)", 0.54930614433405489d)]
     public void MathExpression_CompileDecimalThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -266,7 +267,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("3 + 2* Math.Pow(Math.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_CompileDecimalThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -291,7 +292,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Pow(16, 0.25)", 2d)]
     public void MathExpression_CompileDecimalThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -315,7 +316,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathExpression_CompileDecimalThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -345,7 +346,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("3 + 2*Math.Pow(Math.Floor(2 + 3.5) , 2)", 3 + 2 * 25d)]
     public void MathExpression_CompileDecimalThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -376,7 +377,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("3 + 2*Math.Ceiling(2 + 3.5)", 3 + 2 * 6d)]
     public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -397,7 +398,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("Math.Round(-0.1, 1)", -0.1d)]
     public void MathExpression_CompileDecimalThenInvoke_HasRound_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -448,7 +449,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
             { "d", (decimal)var_d }
         };
 
-        var fn = expression.CompileDecimal(dict, _context);
+        var fn = expression.CompileDecimal(dict, _context, CultureInfo.InvariantCulture);
         var value = fn(dict);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -508,7 +509,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _context).CompileDecimal()());
+        var ex = Record.Exception(() => new MathExpression(expression, _context, CultureInfo.InvariantCulture).CompileDecimal()());
         Assert.IsType<OverflowException>(ex?.InnerException ?? ex);
     }
 

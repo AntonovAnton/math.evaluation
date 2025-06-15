@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System.Globalization;
 using System.Numerics;
 
 // ReSharper disable EqualExpressionComparison
@@ -31,7 +32,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     public void MathExpression_EvaluateComplex_HasProgrammingBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext);
+        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -59,7 +60,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
     public void MathExpression_EvaluateComplex_HasEngineeringBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -120,7 +121,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
     public void MathExpression_EvaluateComplex_HasScientificBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();

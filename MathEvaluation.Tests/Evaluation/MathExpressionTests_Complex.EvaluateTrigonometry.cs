@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 
 namespace MathEvaluation.Tests.Evaluation;
 
@@ -23,7 +24,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("1/2PI", 1 / (2 * Math.PI))]
     public void MathExpression_EvaluateComplex_HasPi_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -45,7 +46,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("+ττ", Math.Tau * Math.Tau)]
     public void MathExpression_EvaluateComplex_HasTau_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -101,7 +102,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("sin(2 + 3i) * arctan(4i)/(1 - 6i)", 1.1001786515830083, 2.3907445385260218)]
     public void MathExpression_EvaluateComplex_HasTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -139,7 +140,7 @@ public partial class MathExpressionTests_Complex
     public void MathExpression_EvaluateComplex_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString,
         double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -191,7 +192,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("cos(2cos^-1(2))", 6.999999999999998d)] //7
     public void MathExpression_EvaluateComplex_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -264,7 +265,7 @@ public partial class MathExpressionTests_Complex
 #endif
     public void MathExpression_EvaluateComplex_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();

@@ -1,5 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Globalization;
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
 
@@ -27,7 +28,7 @@ public partial class MathExpressionTests
     [InlineData("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     public void FastMathExpression_CompileBooleanThenInvoke_HasProgrammingBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _programmingContext);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBoolean();
@@ -58,7 +59,7 @@ public partial class MathExpressionTests
     [InlineData("4 ≠ 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 ⪰ -12.9 + 0.1 / 0.01", true)]
     public void FastMathExpression_CompileBooleanThenInvoke_HasEngineeringBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBoolean();
@@ -122,7 +123,7 @@ public partial class MathExpressionTests
     [InlineData("4 ≠ 4 ∨ 5.4 = 5.4 ∧ ¬(0 < 1) ⊕ 1.0 - 1.95 * 2 ≥ -12.9 + 0.1 / 0.01", true)]
     public void FastMathExpression_CompileBooleanThenInvoke_HasScientificBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBoolean();
