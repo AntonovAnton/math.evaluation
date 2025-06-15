@@ -1,4 +1,6 @@
-﻿namespace MathEvaluation.Tests.Compilation;
+﻿using System.Globalization;
+
+namespace MathEvaluation.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal
@@ -9,7 +11,7 @@ public partial class MathExpressionTests_Decimal
     [InlineData("pi", Math.PI)]
     public void MathExpression_CompileDecimalThenInvoke_HasPi_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -25,7 +27,7 @@ public partial class MathExpressionTests_Decimal
     [InlineData("10τ", 10 * Math.Tau)]
     public void MathExpression_CompileDecimalThenInvoke_HasTau_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -75,7 +77,7 @@ public partial class MathExpressionTests_Decimal
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathExpression_CompileDecimalThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -111,7 +113,7 @@ public partial class MathExpressionTests_Decimal
     public void MathExpression_CompileDecimalThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString,
         double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -155,7 +157,7 @@ public partial class MathExpressionTests_Decimal
     [InlineData("COT^-1(2)", 0.46364760900080609d)]
     public void MathExpression_CompileDecimalThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();
@@ -195,7 +197,7 @@ public partial class MathExpressionTests_Decimal
     [InlineData("csch^-1(-∞)", 0)]
     public void MathExpression_CompileDecimalThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileDecimal();

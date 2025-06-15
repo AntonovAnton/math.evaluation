@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 
 namespace MathEvaluation.Tests.Compilation;
 
@@ -23,7 +24,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("1/2PI", 1 / (2 * Math.PI))]
     public void FastMathExpression_CompileComplexThenInvoke_HasPi_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -48,7 +49,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("+ττ", Math.Tau * Math.Tau)]
     public void FastMathExpression_CompileComplexThenInvoke_HasTau_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -107,7 +108,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("sin(2 + 3i) * arctan(4i)/(1 - 6i)", 1.1001786515830083, 2.3907445385260218)]
     public void FastMathExpression_CompileComplexThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -148,7 +149,7 @@ public partial class MathExpressionTests_Complex
     public void FastMathExpression_CompileComplexThenInvoke_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -203,7 +204,7 @@ public partial class MathExpressionTests_Complex
     public void FastMathExpression_CompileComplexThenInvoke_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();
@@ -280,7 +281,7 @@ public partial class MathExpressionTests_Complex
     public void FastMathExpression_CompileComplexThenInvoke_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {
-        using var expression = new FastMathExpression(mathString, _scientificContext);
+        using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileComplex();

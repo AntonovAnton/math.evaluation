@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System.Globalization;
 using System.Numerics;
 using Xunit.Abstractions;
 
@@ -58,7 +59,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.One + ((Complex)5 - Complex.Zero + new Complex(2, 0))", 1 + (5 - 0) + 2)]
     public void MathExpression_Evaluate_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -79,7 +80,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         var parameters = new MathParameters();
         parameters.BindVariable(5.0, 'a');
 
-        var value = expression.Evaluate(parameters, _context);
+        var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
     }
@@ -97,7 +98,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         var parameters = new MathParameters();
         parameters.BindVariable(5.0, 'a');
 
-        var value = expression.Evaluate(parameters, _context);
+        var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
     }
@@ -121,7 +122,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("4 != 4 || 5.4 == 5.4 && !true ^ 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", true)]
     public void MathExpression_EvaluateBoolean_HasBooleanLogic_ExpectedValue(string mathString, bool expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateBoolean();
@@ -140,7 +141,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("2345345345345345344UL ^ 3", 2345345345345345344UL ^ 3)]
     public void MathExpression_Evaluate_HasBitwiseBooleanLogic_ExpectedValue(string mathString, long expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -154,7 +155,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("200 * Math.Pow(Math.E, -0.15)", 172.14159528501156d)]
     public void MathExpression_Evaluate_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -169,7 +170,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("1/(2*Math.PI)", 1 / (2 * Math.PI))]
     public void MathExpression_Evaluate_HasMathPI_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -186,8 +187,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("(Math.Cos(1)*(1 + 2)) % Math.Cos(1)+0.5", 0.5d)]
     [InlineData("Math.Sin(-3)/Math.Cos(1)", -0.14112000805986721d / 0.54030230586813977d)]
     [InlineData("Math.Sin(-3)*Math.Cos(1)", -0.14112000805986721d * 0.54030230586813977d)]
-    [InlineData("Math.Cos(Math.Pow(1,4))", 0.54030230586813977d)]
-    [InlineData("Math.Cos(Math.Pow(1,4))/2", 0.54030230586813977d / 2)]
+    [InlineData("Math.Cos(Math.Pow(1, 4))", 0.54030230586813977d)]
+    [InlineData("Math.Cos(Math.Pow(1, 4))/2", 0.54030230586813977d / 2)]
     [InlineData("Math.Sin(Math.PI/12 + Math.PI/12)", 0.49999999999999994d)]
     [InlineData("Math.Sin((1/6)*Math.PI)", 0.49999999999999994d)]
     [InlineData("Math.Sin(1 + 2.4)", -0.25554110202683122d)]
@@ -206,7 +207,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathExpression_Evaluate_HasTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -223,8 +224,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("(Complex.Cos(1)*(1 + 2)) % Complex.Cos(1)+0.5", 0.5d)]
     [InlineData("Complex.Sin(-3)/Complex.Cos(1)", -0.14112000805986721d / 0.54030230586813977d)]
     [InlineData("Complex.Sin(-3)*Complex.Cos(1)", -0.14112000805986721d * 0.54030230586813977d)]
-    [InlineData("Complex.Cos(Complex.Pow(1,4))", 0.54030230586813977d)]
-    [InlineData("Complex.Cos(Complex.Pow(1,4))/2", 0.54030230586813977d / 2)]
+    [InlineData("Complex.Cos(Complex.Pow(1, 4))", 0.54030230586813977d)]
+    [InlineData("Complex.Cos(Complex.Pow(1, 4))/2", 0.54030230586813977d / 2)]
     [InlineData("Complex.Sin(Math.PI/12 + Math.PI/12)", 0.49999999999999994d)]
     [InlineData("Complex.Sin((1/6)*Math.PI)", 0.49999999999999994d)]
     [InlineData("Complex.Sin(1 + 2.4)", -0.25554110202683122d)]
@@ -243,7 +244,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Complex.Cos(1) * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     public void MathExpression_EvaluateComplex_HasComplexTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -266,7 +267,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Tanh(double.NegativeInfinity)", -1d)]
     public void MathExpression_Evaluate_HasHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -295,7 +296,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     public void MathExpression_EvaluateComplex_HasComplexHyperbolicTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -314,7 +315,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Atan(-2)", -1.1071487177940904d)]
     public void MathExpression_Evaluate_HasInverseTrigonometricFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -333,7 +334,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     public void MathExpression_EvaluateComplex_HasComplexInverseTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
         double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -362,7 +363,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Atanh(-2)", double.NaN)]
     public void MathExpression_Evaluate_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -377,7 +378,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2* Math.Pow(Math.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_Evaluate_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -392,7 +393,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2* Complex.Pow(Complex.Abs(-2 + -3.5), 2)", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_EvaluateComplex_HasComplexAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -418,7 +419,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("1/Math.Pow(Math.Sqrt(9), 2)", 1 / 9d)]
     public void MathExpression_Evaluate_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -444,7 +445,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("1/Complex.Pow(Complex.Sqrt(9), 2)", 1 / 9d)]
     public void MathExpression_EvaluateComplex_HasComplexRoot_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -471,7 +472,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("-2*Math.Log(1/0.5 + Math.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathExpression_Evaluate_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -498,7 +499,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("-2*Complex.Log(1/0.5 + Complex.Sqrt(1/(0.5*0.5) + 1))", -2 * 1.4436354751788103d)]
     public void MathExpression_EvaluateComplex_HasComplexLogarithmFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.EvaluateComplex();
@@ -525,7 +526,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2*Math.Pow(Math.Floor(2 + 3.5) , 2)", 3 + 2 * 25d)]
     public void MathExpression_Evaluate_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -553,7 +554,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2*Math.Ceiling(2 + 3.5)", 3 + 2 * 6d)]
     public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -571,7 +572,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("Math.Round(-0.1, 1)", -0.10000000000000001d)]
     public void MathExpression_Evaluate_HasRound_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _context);
+        using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var value = expression.Evaluate();
@@ -594,7 +595,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         var parameters = new MathParameters();
         parameters.BindVariable(varValue, varName);
 
-        var value = expression.Evaluate(parameters, _context);
+        var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
     }
@@ -610,7 +611,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         var parameters = new MathParameters();
         parameters.BindVariable(varValue, varName);
 
-        var value = expression.EvaluateComplex(parameters, _context);
+        var value = expression.EvaluateComplex(parameters, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
     }
@@ -636,7 +637,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
             { "d", var_d }
         };
 
-        var value = expression.Evaluate(dict, _context);
+        var value = expression.Evaluate(dict, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
     }

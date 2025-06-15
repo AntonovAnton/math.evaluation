@@ -18,7 +18,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString).Compile());
+        var ex = Record.Exception(() => new MathExpression(mathString, null, CultureInfo.InvariantCulture).Compile());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -49,7 +49,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("2 + \n(5 - 1) - \r\n 3", 2 + (5 - 1) - 3)]
     public void MathExpression_CompileThenInvoke_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString);
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -67,7 +67,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("4π // (3)π", 1d)]
     public void MathExpression_CompileThenInvoke_HasFloorDivision_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -84,7 +84,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("(3 + 1)(5 + 2(5 - 1))^2", (3 + 1) * (5 + 2 * (5 - 1)) * (5 + 2 * (5 - 1)))]
     public void MathExpression_CompileThenInvoke_HasScientificNotation_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -111,7 +111,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         var expectedValue = 22888.32d * 30 / 323.34d / .5d - -1 / (2 + 22888.32d) * 4 - 6;
 
-        var cultureInfo = cultureName == null ? null : new CultureInfo(cultureName);
+        var cultureInfo = cultureName == null ? CultureInfo.InvariantCulture : new CultureInfo(cultureName);
         using var expression = new MathExpression(mathString, null, cultureInfo);
         expression.Evaluating += SubscribeToEvaluating;
 
@@ -174,7 +174,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_CompileThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext);
+        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -198,7 +198,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_CompileThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -216,7 +216,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 - 2 / 4.5 % 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathExpression_CompileThenInvoke_HasProgrammingModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext);
+        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -238,7 +238,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 - 2 / 4.5 MOD 3.1 / 3 * 2 + 4", 3 - 2 / 4.5 % 3.1 / 3 * 2 + 4)]
     public void MathExpression_CompileThenInvoke_HasScientificModulus_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -261,7 +261,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData(".1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3", .1 - 0.4e3 / .3E-2 * .1E+10 + 2e+3)]
     public void MathExpression_CompileThenInvoke_HasExpNotationNumbers_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString);
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -278,7 +278,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("200e^- 0.15", 172.14159528501156d)]
     public void MathExpression_CompileThenInvoke_HasLnBase_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -311,7 +311,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2|-2 + -3.5|  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     public void MathExpression_CompileThenInvoke_HasAbs_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -342,7 +342,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("1/√9^2", 1 / 9d)]
     public void MathExpression_CompileThenInvoke_HasRoot_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -372,7 +372,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("-2ln(1/0.5 + √(1/0.5^2 + 1))", -2 * 1.4436354751788103d)]
     public void MathExpression_CompileThenInvoke_HasLogarithmFn_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -402,7 +402,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2⌊2 + 3.5⌋  ^2", 3 + 2 * 25d)]
     public void MathExpression_CompileThenInvoke_HasFloor_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -433,7 +433,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
     public void MathExpression_CompileThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -457,7 +457,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("2!^(3)^2!", 512d)]
     public void MathExpression_CompileThenInvoke_HasFactorial_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, _scientificContext);
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile();
@@ -483,7 +483,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var parameters = new { x = varValue, PI = varValue };
 
-        var fn = mathString.Compile(parameters, _scientificContext);
+        var fn = mathString.Compile(parameters, _scientificContext, CultureInfo.InvariantCulture);
         var value = fn(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -557,7 +557,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
             return minValue;
         };
 
-        var fn = mathString.Compile(new { min });
+        var fn = mathString.Compile(new { min }, null, CultureInfo.InvariantCulture);
         var value = fn(new { min });
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -571,10 +571,10 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var mathString = "0.2!";
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).Compile()());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture).Compile()());
         Assert.IsType<ArgumentException>(ex);
 
-        Assert.Equal("Not integer number 0.2 isn't supported by the factorial function.", ex.Message);
+        Assert.Equal($"Not integer number {0.2} isn't supported by the factorial function.", ex.Message);
     }
 
     [Theory]
@@ -586,7 +586,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString).Compile());
+        var ex = Record.Exception(() => new MathExpression(mathString, null, CultureInfo.InvariantCulture).Compile());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -597,7 +597,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var mathString = "888e3.2";
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString).Compile());
+        var ex = Record.Exception(() => new MathExpression(mathString, null, CultureInfo.InvariantCulture).Compile());
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
         Assert.Equal("Error of evaluating the expression. The input string '888e3.2' was not in a correct format.", ex.Message);
@@ -612,7 +612,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).Compile());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture).Compile());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
@@ -625,7 +625,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{mathString}");
 
-        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext).Compile());
+        var ex = Record.Exception(() => new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture).Compile());
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
     }
