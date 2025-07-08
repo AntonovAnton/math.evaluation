@@ -18,7 +18,7 @@ public class ComplexNumbersBenchmarks
 {
     private int _count;
 
-    private readonly IMathContext _mathContext = new ComplexScientificMathContext();
+    private readonly MathContext _mathContext = new ComplexScientificMathContext();
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
     private readonly Func<SinArg, Complex> _mathEvalCompiledFn;

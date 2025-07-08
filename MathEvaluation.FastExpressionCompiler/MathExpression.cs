@@ -13,7 +13,7 @@ public sealed class FastMathExpression : MathExpression
     /// <param name="provider">The specified format provider.</param>
     /// <param name="compiler">The specified expression compiler. If null, the <see cref="FastMathExpressionCompiler">FastMathExpressionCompiler</see> will be used.</param>
     /// <inheritdoc />
-    public FastMathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null,
+    public FastMathExpression(string mathString, MathContext? context = null, IFormatProvider? provider = null,
         IExpressionCompiler? compiler = null)
         : base(mathString, context, provider, compiler ?? new FastMathExpressionCompiler())
     {

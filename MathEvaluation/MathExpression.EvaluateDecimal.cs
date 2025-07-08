@@ -11,8 +11,8 @@ public partial class MathExpression
     public decimal EvaluateDecimal(object? parameters = null)
         => EvaluateDecimal(parameters != null ? new MathParameters(parameters) : null);
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?)" />
-    public decimal EvaluateDecimal(IMathParameters? parameters)
+    /// <inheritdoc cref="Evaluate(MathParameters?)" />
+    public decimal EvaluateDecimal(MathParameters? parameters)
     {
         _parameters = parameters;
         _evaluatingStep = 0;

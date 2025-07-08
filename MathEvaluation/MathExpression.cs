@@ -18,7 +18,7 @@ public partial class MathExpression : IDisposable
     private readonly NumberFormatInfo? _numberFormat;
     private readonly char _decimalSeparator;
 
-    private IMathParameters? _parameters;
+    private MathParameters? _parameters;
     private int _evaluatingStep;
 
     /// <summary>Gets the math expression string.</summary>
@@ -26,8 +26,8 @@ public partial class MathExpression : IDisposable
     public string MathString { get; }
 
     /// <summary>Gets the math context.</summary>
-    /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
-    public IMathContext? Context { get; }
+    /// <value>The instance of the <see cref="MathContext" /> interface.</value>
+    public MathContext? Context { get; }
 
     /// <summary>Gets the specified format provider.</summary>
     /// <value>The specified format provider.</value>
@@ -40,7 +40,7 @@ public partial class MathExpression : IDisposable
     /// <param name="compiler">The specified expression compiler. If null, the <see cref="LambdaExpression.Compile()" /> method will be used.</param>
     /// <exception cref="System.ArgumentNullException">mathString</exception>
     /// <exception cref="System.ArgumentException">Expression string is empty or white space. - mathString</exception>
-    public MathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null,
+    public MathExpression(string mathString, MathContext? context = null, IFormatProvider? provider = null,
         IExpressionCompiler? compiler = null)
     {
         if (mathString == null)
@@ -58,7 +58,7 @@ public partial class MathExpression : IDisposable
         _decimalSeparator = _numberFormat?.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?)" />
+    /// <inheritdoc cref="Evaluate(MathParameters?)" />
     /// <exception cref="NotSupportedException">parameters</exception>
     public double Evaluate(object? parameters = null)
         => Evaluate(parameters != null ? new MathParameters(parameters) : null);
@@ -67,7 +67,7 @@ public partial class MathExpression : IDisposable
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
     /// <returns>Value of the math expression.</returns>
     /// <exception cref="MathExpressionException" />
-    public double Evaluate(IMathParameters? parameters)
+    public double Evaluate(MathParameters? parameters)
     {
         _parameters = parameters;
         _evaluatingStep = 0;
@@ -265,7 +265,7 @@ public partial class MathExpression : IDisposable
     }
 
     private static MathExpressionException CreateException(Exception ex,
-        string mathString, IMathContext? context, IFormatProvider? provider, object? parameters)
+        string mathString, MathContext? context, IFormatProvider? provider, object? parameters)
     {
         ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
         ex.Data[nameof(mathString)] = mathString;
