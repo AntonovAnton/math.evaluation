@@ -29,7 +29,7 @@ public partial class MathExpression
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 

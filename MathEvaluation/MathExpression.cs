@@ -14,7 +14,6 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathExpression : IDisposable
 {
-    private readonly IExpressionCompiler? _compiler;
     private readonly NumberFormatInfo? _numberFormat;
     private readonly char _decimalSeparator;
 
@@ -26,12 +25,16 @@ public partial class MathExpression : IDisposable
     public string MathString { get; }
 
     /// <summary>Gets the math context.</summary>
-    /// <value>The instance of the <see cref="MathContext" /> interface.</value>
+    /// <value>The instance of the <see cref="MathContext" /> class.</value>
     public MathContext? Context { get; }
 
     /// <summary>Gets the specified format provider.</summary>
     /// <value>The specified format provider.</value>
     public IFormatProvider? Provider { get; }
+
+    /// <summary> Gets the expression compiler used to compile and evaluate expressions.</summary>
+    /// <value>The expression compiler.</value>
+    public IExpressionCompiler? Compiler { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathExpression" /> class.</summary>
     /// <param name="mathString">The math expression string.</param>
@@ -52,8 +55,8 @@ public partial class MathExpression : IDisposable
         MathString = mathString;
         Context = context;
         Provider = provider;
+        Compiler = compiler;
 
-        _compiler = compiler;
         _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
         _decimalSeparator = _numberFormat?.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
@@ -84,7 +87,7 @@ public partial class MathExpression : IDisposable
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 
@@ -264,13 +267,13 @@ public partial class MathExpression : IDisposable
         Evaluating.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value!));
     }
 
-    private static MathExpressionException CreateException(Exception ex,
-        string mathString, MathContext? context, IFormatProvider? provider, object? parameters)
+    private MathExpressionException CreateException(Exception ex, object? parameters)
     {
         ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
-        ex.Data[nameof(mathString)] = mathString;
-        ex.Data[nameof(context)] = context;
-        ex.Data[nameof(provider)] = provider;
+        ex.Data["mathString"] = MathString;
+        ex.Data["context"] = Context;
+        ex.Data["provider"] = Provider;
+        ex.Data["compiler"] = Compiler;
         ex.Data[nameof(parameters)] = parameters;
         return (MathExpressionException)ex;
     }

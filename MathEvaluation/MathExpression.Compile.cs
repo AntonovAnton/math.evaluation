@@ -225,11 +225,11 @@ public partial class MathExpression
             var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
             ExpressionTree = lambda;
 
-            return _compiler?.Compile(lambda) ?? lambda.Compile();
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, null);
+            throw CreateException(ex, null);
         }
     }
 
@@ -259,11 +259,11 @@ public partial class MathExpression
             var lambda = Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
-            return _compiler?.Compile(lambda) ?? lambda.Compile();
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 }
