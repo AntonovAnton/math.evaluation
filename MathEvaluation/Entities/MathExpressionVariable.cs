@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Numerics;
 
 namespace MathEvaluation.Entities;
@@ -7,7 +6,7 @@ namespace MathEvaluation.Entities;
 /// <summary>
 ///     The math variable uses as a parameter, that should be evaluated as an expression.
 /// </summary>
-internal class MathExpressionVariable(string? key, string mathString, bool isDictinaryItem = false) : MathEntity(key)
+internal class MathExpressionVariable(string? key, string mathString) : MathEntity(key)
 {
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
@@ -105,25 +104,34 @@ internal class MathExpressionVariable(string? key, string mathString, bool isDic
         var tokenPosition = i;
         i += Key.Length;
 
-        Expression right;
-        if (isDictinaryItem)
+        // If the variable is not already in the ExpressionVariables dictionary, add it.
+        if (!mathExpression.ExpressionVariables.TryGetValue(Key, out var parameterExpression))
         {
-            // Fix: Use Expression.MakeIndex with appropriate arguments
-            var dictionaryProperty = mathExpression.ParameterExpression!.Type.GetProperty("Item");
-            if (dictionaryProperty == null)
-                throw new InvalidOperationException("The parameter expression does not have an indexer property.");
+            using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
+            varMathExpression.Evaluating += (sender, args) =>
+            {
+                mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+            };
 
-            var keyExpression = Expression.Constant(Key);
-            right = Expression.MakeIndex(mathExpression.ParameterExpression!, dictionaryProperty, [keyExpression]);
+            // Build the right-hand side expression (like: 'a + b')
+            var result = varMathExpression.Build<TResult>(
+                mathExpression.ParameterExpression!,
+                mathExpression.Parameters!);
+
+            // Declare the variable (like: 'var x')
+            parameterExpression = Expression.Variable(typeof(TResult), Key);
+
+            // Create an assignment expression (like: 'x = a + b')
+            var assignExpr = Expression.Assign(parameterExpression, result);
+
+            // Store the variable for later use
+            mathExpression.ExpressionVariables[Key] = parameterExpression;
+            mathExpression.ExpressionStatements.Add(assignExpr); // <-- assuming you have a list for body expressions
+
+            mathExpression.OnEvaluating(tokenPosition, i, result);
         }
-        else
-        {
-            right = Expression.Property(mathExpression.ParameterExpression!, Key);
-        }
 
-        right = BuildConvert<TResult>(right);
-        mathExpression.OnEvaluating(tokenPosition, i, right);
-
+        var right = BuildConvert<TResult>(parameterExpression);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 

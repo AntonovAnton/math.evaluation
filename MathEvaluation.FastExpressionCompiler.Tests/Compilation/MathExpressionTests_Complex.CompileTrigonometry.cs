@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Numerics;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Complex

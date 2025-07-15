@@ -370,7 +370,7 @@ public sealed class MathParameters
             case string str:
                 if (string.IsNullOrWhiteSpace(str))
                     throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
-                BindExpressionVariable(isDictionaryItem, key, str);
+                BindExpressionVariable(str, key);
                 break;
             case Complex c:
                 BindVariable(isDictionaryItem, key, c);
@@ -459,7 +459,4 @@ public sealed class MathParameters
 
     private void BindVariable(bool isDictionaryItem, string key, Complex value)
         => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
-
-    private void BindExpressionVariable(bool isDictionaryItem, string key, string mathString)
-        => _trie.AddMathEntity(new MathExpressionVariable(key.ToString(), mathString, isDictionaryItem));
 }

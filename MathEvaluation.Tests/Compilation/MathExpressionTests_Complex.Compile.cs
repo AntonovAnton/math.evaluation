@@ -585,6 +585,22 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Fact]
+    public void MathExpression_CompileComplexThenInvoke_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + 1i + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileComplex(new { x, x1 = new Complex(2, 1), x2 = 0.2d });
+        var value = fn(new { x, x1 = new Complex(2, 1), x2 = 0.2d });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(new Complex(2, 1) + 0.2d + Complex.ImaginaryOne + Complex.Sin(new Complex(2, 1) + 0.2d), value);
+    }
+
+    [Fact]
     public void MathExpression_CompileComplexThenInvoke_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
         var mathString = "0.2!";

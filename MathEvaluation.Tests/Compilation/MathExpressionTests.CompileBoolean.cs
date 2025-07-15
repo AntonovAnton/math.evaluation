@@ -187,4 +187,20 @@ public partial class MathExpressionTests
 
         Assert.Equal(expectedValue, value);
     }
+
+    [Fact]
+    public void MathExpression_CompileBooleanThenInvoke_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x = 0.7";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileBoolean(new { x, x1 = 0.5d, x2 = 0.2d });
+        var value = fn(new { x, x1 = 0.5d, x2 = 0.2d });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.True(value);
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal
