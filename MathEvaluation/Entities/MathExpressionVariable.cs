@@ -5,18 +5,15 @@ using System.Numerics;
 namespace MathEvaluation.Entities;
 
 /// <summary>
-///     The math variable uses as a parameter.
+///     The math variable uses as a parameter, that should be evaluated as an expression.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
-    where T : struct
+internal class MathExpressionVariable(string? key, string mathString, bool isDictinaryItem = false) : MathEntity(key)
 {
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
 
-    /// <summary>Gets the value.</summary>
-    /// <value>The value.</value>
-    public T Value { get; } = value;
+    /// <summary>Gets the math expression string that defineds variable.</summary>
+    public string MathString => mathString;
 
     /// <inheritdoc />
     public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
@@ -24,7 +21,17 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         var tokenPosition = i;
         i += Key.Length;
 
-        var result = ConvertToDouble(Value);
+        using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
+        varMathExpression.Evaluating += (sender, args) =>
+        {
+            // Forward the evaluating event to the math expression.
+            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+        };
+        var result = varMathExpression.Evaluate(mathExpression.Parameters);
+
+        // Bind the variable to the math expression parameters to ensure it can be used in further evaluations.
+        mathExpression.Parameters!.BindVariable(result, Key);
+
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
@@ -42,7 +49,17 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         var tokenPosition = i;
         i += Key.Length;
 
-        var result = ConvertToDecimal(Value);
+        using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
+        varMathExpression.Evaluating += (sender, args) =>
+        {
+            // Forward the evaluating event to the math expression.
+            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+        };
+        var result = varMathExpression.EvaluateDecimal(mathExpression.Parameters);
+
+        // Bind the variable to the math expression parameters to ensure it can be used in further evaluations.
+        mathExpression.Parameters!.BindVariable(result, Key);
+
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
@@ -60,7 +77,17 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         var tokenPosition = i;
         i += Key.Length;
 
-        var result = Value is Complex v ? v : ConvertToDouble(Value);
+        using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
+        varMathExpression.Evaluating += (sender, args) =>
+        {
+            // Forward the evaluating event to the math expression.
+            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+        };
+        var result = varMathExpression.EvaluateComplex(mathExpression.Parameters);
+
+        // Bind the variable to the math expression parameters to ensure it can be used in further evaluations.
+        mathExpression.Parameters!.BindVariable(result, Key);
+
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);

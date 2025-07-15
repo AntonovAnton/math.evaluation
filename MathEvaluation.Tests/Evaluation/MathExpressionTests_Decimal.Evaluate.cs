@@ -463,6 +463,36 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     }
 
     [Fact]
+    public void MathExpression_EvaluateDecimal_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateDecimal(new { x, x1 = 0.5m, x2 = 0.2m });
+
+        Assert.Equal(0.7m + (decimal)Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_EvaluateDecimal_BindExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "cos(x) + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var parameters = new MathParameters();
+        parameters.BindVariable(0.5m, "x1");
+        parameters.BindVariable(0.2m, "x2");
+        parameters.BindExpressionVariable(x);
+        var value = expression.EvaluateDecimal(parameters);
+
+        Assert.Equal((decimal)Math.Cos(0.7) + (decimal)Math.Sin(0.7), value);
+    }
+
+    [Fact]
     public void MathExpression_EvaluateDecimal_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
         var expression = "0.2!";

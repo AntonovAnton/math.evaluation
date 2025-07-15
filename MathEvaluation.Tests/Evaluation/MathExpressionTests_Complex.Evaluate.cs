@@ -523,6 +523,36 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Fact]
+    public void MathExpression_EvaluateComplex_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex(new { x, x1 = 0.5m, x2 = 0.2m });
+
+        Assert.Equal(0.7 + (Complex)Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_EvaluateComplex_BindExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "cos(x + 1i) + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var parameters = new MathParameters();
+        parameters.BindVariable((Complex)0.5, "x1");
+        parameters.BindVariable((Complex)0.2, "x2");
+        parameters.BindExpressionVariable(x);
+        var value = expression.EvaluateComplex(parameters);
+
+        Assert.Equal(Complex.Cos(new Complex(0.7, 1)) + (Complex)Math.Sin(0.7), value);
+    }
+
+    [Fact]
     public void MathExpression_EvaluateComplex_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
         var expression = "0.2!";

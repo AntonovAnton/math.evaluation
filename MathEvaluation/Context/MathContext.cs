@@ -134,9 +134,9 @@ public class MathContext
                     default:
                         {
                             if (propertyType.FullName?.StartsWith("System.Func") == true)
-                                throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
+                                throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
-                            throw new NotSupportedException($"{propertyType} isn't supported.");
+                            throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
                         }
                 }
         }
@@ -158,7 +158,7 @@ public class MathContext
         if (type.IsConvertibleToDouble())
             BindConstant(Convert.ToDouble(value), key);
         else
-            throw new NotSupportedException($"{type} isn't supported.");
+            throw new NotSupportedException($"{type} isn't supported for '{key}'.");
     }
 
     /// <summary>Binds the constant.</summary>

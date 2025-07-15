@@ -14,27 +14,38 @@ public class MathParametersTests
 
         Assert.IsType<NotSupportedException>(ex);
         Assert.Equal(
-            "System.Func`7[System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double] isn't supported, you can use Func<T[], T> instead.",
+            "System.Func`7[System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double] isn't supported for 'min', you can use Func<T[], T> instead.",
             ex.Message);
     }
 
     [Fact]
-    public void MathContext_Bind_HasNotSupportedVariableType_ThrowNotSupportedException()
+    public void MathContext_BindVariable_HasNotSupportedType_ThrowNotSupportedException()
     {
         var ex = Record.Exception(() => new MathParameters().BindVariable(new Vector2(1f), 'v'));
 
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("System.Numerics.Vector2 isn't supported.", ex.Message);
+        Assert.Equal("System.Numerics.Vector2 isn't supported for 'v'.", ex.Message);
     }
 
     [Fact]
-    public void MathParameters_Bind_HasNotSupportedSystemString_ThrowNotSupportedException()
+    public void MathParameters_Bind_HasNotSupportedType_ThrowNotSupportedException()
     {
-        const string min = "3";
+        var v = new Vector2(1f);
 
-        var ex = Record.Exception(() => new MathParameters().Bind(new { min }));
+        var ex = Record.Exception(() => new MathParameters().Bind(new { v }));
 
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("System.String isn't supported.", ex.Message);
+        Assert.Equal("System.Numerics.Vector2 isn't supported for 'v'.", ex.Message);
+    }
+
+    [Fact]
+    public void MathParameters_Bind_HasEmptyString_ThrowNotSupportedException()
+    {
+        var v = string.Empty;
+
+        var ex = Record.Exception(() => new MathParameters().Bind(new { v }));
+
+        Assert.IsType<NotSupportedException>(ex);
+        Assert.Equal("Cannot bind a variable to an empty or whitespace-only expression string for 'v'.", ex.Message);
     }
 }

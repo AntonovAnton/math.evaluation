@@ -99,7 +99,7 @@ public sealed class MathParameters
         if (type.IsConvertibleToDouble())
             BindVariable(Convert.ToDouble(value), key);
         else
-            throw new NotSupportedException($"{type} isn't supported.");
+            throw new NotSupportedException($"{type} isn't supported for '{key}'.");
     }
 
     /// <summary>Binds the variable.</summary>
@@ -112,6 +112,17 @@ public sealed class MathParameters
     /// <inheritdoc cref="BindVariable(double, char)" />
     public void BindVariable(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
         => _trie.AddMathEntity(new MathVariable<double>(key, value));
+
+    /// <summary>Binds the variable that is defined as an expression.</summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindExpressionVariable(string mathString, char key)
+        => _trie.AddMathEntity(new MathExpressionVariable(key.ToString(), mathString));
+
+    /// <inheritdoc cref="BindExpressionVariable(string, char)" />
+    public void BindExpressionVariable(string mathString, [CallerArgumentExpression(nameof(mathString))] string? key = null)
+        => _trie.AddMathEntity(new MathExpressionVariable(key, mathString));
 
     /// <summary>Binds the getting value function.</summary>
     /// <param name="fn">The getting value function.</param>
@@ -343,7 +354,7 @@ public sealed class MathParameters
     /// <exception cref="NotSupportedException"></exception>
     private void BindKeyValue(bool isDictionaryItem, string key, object? value)
     {
-        var propertyType = (value?.GetType()) ?? throw new NotSupportedException("Null values are not supported.");
+        var propertyType = (value?.GetType()) ?? throw new NotSupportedException($"Null values are not supported for '{key}'.");
         if (propertyType.IsConvertibleToDouble())
         {
             if (propertyType.IsDecimal())
@@ -356,6 +367,11 @@ public sealed class MathParameters
 
         switch (value)
         {
+            case string str:
+                if (string.IsNullOrWhiteSpace(str))
+                    throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+                BindExpressionVariable(isDictionaryItem, key, str);
+                break;
             case Complex c:
                 BindVariable(isDictionaryItem, key, c);
                 break;
@@ -428,9 +444,9 @@ public sealed class MathParameters
             default:
                 {
                     if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported, you can use Func<T[], T> instead.");
+                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
-                    throw new NotSupportedException($"{propertyType} isn't supported.");
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
                 }
         }
     }
@@ -443,4 +459,7 @@ public sealed class MathParameters
 
     private void BindVariable(bool isDictionaryItem, string key, Complex value)
         => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
+
+    private void BindExpressionVariable(bool isDictionaryItem, string key, string mathString)
+        => _trie.AddMathEntity(new MathExpressionVariable(key.ToString(), mathString, isDictionaryItem));
 }

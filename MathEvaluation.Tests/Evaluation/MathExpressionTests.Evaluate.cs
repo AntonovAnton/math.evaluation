@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using MathTrigonometric;
 using System.Globalization;
 using Xunit.Abstractions;
 
@@ -502,6 +503,36 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate(null, context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate(new { x, x1 = 0.5d, x2 = 0.2d });
+
+        Assert.Equal(0.7 + Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_BindExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "cos(x) + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var parameters = new MathParameters();
+        parameters.BindVariable(0.5, "x1");
+        parameters.BindVariable(0.2, "x2");
+        parameters.BindExpressionVariable(x);
+        var value = expression.Evaluate(parameters);
+
+        Assert.Equal(Math.Cos(0.7) + Math.Sin(0.7), value);
     }
 
     [Fact]

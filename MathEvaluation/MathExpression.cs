@@ -36,6 +36,8 @@ public partial class MathExpression : IDisposable
     /// <value>The expression compiler.</value>
     public IExpressionCompiler? Compiler { get; }
 
+    internal MathParameters? Parameters => _parameters;
+
     /// <summary>Initializes a new instance of the <see cref="MathExpression" /> class.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <param name="context">The math context.</param>
@@ -258,13 +260,14 @@ public partial class MathExpression : IDisposable
             : value;
     }
 
-    internal void OnEvaluating<T>(int start, int i, T value)
+    internal void OnEvaluating<T>(int start, int i, T value, string? mathString = null, bool? isCompleted = null)
     {
         if (Evaluating == null)
             return;
 
+        mathString ??= MathString;
         _evaluatingStep++;
-        Evaluating.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value!));
+        Evaluating.Invoke(this, new EvaluatingEventArgs(mathString, start, i - 1, _evaluatingStep, value!, isCompleted));
     }
 
     private MathExpressionException CreateException(Exception ex, object? parameters)
