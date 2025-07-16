@@ -553,7 +553,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasExpressionVariable_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasExpressionVariable_ExpectedValue()
     {
         var x = "x1 + x2";
         var mathString = "x + sin(x)";
@@ -569,7 +569,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasExpressionVariables_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasExpressionVariables_ExpectedValue()
     {
         var x = "x1 + x2";
         var y = "x1^2";
