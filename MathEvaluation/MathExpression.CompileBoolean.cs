@@ -34,9 +34,9 @@ public partial class MathExpression
             ExpressionTree = Build<T, double>(parameters);
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
-            if (ExpressionVariables.Count > 0)
+            if (ExpressionVariables?.Count > 0)
             {
-                ExpressionStatements.Add(ExpressionTree);
+                ExpressionStatements!.Add(ExpressionTree);
                 ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
             }
 

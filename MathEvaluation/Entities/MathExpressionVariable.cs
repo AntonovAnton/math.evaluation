@@ -105,8 +105,11 @@ internal class MathExpressionVariable(string? key, string mathString) : MathEnti
         i += Key.Length;
 
         // If the variable is not already in the ExpressionVariables dictionary, add it.
-        if (!mathExpression.ExpressionVariables.TryGetValue(Key, out var parameterExpression))
+        if (mathExpression.ExpressionVariables?.TryGetValue(Key, out var parameterExpression) != true)
         {
+            mathExpression.ExpressionVariables ??= [];
+            mathExpression.ExpressionStatements ??= [];
+
             using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
             varMathExpression.Evaluating += (sender, args) =>
             {

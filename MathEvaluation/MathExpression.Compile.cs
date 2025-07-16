@@ -15,8 +15,8 @@ public partial class MathExpression
     public Expression? ExpressionTree { get; private set; }
 
     internal ParameterExpression? ParameterExpression { get; private set; }
-    internal Dictionary<string, ParameterExpression> ExpressionVariables { get; } = [];
-    internal List<Expression> ExpressionStatements { get; } = [];
+    internal Dictionary<string, ParameterExpression>? ExpressionVariables { get; set; }
+    internal List<Expression>? ExpressionStatements { get; set; }
 
     /// <inheritdoc cref="Compile{TResult}()" />
     public Func<double> Compile()
@@ -282,9 +282,9 @@ public partial class MathExpression
         {
             ExpressionTree = Build<T, TResult>(parameters);
 
-            if (ExpressionVariables.Count > 0)
+            if (ExpressionVariables?.Count > 0)
             {
-                ExpressionStatements.Add(ExpressionTree);
+                ExpressionStatements!.Add(ExpressionTree);
                 ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
             }
 
