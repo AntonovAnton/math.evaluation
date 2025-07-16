@@ -518,6 +518,39 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     }
 
     [Fact]
+    public void MathExpression_CompileDecimalThenInvoke_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileDecimal(new { x, x1 = 0.5m, x2 = 0.2m });
+        var value = fn(new { x, x1 = 0.5m, x2 = 0.2m });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(0.7m + (decimal)Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_CompileDecimalThenInvoke_HasExpressionVariables_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var y = "x1^2";
+        var mathString = "x + sin(y) + x1";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileDecimal(new { x, y, x1 = 0.5m, x2 = 0.2m });
+        var value = fn(new { x, y, x1 = 0.5m, x2 = 0.2m });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(0.7m + (decimal)Math.Sin(0.5d * 0.5d) + 0.5m, value);
+    }
+
+    [Fact]
     public void MathExpression_CompileDecimalThenInvoke_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
         var mathString = "0.2!";

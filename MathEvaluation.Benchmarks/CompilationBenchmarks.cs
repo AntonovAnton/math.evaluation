@@ -22,8 +22,8 @@ public class CompilationBenchmarks
 
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
-    private readonly IMathContext _scientificContext = new ScientificMathContext();
-    private readonly IMathContext _programmingContext = new ProgrammingMathContext();
+    private readonly MathContext _scientificContext = new ScientificMathContext();
+    private readonly MathContext _programmingContext = new ProgrammingMathContext();
 
     private readonly Func<BooleanVariables, bool> _mathEvalCompiledFn;
     private readonly Func<BooleanVariables, bool> _mathEvalFastCompiledFn;

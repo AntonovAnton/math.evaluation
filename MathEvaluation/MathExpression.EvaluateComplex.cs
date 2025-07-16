@@ -12,8 +12,8 @@ public partial class MathExpression
     public Complex EvaluateComplex(object? parameters = null)
         => EvaluateComplex(parameters != null ? new MathParameters(parameters) : null);
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?)" />
-    public Complex EvaluateComplex(IMathParameters? parameters)
+    /// <inheritdoc cref="Evaluate(MathParameters?)" />
+    public Complex EvaluateComplex(MathParameters? parameters)
     {
         _parameters = parameters;
         _evaluatingStep = 0;
@@ -30,7 +30,7 @@ public partial class MathExpression
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 

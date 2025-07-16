@@ -129,6 +129,9 @@ internal abstract class MathEntity : IMathEntity
         if (expression.Type == typeof(TResult))
             return expression;
 
+        if (expression.NodeType == ExpressionType.Convert && ((UnaryExpression)expression).Operand?.Type == typeof(TResult))
+            return ((UnaryExpression)expression).Operand;
+
         if (typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool))
             return Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m));
 

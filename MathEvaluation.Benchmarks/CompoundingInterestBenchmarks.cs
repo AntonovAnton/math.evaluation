@@ -19,7 +19,7 @@ public class CompoundingInterestBenchmarks
 {
     private int _count;
 
-    private readonly IMathContext _mathContext = new ScientificMathContext();
+    private readonly MathContext _mathContext = new ScientificMathContext();
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
     private readonly Func<CompoundInterestFormulaParams, double> _mathEvalCompiledFn;

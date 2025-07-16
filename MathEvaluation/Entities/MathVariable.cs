@@ -25,7 +25,7 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         i += Key.Length;
 
         var result = ConvertToDouble(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, Value);
+        mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
@@ -43,7 +43,7 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         i += Key.Length;
 
         var result = ConvertToDecimal(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, Value);
+        mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiationDecimal(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;
@@ -61,7 +61,7 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         i += Key.Length;
 
         var result = Value is Complex v ? v : ConvertToDouble(Value);
-        mathExpression.OnEvaluating(tokenPosition, i, Value);
+        mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiationComplex(tokenPosition, ref i, separator, closingSymbol, result);
         value = value == default ? result : value * result;

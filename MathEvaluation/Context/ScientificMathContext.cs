@@ -52,18 +52,30 @@ public class ScientificMathContext : MathContext
         static double ceilingFn(double v) => Math.Ceiling(v);
 
         BindFunction(ceilingFn, '⌈', '⌉');
+        BindFunction(ceilingFn, "ceil");
+        BindFunction(ceilingFn, "Ceil");
+        BindFunction(ceilingFn, "CEIL");
 
         static double floorFn(double v) => Math.Floor(v);
 
         BindFunction(floorFn, '⌊', '⌋');
+        BindFunction(floorFn, "floor");
+        BindFunction(floorFn, "Floor");
+        BindFunction(floorFn, "FLOOR");
 
         static double sqrtFn(double v) => Math.Sqrt(v);
 
         BindFunction(sqrtFn, '\u221a'); //square root symbol
+        BindFunction(sqrtFn, "sqrt");
+        BindFunction(sqrtFn, "Sqrt");
+        BindFunction(sqrtFn, "SQRT");
 
         static double cubeFn(double v) => Math.Pow(v, 1 / 3d);
 
         BindFunction(cubeFn, '\u221b'); //cube root symbol
+        BindFunction(cubeFn, "cbrt");
+        BindFunction(cubeFn, "Cbrt");
+        BindFunction(cubeFn, "CBRT");
 
         static double fRootFn(double v) => Math.Pow(v, 0.25d);
 
@@ -149,7 +161,6 @@ public class ScientificMathContext : MathContext
         BindOperator("XOR", OperatorType.LogicalXor);
 
         BindOperator('¬', OperatorType.LogicalNegation);
-
         BindOperator("not", OperatorType.LogicalNot);
         BindOperator("Not", OperatorType.LogicalNot);
         BindOperator("NOT", OperatorType.LogicalNot);
@@ -158,9 +169,17 @@ public class ScientificMathContext : MathContext
 
         #region trigonometric functions
 
-        static double degFn(double v) => MathTrig.DegreesToRadians(v);
+        static double radiansFn(double v) => MathTrig.DegreesToRadians(v);
 
-        BindOperandOperator(degFn, '\u00b0', true); //degree symbol
+        BindOperandOperator(radiansFn, '\u00b0', true); //degree symbol
+        BindFunction(radiansFn, "rad");
+        BindFunction(radiansFn, "Rad");
+        BindFunction(radiansFn, "RAD");
+
+        static double degreesFn(double v) => MathTrig.RadiansToDegrees(v);
+        BindFunction(degreesFn, "deg");
+        BindFunction(degreesFn, "Deg");
+        BindFunction(degreesFn, "DEG");
 
         static double sinFn(double v) => MathTrig.Sin(v);
 
@@ -325,6 +344,25 @@ public class ScientificMathContext : MathContext
         BindFunction(acotFn, "Arccot");
         BindFunction(acotFn, "ARCCOT");
 
+        BindFunction(asinFn, "asin");
+        BindFunction(asinFn, "Asin");
+        BindFunction(asinFn, "ASIN");
+        BindFunction(acosFn, "acos");
+        BindFunction(acosFn, "Acos");
+        BindFunction(acosFn, "ACOS");
+        BindFunction(atanFn, "atan");
+        BindFunction(atanFn, "Atan");
+        BindFunction(atanFn, "ATAN");
+        BindFunction(asecFn, "asec");
+        BindFunction(asecFn, "Asec");
+        BindFunction(asecFn, "ASEC");
+        BindFunction(acscFn, "acsc");
+        BindFunction(acscFn, "Acsc");
+        BindFunction(acscFn, "ACSC");
+        BindFunction(acotFn, "acot");
+        BindFunction(acotFn, "Acot");
+        BindFunction(acotFn, "ACOT");
+
         BindFunction(asinhFn, "arsinh");
         BindFunction(asinhFn, "Arsinh");
         BindFunction(asinhFn, "ARSINH");
@@ -343,6 +381,25 @@ public class ScientificMathContext : MathContext
         BindFunction(acothFn, "arcoth");
         BindFunction(acothFn, "Arcoth");
         BindFunction(acothFn, "ARCOTH");
+
+        BindFunction(asinhFn, "asinh");
+        BindFunction(asinhFn, "Asinh");
+        BindFunction(asinhFn, "ASINH");
+        BindFunction(acoshFn, "acosh");
+        BindFunction(acoshFn, "Acosh");
+        BindFunction(acoshFn, "ACOSH");
+        BindFunction(atanhFn, "atanh");
+        BindFunction(atanhFn, "Atanh");
+        BindFunction(atanhFn, "ATANH");
+        BindFunction(asechFn, "asech");
+        BindFunction(asechFn, "Asech");
+        BindFunction(asechFn, "ASECH");
+        BindFunction(acschFn, "acsch");
+        BindFunction(acschFn, "Acsch");
+        BindFunction(acschFn, "ACSCH");
+        BindFunction(acothFn, "acoth");
+        BindFunction(acothFn, "Acoth");
+        BindFunction(acothFn, "ACOTH");
 
         #endregion
     }

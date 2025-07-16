@@ -14,11 +14,10 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathExpression : IDisposable
 {
-    private readonly IExpressionCompiler? _compiler;
     private readonly NumberFormatInfo? _numberFormat;
     private readonly char _decimalSeparator;
 
-    private IMathParameters? _parameters;
+    private MathParameters? _parameters;
     private int _evaluatingStep;
 
     /// <summary>Gets the math expression string.</summary>
@@ -26,12 +25,18 @@ public partial class MathExpression : IDisposable
     public string MathString { get; }
 
     /// <summary>Gets the math context.</summary>
-    /// <value>The instance of the <see cref="IMathContext" /> interface.</value>
-    public IMathContext? Context { get; }
+    /// <value>The instance of the <see cref="MathContext" /> class.</value>
+    public MathContext? Context { get; }
 
     /// <summary>Gets the specified format provider.</summary>
     /// <value>The specified format provider.</value>
     public IFormatProvider? Provider { get; }
+
+    /// <summary> Gets the expression compiler used to compile and evaluate expressions.</summary>
+    /// <value>The expression compiler.</value>
+    public IExpressionCompiler? Compiler { get; }
+
+    internal MathParameters? Parameters => _parameters;
 
     /// <summary>Initializes a new instance of the <see cref="MathExpression" /> class.</summary>
     /// <param name="mathString">The math expression string.</param>
@@ -40,7 +45,7 @@ public partial class MathExpression : IDisposable
     /// <param name="compiler">The specified expression compiler. If null, the <see cref="LambdaExpression.Compile()" /> method will be used.</param>
     /// <exception cref="System.ArgumentNullException">mathString</exception>
     /// <exception cref="System.ArgumentException">Expression string is empty or white space. - mathString</exception>
-    public MathExpression(string mathString, IMathContext? context = null, IFormatProvider? provider = null,
+    public MathExpression(string mathString, MathContext? context = null, IFormatProvider? provider = null,
         IExpressionCompiler? compiler = null)
     {
         if (mathString == null)
@@ -52,13 +57,13 @@ public partial class MathExpression : IDisposable
         MathString = mathString;
         Context = context;
         Provider = provider;
+        Compiler = compiler;
 
-        _compiler = compiler;
         _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
         _decimalSeparator = _numberFormat?.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
 
-    /// <inheritdoc cref="Evaluate(IMathParameters?)" />
+    /// <inheritdoc cref="Evaluate(MathParameters?)" />
     /// <exception cref="NotSupportedException">parameters</exception>
     public double Evaluate(object? parameters = null)
         => Evaluate(parameters != null ? new MathParameters(parameters) : null);
@@ -67,7 +72,7 @@ public partial class MathExpression : IDisposable
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
     /// <returns>Value of the math expression.</returns>
     /// <exception cref="MathExpressionException" />
-    public double Evaluate(IMathParameters? parameters)
+    public double Evaluate(MathParameters? parameters)
     {
         _parameters = parameters;
         _evaluatingStep = 0;
@@ -84,7 +89,7 @@ public partial class MathExpression : IDisposable
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 
@@ -255,22 +260,23 @@ public partial class MathExpression : IDisposable
             : value;
     }
 
-    internal void OnEvaluating<T>(int start, int i, T value)
+    internal void OnEvaluating<T>(int start, int i, T value, string? mathString = null, bool? isCompleted = null)
     {
         if (Evaluating == null)
             return;
 
+        mathString ??= MathString;
         _evaluatingStep++;
-        Evaluating.Invoke(this, new EvaluatingEventArgs(MathString, start, i - 1, _evaluatingStep, value!));
+        Evaluating.Invoke(this, new EvaluatingEventArgs(mathString, start, i - 1, _evaluatingStep, value!, isCompleted));
     }
 
-    private static MathExpressionException CreateException(Exception ex,
-        string mathString, IMathContext? context, IFormatProvider? provider, object? parameters)
+    private MathExpressionException CreateException(Exception ex, object? parameters)
     {
         ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
-        ex.Data[nameof(mathString)] = mathString;
-        ex.Data[nameof(context)] = context;
-        ex.Data[nameof(provider)] = provider;
+        ex.Data["mathString"] = MathString;
+        ex.Data["context"] = Context;
+        ex.Data["provider"] = Provider;
+        ex.Data["compiler"] = Compiler;
         ex.Data[nameof(parameters)] = parameters;
         return (MathExpressionException)ex;
     }

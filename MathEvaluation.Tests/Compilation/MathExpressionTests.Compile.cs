@@ -566,6 +566,39 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
+    public void MathExpression_CompileThenInvoke_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile(new { x, x1 = 0.5d, x2 = 0.2d });
+        var value = fn(new { x, x1 = 0.5d, x2 = 0.2d });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(0.7 + Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_CompileThenInvoke_HasExpressionVariables_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var y = "x1^2";
+        var mathString = "x + sin(y) + x1";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile(new { x, y, x1 = 0.5d, x2 = 0.2d });
+        var value = fn(new { x, y, x1 = 0.5d, x2 = 0.2d });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(0.7 + Math.Sin(0.5d * 0.5d) + 0.5d, value);
+    }
+
+    [Fact]
     public void MathExpression_CompileThenInvoke_HasFactorialOfNotIntegerNumber_ThrowArgumentException()
     {
         var mathString = "0.2!";

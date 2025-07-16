@@ -15,7 +15,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 - Provides variable support within math expressions.
 - Extensible with custom functions and operators.
-- Fast and comprehensive. More than 3000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 4000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
@@ -35,12 +35,12 @@ Let's compare, for example, performance of calculating the mathematical expressi
 
 Below are the results of the comparison with the NCalc library: 
 
-| Method        | Job      | Runtime  | Mean       | Error     | StdDev    | Gen0   | Allocated |
-|-------------- |--------- |--------- |-----------:|----------:|----------:|-------:|----------:|
-| MathEvaluator | .NET 8.0 | .NET 8.0 |   608.8 ns |   1.77 ns |   1.48 ns | 0.0067 |      88 B |
-| NCalc         | .NET 8.0 | .NET 8.0 | 6,262.8 ns |  47.27 ns |  44.22 ns | 0.3510 |    4496 B |
-| MathEvaluator | .NET 9.0 | .NET 9.0 |   526.4 ns |   2.81 ns |   2.63 ns | 0.0067 |      88 B |
-| NCalc         | .NET 9.0 | .NET 9.0 | 5,643.3 ns |  29.76 ns |  27.84 ns | 0.3510 |    4496 B |
+| Method        | Job      | Runtime  | Mean       | Error    | StdDev   | Gen0   | Allocated |
+|-------------- |--------- |--------- |-----------:|---------:|---------:|-------:|----------:|
+| MathEvaluator | .NET 8.0 | .NET 8.0 |   643.2 ns |  1.83 ns |  1.43 ns | 0.0086 |     112 B |
+| NCalc         | .NET 8.0 | .NET 8.0 | 5,949.3 ns | 16.69 ns | 13.93 ns | 0.3586 |    4504 B |
+| MathEvaluator | .NET 9.0 | .NET 9.0 |   563.9 ns |  1.63 ns |  1.45 ns | 0.0086 |     112 B |
+| NCalc         | .NET 9.0 | .NET 9.0 | 5,249.5 ns | 15.79 ns | 14.00 ns | 0.3586 |    4504 B |
 
 ***NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
 
@@ -109,23 +109,25 @@ Examples of using an instance of the MathExpression class:
     
     new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).EvaluateComplex();
 
-Examples of passing custom variables and functions as parameters:
-        
+Examples of passing custom variables and functions as parameters (Support expression-defined variables added in version [2.4.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.4.0)):
+
     var x1 = 0.5;
     var x2 = -0.5;
+    var y = "x1 * x2"; // expression-defined variable
     var sqrt = Math.Sqrt;
     Func<double, double> ln = Math.Log;
 
-    var value1 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1))"
-        .Evaluate(new { x1, x2, sqrt, ln });
+    var value1 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1)) + y"
+        .Evaluate(new { x1, x2, y, sqrt, ln });
 
     var parameters = new MathParameters();
     parameters.BindVariable(x1);
     parameters.BindVariable(x2);
-    parameters.BindFunction(Math.Sqrt);
+    parameters.BindExpressionVariable(y); // expression-defined variable
+    parameters.BindFunction(sqrt);
     parameters.BindFunction(d => Math.Log(d), "ln");
 
-    var value2 = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
+    var value2 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1)) + y"
         .Evaluate(parameters);
 
 Example of using custom context:
@@ -134,8 +136,13 @@ Example of using custom context:
     context.BindFunction(Math.Sqrt);
     context.BindFunction(d => Math.Log(d), "ln");
 
-    "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
+    var value = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
+    
+Example of evaluating C# expression:
+
+    var value = "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))"
+        .Evaluate(new DotNetStandardMathContext());
 
 Example of compilation with an object as a parameter:
 
@@ -154,7 +161,6 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
         .Compile(dict, new DotNetStandardMathContext());
 
     var value = fn(dict);
-    Console.WriteLine(value); // 3.4546487...
 
 ## How to debug or log
 
@@ -245,9 +251,11 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO | 100 |
 | Floor Division  | // | 100 |
 | Absolute  | \| \|, abs, Abs, ABS | 200 |
-| Ceiling | ⌈ ⌉ | 200 |
-| Floor | ⌊ ⌋ | 200 |
-| Square root, cube root, fourth root | √, ∛, ∜ | 200 |
+| Ceiling | ⌈ ⌉, ceil, Ceil, CEIL | 200 |
+| Floor | ⌊ ⌋, floor, Floor, FLOOR | 200 |
+| Square root | √, sqrt, Sqrt, SQRT | 200 |
+| Cube root | ∛, cbrt, Cbrt, CBRT | 200 |
+| Fourth root | ∜ | 200 |
 | Natural logarithmic base | e | 300 |
 | Natural logarithm | ln, Ln, LN | 200 |
 | Common logarithm (base 10) | log, Log, LOG | 200 |
@@ -269,7 +277,8 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Logical biconditional inequivalence  | ↮, ⇎ | -900 |
 | Logical equivalence  | ≡ | -1000 |
 | Logical inequivalence  | ≢ | -1000 |
-| Degree | ° | 500 |
+| Degrees to radians | °, rad, Rad, RAD | 500 for °, 200 |
+| Radians to degrees | deg, Deg, DEG | 200 |
 | Pi constant | π, pi, Pi, PI | 300 |
 | Tau constant | τ | 300 |
 | Sine | sin, Sin, SIN | 200 |
@@ -284,27 +293,21 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Hyperbolic secant | sech, Sech, SECH | 200 |
 | Hyperbolic cosecant | csch, Csch, CSCH | 200 |
 | Hyperbolic cotangent | coth, Coth, COTH | 200 |
-| Inverse sine | arcsin, Arcsin, ARCSIN, sin\^-1, Sin\^-1, SIN\^-1 | 200 |
-| Inverse cosine | arccos, Arccos, ARCCOS, cos\^-1, Cos\^-1, COS\^-1 | 200 |
-| Inverse tangent | arctan, Arctan, ARCTAN, tan\^-1, Tan\^-1, TAN\^-1 | 200 |
-| Inverse secant | arcsec, Arcsec, ARCSEC, sec\^-1, Sec\^-1, SEC\^-1 | 200 |
-| Inverse cosecant | arccsc, Arccsc, ARCCSC, csc\^-1, Csc\^-1, CSC\^-1 | 200 |
-| Inverse cotangent | arccot, Arccot, ARCCOT, cot\^-1, Cot\^-1, COT\^-1 | 200 |
-| Inverse Hyperbolic sine | arsinh, Arsinh, ARSINH, sinh\^-1, Sinh\^-1, SINH\^-1 | 200 |
-| Inverse Hyperbolic cosine | arcosh, Arcosh, ARCOSH, cosh\^-1, Cosh\^-1, COSH\^-1 | 200 |
-| Inverse Hyperbolic tangent | artanh, Artanh, ARTANH, tanh\^-1, Tanh\^-1, TANH\^-1 | 200 |
-| Inverse Hyperbolic secant | arsech, Arsech, ARSECH, sech\^-1, Sech\^-1, SECH\^-1 | 200 |
-| Inverse Hyperbolic cosecant | arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 | 200 |
-| Inverse Hyperbolic cotangent | arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
+| Inverse sine | asin, Asin, ASIN, arcsin, Arcsin, ARCSIN, sin\^-1, Sin\^-1, SIN\^-1 | 200 |
+| Inverse cosine | acos, Acos, ACOS, arccos, Arccos, ARCCOS, cos\^-1, Cos\^-1, COS\^-1 | 200 |
+| Inverse tangent | atan, Atan, ATAN, arctan, Arctan, ARCTAN, tan\^-1, Tan\^-1, TAN\^-1 | 200 |
+| Inverse secant | asec, Asec, ASEC, arcsec, Arcsec, ARCSEC, sec\^-1, Sec\^-1, SEC\^-1 | 200 |
+| Inverse cosecant | acsc, Acsc, ACSC, arccsc, Arccsc, ARCCSC, csc\^-1, Csc\^-1, CSC\^-1 | 200 |
+| Inverse cotangent | acot, Acot, ACOT, arccot, Arccot, ARCCOT, cot\^-1, Cot\^-1, COT\^-1 | 200 |
+| Inverse Hyperbolic sine | asinh, Asinh, ASINH, arsinh, Arsinh, ARSINH, sinh\^-1, Sinh\^-1, SINH\^-1 | 200 |
+| Inverse Hyperbolic cosine | acosh, Acosh, ACOSH, arcosh, Arcosh, ARCOSH, cosh\^-1, Cosh\^-1, COSH\^-1 | 200 |
+| Inverse Hyperbolic tangent | atanh, Atanh, ATANH, artanh, Artanh, ARTANH, tanh\^-1, Tanh\^-1, TANH\^-1 | 200 |
+| Inverse Hyperbolic secant | asech, Asech, ASECH, arsech, Arsech, ARSECH, sech\^-1, Sech\^-1, SECH\^-1 | 200 |
+| Inverse Hyperbolic cosecant | acsch, Acsch, ACSCH, arcsch, Arcsch, ARCSCH, csch\^-1, Csch\^-1, CSCH\^-1 | 200 |
+| Inverse Hyperbolic cotangent | acoth, Acoth, ACOTH, arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate a C# math expression string
 DotNetStandardMathContext is the .NET Standard 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
-
-Example of evaluating C# expression:
-
-    "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))".Evaluate(new DotNetStandardMathContext());
-
-***NOTE**: More math functions could be added to the math expression evaluator based on user needs.*
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

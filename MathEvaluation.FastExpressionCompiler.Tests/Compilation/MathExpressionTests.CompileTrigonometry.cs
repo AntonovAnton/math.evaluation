@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 public partial class MathExpressionTests
 {

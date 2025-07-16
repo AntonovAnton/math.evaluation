@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using MathTrigonometric;
 using System.Globalization;
 using Xunit.Abstractions;
 
@@ -165,6 +166,34 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("rad(45)", Math.PI / 4)]
+    [InlineData("Rad(90)", Math.PI / 2)]
+    [InlineData("RAD(360)", 2 * Math.PI)]
+    public void MathExpression_Evaluate_HasDegreesToRadians_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("deg(pi / 4)", 45d)]
+    [InlineData("Deg(pi / 2)", 90d)]
+    [InlineData("DEG(2Pi)", 360d)]
+    public void MathExpression_Evaluate_HasRadiansToDegrees_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
     [InlineData("3^4", 81d)]
     [InlineData("3^4^2", 81d * 81 * 81 * 81)]
     [InlineData("2/3^4", 2 / 81d)]
@@ -286,6 +315,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("\u221a25", 5d)]
+    [InlineData("sqrt(25)", 5d)]
+    [InlineData("Sqrt(25)", 5d)]
+    [InlineData("SQRT(25)", 5d)]
     [InlineData("√0", 0d)]
     [InlineData("√-25", double.NaN)]
     [InlineData("√(9*9)", 9d)]
@@ -295,6 +327,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("√1", 1d)]
     [InlineData("1/√9", 1 / 3d)]
     [InlineData("∛8", 2)]
+    [InlineData("cbrt(8)", 2)]
+    [InlineData("Cbrt(8)", 2)]
+    [InlineData("CBRT(8)", 2)]
     [InlineData("∛-8", double.NaN)]
     [InlineData("∛8∛8", 4d)]
     [InlineData("√9∛8", 6d)]
@@ -341,6 +376,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("⌊-20.3⌋", -21d)]
+    [InlineData("floor(-20.3)", -21d)]
+    [InlineData("Floor(-20.3)", -21d)]
+    [InlineData("FLOOR(-20.3)", -21d)]
     [InlineData("-⌊20.3⌋", -20d)]
     [InlineData("-⌊0⌋", 0d)]
     [InlineData("⌊-0.1⌋", -1d)]
@@ -368,6 +406,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("⌈-20.3⌉", -20d)]
+    [InlineData("ceil(-20.3)", -20d)]
+    [InlineData("Ceil(-20.3)", -20d)]
+    [InlineData("CEIL(-20.3)", -20d)]
     [InlineData("-⌈20.3⌉", -21d)]
     [InlineData("-⌈0⌉", 0d)]
     [InlineData("⌈-0.1⌉", 0d)]
@@ -502,6 +543,36 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var value = expression.Evaluate(null, context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_HasExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate(new { x, x1 = 0.5d, x2 = 0.2d });
+
+        Assert.Equal(0.7 + Math.Sin(0.7), value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_BindExpressionVariable_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var mathString = "cos(x) + sin(x)";
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var parameters = new MathParameters();
+        parameters.BindVariable(0.5, "x1");
+        parameters.BindVariable(0.2, "x2");
+        parameters.BindExpressionVariable(x);
+        var value = expression.Evaluate(parameters);
+
+        Assert.Equal(Math.Cos(0.7) + Math.Sin(0.7), value);
     }
 
     [Fact]

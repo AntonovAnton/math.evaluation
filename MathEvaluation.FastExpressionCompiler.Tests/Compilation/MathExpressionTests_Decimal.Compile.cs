@@ -3,7 +3,7 @@ using MathEvaluation.Extensions;
 using System.Globalization;
 using Xunit.Abstractions;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)

@@ -10,76 +10,76 @@ namespace MathEvaluation.Extensions;
 /// </summary>
 public static class StringExtensions
 {
-    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)" />
-    public static double Evaluate(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+    /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
+    public static double Evaluate(this string mathString, MathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate();
 
     /// <inheritdoc cref="MathExpression.Evaluate(object?)" />
     public static double Evaluate(this string mathString,
-        object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
+        object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-    /// <inheritdoc cref="MathExpression.Evaluate(IMathParameters?)" />
+    /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
     public static double Evaluate(this string mathString,
-        IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)" />
-    public static decimal EvaluateDecimal(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
+    public static decimal EvaluateDecimal(this string mathString, MathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal();
 
     /// <inheritdoc cref="MathExpression.EvaluateDecimal(object?)" />
     public static decimal EvaluateDecimal(this string mathString,
-        object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
+        object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateDecimal(IMathParameters?)" />
+    /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
     public static decimal EvaluateDecimal(this string mathString,
-        IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)" />
-    public static bool EvaluateBoolean(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
+    public static bool EvaluateBoolean(this string mathString, MathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean();
 
     /// <inheritdoc cref="MathExpression.EvaluateBoolean(object?)" />
     public static bool EvaluateBoolean(this string mathString,
-        object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
+        object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateBoolean(IMathParameters?)" />
+    /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
     public static bool EvaluateBoolean(this string mathString,
-        IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)" />
-    public static Complex EvaluateComplex(this string mathString, IMathContext? context, IFormatProvider? provider = null)
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
+    public static Complex EvaluateComplex(this string mathString, MathContext? context, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex();
 
     /// <inheritdoc cref="MathExpression.EvaluateComplex(object?)" />
     public static Complex EvaluateComplex(this string mathString,
-        object? parameters = null, IMathContext? context = null, IFormatProvider? provider = null)
+        object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
-    /// <inheritdoc cref="MathExpression.EvaluateComplex(IMathParameters?)" />
+    /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
     public static Complex EvaluateComplex(this string mathString,
-        IMathParameters? parameters, IMathContext? context = null, IFormatProvider? provider = null)
+        MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
     /// <inheritdoc cref="MathExpression.Compile{T}(T)" />
-    public static Func<T, double> Compile<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, double> Compile<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile(parameters);
 
     /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)" />
-    public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileDecimal(parameters);
 
     /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)" />
-    public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, bool> CompileBoolean<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
 
     /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)" />
-    public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, IMathContext? context = null, IFormatProvider? provider = null)
+    public static Func<T, Complex> CompileComplex<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).CompileComplex(parameters);
 
     #region internal static Methods

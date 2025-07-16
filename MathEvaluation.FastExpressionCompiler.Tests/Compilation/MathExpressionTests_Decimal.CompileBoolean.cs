@@ -5,7 +5,7 @@ using System.Globalization;
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Decimal

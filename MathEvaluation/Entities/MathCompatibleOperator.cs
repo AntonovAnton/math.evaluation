@@ -160,7 +160,7 @@ internal class MathCompatibleOperator : MathEntity
 
         var expression = Build<TResult>(OperatorType, left, right);
 
-        mathExpression.OnEvaluating(start, i, expression);
+        mathExpression.OnEvaluating(start, i, expression.NodeType == ExpressionType.Convert ? ((UnaryExpression)expression).Operand : expression);
         return expression;
     }
 

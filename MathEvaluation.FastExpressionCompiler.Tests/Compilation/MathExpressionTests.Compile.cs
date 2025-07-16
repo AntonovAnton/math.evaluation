@@ -3,7 +3,7 @@ using MathEvaluation.Extensions;
 using System.Globalization;
 using Xunit.Abstractions;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 {

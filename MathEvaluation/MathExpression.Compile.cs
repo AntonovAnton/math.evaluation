@@ -2,6 +2,7 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Numerics;
 
@@ -14,6 +15,8 @@ public partial class MathExpression
     public Expression? ExpressionTree { get; private set; }
 
     internal ParameterExpression? ParameterExpression { get; private set; }
+    internal Dictionary<string, ParameterExpression>? ExpressionVariables { get; set; }
+    internal List<Expression>? ExpressionStatements { get; set; }
 
     /// <inheritdoc cref="Compile{TResult}()" />
     public Func<double> Compile()
@@ -22,6 +25,47 @@ public partial class MathExpression
     /// <inheritdoc cref="Compile{T, TResult}(T)" />
     public Func<T, double> Compile<T>(T parameters)
         => Compile<T, double>(parameters);
+
+    internal Expression Build<TResult>()
+        where TResult : struct
+    {
+        _evaluatingStep = 0;
+
+        var i = 0;
+        var expression = Build<TResult>(ref i, null, null);
+
+        if (_evaluatingStep == 0)
+            OnEvaluating(0, i, expression);
+
+        return expression;
+    }
+
+    internal Expression Build<T, TResult>(T parameters)
+        where TResult : struct
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters));
+
+        const string parameterName = "p";
+        var parameterExpression = Expression.Parameter(typeof(T), parameterName);
+        return Build<TResult>(parameterExpression, new MathParameters(parameters));
+    }
+
+    internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters)
+        where TResult : struct
+    {
+        _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
+        _evaluatingStep = 0;
+
+        var i = 0;
+        var expression = Build<TResult>(ref i, null, null);
+
+        if (_evaluatingStep == 0)
+            OnEvaluating(0, i, expression);
+
+        return expression;
+    }
 
     internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
@@ -212,24 +256,18 @@ public partial class MathExpression
     private Func<TResult> Compile<TResult>()
         where TResult : struct
     {
-        _evaluatingStep = 0;
-
         try
         {
-            var i = 0;
-            ExpressionTree = Build<TResult>(ref i, null, null);
-
-            if (_evaluatingStep == 0)
-                OnEvaluating(0, i, ExpressionTree);
+            ExpressionTree = Build<TResult>();
 
             var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
             ExpressionTree = lambda;
 
-            return _compiler?.Compile(lambda) ?? lambda.Compile();
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, null);
+            throw CreateException(ex, null);
         }
     }
 
@@ -240,30 +278,24 @@ public partial class MathExpression
     private Func<T, TResult> Compile<T, TResult>(T parameters)
         where TResult : struct
     {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
-
-        const string parameterName = "p";
-        _parameters = new MathParameters(parameters);
-        ParameterExpression = Expression.Parameter(typeof(T), parameterName);
-        _evaluatingStep = 0;
-
         try
         {
-            var i = 0;
-            ExpressionTree = Build<TResult>(ref i, null, null);
+            ExpressionTree = Build<T, TResult>(parameters);
 
-            if (_evaluatingStep == 0)
-                OnEvaluating(0, i, ExpressionTree);
+            if (ExpressionVariables?.Count > 0)
+            {
+                ExpressionStatements!.Add(ExpressionTree);
+                ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
+            }
 
             var lambda = Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
-            return _compiler?.Compile(lambda) ?? lambda.Compile();
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
         }
         catch (Exception ex)
         {
-            throw CreateException(ex, MathString, Context, Provider, parameters);
+            throw CreateException(ex, parameters);
         }
     }
 }

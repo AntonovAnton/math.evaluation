@@ -20,9 +20,9 @@ public class EvaluationBenchmarks
     // ReSharper disable once InconsistentNaming
     private const double b = Math.PI / 3;
 
-    private readonly IMathContext _programmingMathContext = new ProgrammingMathContext();
-    private readonly IMathContext _scientificContext = new ScientificMathContext();
-    private readonly IMathContext _dotNetStandardMathContext = new DotNetStandardMathContext();
+    private readonly MathContext _programmingMathContext = new ProgrammingMathContext();
+    private readonly MathContext _scientificContext = new ScientificMathContext();
+    private readonly MathContext _dotNetStandardMathContext = new DotNetStandardMathContext();
 
     private int _count;
 

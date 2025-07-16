@@ -4,7 +4,7 @@ using System.Globalization;
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 public partial class MathExpressionTests
 {
