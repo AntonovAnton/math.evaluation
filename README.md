@@ -13,7 +13,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-- Provides variable support within math expressions.
+- Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 4000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 
