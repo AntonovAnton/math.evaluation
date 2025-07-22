@@ -46,7 +46,7 @@ public partial class MathExpression
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
 
-        const string parameterName = "p";
+        const string parameterName = "args";
         var parameterExpression = Expression.Parameter(typeof(T), parameterName);
         return Build<TResult>(parameterExpression, new MathParameters(parameters));
     }

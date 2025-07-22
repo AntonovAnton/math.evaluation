@@ -62,6 +62,11 @@ public class MathContext
             }
             else switch (value)
                 {
+                    case string str:
+                        if (string.IsNullOrWhiteSpace(str))
+                            throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+                        BindExpressionVariable(str, key);
+                        break;
                     case Complex c:
                         BindConstant(c, key);
                         break;
@@ -171,6 +176,17 @@ public class MathContext
     /// <inheritdoc cref="BindConstant(double, char)" />
     public void BindConstant(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
         => _trie.AddMathEntity(new MathConstant<double>(key, value));
+
+    /// <summary>Binds the variable that is defined as an expression.</summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindExpressionVariable(string mathString, char key)
+        => _trie.AddMathEntity(new MathExpressionVariable(key.ToString(), mathString));
+
+    /// <inheritdoc cref="BindExpressionVariable(string, char)" />
+    public void BindExpressionVariable(string mathString, [CallerArgumentExpression(nameof(mathString))] string? key = null)
+        => _trie.AddMathEntity(new MathExpressionVariable(key, mathString));
 
     /// <summary>Binds the getting value function.</summary>
     /// <param name="fn">The getting value function.</param>

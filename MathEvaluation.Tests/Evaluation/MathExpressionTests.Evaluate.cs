@@ -559,6 +559,23 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
+    public void MathExpression_Evaluate_HasExpressionVariableInContext_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var context = new MathContext();
+        context.BindExpressionVariable(x);
+        context.BindFunction(Math.Sin, "sin");
+
+        var mathString = "x + sin(x)";
+        using var expression = new MathExpression(mathString, context, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate(new { x1 = 0.5d, x2 = 0.2d });
+
+        Assert.Equal(0.7 + Math.Sin(0.7), value);
+    }
+
+    [Fact]
     public void MathExpression_Evaluate_BindExpressionVariable_ExpectedValue()
     {
         var x = "x1 + x2";
