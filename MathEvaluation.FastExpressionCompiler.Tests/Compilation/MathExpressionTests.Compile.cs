@@ -585,6 +585,25 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(0.7 + Math.Sin(0.5d * 0.5d) + 0.5d, value);
     }
 
+    [Fact]
+    public void FastMathExpression_CompileThenInvoke_HasExpressionVariablesInContext_ExpectedValue()
+    {
+        var x = "x1 + x2";
+        var y = "x1 * x1";
+        var mathString = "x + sin(y) + x1";
+        var sin = Math.Sin;
+        var context = new MathContext(new { x, y, sin });
+        using var expression = new FastMathExpression(mathString, context, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile(new { x1 = 0d, x2 = 0d });
+        var value = fn(new { x1 = 0.5d, x2 = 0.2d });
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(0.7 + Math.Sin(0.5d * 0.5d) + 0.5d, value);
+    }
+
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
     {
         var comment = args.IsCompleted ? " //completed" : string.Empty;
