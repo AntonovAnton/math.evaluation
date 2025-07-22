@@ -19,11 +19,11 @@
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-Provides variable support within math expressions.
+Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.4.0</Version>
+        <Version>2.4.1</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
         <PackageIcon>logo.png</PackageIcon>
