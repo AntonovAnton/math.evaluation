@@ -42,17 +42,17 @@ Below are the results of the comparison with the NCalc library:
 | MathEvaluator | .NET 9.0 | .NET 9.0 |   563.9 ns |  1.63 ns |  1.45 ns | 0.0086 |     112 B |
 | NCalc         | .NET 9.0 | .NET 9.0 | 5,249.5 ns | 15.79 ns | 14.00 ns | 0.3586 |    4504 B |
 
-***NOTE:** NCalc includes built-in caching, enabled by default in recent versions. While this can improve benchmark performance, in real-world scenarios, caching may increase memory usage and is not effective if the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
+***NOTE:** If the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
 
 By using compilation, you can convert any mathematical expression string into a delegate, such as `Func<T, TResult>` or `Func<TResult>`, which significantly improves performance when evaluating the expression. 
-However, since compilation takes time, it is beneficial to compile the expression beforehand if you plan to evaluate it multiple times, especially for 200 or more iterations. Refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results) for detailed performance insights.
+However, since compilation takes additional time, and MathEvaluator already provides fast evaluation, it is recommended to compile the expression only if you plan to evaluate it repeatedly, particularly for 150 or more iterations. For detailed performance insights, refer to the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).
 
 The compiled delegate can be executed with different parameters, allowing you to pass variables and functions as arguments. This feature is particularly useful for scenarios where the same expression needs to be evaluated with different variable values or functions.
 
-In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when dealing with dynamic or unknown variable names at compile time.
+In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when working with dynamic inputs or when the structure of input parameters is not known in advance.
 
 In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
 
@@ -135,8 +135,9 @@ Example of using custom context:
     var context = new MathContext();
     context.BindFunction(Math.Sqrt);
     context.BindFunction(d => Math.Log(d), "ln");
+    context.BindExpressionVariable("x1 * x2", "y"); // expression-defined variable
 
-    var value = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1))"
+    var value = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1)) + y"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
     
 Example of evaluating C# expression:
@@ -161,6 +162,14 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
         .Compile(dict, new DotNetStandardMathContext());
 
     var value = fn(dict);
+
+    dict.Clear();
+    dict.Add("x1", 3.0);
+    dict.Add("x3", 2.0);
+    dict.Add("x4", 4.0);
+
+    fn = "x1 + Math.Sin(x3) * Math.Cos(x4)"
+        .Compile(dict, new DotNetStandardMathContext());
 
 ## How to debug or log
 

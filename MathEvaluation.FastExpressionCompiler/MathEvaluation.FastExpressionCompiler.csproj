@@ -19,12 +19,12 @@
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-Provides variable support within math expressions.
+Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
 Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40x faster performance compared to the traditional Compile() method.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.4.0</Version>
+        <Version>2.4.1</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>
@@ -60,7 +60,7 @@ Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.3.0" />
-      <PackageReference Include="MathEvaluator" Version="2.4.0" />
+      <PackageReference Include="MathEvaluator" Version="2.4.1" />
     </ItemGroup>
 
 </Project>
