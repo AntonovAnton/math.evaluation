@@ -42,6 +42,11 @@ public class ScientificMathContext : MathContext
 
         BindOperator('^', OperatorType.Power);
 
+        static double powerFn(double left, double right) => Math.Pow(left, right);
+        BindFunction(powerFn, "pow");
+        BindFunction(powerFn, "Pow");
+        BindFunction(powerFn, "POW");
+
         static double absFn(double v) => Math.Abs(v);
 
         BindFunction(absFn, '|', '|');

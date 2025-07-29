@@ -195,6 +195,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("3^4", 81d)]
+    [InlineData("pow(3, 4)", 81d)]
+    [InlineData("Pow(3, 4)", 81d)]
+    [InlineData("POW(3, 4)", 81d)]
     [InlineData("3^4^2", 81d * 81 * 81 * 81)]
     [InlineData("2/3^4", 2 / 81d)]
     [InlineData("0.5^2*3", 0.75d)]
