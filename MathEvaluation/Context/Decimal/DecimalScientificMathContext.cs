@@ -32,10 +32,16 @@ public class DecimalScientificMathContext : ScientificMathContext
         static decimal ceilingFn(decimal v) => Math.Ceiling(v);
 
         BindFunction(ceilingFn, '⌈', '⌉');
+        BindFunction(ceilingFn, "ceil");
+        BindFunction(ceilingFn, "Ceil");
+        BindFunction(ceilingFn, "CEIL");
 
         static decimal floorFn(decimal v) => Math.Floor(v);
 
         BindFunction(floorFn, '⌊', '⌋');
+        BindFunction(floorFn, "floor");
+        BindFunction(floorFn, "Floor");
+        BindFunction(floorFn, "FLOOR");
 
         static decimal factorialFn(decimal v) => Factorial(v);
 

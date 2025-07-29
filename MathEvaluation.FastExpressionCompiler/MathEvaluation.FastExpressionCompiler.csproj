@@ -24,7 +24,7 @@ Extensible with custom functions and operators.
 Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40x faster performance compared to the traditional Compile() method.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <Version>2.4.1</Version>
+        <Version>2.4.2</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>
@@ -60,7 +60,7 @@ Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.3.0" />
-      <PackageReference Include="MathEvaluator" Version="2.4.1" />
+      <PackageReference Include="MathEvaluator" Version="2.4.2" />
     </ItemGroup>
 
 </Project>

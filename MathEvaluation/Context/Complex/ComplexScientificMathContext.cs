@@ -1,6 +1,6 @@
-﻿using System.Numerics;
-using MathEvaluation.Entities;
+﻿using MathEvaluation.Entities;
 using MathTrigonometric;
+using System.Numerics;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 // ReSharper disable once CheckNamespace
@@ -19,6 +19,11 @@ public class ComplexScientificMathContext : ScientificMathContext
     /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>
     public ComplexScientificMathContext()
     {
+        static Complex powerFn(Complex v, Complex power) => Complex.Pow(v, power);
+        BindFunction(powerFn, "pow");
+        BindFunction(powerFn, "Pow");
+        BindFunction(powerFn, "POW");
+
         static Complex absFn(Complex v) => Complex.Abs(v);
 
         BindFunction(absFn, '|', '|');
@@ -29,10 +34,16 @@ public class ComplexScientificMathContext : ScientificMathContext
         static Complex sqrtFn(Complex v) => Complex.Sqrt(v);
 
         BindFunction(sqrtFn, '\u221a'); //square root symbol
+        BindFunction(sqrtFn, "sqrt");
+        BindFunction(sqrtFn, "Sqrt");
+        BindFunction(sqrtFn, "SQRT");
 
         static Complex cubeFn(Complex v) => Complex.Pow(v, 1 / 3d);
 
         BindFunction(cubeFn, '\u221b'); //cube root symbol
+        BindFunction(cubeFn, "cbrt");
+        BindFunction(cubeFn, "Cbrt");
+        BindFunction(cubeFn, "CBRT");
 
         static Complex fRootFn(Complex v) => Complex.Pow(v, 0.25d);
 
@@ -241,6 +252,25 @@ public class ComplexScientificMathContext : ScientificMathContext
         BindFunction(acotFn, "Arccot");
         BindFunction(acotFn, "ARCCOT");
 
+        BindFunction(asinFn, "asin");
+        BindFunction(asinFn, "Asin");
+        BindFunction(asinFn, "ASIN");
+        BindFunction(acosFn, "acos");
+        BindFunction(acosFn, "Acos");
+        BindFunction(acosFn, "ACOS");
+        BindFunction(atanFn, "atan");
+        BindFunction(atanFn, "Atan");
+        BindFunction(atanFn, "ATAN");
+        BindFunction(asecFn, "asec");
+        BindFunction(asecFn, "Asec");
+        BindFunction(asecFn, "ASEC");
+        BindFunction(acscFn, "acsc");
+        BindFunction(acscFn, "Acsc");
+        BindFunction(acscFn, "ACSC");
+        BindFunction(acotFn, "acot");
+        BindFunction(acotFn, "Acot");
+        BindFunction(acotFn, "ACOT");
+
         BindFunction(asinhFn, "arsinh");
         BindFunction(asinhFn, "Arsinh");
         BindFunction(asinhFn, "ARSINH");
@@ -259,6 +289,26 @@ public class ComplexScientificMathContext : ScientificMathContext
         BindFunction(acothFn, "arcoth");
         BindFunction(acothFn, "Arcoth");
         BindFunction(acothFn, "ARCOTH");
+
+
+        BindFunction(asinhFn, "asinh");
+        BindFunction(asinhFn, "Asinh");
+        BindFunction(asinhFn, "ASINH");
+        BindFunction(acoshFn, "acosh");
+        BindFunction(acoshFn, "Acosh");
+        BindFunction(acoshFn, "ACOSH");
+        BindFunction(atanhFn, "atanh");
+        BindFunction(atanhFn, "Atanh");
+        BindFunction(atanhFn, "ATANH");
+        BindFunction(asechFn, "asech");
+        BindFunction(asechFn, "Asech");
+        BindFunction(asechFn, "ASECH");
+        BindFunction(acschFn, "acsch");
+        BindFunction(acschFn, "Acsch");
+        BindFunction(acschFn, "ACSCH");
+        BindFunction(acothFn, "acoth");
+        BindFunction(acothFn, "Acoth");
+        BindFunction(acothFn, "ACOTH");
 
         #endregion
     }

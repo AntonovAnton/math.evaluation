@@ -304,6 +304,9 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
     [Theory]
     [InlineData("⌊-20.3⌋", -21d)]
+    [InlineData("floor(-20.3)", -21d)]
+    [InlineData("Floor(-20.3)", -21d)]
+    [InlineData("FLOOR(-20.3)", -21d)]
     [InlineData("-⌊20.3⌋", -20d)]
     [InlineData("-⌊0⌋", 0d)]
     [InlineData("⌊-0.1⌋", -1d)]
@@ -331,6 +334,9 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
     [Theory]
     [InlineData("⌈-20.3⌉", -20d)]
+    [InlineData("ceil(-20.3)", -20d)]
+    [InlineData("Ceil(-20.3)", -20d)]
+    [InlineData("CEIL(-20.3)", -20d)]
     [InlineData("-⌈20.3⌉", -21d)]
     [InlineData("-⌈0⌉", 0d)]
     [InlineData("⌈-0.1⌉", 0d)]
