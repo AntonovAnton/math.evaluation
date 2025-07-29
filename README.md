@@ -256,7 +256,7 @@ In mathematical expressions involving complex numbers, it's advisable to use par
 | Division  | / or ÷ | 100 |
 | Parentheses | ( ) | 200 |
 | Currency symbol  | depends on culture info | |
-| Exponentiation | ^ | 400 |
+| Exponentiation | ^, pow, Pow, POW | 400 for ^, 200 |
 | Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO | 100 |
 | Floor Division  | // | 100 |
 | Absolute  | \| \|, abs, Abs, ABS | 200 |
