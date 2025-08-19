@@ -23,7 +23,7 @@ Provides variable support within math expressions (including expression-defined 
 Extensible with custom functions and operators.
 Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40x faster performance compared to the traditional Compile() method.
         </PackageReleaseNotes>
-        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <Version>2.4.2</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
@@ -41,7 +41,7 @@ Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\LICENSE.md">
+        <None Include="..\LICENSE">
             <Pack>True</Pack>
             <PackagePath>\</PackagePath>
         </None>
