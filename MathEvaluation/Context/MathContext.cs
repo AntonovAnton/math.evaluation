@@ -266,13 +266,14 @@ public class MathContext
     /// <param name="isProcessingLeft">
     ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
+    /// <param name="precedence">The operator precedence.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindOperandOperator(Func<double, double> fn, char key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, isProcessingLeft));
+    public void BindOperandOperator(Func<double, double> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, isProcessingLeft, precedence));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool)" />
-    public void BindOperandOperator(Func<double, double> fn, string key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key, fn, isProcessingLeft));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
+    public void BindOperandOperator(Func<double, double> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<double>(key, fn, isProcessingLeft, precedence));
 
     /// <summary>Binds the math operator that can process the left and right math operands.</summary>
     /// <param name="fn">The function.</param>
@@ -370,13 +371,13 @@ public class MathContext
         char closingSymbol = Constants.DefaultClosingSymbol)
         => _trie.AddMathEntity(new MathFunction<decimal>(key, fn, openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool)" />
-    public void BindOperandOperator(Func<decimal, decimal> fn, char key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, isProcessingLeft));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
+    public void BindOperandOperator(Func<decimal, decimal> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, isProcessingLeft, precedence));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool)" />
-    public void BindOperandOperator(Func<decimal, decimal> fn, string key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, isProcessingLeft));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
+    public void BindOperandOperator(Func<decimal, decimal> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, isProcessingLeft, precedence));
 
     /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
     public void BindOperandsOperator(Func<decimal, decimal, decimal> fn, char key, int precedence)
@@ -477,13 +478,13 @@ public class MathContext
         char closingSymbol = Constants.DefaultClosingSymbol)
         => _trie.AddMathEntity(new MathFunction<Complex>(key, fn, openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool)" />
-    public void BindOperandOperator(Func<Complex, Complex> fn, char key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key.ToString(), fn, isProcessingLeft));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
+    public void BindOperandOperator(Func<Complex, Complex> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key.ToString(), fn, isProcessingLeft, precedence));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool)" />
-    public void BindOperandOperator(Func<Complex, Complex> fn, string key, bool isProcessingLeft = false)
-        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key, fn, isProcessingLeft));
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
+    public void BindOperandOperator(Func<Complex, Complex> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key, fn, isProcessingLeft, precedence));
 
     /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
     public void BindOperandsOperator(Func<Complex, Complex, Complex> fn, char key, int precedence)
