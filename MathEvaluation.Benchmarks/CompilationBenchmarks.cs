@@ -4,6 +4,7 @@ using MathEvaluation.Compilation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using NCalc;
+using NCalc.LambdaCompilation;
 
 namespace MathEvaluation.Benchmarks;
 

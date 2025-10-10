@@ -59,6 +59,43 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(expectedValue, value);
     }
 
+    [Fact]
+    public void MathExpression_Evaluate_HasBinaryNot_ExpectedValue()
+    {
+        var mathString = "0b1010 + 0B111";
+
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+        
+        var value = expression.Evaluate();
+
+        Assert.Equal(10 + 7, value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_HasHexadecimalNot_ExpectedValue()
+    {
+        var mathString = "0xA2b50 + 0X7";
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
+
+        Assert.Equal(0xA2b50 + 7, value);
+    }
+
+    [Fact]
+    public void MathExpression_Evaluate_HasOctalNot_ExpectedValue()
+    {
+        var mathString = "0o12 + 0O7";
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+        
+        var value = expression.Evaluate();
+        
+        Assert.Equal(10 + 7, value);
+    }
+
     [Theory]
     [InlineData("(3 · 2)//(2 × 2)", 1d)]
     [InlineData("(3 * 2)//(2 * 2)", 1d)]

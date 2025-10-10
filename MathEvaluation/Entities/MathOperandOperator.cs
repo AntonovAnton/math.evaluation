@@ -17,7 +17,7 @@ internal class MathOperandOperator<T> : MathEntity
     public Func<T, T> Fn { get; }
 
     /// <inheritdoc />
-    public override int Precedence => (int)EvalPrecedence.OperandUnaryOperator;
+    public override int Precedence { get; }
 
     /// <summary>
     ///     Gets a value indicating whether this instance is processing left operand.
@@ -41,12 +41,14 @@ internal class MathOperandOperator<T> : MathEntity
     /// <param name="isProcessingLeft">
     ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </param>
+    /// <param name="precedence">The operator precedence.</param>
     /// <exception cref="ArgumentNullException" />
-    public MathOperandOperator(string? key, Func<T, T> fn, bool isProcessingLeft = false)
+    public MathOperandOperator(string? key, Func<T, T> fn, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
         IsProcessingLeft = isProcessingLeft;
+        Precedence = precedence;
     }
 
     /// <inheritdoc />

@@ -5,6 +5,7 @@ using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using NCalc;
+using NCalc.LambdaCompilation;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MathEvaluation.Benchmarks;

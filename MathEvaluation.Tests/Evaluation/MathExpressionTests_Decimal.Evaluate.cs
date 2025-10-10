@@ -68,6 +68,43 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         Assert.Equal((decimal)expectedValue, value);
     }
 
+    [Fact]
+    public void MathExpression_EvaluateDecimal_HasBinaryNot_ExpectedValue()
+    {
+        var mathString = "0b1010 + 0B111";
+
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateDecimal();
+
+        Assert.Equal(10 + 7, value);
+    }
+
+    [Fact]
+    public void MathExpression_EvaluateDecimal_HasHexadecimalNot_ExpectedValue()
+    {
+        var mathString = "0xA2b50 + 0X7";
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateDecimal();
+
+        Assert.Equal(0xA2b50 + 7, value);
+    }
+
+    [Fact]
+    public void MathExpression_EvaluateDecimal_HasOctalNot_ExpectedValue()
+    {
+        var mathString = "0o12 + 0O7";
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateDecimal();
+
+        Assert.Equal(10 + 7, value);
+    }
+
     [Theory]
     [InlineData("(3 · 2)//(2 × 2)", 1d)]
     [InlineData("(3 * 2)//(2 * 2)", 1d)]

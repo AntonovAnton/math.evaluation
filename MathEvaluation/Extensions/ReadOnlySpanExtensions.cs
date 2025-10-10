@@ -29,7 +29,14 @@ internal static class ReadOnlySpanExtensions
     /// <returns>The value.</returns>
     internal static double ParseNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
-        var numberStr = str.GetNumberString(numberFormat, ref i);
+        var numberStr = str.GetNumberString(numberFormat, ref i, out var isBinary, out var isOctal, out var isHex);
+        if (isBinary)
+            return Convert.ToInt64(numberStr[2..].ToString(), 2);
+        if (isOctal)
+            return Convert.ToInt64(numberStr[2..].ToString(), 8);
+        if (isHex)
+            return Convert.ToInt64(numberStr[2..].ToString(), 16);
+
         return double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
@@ -40,7 +47,14 @@ internal static class ReadOnlySpanExtensions
     /// <returns>The value.</returns>
     internal static decimal ParseDecimalNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
-        var numberStr = str.GetNumberString(numberFormat, ref i);
+        var numberStr = str.GetNumberString(numberFormat, ref i, out var isBinary, out var isOctal, out var isHex);
+        if (isBinary)
+            return Convert.ToInt64(numberStr[2..].ToString(), 2);
+        if (isOctal)
+            return Convert.ToInt64(numberStr[2..].ToString(), 8);
+        if (isHex)
+            return Convert.ToInt64(numberStr[2..].ToString(), 16);
+
         return decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
@@ -113,7 +127,7 @@ internal static class ReadOnlySpanExtensions
         var i = 0;
         str.SkipMeaningless(ref i);
 
-        var numberStr = str.GetNumberString(numberFormat, ref i);
+        var numberStr = str.GetNumberString(numberFormat, ref i, out var _, out var _, out var _);
 
         // GetNumberString sets the 'i' to the next index after the number part. 
         if (str.Length != i + 1 || str[i] != 'i')
@@ -127,10 +141,50 @@ internal static class ReadOnlySpanExtensions
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
     /// <param name="i">The current char index.</param>
+    /// <param name="isBinary"></param>
+    /// <param name="isOctal"></param>
+    /// <param name="isHex"></param>
     /// <returns>The number string.</returns>
-    private static ReadOnlySpan<char> GetNumberString(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
+    private static ReadOnlySpan<char> GetNumberString(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i,
+        out bool isBinary, out bool isOctal, out bool isHex)
     {
         var start = i;
+
+        isBinary = false;
+        isOctal = false;
+        isHex = false;
+
+        if (str[start] is '0' && str.Length > start + 2)
+        {
+            if (str[start + 1] is 'b' or 'B' && str[start + 2] is '0' or '1')
+            {
+                isBinary = true;
+                i += 3;
+                while (str.Length > i && str[i] is '0' or '1')
+                    i++;
+
+                return str[start..i];
+            }
+            else if (str[start + 1] is 'o' or 'O' && str[start + 2] is >= '0' and <= '7')
+            {
+                isOctal = true;
+                i += 3;
+                while (str.Length > i && str[i] is >= '0' and <= '7')
+                    i++;
+
+                return str[start..i];
+            }
+            else if (str[start + 1] is 'x' or 'X' && str[start + 2] is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F')
+            {
+                isHex = true;
+                i += 3;
+                while (str.Length > i && (str[i] is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F'))
+                    i++;
+
+                return str[start..i];
+            }
+        }
+
         while (str.Length > i)
         {
             if (str[i] is >= '0' and <= '9' ||

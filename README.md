@@ -85,27 +85,11 @@ Examples of using string extentions:
     
     "sin(2 + 3i) * arctan(4i)/(1 - 6i)".EvaluateComplex(new ComplexScientificMathContext());
 
+    "0b1010 * 0o12 / 0xA + 10".Evaluate(); // Mixed numeric systems: 10 * 10 / 10 + 10 = 20
+
 Examples of using an instance of the MathExpression class:
-        
-    new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Evaluate();
-
-    new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").EvaluateDecimal();
-
-    new MathExpression("$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6", null, new CultureInfo("en-US")).Evaluate();
 
     new MathExpression("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, new CultureInfo("de-CH")).EvaluateDecimal();
-    
-    new MathExpression("ln(1/-0.5 + √(1/(0.5^2) + 1))", new ScientificMathContext()).Evaluate();
-
-    new MathExpression("P * (1 + r/n)^d", new DecimalScientificMathContext()).EvaluateDecimal(new { P = 10000, r = 0.05, n = 365, d = 31 });
-    
-    new MathExpression("4 % 3", new ProgrammingMathContext()).Evaluate();
-    
-    new MathExpression("4 mod 3", new ScientificMathContext()).Evaluate();
-
-    new MathExpression("4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01", new ProgrammingMathContext()).EvaluateBoolean();
-
-    new MathExpression("¬⊥∧⊤∨¬⊤⇒¬⊤", new ScientificMathContext()).EvaluateBoolean();
     
     new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).EvaluateComplex();
 
@@ -208,6 +192,26 @@ Added in version [2.2.0](https://github.com/AntonovAnton/math.evaluation/release
 
 Complex numbers are written in the form **a ± bi**, where **a** is the real part and **bi** is the imaginary part. 
 In mathematical expressions involving complex numbers, it's advisable to use parentheses () to ensure clarity and obtain the expected result.
+
+## Numeric systems
+
+Added in version [2.4.3](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.4.3)
+
+MathEvaluator now supports binary, octal, and hexadecimal numeric systems in addition to the default decimal system.
+
+**Binary numbers** are prefixed with `0b` or `0B` and contain only digits 0 and 1:
+
+    "0b1010 + 0B1111".Evaluate(); // Result: 25 (10 + 15 in decimal)
+
+**Octal numbers** are prefixed with `0o` or `0O` and contain digits 0-7:
+
+    "0o17 + 0O25".Evaluate(); // Result: 36 (15 + 21 in decimal)
+
+**Hexadecimal numbers** are prefixed with `0x` or `0X` and contain digits 0-9 and letters A-F (case insensitive):
+
+    "0xFF + 0X10".Evaluate(); // Result: 271 (255 + 16 in decimal)
+
+These numeric systems work seamlessly with all mathematical operations and contexts, and the results are always returned in decimal format.
 
 ## Supported math functions, operators, and constants
 
@@ -325,7 +329,7 @@ If you enjoy my work and find it valuable, please consider becoming my [sponsor 
 Looking to localize your project? Check out [l10n.dev](https://l10n.dev), an AI-powered localization service. [Translate JSON](https://l10n.dev/ws/translate-json) files while preserving format, keys, and placeholders. Supports 165 languages with an easy-to-use API and UI. Get started for free!
 
 ## License
-This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](https://github.com/AntonovAnton/math.evaluation?tab=License-1-ov-file) file for details.
+This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](https://github.com/AntonovAnton/math.evaluation?tab=Apache-2.0-1-ov-file) file for details.
 
 ## Contact
 If you have any questions or suggestions, feel free to open an issue or contact me directly.
