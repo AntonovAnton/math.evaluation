@@ -134,7 +134,7 @@ internal class MathExpressionVariable(string? key, string mathString) : MathEnti
             mathExpression.OnEvaluating(tokenPosition, i, result);
         }
 
-        var right = BuildConvert<TResult>(parameterExpression);
+        var right = BuildConvert<TResult>(parameterExpression!);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 

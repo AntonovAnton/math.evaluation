@@ -291,7 +291,7 @@ internal class MathCompatibleOperator : MathEntity
         }
 
         var expression = type is OperatorType.LogicalNot or OperatorType.LogicalNegation or OperatorType.BitwiseNegation or OperatorType.Negate
-            ? Expression.MakeUnary(ExpressionTypeByOperatorType[type], right, null).Reduce()
+            ? Expression.MakeUnary(ExpressionTypeByOperatorType[type], right, null!).Reduce() // null is okey here because the type is not needed for these operators
             : Expression.MakeBinary(ExpressionTypeByOperatorType[type], left, right).Reduce();
 
         return BuildConvert<TResult>(expression);
