@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETSTANDARD2_1
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 
 namespace MathEvaluation;
@@ -39,6 +41,7 @@ public class MathExpressionException : ApplicationException
         InvalidTokenPosition = invalidTokenPosition;
     }
 
+#if NETSTANDARD2_1
     /// <summary>Initializes a new instance of the <see cref="MathExpressionException" /> class.</summary>
     /// <param name="info">The object that holds the serialized object data.</param>
     /// <param name="context">The contextual information about the source or destination.</param>
@@ -46,6 +49,7 @@ public class MathExpressionException : ApplicationException
         : base(info, context)
     {
     }
+#endif
 
     private static string BuildMessage(string message, int invalidTokenPosition)
     {

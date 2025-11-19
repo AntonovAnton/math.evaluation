@@ -9,12 +9,10 @@ using NCalc.LambdaCompilation;
 namespace MathEvaluation.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
-#pragma warning disable CA1050 // Declare types in namespaces
 public class CompilationBenchmarks
-#pragma warning restore CA1050 // Declare types in namespaces
 {
     // ReSharper disable once InconsistentNaming
     private const double a = Math.PI / 6;

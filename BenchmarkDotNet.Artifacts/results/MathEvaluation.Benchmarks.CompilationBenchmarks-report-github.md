@@ -1,49 +1,49 @@
 ```
 
-BenchmarkDotNet v0.15.4, Windows 11 (10.0.26100.6725/24H2/2024Update/HudsonValley)
+BenchmarkDotNet v0.15.7, Windows 11 (10.0.26200.7171/25H2/2025Update/HudsonValley2)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 9.0.305
-  [Host]   : .NET 8.0.20 (8.0.20, 8.0.2025.41914), X64 RyuJIT x86-64-v4
-  .NET 8.0 : .NET 8.0.20 (8.0.20, 8.0.2025.41914), X64 RyuJIT x86-64-v4
-  .NET 9.0 : .NET 9.0.9 (9.0.9, 9.0.925.41916), X64 RyuJIT x86-64-v4
+.NET SDK 10.0.100
+  [Host]    : .NET 8.0.22 (8.0.22, 8.0.2225.52707), X64 RyuJIT x86-64-v4
+  .NET 10.0 : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v4
+  .NET 8.0  : .NET 8.0.22 (8.0.22, 8.0.2225.52707), X64 RyuJIT x86-64-v4
 
 
 ```
-| Method                                                                                              | Job      | Runtime  | Mean           | Error         | StdDev        | Gen0   | Gen1   | Allocated |
-|---------------------------------------------------------------------------------------------------- |--------- |--------- |---------------:|--------------:|--------------:|-------:|-------:|----------:|
-| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                        | .NET 8.0 | .NET 8.0 |  13,607.047 ns |   136.8098 ns |   121.2783 ns | 0.3967 | 0.3815 |    5151 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 8.0 | .NET 8.0 |   3,182.349 ns |    62.9799 ns |    77.3450 ns | 0.1907 | 0.1869 |    2424 B |
-| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                                | .NET 8.0 | .NET 8.0 |   9,435.548 ns |   152.8457 ns |   142.9720 ns | 0.3204 | 0.3052 |    4056 B |
-| &#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;                                            | .NET 8.0 | .NET 8.0 |  14,052.214 ns |   279.4030 ns |   601.4444 ns | 0.3662 | 0.3510 |    4648 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;                     | .NET 8.0 | .NET 8.0 |     590.624 ns |    11.5563 ns |    11.8674 ns | 0.0706 |      - |     896 B |
-| &#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;                                                    | .NET 8.0 | .NET 8.0 |   3,760.356 ns |    16.5616 ns |    13.8297 ns | 0.1297 |      - |    1664 B |
-| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                                          | .NET 8.0 | .NET 8.0 |  94,513.954 ns |   440.1072 ns |   390.1435 ns | 0.4883 | 0.2441 |    8961 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 8.0 | .NET 8.0 |   7,066.511 ns |    54.9675 ns |    51.4166 ns | 0.3586 | 0.3510 |    4504 B |
-| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                                                  | .NET 8.0 | .NET 8.0 |   8,288.365 ns |    20.0719 ns |    17.7932 ns | 0.2899 | 0.2747 |    3815 B |
-| &#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                   | .NET 8.0 | .NET 8.0 |       2.774 ns |     0.0087 ns |     0.0073 ns | 0.0019 |      - |      24 B |
-| &#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;            | .NET 8.0 | .NET 8.0 |       3.182 ns |     0.0216 ns |     0.0191 ns | 0.0019 |      - |      24 B |
-| &#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                           | .NET 8.0 | .NET 8.0 |       2.998 ns |     0.0196 ns |     0.0164 ns | 0.0019 |      - |      24 B |
-| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                            | .NET 8.0 | .NET 8.0 |  98,469.912 ns |   436.6455 ns |   340.9041 ns | 0.3662 | 0.2441 |    5707 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 8.0 | .NET 8.0 |   3,790.700 ns |    19.0057 ns |    14.8384 ns | 0.1907 | 0.1869 |    2416 B |
-| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                                    | .NET 8.0 | .NET 8.0 |   8,434.588 ns |    43.8017 ns |    36.5764 ns | 0.3052 | 0.2441 |    4501 B |
-| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                  | .NET 8.0 | .NET 8.0 | 114,493.619 ns |   529.6701 ns |   469.5387 ns | 0.4883 | 0.2441 |    7348 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 8.0 | .NET 8.0 |   4,533.409 ns |    65.6965 ns |    61.4525 ns | 0.2594 | 0.2518 |    3312 B |
-| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                          | .NET 8.0 | .NET 8.0 |   8,491.982 ns |    84.2885 ns |    74.7195 ns | 0.3662 | 0.3052 |    4895 B |
-| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                        | .NET 9.0 | .NET 9.0 |  13,839.190 ns |    56.5734 ns |    47.2414 ns | 0.3967 | 0.3662 |    5151 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 9.0 | .NET 9.0 |   2,983.985 ns |    15.6671 ns |    13.8884 ns | 0.1907 | 0.1869 |    2424 B |
-| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                                | .NET 9.0 | .NET 9.0 |   8,452.014 ns |    63.2376 ns |    52.8062 ns | 0.3204 | 0.2899 |    4024 B |
-| &#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;                                            | .NET 9.0 | .NET 9.0 |  14,075.166 ns |   279.3360 ns |   503.7005 ns | 0.3662 | 0.3357 |    4648 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;                     | .NET 9.0 | .NET 9.0 |     560.633 ns |    10.2374 ns |    16.5315 ns | 0.0706 |      - |     896 B |
-| &#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;                                                    | .NET 9.0 | .NET 9.0 |   3,396.435 ns |    64.2837 ns |    60.1311 ns | 0.1297 |      - |    1632 B |
-| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                                          | .NET 9.0 | .NET 9.0 |  95,099.175 ns |   857.9586 ns |   802.5350 ns | 0.4883 | 0.2441 |    8961 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 9.0 | .NET 9.0 |   6,394.234 ns |    77.5717 ns |    64.7759 ns | 0.3052 | 0.2441 |    4501 B |
-| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                                                  | .NET 9.0 | .NET 9.0 |   8,246.813 ns |   163.4815 ns |   194.6131 ns | 0.2899 | 0.2747 |    3783 B |
-| &#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                   | .NET 9.0 | .NET 9.0 |       2.535 ns |     0.0727 ns |     0.0680 ns | 0.0019 |      - |      24 B |
-| &#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;            | .NET 9.0 | .NET 9.0 |       3.407 ns |     0.0297 ns |     0.0248 ns | 0.0019 |      - |      24 B |
-| &#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                           | .NET 9.0 | .NET 9.0 |       3.332 ns |     0.0268 ns |     0.0224 ns | 0.0019 |      - |      24 B |
-| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                            | .NET 9.0 | .NET 9.0 |  86,964.123 ns |   263.1364 ns |   246.1380 ns | 0.3662 | 0.2441 |    5707 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 9.0 | .NET 9.0 |   3,638.133 ns |    17.5919 ns |    15.5947 ns | 0.1907 | 0.1869 |    2416 B |
-| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                                    | .NET 9.0 | .NET 9.0 |   8,456.303 ns |   164.6458 ns |   208.2243 ns | 0.3357 | 0.3204 |    4375 B |
-| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                  | .NET 9.0 | .NET 9.0 | 105,550.910 ns | 1,271.7566 ns | 1,127.3791 ns | 0.4883 | 0.2441 |    7236 B |
-| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 9.0 | .NET 9.0 |   4,458.288 ns |    79.1682 ns |    74.0540 ns | 0.2594 | 0.2518 |    3312 B |
-| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                          | .NET 9.0 | .NET 9.0 |   8,049.932 ns |   152.2549 ns |   142.4194 ns | 0.3662 | 0.3052 |    4767 B |
+| Method                                                                                              | Job       | Runtime   | Mean           | Error       | StdDev      | Gen0   | Gen1   | Allocated |
+|---------------------------------------------------------------------------------------------------- |---------- |---------- |---------------:|------------:|------------:|-------:|-------:|----------:|
+| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                        | .NET 10.0 | .NET 10.0 |  19,870.882 ns | 117.6298 ns |  98.2262 ns | 0.1221 | 0.0610 |    5146 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 10.0 | .NET 10.0 |   2,710.289 ns |  12.0420 ns |  10.6749 ns | 0.0763 | 0.0725 |    2424 B |
+| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                                | .NET 10.0 | .NET 10.0 |   8,699.110 ns |  37.3588 ns |  31.1963 ns | 0.1221 | 0.0916 |    4023 B |
+| &#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;                                            | .NET 10.0 | .NET 10.0 |  20,351.890 ns |  69.5324 ns |  61.6387 ns | 0.1221 | 0.0916 |    4644 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;                     | .NET 10.0 | .NET 10.0 |     513.441 ns |   1.9051 ns |   1.5909 ns | 0.0286 |      - |     896 B |
+| &#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;                                                    | .NET 10.0 | .NET 10.0 |   3,997.265 ns |  14.3706 ns |  12.0001 ns | 0.0458 |      - |    1632 B |
+| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                                          | .NET 10.0 | .NET 10.0 | 104,090.356 ns | 223.6066 ns | 198.2214 ns | 0.2441 |      - |    9013 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 10.0 | .NET 10.0 |   5,727.942 ns |  34.7859 ns |  32.5388 ns | 0.1221 | 0.0916 |    4548 B |
+| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                                                  | .NET 10.0 | .NET 10.0 |   8,014.444 ns |  38.3573 ns |  32.0301 ns | 0.1068 | 0.0916 |    3781 B |
+| &#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                   | .NET 10.0 | .NET 10.0 |       3.269 ns |   0.0407 ns |   0.0380 ns | 0.0008 |      - |      24 B |
+| &#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;            | .NET 10.0 | .NET 10.0 |       4.234 ns |   0.0360 ns |   0.0337 ns | 0.0008 |      - |      24 B |
+| &#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                           | .NET 10.0 | .NET 10.0 |       4.124 ns |   0.0342 ns |   0.0303 ns | 0.0008 |      - |      24 B |
+| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                            | .NET 10.0 | .NET 10.0 |  99,609.002 ns | 393.8914 ns | 368.4462 ns |      - |      - |    5688 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 10.0 | .NET 10.0 |   3,387.732 ns |  13.9932 ns |  11.6849 ns | 0.0763 | 0.0725 |    2416 B |
+| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                                    | .NET 10.0 | .NET 10.0 |   8,356.421 ns |  26.6659 ns |  24.9433 ns | 0.1221 | 0.0916 |    4373 B |
+| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                  | .NET 10.0 | .NET 10.0 | 116,476.578 ns | 812.0552 ns | 719.8657 ns |      - |      - |    7264 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 10.0 | .NET 10.0 |   3,843.428 ns |  19.3182 ns |  16.1316 ns | 0.1068 | 0.0763 |    3358 B |
+| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                          | .NET 10.0 | .NET 10.0 |   7,825.131 ns |  78.1631 ns |  73.1138 ns | 0.1526 | 0.1221 |    4765 B |
+| &#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                        | .NET 8.0  | .NET 8.0  |  13,196.382 ns |  72.6571 ns |  67.9635 ns | 0.1526 | 0.1373 |    5150 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39; | .NET 8.0  | .NET 8.0  |   2,988.276 ns |  12.6766 ns |  10.5855 ns | 0.0763 | 0.0725 |    2424 B |
+| &#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;                                | .NET 8.0  | .NET 8.0  |  10,110.245 ns |  48.8555 ns |  43.3092 ns | 0.1221 | 0.1068 |    4055 B |
+| &#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;                                            | .NET 8.0  | .NET 8.0  |  13,057.076 ns |  50.4617 ns |  44.7330 ns | 0.1373 | 0.1221 |    4646 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;                     | .NET 8.0  | .NET 8.0  |     636.046 ns |   2.2799 ns |   2.0211 ns | 0.0286 |      - |     896 B |
+| &#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;                                                    | .NET 8.0  | .NET 8.0  |   4,606.727 ns |  12.4004 ns |  10.9927 ns | 0.0534 |      - |    1664 B |
+| &#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;                                                          | .NET 8.0  | .NET 8.0  |  96,545.301 ns | 262.0117 ns | 218.7916 ns | 0.2441 |      - |    9013 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;                                   | .NET 8.0  | .NET 8.0  |   6,752.309 ns |  27.0507 ns |  22.5885 ns | 0.1450 | 0.1373 |    4552 B |
+| &#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;                                                                  | .NET 8.0  | .NET 8.0  |   9,250.201 ns |  49.5511 ns |  43.9258 ns | 0.1068 | 0.0916 |    3813 B |
+| &#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                   | .NET 8.0  | .NET 8.0  |       3.692 ns |   0.0207 ns |   0.0183 ns | 0.0008 |      - |      24 B |
+| &#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;            | .NET 8.0  | .NET 8.0  |       4.056 ns |   0.0228 ns |   0.0202 ns | 0.0008 |      - |      24 B |
+| &#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;                                           | .NET 8.0  | .NET 8.0  |       4.048 ns |   0.0098 ns |   0.0082 ns | 0.0008 |      - |      24 B |
+| &#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                            | .NET 8.0  | .NET 8.0  |  98,468.031 ns | 135.6459 ns | 120.2465 ns | 0.1221 |      - |    5704 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                     | .NET 8.0  | .NET 8.0  |   3,890.331 ns |  14.8354 ns |  11.5825 ns | 0.0763 | 0.0725 |    2416 B |
+| &#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;                                                                    | .NET 8.0  | .NET 8.0  |   9,522.422 ns |  45.1167 ns |  42.2022 ns | 0.1221 | 0.0916 |    4500 B |
+| &#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                  | .NET 8.0  | .NET 8.0  | 113,631.663 ns | 246.0412 ns | 218.1091 ns |      - |      - |    7261 B |
+| &#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;                                           | .NET 8.0  | .NET 8.0  |   4,478.205 ns |  16.4291 ns |  15.3678 ns | 0.1068 | 0.0992 |    3360 B |
+| &#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;                                                                          | .NET 8.0  | .NET 8.0  |   9,503.792 ns |  86.5286 ns |  80.9389 ns | 0.1526 | 0.1373 |    5007 B |

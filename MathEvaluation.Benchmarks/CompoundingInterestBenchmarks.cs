@@ -11,12 +11,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace MathEvaluation.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
-#pragma warning disable CA1050 // Declare types in namespaces
 public class CompoundingInterestBenchmarks
-#pragma warning restore CA1050 // Declare types in namespaces
 {
     private int _count;
 
