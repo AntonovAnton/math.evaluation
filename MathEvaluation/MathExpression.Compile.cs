@@ -288,7 +288,9 @@ public partial class MathExpression
                 ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
             }
 
-            var lambda = Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
+            var lambda = ParameterExpression == null
+                ? Expression.Lambda<Func<T, TResult>>(ExpressionTree)
+                : Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();

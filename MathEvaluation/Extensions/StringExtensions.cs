@@ -2,6 +2,7 @@
 using MathEvaluation.Parameters;
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace MathEvaluation.Extensions;
 
@@ -180,6 +181,11 @@ public static class StringExtensions
     /// <returns>
     ///     <c>true</c> if the specified char is meaningless; otherwise, <c>false</c>.
     /// </returns>
+#if NET8_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+#else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     private static bool IsMeaningless(char c)
         => c is ' ' or '\t' or '\n' or '\r';
 }

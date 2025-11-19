@@ -1,7 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
-using MathTrigonometric;
 using System.Globalization;
 using Xunit.Abstractions;
 

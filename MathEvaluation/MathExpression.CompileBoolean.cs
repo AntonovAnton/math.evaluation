@@ -40,7 +40,9 @@ public partial class MathExpression
                 ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
             }
 
-            var lambda = Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression);
+            var lambda = ParameterExpression == null
+                ? Expression.Lambda<Func<T, bool>>(ExpressionTree)
+                : Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();

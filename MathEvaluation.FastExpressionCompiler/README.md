@@ -1,4 +1,4 @@
-<img src="../logo.png" alt="logo" style="width:64px;height:64px;"/>
+﻿<img src="../logo.png" alt="logo" style="width:64px;height:64px;"/>
 
 # Fast Math Expression Compiler in .NET
 
@@ -10,6 +10,47 @@ NuGet packages:
 MathEvaluator.FastExpressionCompiler is an extension of the [MathEvaluator](https://nuget.org/packages/MathEvaluator) library that uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) library to provide high-performance compilation of mathematical expressions.
 
 Compilation of expressions is up to 10-40x faster than the built-in .NET `LambdaExpression.Compile()` method. This library includes all features of the MathEvaluator library. For more details, refer to the [MathEvaluator GitHub repository](https://github.com/AntonovAnton/math.evaluation?tab=readme-ov-file).
+
+## Performance
+
+By leveraging `FastExpressionCompiler`, this library significantly reduces the time required to compile mathematical expressions. This makes it ideal for scenarios where expressions need to be compiled and executed repeatedly.
+
+### Benchmark Results
+
+Benchmarks were run on:
+- **CPU**: 11th Gen Intel Core i7-11800H 2.30GHz (1 CPU, 16 logical and 8 physical cores)
+- **OS**: Windows 11 (10.0.26200.7171/25H2)
+- **.NET SDK**: 10.0.100
+- **Runtimes**: .NET 8.0.22 and .NET 10.0.0
+
+#### Compilation Performance
+
+| Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
+|------------|---------|-----------|----------|---------|
+| **Arithmetic Expression** | | | | |
+| `"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6"` | MathEvaluator | 19,871 ns | 13,196 ns | 1.0x |
+| | **FastExpressionCompiler** | **2,710 ns** | **2,988 ns** | **7.3x faster** ⚡ |
+| **Boolean Expression** | | | | |
+| `"A or not B and (C or B)"` | MathEvaluator | 104,090 ns | 96,545 ns | 1.0x |
+| | **FastExpressionCompiler** | **5,728 ns** | **6,752 ns** | **18x faster** 🚀 |
+| **Trigonometric Expression** | | | | |
+| `"Sin(a) + Cos(b)"` | MathEvaluator | 116,477 ns | 113,632 ns | 1.0x |
+| | **FastExpressionCompiler** | **3,843 ns** | **4,478 ns** | **30x faster** 🔥 |
+
+FastExpressionCompiler provides **7-30x faster compilation** while maintaining the same excellent runtime performance as MathEvaluator.
+
+### When to Use FastExpressionCompiler
+
+✅ **Use FastExpressionCompiler when:**
+- You compile expressions frequently (e.g., in a web service handling dynamic formulas)
+- Startup time matters (faster compilation = faster app startup)
+- You compile many expressions in a loop
+- You need the lowest possible latency
+
+✅ **Use standard MathEvaluator when:**
+- You compile expressions once and reuse them extensively
+- You prefer fewer dependencies
+- Compilation time is not a bottleneck
 
 ## How to use
 Examples of using string extentions:
@@ -60,9 +101,6 @@ The `FastMathExpression` class is a high-performance alternative to `MathExpress
 
 ### FastMathExpressionCompiler class
 The `FastMathExpressionCompiler` class implements the `IExpressionCompiler` interface (Added in version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1)) and uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to compile LINQ expressions into delegates.
-
-## Performance
-By leveraging `FastExpressionCompiler`, this library significantly reduces the time required to compile mathematical expressions. This makes it ideal for scenarios where expressions need to be compiled and executed repeatedly.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -45,18 +46,20 @@ public class MathContext
             throw new ArgumentNullException(nameof(context));
 
         foreach (var propertyInfo in context.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(p => p.CanRead))
         {
-            if (!propertyInfo.CanRead)
+            var getter = propertyInfo.GetGetMethod();
+            if (getter == null)
                 continue;
 
             var key = propertyInfo.Name;
-            var value = propertyInfo.GetValue(context, null);
+            var value = getter.Invoke(context, null);
             var propertyType = propertyInfo.PropertyType;
             if (propertyType.IsConvertibleToDouble())
             {
                 if (propertyType.IsDecimal())
-                    BindConstant((decimal)value, key);
+                    BindConstant((decimal)value!, key);
                 else
                     BindConstant(Convert.ToDouble(value), key);
             }

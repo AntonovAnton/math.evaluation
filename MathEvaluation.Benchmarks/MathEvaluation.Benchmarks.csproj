@@ -5,12 +5,40 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- Performance Optimizations -->
+    <TieredCompilation>true</TieredCompilation>
+    <TieredCompilationQuickJit>true</TieredCompilationQuickJit>
+    <TieredPGO>true</TieredPGO>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    
+    <!-- Enable AOT-friendly optimizations -->
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    
+    <!-- Advanced CPU optimizations -->
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    
+    <!-- Compiler optimizations -->
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    
+    <!-- Additional performance settings -->
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <RetainVMGarbageCollection>true</RetainVMGarbageCollection>
+    
+    <!-- Inline optimizations -->
+    <AggressiveInlining>true</AggressiveInlining>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.4" />
-    <PackageReference Include="NCalc.LambdaCompilation" Version="5.7.0" />
-    <PackageReference Include="NCalcSync" Version="5.7.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.7" />
+    <PackageReference Include="NCalc.LambdaCompilation" Version="5.8.0" />
+    <PackageReference Include="NCalcSync" Version="5.8.0" />
   </ItemGroup>
 
   <ItemGroup>

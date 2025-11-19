@@ -55,8 +55,8 @@ internal abstract class MathEntity : IMathEntity
         {
             Complex c when c.Imaginary != default => throw new InvalidCastException(
                 $"Cannot convert the Complex number to a {conversionType.Name}, value = {value}."),
-            Complex c => conversionType == typeof(double) ? c.Real : Convert.ChangeType(c.Real, conversionType),
-            _ => Convert.ChangeType(value, conversionType)
+            Complex c => conversionType == typeof(double) ? c.Real : Convert.ChangeType(c.Real, conversionType) ?? throw new InvalidCastException($"Conversion returned null for value = {value}."),
+            _ => Convert.ChangeType(value, conversionType) ?? throw new InvalidCastException($"Conversion returned null for value = {value}.")
         };
     }
 

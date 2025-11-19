@@ -71,14 +71,15 @@ public sealed class MathParameters
             throw new ArgumentNullException(nameof(parameters));
 
         foreach (var propertyInfo in parameters.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(p => p.CanRead))
         {
-            if (!propertyInfo.CanRead)
+            var getter = propertyInfo.GetGetMethod();
+            if (getter == null)
                 continue;
 
-            var key = propertyInfo.Name;
-            var value = propertyInfo.GetValue(parameters, null);
-            BindKeyValue(false, key, value);
+            var value = getter.Invoke(parameters, null);
+            BindKeyValue(false, propertyInfo.Name, value);
         }
     }
 

@@ -16,11 +16,12 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 4000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Multi-targets .NET Standard 2.1, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
 
-## Perfomance
+## Performance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher. 
 
 This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, and avoidance of regular expressions. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
@@ -29,20 +30,33 @@ The evaluator uses recursive method calls to handle mathematical operations base
 
 The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for efficient searching of variables, operators, and functions by their keys (names) when providing a specific mathematical context or adding custom variables, operators, and functions is required.
 
-Let's compare, for example, performance of calculating the mathematical expression:
+### Benchmark Results
+
+Let's compare performance of evaluating the mathematical expression:
 
     22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
 
-Below are the results of the comparison with the NCalc library: 
+Below are the results comparing MathEvaluator with the NCalc library:
 
-| Method        | Job      | Runtime  | Mean       | Error    | StdDev   | Gen0   | Allocated |
-|-------------- |--------- |--------- |-----------:|---------:|---------:|-------:|----------:|
-| MathEvaluator | .NET 8.0 | .NET 8.0 |   643.2 ns |  1.83 ns |  1.43 ns | 0.0086 |     112 B |
-| NCalc         | .NET 8.0 | .NET 8.0 | 5,949.3 ns | 16.69 ns | 13.93 ns | 0.3586 |    4504 B |
-| MathEvaluator | .NET 9.0 | .NET 9.0 |   563.9 ns |  1.63 ns |  1.45 ns | 0.0086 |     112 B |
-| NCalc         | .NET 9.0 | .NET 9.0 | 5,249.5 ns | 15.79 ns | 14.00 ns | 0.3586 |    4504 B |
+| Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
+|--------|---------|------|-------|--------|------|-----------|
+| **MathEvaluator** | .NET 10.0 | **465.7 ns** | 1.14 ns | 1.07 ns | 0.0033 | **112 B** |
+| NCalc | .NET 10.0 | 6,236.1 ns | 26.36 ns | 23.36 ns | 0.1373 | 4480 B |
+| **MathEvaluator** | .NET 8.0 | **591.8 ns** | 3.14 ns | 2.94 ns | 0.0029 | **112 B** |
+| NCalc | .NET 8.0 | 7,225.6 ns | 91.16 ns | 85.27 ns | 0.1450 | 4512 B |
 
-***NOTE:** If the evaluation results depend on variable values. In such cases, compilation is a better alternative.*
+**Performance gain**: MathEvaluator is **10-13x faster** than NCalc with **40x less memory allocation**.
+
+#### More Complex Expressions
+
+| Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
+|------------|---------|-----------|----------|---------|
+| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **317.5 ns** | **373.4 ns** | **13-15x** |
+| | NCalc | 4,275.0 ns | 4,954.0 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **411.1 ns** | **506.8 ns** | **11-12x** |
+| | NCalc | 4,623.2 ns | 5,431.4 ns | |
+
+***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
@@ -184,7 +198,7 @@ Output:
     6: 3^4sin(-PI/2) = -81;
     7: -3^4sin(-PI/2) = 81; //completed
 
-***NOTE**: To prevent memory leaks, it’s important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
+***NOTE**: To prevent memory leaks, it's important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
 
 ## Complex numbers
 
