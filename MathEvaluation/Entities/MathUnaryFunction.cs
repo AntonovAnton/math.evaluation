@@ -10,7 +10,11 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 internal class MathUnaryFunction<T> : MathEntity
+#if NET8_0_OR_GREATER
+    where T : struct, INumberBase<T>
+#else
     where T : struct
+#endif
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
@@ -102,6 +106,38 @@ internal class MathUnaryFunction<T> : MathEntity
 
         return value;
     }
+
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    {
+        var tokenPosition = i;
+        i += Key.Length;
+        if (OpeningSymbol.HasValue)
+            mathExpression.MathString.ThrowExceptionIfNotOpened(OpeningSymbol.Value, tokenPosition, ref i);
+
+        var arg = ClosingSymbol.HasValue
+            ? mathExpression.Evaluate<T>(ref i, null, ClosingSymbol)
+            : mathExpression.EvaluateOperand<T>(ref i, separator, closingSymbol);
+
+        if (ClosingSymbol.HasValue)
+            mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
+
+        var fnResult = Fn(arg);
+        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
+
+        var result = ConvertNumber<T, TResult>(fnResult);
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !(value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
+    }
+
+#endif
 
     /// <inheritdoc/>
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)

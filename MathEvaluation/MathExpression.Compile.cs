@@ -26,8 +26,72 @@ public partial class MathExpression
     public Func<T, double> Compile<T>(T parameters)
         => Compile<T, double>(parameters);
 
-    internal Expression Build<TResult>()
+    /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
+    /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
+    /// <returns>A delegate that represents the compiled expression.</returns>
+    /// <exception cref="MathExpressionException" />
+    public Func<TResult> Compile<TResult>()
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
+    {
+        try
+        {
+            ExpressionTree = Build<TResult>();
+
+            var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
+            ExpressionTree = lambda;
+
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
+        }
+        catch (Exception ex)
+        {
+            throw CreateException(ex, null);
+        }
+    }
+
+    /// <inheritdoc cref="Compile{T}()" />
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    public Func<T, TResult> Compile<T, TResult>(T parameters)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
+        where TResult : struct
+#endif
+    {
+        try
+        {
+            ExpressionTree = Build<T, TResult>(parameters);
+
+            if (ExpressionVariables?.Count > 0)
+            {
+                ExpressionStatements!.Add(ExpressionTree);
+                ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
+            }
+
+            var lambda = ParameterExpression == null
+                ? Expression.Lambda<Func<T, TResult>>(ExpressionTree)
+                : Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
+            ExpressionTree = lambda;
+
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
+        }
+        catch (Exception ex)
+        {
+            throw CreateException(ex, parameters);
+        }
+    }
+
+    internal Expression Build<TResult>()
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
+        where TResult : struct
+#endif
     {
         _evaluatingStep = 0;
 
@@ -41,7 +105,11 @@ public partial class MathExpression
     }
 
     internal Expression Build<T, TResult>(T parameters)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
@@ -52,7 +120,11 @@ public partial class MathExpression
     }
 
     internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
@@ -69,7 +141,11 @@ public partial class MathExpression
 
     internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         var span = MathString.AsSpan();
         Expression expression = Expression.Constant(default(TResult));
@@ -80,7 +156,7 @@ public partial class MathExpression
             if ((separator.HasValue && IsParamSeparator(separator.Value, start, i)) ||
                 (closingSymbol.HasValue && span[i] == closingSymbol.Value))
             {
-                if (expression.IsDefault())
+                if (expression.IsDefault<TResult>())
                     MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
                 return expression;
@@ -211,33 +287,46 @@ public partial class MathExpression
             }
         }
 
-        if (expression.IsDefault())
+        if (expression.IsDefault<TResult>())
             MathString.ThrowExceptionIfNotEvaluated(isOperand, start, i);
 
         return expression.Reduce();
     }
 
     internal static Expression BuildMultiplyIfLeftNotDefault<TResult>(Expression left, Expression right)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
+        where TResult : struct
+#endif
     {
-        if (left.IsDefault())
+        if (left.IsDefault<TResult>())
             return right;
 
         return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         var start = i;
         var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
-        if (expression.IsDefault())
+        if (expression.IsDefault<TResult>())
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;
     }
 
     internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
@@ -247,57 +336,5 @@ public partial class MathExpression
         return entity is { Precedence: >= (int)EvalPrecedence.Exponentiation }
             ? entity.Build<TResult>(this, start, ref i, separator, closingSymbol, left)
             : left;
-    }
-
-    /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
-    /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
-    /// <returns>A delegate that represents the compiled expression.</returns>
-    /// <exception cref="MathExpressionException" />
-    private Func<TResult> Compile<TResult>()
-        where TResult : struct
-    {
-        try
-        {
-            ExpressionTree = Build<TResult>();
-
-            var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
-            ExpressionTree = lambda;
-
-            return Compiler?.Compile(lambda) ?? lambda.Compile();
-        }
-        catch (Exception ex)
-        {
-            throw CreateException(ex, null);
-        }
-    }
-
-    /// <inheritdoc cref="Compile{T}()" />
-    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
-    /// <exception cref="ArgumentNullException">parameters</exception>
-    /// <exception cref="NotSupportedException">parameters</exception>
-    private Func<T, TResult> Compile<T, TResult>(T parameters)
-        where TResult : struct
-    {
-        try
-        {
-            ExpressionTree = Build<T, TResult>(parameters);
-
-            if (ExpressionVariables?.Count > 0)
-            {
-                ExpressionStatements!.Add(ExpressionTree);
-                ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
-            }
-
-            var lambda = ParameterExpression == null
-                ? Expression.Lambda<Func<T, TResult>>(ExpressionTree)
-                : Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
-            ExpressionTree = lambda;
-
-            return Compiler?.Compile(lambda) ?? lambda.Compile();
-        }
-        catch (Exception ex)
-        {
-            throw CreateException(ex, parameters);
-        }
     }
 }

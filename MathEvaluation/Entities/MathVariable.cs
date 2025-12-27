@@ -9,7 +9,11 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
+#if NET8_0_OR_GREATER
+    where T : struct, INumberBase<T>
+#else
     where T : struct
+#endif
 {
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
@@ -53,6 +57,28 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
 
         return value;
     }
+
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc />
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    {
+        var tokenPosition = i;
+        i += Key.Length;
+
+        var result = ConvertNumber<T, TResult>(Value);
+        mathExpression.OnEvaluating(tokenPosition, i, result);
+
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        value = value == default ? result : value * result;
+
+        if (value != result && !(value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
+            mathExpression.OnEvaluating(start, i, value);
+
+        return value;
+    }
+
+#endif
 
     /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)

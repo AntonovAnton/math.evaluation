@@ -29,17 +29,29 @@ internal abstract class MathEntity : IMathEntity
     /// <inheritdoc />
     public abstract decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc />
+    public abstract TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+        where TResult : struct, INumberBase<TResult>;
+
+#endif
+
     /// <inheritdoc />
     public abstract Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value);
 
     /// <inheritdoc />
     public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>;
+#else
         where TResult : struct;
+#endif
 
-    /// <summary> Converts to string. </summary>
-    /// <returns>
-    ///     A <see cref="System.String" /> that represents this instance.
-    /// </returns>
+        /// <summary> Converts to string. </summary>
+        /// <returns>
+        ///     A <see cref="System.String" /> that represents this instance.
+        /// </returns>
     public override string ToString()
         => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
 
@@ -48,6 +60,9 @@ internal abstract class MathEntity : IMathEntity
     /// <inheritdoc cref="Convert.ChangeType(object, Type)" />
     protected static object ChangeType<T>(T value, Type conversionType)
     {
+        if (conversionType == typeof(T) && value is not null)
+            return value;
+
         if (conversionType == typeof(Complex))
             return new Complex(Convert.ToDouble(value), 0d);
 
@@ -81,6 +96,31 @@ internal abstract class MathEntity : IMathEntity
             Complex c => (decimal)c.Real,
             _ => Convert.ToDecimal(value)
         };
+
+#if NET8_0_OR_GREATER
+
+    /// <summary>
+    /// Converts the specified value to a number of type TResult.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="InvalidCastException"></exception>
+    /// <exception cref="OverflowException"></exception>
+    protected static TResult ConvertNumber<T, TResult>(T value)
+        where T : INumberBase<T>
+        where TResult : INumberBase<TResult>
+    {
+        return value switch
+        {
+            TResult n => n,
+            _ => TResult.CreateChecked(value)
+        };
+    }
+
+#endif
 
     /// <summary>
     ///     Builds the conversion operation.
