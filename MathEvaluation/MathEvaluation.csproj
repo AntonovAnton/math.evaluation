@@ -18,13 +18,14 @@
         <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
 Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
+Supports `INumberBase` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
 Multi-targets for optimal performance on each platform.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>2.5.0</Version>
+        <Version>2.6.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
         <PackageIcon>logo.png</PackageIcon>

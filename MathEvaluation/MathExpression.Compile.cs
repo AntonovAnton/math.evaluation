@@ -54,6 +54,8 @@ public partial class MathExpression
 
     /// <inheritdoc cref="Compile{T}()" />
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <typeparam name="T">The type of the parameters.</typeparam>
+    /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException">parameters</exception>
     public Func<T, TResult> Compile<T, TResult>(T parameters)

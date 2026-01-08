@@ -1,6 +1,8 @@
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Dynamic;
 using System.Globalization;
+using System.Numerics;
 using Xunit.Abstractions;
 
 #if NET8_0_OR_GREATER
@@ -10,7 +12,6 @@ namespace MathEvaluation.Tests.Compilation;
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelper)
 {
-    private readonly ScientificMathContext _scientificContext = new();
     private readonly ProgrammingMathContext _programmingContext = new();
 
     #region Int32 Tests
@@ -184,21 +185,26 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         Assert.Equal((Half)expectedValue, value);
     }
 
-    //[Theory]
-    //[InlineData("x + y", 2.5, 1.5, 4.0)]
-    //[InlineData("x * y", 2.5, 2.0, 5.0)]
-    //public void MathExpression_CompileThenInvoke_Half_HasVariables_ExpectedValue(string mathString, double x, double y, double expectedValue)
-    //{
-    //    testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
-    //    testOutputHelper.WriteLine($"x = {x}, y = {y}");
+    [Theory]
+    [InlineData("x + y", 2.5, 1.5, 4.0)]
+    [InlineData("x * y", 2.5, 2.0, 5.0)]
+    public void MathExpression_CompileThenInvoke_Half_HasVariables_ExpectedValue(string mathString, double x, double y, double expectedValue)
+    {
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
+        testOutputHelper.WriteLine($"x = {x}, y = {y}");
 
-    //    var fn = mathString.Compile(new { x = (Half)x, y = (Half)y }, null, CultureInfo.InvariantCulture);
-    //    var value = fn(new { x = (Half)x, y = (Half)y });
+        var parameters = new Dictionary<string, object>
+        {
+            { "x", (Half)x },
+            { "y", (Half)y }
+        };
+        var fn = mathString.Compile<Dictionary<string, object>, Half>(parameters, null, CultureInfo.InvariantCulture);
+        var value = fn(parameters);
 
-    //    testOutputHelper.WriteLine($"result: {value}");
+        testOutputHelper.WriteLine($"result: {value}");
 
-    //    Assert.Equal((Half)expectedValue, value);
-    //}
+        Assert.Equal((Half)expectedValue, value);
+    }
 
     #endregion
 
@@ -319,6 +325,123 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<sbyte>();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    #endregion
+
+    #region BigInteger Tests
+
+    [Theory]
+    [InlineData("123456789012345678901234567890 + 987654321098765432109876543210", "1111111110111111111011111111100")]
+    [InlineData("1000000000000000000 * 1000000000000000000", "1000000000000000000000000000000000000")]
+    [InlineData("999999999999999999999999999999 - 1", "999999999999999999999999999998")]
+    [InlineData("100000000000000000000 / 50000000000000000000", "2")]
+    [InlineData("-123456789012345678901234567890", "-123456789012345678901234567890")]
+    public void MathExpression_CompileThenInvoke_BigInteger_ExpectedValue(string mathString, string expectedValueString)
+    {
+        var expectedValue = BigInteger.Parse(expectedValueString);
+
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile<BigInteger>();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("10 % 3", 1)]
+    [InlineData("1000000000000000000 % 3", 1)]
+    [InlineData("123456789012345678901234567894 % 7", 4)]
+    [InlineData("123456789012345678901234567894 % a", 4)]
+    public void MathExpression_CompileThenInvoke_BigInteger_HasModulus_ExpectedValue(string mathString, long expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "a", new BigInteger(7) }
+        };
+        var fn = expression.Compile<Dictionary<string, object>, BigInteger>(parameters);
+        var value = fn(parameters);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(new BigInteger(expectedValue), value);
+    }
+
+    [Theory]
+    [InlineData("2 ** 100", "1267650600228229401496703205376")]
+    [InlineData("a ** 30", "1000000000000000000000000000000")]
+    [InlineData("2 ** a ** 2", "1267650600228229401496703205376")]
+    public void MathExpression_CompileThenInvoke_BigInteger_HasPower_ExpectedValue(string mathString, string expectedValueString)
+    {
+        var expectedValue = BigInteger.Parse(expectedValueString);
+
+        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        dynamic parameters = new ExpandoObject();
+        parameters.a = 10;
+
+        var fn = expression.Compile<ExpandoObject, BigInteger>(parameters);
+        var value = fn(parameters);
+
+        parameters.b = 2; // just to show that we can add more parameters later
+        value = fn(parameters);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("x + y", "123456789012345678901234567890", "987654321098765432109876543210", "1111111110111111111011111111100")]
+    [InlineData("x * y", "1000000000000000000", "1000000000000000000", "1000000000000000000000000000000000000")]
+    [InlineData("x - y", "999999999999999999999999999999", "1", "999999999999999999999999999998")]
+    public void MathExpression_CompileThenInvoke_BigInteger_HasVariables_ExpectedValue(string mathString, string xString, string yString, string expectedValueString)
+    {
+        var x = BigInteger.Parse(xString);
+        var y = BigInteger.Parse(yString);
+        var expectedValue = BigInteger.Parse(expectedValueString);
+
+        testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
+        testOutputHelper.WriteLine($"x = {x}, y = {y}");
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "x", x },
+            { "y", y }
+        };
+        var fn = mathString.Compile<Dictionary<string, object>, BigInteger>(parameters, null, CultureInfo.InvariantCulture);
+        var value = fn(parameters);
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("0xFFFFFFFFFFFFFFFF + 1", "18446744073709551616")]
+    [InlineData("0b1111111111111111111111111111111111111111111111111111111111111111 + 1", "18446744073709551616")]
+    [InlineData("0o1777777777777777777777 + 1", "18446744073709551616")]
+    public void MathExpression_CompileThenInvoke_BigInteger_HasDifferentNotations_ExpectedValue(string mathString, string expectedValueString)
+    {
+        var expectedValue = BigInteger.Parse(expectedValueString);
+
+        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile<BigInteger>();
         var value = fn();
 
         testOutputHelper.WriteLine($"result: {value}");

@@ -10,12 +10,13 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
-    /// <inheritdoc cref="Evaluate(object?)" />
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
     public TResult Evaluate<TResult>(object? parameters = null)
         where TResult : struct, INumberBase<TResult>
         => Evaluate<TResult>(parameters != null ? new MathParameters(parameters) : null);
 
     /// <inheritdoc cref="Evaluate(MathParameters?)" />
+    /// <typeparam name="TResult">The type of the return value.</typeparam>
     public TResult Evaluate<TResult>(MathParameters? parameters)
         where TResult : struct, INumberBase<TResult>
     {

@@ -87,20 +87,32 @@ public sealed class MathParameters
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
     public void BindVariable<T>(T value, char key)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
         => BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(double, char)" />
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
     public void BindVariable<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
     {
+#if NET8_0_OR_GREATER
+        _trie.AddMathEntity(new MathVariable<T>(key, value));
+#else
         var type = typeof(T);
         if (type.IsConvertibleToDouble())
             BindVariable(Convert.ToDouble(value), key);
         else
             throw new NotSupportedException($"{type} isn't supported for '{key}'.");
+#endif
     }
 
     /// <summary>Binds the variable.</summary>
@@ -332,12 +344,38 @@ public sealed class MathParameters
         var type = parameters.GetType();
         if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
         {
-            foreach (DictionaryEntry pair in (IDictionary)parameters)
+            foreach (var pair in parameters)
             {
-                if (pair.Key is not string key)
-                    throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                switch (pair)
+                {
+                    case DictionaryEntry dictEntry:
+                        {
+                            if (dictEntry.Key is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
 
-                BindKeyValue(true, key, pair.Value);
+                            BindKeyValue(true, key, dictEntry.Value);
+                            break;
+                        }
+                    case KeyValuePair<string, object?> kvp:
+                        {
+                            BindKeyValue(true, kvp.Key, kvp.Value);
+                            break;
+                        }
+                    case var genericPair:
+                        {
+                            var pairType = genericPair.GetType();
+                            var keyProperty = pairType.GetProperty("Key");
+                            var valueProperty = pairType.GetProperty("Value");
+                            if (keyProperty == null || valueProperty == null)
+                                throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+                            var keyObj = keyProperty.GetValue(genericPair);
+                            var valueObj = valueProperty.GetValue(genericPair);
+                            if (keyObj is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                            BindKeyValue(true, key, valueObj);
+                            break;
+                        }
+                }
             }
 
             return;
@@ -356,12 +394,23 @@ public sealed class MathParameters
     private void BindKeyValue(bool isDictionaryItem, string key, object? value)
     {
         var propertyType = (value?.GetType()) ?? throw new NotSupportedException($"Null values are not supported for '{key}'.");
+
+#if NET8_0_OR_GREATER
+
+        if (propertyType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(INumberBase<>)))
+        {
+            BindNumberVariable(key, (dynamic)value, isDictionaryItem);
+            return;
+        }
+
+#endif
+
         if (propertyType.IsConvertibleToDouble())
         {
             if (propertyType.IsDecimal())
-                BindVariable(isDictionaryItem, key, (decimal)value);
+                BindDecimalVariable(key, (decimal)value, isDictionaryItem);
             else
-                BindVariable(isDictionaryItem, key, Convert.ToDouble(value));
+                BindDoubleVariable(key, Convert.ToDouble(value), isDictionaryItem);
 
             return;
         }
@@ -374,7 +423,7 @@ public sealed class MathParameters
                 BindExpressionVariable(str, key);
                 break;
             case Complex c:
-                BindVariable(isDictionaryItem, key, c);
+                BindComplexVariable(key, c, isDictionaryItem);
                 break;
             case Func<double> fn1:
                 BindFunction(fn1, key);
@@ -452,12 +501,18 @@ public sealed class MathParameters
         }
     }
 
-    private void BindVariable(bool isDictionaryItem, string key, double value)
+    private void BindDoubleVariable(string key, double value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<double>(key.ToString(), value, isDictionaryItem));
 
-    private void BindVariable(bool isDictionaryItem, string key, decimal value)
+    private void BindDecimalVariable(string key, decimal value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<decimal>(key.ToString(), value, isDictionaryItem));
 
-    private void BindVariable(bool isDictionaryItem, string key, Complex value)
+    private void BindComplexVariable(string key, Complex value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
+
+#if NET8_0_OR_GREATER
+    private void BindNumberVariable<T>(string key, T value, bool isDictionaryItem)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathVariable<T>(key.ToString(), value, isDictionaryItem));
+#endif
 }

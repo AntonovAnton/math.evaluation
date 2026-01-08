@@ -194,6 +194,9 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#endif
         => left is ConstantExpression l && right is ConstantExpression r
             ? BuildConstant<TResult>(type, l, r)
             : BuildNotConstant<TResult>(type, left, right);
@@ -259,8 +262,10 @@ internal class MathCompatibleOperator : MathEntity
             OperatorType.Divide => left / right,
             OperatorType.Add => left + right,
             OperatorType.Subtract => left - right,
+            OperatorType.Modulo when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l % ConvertNumber<TResult, BigInteger>(right)),
             OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) % ConvertNumber<TResult, long>(right)),
             OperatorType.Modulo => ConvertNumber<double, TResult>(ConvertNumber<TResult, double>(left) % ConvertNumber<TResult, double>(right)),
+            OperatorType.Power when left is BigInteger l => ConvertNumber<BigInteger, TResult>(BigInteger.Pow(l, ConvertNumber<TResult, int>(right))),
             OperatorType.Power => ConvertNumber<double, TResult>(Math.Pow(ConvertNumber<TResult, double>(left), ConvertNumber<TResult, double>(right))),
             OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
@@ -347,6 +352,12 @@ internal class MathCompatibleOperator : MathEntity
             case OperatorType.BitwiseNegation:
                 right = BuildConvert<long>(right);
                 break;
+#if NET8_0_OR_GREATER
+            case OperatorType.Power when typeof(TResult) == typeof(BigInteger):
+                left = BuildConvert<BigInteger>(left);
+                right = BuildConvert<int>(right);
+                return Expression.Call(typeof(BigInteger).GetMethod(nameof(BigInteger.Pow), [left.Type, typeof(int)])!, left, right);
+#endif
             case OperatorType.Power when typeof(TResult) == typeof(Complex):
                 left = BuildConvert<Complex>(left);
                 right = BuildConvert<Complex>(right);
@@ -367,10 +378,21 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#endif
     {
         object value;
         switch (left.Value)
         {
+#if NET8_0_OR_GREATER
+            case TResult ld:
+                {
+                    var rd = right.Value is TResult d ? d : (TResult)ChangeType(right.Value, typeof(TResult));
+                    value = Calculate(type, ld, rd);
+                    break;
+                }
+#endif
             case Complex lc:
                 {
                     var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);

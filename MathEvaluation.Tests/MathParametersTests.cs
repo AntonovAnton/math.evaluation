@@ -18,6 +18,8 @@ public class MathParametersTests
             ex.Message);
     }
 
+#if !NET8_0_OR_GREATER
+
     [Fact]
     public void MathContext_BindVariable_HasNotSupportedType_ThrowNotSupportedException()
     {
@@ -26,6 +28,8 @@ public class MathParametersTests
         Assert.IsType<NotSupportedException>(ex);
         Assert.Equal("System.Numerics.Vector2 isn't supported for 'v'.", ex.Message);
     }
+
+#endif
 
     [Fact]
     public void MathParameters_Bind_HasNotSupportedType_ThrowNotSupportedException()

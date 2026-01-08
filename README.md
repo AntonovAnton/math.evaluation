@@ -12,6 +12,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
+- Supports `INumberBase<T>` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
@@ -68,6 +69,8 @@ The compiled delegate can be executed with different parameters, allowing you to
 
 In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when working with dynamic inputs or when the structure of input parameters is not known in advance.
 
+In version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0) support for `ExpandoObject` as a parameter type has been added. This allows for dynamic binding of variables in a more flexible manner, no predefined class structure required.
+
 In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
 
 **MathEvaluator.FastExpressionCompiler** is an extension of the MathEvaluator library that uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to provide performance improvements of up to 10-40x compared to the built-in .NET `LambdaExpression.Compile()` method.  
@@ -76,6 +79,8 @@ This library includes all features of the MathEvaluator library but adds a depen
 
 ## How to use
 Examples of using string extentions:
+
+    "2 ** 100".Evaluate<BigInteger>(new ProgrammingMathContext());
 
     "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
 
@@ -226,6 +231,32 @@ MathEvaluator now supports binary, octal, and hexadecimal numeric systems in add
     "0xFF + 0X10".Evaluate(); // Result: 271 (255 + 16 in decimal)
 
 These numeric systems work seamlessly with all mathematical operations and contexts, and the results are always returned in decimal format.
+
+## INumberBase<T> 
+
+Added in version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0)
+
+For .NET 8 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
+
+### BigInteger Examples
+
+**Evaluation:**
+
+    "2 ** 100".Evaluate<BigInteger>(new ProgrammingMathContext());
+    // Result: 1267650600228229401496703205376
+
+**Compilation:**
+
+    var expression = new MathExpression("2 ** a", new ProgrammingMathContext());
+
+    dynamic parameters = new ExpandoObject();
+    parameters.a = 0;
+
+    var fn = expression.Compile<ExpandoObject, BigInteger>(parameters);
+    
+    parameters.a = 100;
+    var result = fn(parameters);
+    // Result: 1267650600228229401496703205376
 
 ## Supported math functions, operators, and constants
 

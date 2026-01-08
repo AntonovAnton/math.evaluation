@@ -103,7 +103,7 @@ internal class MathConstant<T>(string? key, T value) : MathEntity(key)
         var tokenPosition = i;
         i += Key.Length;
 
-        Expression right = Expression.Constant(Value);
+        Expression right = Expression.Constant(Value, typeof(T));
         right = BuildConvert<TResult>(right);
         mathExpression.OnEvaluating(tokenPosition, i, right);
 

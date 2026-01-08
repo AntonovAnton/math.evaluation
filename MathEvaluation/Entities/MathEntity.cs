@@ -48,10 +48,10 @@ internal abstract class MathEntity : IMathEntity
         where TResult : struct;
 #endif
 
-        /// <summary> Converts to string. </summary>
-        /// <returns>
-        ///     A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+    /// <summary> Converts to string. </summary>
+    /// <returns>
+    ///     A <see cref="System.String" /> that represents this instance.
+    /// </returns>
     public override string ToString()
         => $"{nameof(Key)}: \"{Key}\", {nameof(Precedence)}: {Precedence}";
 
@@ -66,13 +66,16 @@ internal abstract class MathEntity : IMathEntity
         if (conversionType == typeof(Complex))
             return new Complex(Convert.ToDouble(value), 0d);
 
-        return value switch
+        var result = value switch
         {
             Complex c when c.Imaginary != default => throw new InvalidCastException(
                 $"Cannot convert the Complex number to a {conversionType.Name}, value = {value}."),
-            Complex c => conversionType == typeof(double) ? c.Real : Convert.ChangeType(c.Real, conversionType) ?? throw new InvalidCastException($"Conversion returned null for value = {value}."),
-            _ => Convert.ChangeType(value, conversionType) ?? throw new InvalidCastException($"Conversion returned null for value = {value}.")
+            Complex c => conversionType == typeof(double) ? c.Real : Convert.ChangeType(c.Real, conversionType),
+            IConvertible ic => Convert.ChangeType(ic, conversionType),
+            _ => Convert.ChangeType(value?.ToString(), conversionType)
         };
+
+        return result ?? throw new InvalidCastException($"Conversion returned null for value = {value}.");
     }
 
     /// <inheritdoc cref="Convert.ToDouble(object)" />
@@ -165,9 +168,6 @@ internal abstract class MathEntity : IMathEntity
 
             expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(typeof(double))), real, exceptionExpr);
         }
-
-        if (expression.Type == typeof(TResult))
-            return expression;
 
         if (expression.NodeType == ExpressionType.Convert && ((UnaryExpression)expression).Operand?.Type == typeof(TResult))
             return ((UnaryExpression)expression).Operand;

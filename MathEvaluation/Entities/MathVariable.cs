@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Reflection;
 
 namespace MathEvaluation.Entities;
 
@@ -107,13 +110,85 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         Expression right;
         if (isDictinaryItem)
         {
-            // Fix: Use Expression.MakeIndex with appropriate arguments
-            var dictionaryProperty = mathExpression.ParameterExpression!.Type.GetProperty("Item");
-            if (dictionaryProperty == null)
-                throw new InvalidOperationException("The parameter expression does not have an indexer property.");
+            var parameterType = mathExpression.ParameterExpression!.Type;
 
-            var keyExpression = Expression.Constant(Key);
-            right = Expression.MakeIndex(mathExpression.ParameterExpression!, dictionaryProperty, [keyExpression]);
+            // Try to get the default indexer property
+            var indexerProperty = parameterType.GetProperties()
+                .FirstOrDefault(p => p.GetIndexParameters().Length > 0
+                                   && p.GetIndexParameters()[0].ParameterType == typeof(string));
+
+            if (indexerProperty != null)
+            {
+                // Use the indexer if available
+                var keyExpression = Expression.Constant(Key, typeof(string));
+                right = Expression.MakeIndex(mathExpression.ParameterExpression!, indexerProperty, [keyExpression]);
+            }
+            else
+            {
+                // Fallback: Try to use TryGetValue or ContainsKey/get_Item pattern
+                var dictionaryInterface = parameterType.GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType &&
+                                        i.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
+                                        i.GetGenericArguments()[0] == typeof(string));
+
+                MethodInfo? tryGetValueMethod = null;
+                Type? dictionaryValueType = null;
+
+                const string methodName = "TryGetValue";
+                if (dictionaryInterface != null)
+                {
+                    dictionaryValueType = dictionaryInterface.GetGenericArguments()[1];
+                    tryGetValueMethod = dictionaryInterface.GetMethod(methodName, [typeof(string), dictionaryValueType.MakeByRefType()]);
+                }
+                else
+                {
+                    tryGetValueMethod = parameterType.GetMethod(methodName, [typeof(string), typeof(T).MakeByRefType()]);
+                }
+
+                if (tryGetValueMethod != null)
+                {
+                    // Build expression for TryGetValue
+                    var valueType = dictionaryValueType ?? typeof(T);
+                    var valueVariable = Expression.Variable(valueType, "value");
+                    var keyExpression = Expression.Constant(Key, typeof(string));
+
+                    Expression parameterExpression;
+                    if (dictionaryInterface != null)
+                    {
+                        parameterExpression = Expression.Convert(mathExpression.ParameterExpression!, dictionaryInterface);
+                    }
+                    else
+                    {
+                        parameterExpression = mathExpression.ParameterExpression!;
+                    }
+
+                    var tryGetValueCall = Expression.Call(
+                        parameterExpression,
+                        tryGetValueMethod,
+                        keyExpression,
+                        valueVariable
+                    );
+
+                    Expression resultExpression = valueVariable;
+
+                    // If dictionary value type is different from T, add conversion
+                    if (valueType != typeof(T))
+                    {
+                        resultExpression = Expression.Convert(valueVariable, typeof(T));
+                    }
+
+                    right = Expression.Block(
+                        [valueVariable],
+                        tryGetValueCall,
+                        resultExpression
+                    );
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"The parameter type '{parameterType.Name}' does not support dictionary-like access with string keys.");
+                }
+            }
         }
         else
         {
