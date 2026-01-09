@@ -17,6 +17,7 @@ public class DecimalScientificMathContext : ScientificMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalScientificMathContext" /> class.</summary>
     public DecimalScientificMathContext()
+        : base()
     {
         static decimal floorDivisionFn(decimal left, decimal right) => Math.Floor(left / right);
 

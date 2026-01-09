@@ -36,9 +36,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.7" />
-    <PackageReference Include="NCalc.LambdaCompilation" Version="5.8.0" />
-    <PackageReference Include="NCalcSync" Version="5.8.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <PackageReference Include="NCalc.LambdaCompilation" Version="5.11.0" />
+    <PackageReference Include="NCalcSync" Version="5.11.0" />
   </ItemGroup>
 
   <ItemGroup>

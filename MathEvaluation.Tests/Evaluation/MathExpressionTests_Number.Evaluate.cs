@@ -76,7 +76,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x = {x}, y = {y}");
 
-        var value = mathString.Evaluate(new { x, y }, null, CultureInfo.InvariantCulture);
+        var value = mathString.Evaluate<int>(new { x, y }, null, CultureInfo.InvariantCulture);
 
         testOutputHelper.WriteLine($"result: {value}");
 

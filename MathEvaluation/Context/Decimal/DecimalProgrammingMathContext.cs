@@ -14,6 +14,7 @@ public class DecimalProgrammingMathContext : ProgrammingMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalProgrammingMathContext" /> class.</summary>
     public DecimalProgrammingMathContext()
+        : base()
     {
         BindConstant(1m, "true");
         BindConstant(1m, "True");
