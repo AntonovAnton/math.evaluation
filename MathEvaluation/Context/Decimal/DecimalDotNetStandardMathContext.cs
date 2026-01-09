@@ -8,17 +8,13 @@ namespace MathEvaluation.Context;
 /// <inheritdoc />
 public class DecimalDotNetStandardMathContext : DecimalDotNetStandartMathContext;
 
-/// <summary>
-/// The .NET Standard 2.1 programming math context 
-/// supports all constants and functions provided by <see cref="System.Math" /> class.
-/// Provides evaluating C# math expressions.
-/// </summary>
-/// <seealso cref="MathEvaluation.Context.MathContext" />
+/// <inheritdoc />
 [Obsolete("Use DecimalDotNetStandardMathContext instead.", false)]
 public class DecimalDotNetStandartMathContext : DotNetStandardMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandardMathContext" /> class.</summary>
     public DecimalDotNetStandartMathContext()
+        : base()
     {
         BindConstant(1m, "true");
         BindConstant(0m, "false");

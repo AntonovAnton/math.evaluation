@@ -53,7 +53,7 @@ public partial class MathExpression
         }
     }
 
-    private Expression ConvertToBoolean(Expression expression)
+    private static Expression ConvertToBoolean(Expression expression)
     {
         // Avoid unnecessary conversion for boolean expressions
         if (expression.NodeType == ExpressionType.Convert &&

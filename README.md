@@ -12,10 +12,11 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
+- Supports `INumberBase<T>` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
-- Fast and comprehensive. More than 4000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 - Multi-targets .NET Standard 2.1, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
 
 ## Articles
@@ -68,6 +69,8 @@ The compiled delegate can be executed with different parameters, allowing you to
 
 In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when working with dynamic inputs or when the structure of input parameters is not known in advance.
 
+In version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0) support for `ExpandoObject` as a parameter type has been added. This allows for dynamic binding of variables in a more flexible manner, no predefined class structure required.
+
 In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
 
 **MathEvaluator.FastExpressionCompiler** is an extension of the MathEvaluator library that uses the [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler) to provide performance improvements of up to 10-40x compared to the built-in .NET `LambdaExpression.Compile()` method.  
@@ -89,9 +92,9 @@ Examples of using string extentions:
     
     "P * (1 + r/n)^d".EvaluateDecimal(new { P = 10000, r = 0.05, n = 365, d = 31 }, new DecimalScientificMathContext());
     
-    "4 % 3".Evaluate(new ProgrammingMathContext());
+    "2 ** 100".Evaluate<BigInteger>(new ProgrammingMathContext());
     
-    "4 mod 3".Evaluate(new ScientificMathContext());
+    "4 ^ 3".Evaluate(new ScientificMathContext());
 
     "4 <> 4 OR 5.4 = 5.4 AND NOT 0 < 1 XOR 1.0 - 1.95 * 2 >= -12.9 + 0.1 / 0.01".EvaluateBoolean(new ProgrammingMathContext());
 
@@ -141,7 +144,7 @@ Example of using custom context:
 Example of evaluating C# expression:
 
     var value = "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))"
-        .Evaluate(new DotNetStandardMathContext());
+        .Evaluate(new DotNetMathContext());
 
 Example of compilation with an object as a parameter:
 
@@ -226,6 +229,32 @@ MathEvaluator now supports binary, octal, and hexadecimal numeric systems in add
     "0xFF + 0X10".Evaluate(); // Result: 271 (255 + 16 in decimal)
 
 These numeric systems work seamlessly with all mathematical operations and contexts, and the results are always returned in decimal format.
+
+## INumberBase<T> 
+
+Added in version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0)
+
+For .NET 8 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
+
+### BigInteger Examples
+
+**Evaluation:**
+
+    "2 ** 100".Evaluate<BigInteger>(new ProgrammingMathContext());
+    // Result: 1267650600228229401496703205376
+
+**Compilation:**
+
+    var expression = new MathExpression("2 ** a", new ProgrammingMathContext());
+
+    dynamic parameters = new ExpandoObject();
+    parameters.a = 0;
+
+    var fn = expression.Compile<ExpandoObject, BigInteger>(parameters);
+    
+    parameters.a = 100;
+    var result = fn(parameters);
+    // Result: 1267650600228229401496703205376
 
 ## Supported math functions, operators, and constants
 
@@ -334,7 +363,32 @@ These numeric systems work seamlessly with all mathematical operations and conte
 | Inverse Hyperbolic cotangent | acoth, Acoth, ACOTH, arcoth, Arcoth, ARCOTH, coth\^-1, Coth\^-1, COTH\^-1 | 200 |
 
 #### How to evaluate a C# math expression string
-DotNetStandardMathContext is the .NET Standard 2.1 programming math context supports all constants and functions provided by the System.Math and System.Numerics.Complex class, and supports equlity, comparision, logical boolean operators.
+**DotNetStandardMathContext** is the .NET Standard 2.1 programming math context supports all constants and functions provided by the `System.Math` and `System.Numerics.Complex`, along with equality, comparison, and logical boolean operators.
+
+**DotNetMathContext** (.NET 8+ only): Enhanced version that includes all features of DotNetStandardMathContext plus:
+- Latest .NET 8+ Math functions: `Math.Log2`, `Math.ILogB`, `Math.ScaleB`, `Math.BitIncrement`, `Math.BitDecrement`, `Math.CopySign`, `Math.FusedMultiplyAdd`, etc.
+- Full `BigInteger` support: `BigInteger.Pow`, `BigInteger.ModPow`, `BigInteger.GreatestCommonDivisor`, and all arithmetic operations
+- Modern numeric types: `Half`, `Int128`, `UInt128`, `nint`, `nuint`
+- Enhanced constants: `Math.Tau`, type-specific min/max values for all numeric types
+
+**Example using DotNetMathContext:**
+
+    // BigInteger cryptography example (.NET 8+)
+    var p = BigInteger.Parse("2305843009213693951");
+    var q = BigInteger.Parse("2305843009213693967");
+    var n = p * q;
+
+    var context = new DotNetMathContext();
+
+    var encrypted = "BigInteger.ModPow(message, e, n)"
+        .Evaluate<BigInteger>(new { message = 123456789, e = 65537, n }, context);
+
+    // Using new Math functions
+    var result = "Math.Log2(1024) + Math.Tau / 2".Evaluate(null, context);
+    // Result: 10 + π
+
+    // Int128 calculations
+    var bigCalc = "x + y".Evaluate<Int128>(new { x = Int128.MaxValue / 2, y = Int128.One }, context);
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

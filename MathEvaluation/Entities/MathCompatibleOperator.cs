@@ -114,6 +114,35 @@ internal class MathCompatibleOperator : MathEntity
         return value;
     }
 
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc />
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult left)
+    {
+        var tokenPosition = i;
+        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
+            start = tokenPosition;
+
+        i += Key.Length;
+        var right = _isProcessingOperand
+            ? mathExpression.EvaluateOperand<TResult>(ref i, separator, closingSymbol)
+            : mathExpression.Evaluate<TResult>(ref i, separator, closingSymbol, Precedence);
+
+        if (_isProcessingOperand)
+        {
+            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
+            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
+            right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
+        }
+
+        var value = Calculate(OperatorType, left, right);
+
+        mathExpression.OnEvaluating(start, i, value);
+        return value;
+    }
+
+#endif
+
     /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex left)
     {
@@ -165,6 +194,9 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#endif
         => left is ConstantExpression l && right is ConstantExpression r
             ? BuildConstant<TResult>(type, l, r)
             : BuildNotConstant<TResult>(type, left, right);
@@ -199,6 +231,48 @@ internal class MathCompatibleOperator : MathEntity
             OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
+
+#if NET8_0_OR_GREATER
+
+    private static TResult Calculate<TResult>(OperatorType type, TResult left, TResult right)
+        where TResult : struct, INumberBase<TResult>
+    {
+        if (typeof(TResult) == typeof(Complex))
+            return ConvertNumber<Complex, TResult>(Calculate(type, ConvertNumber<TResult, Complex>(left), ConvertNumber<TResult, Complex>(right)));
+
+        return type switch
+        {
+            OperatorType.LogicalConditionalOr => left != default || right != default ? TResult.One : default,
+            OperatorType.LogicalConditionalAnd => left != default && right != default ? TResult.One : default,
+            OperatorType.LogicalOr => left != default || right != default ? TResult.One : default,
+            OperatorType.BitwiseOr => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) | ConvertNumber<TResult, long>(right)),
+            OperatorType.LogicalXor => (left != default) ^ (right != default) ? TResult.One : default,
+            OperatorType.BitwiseXor => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) ^ ConvertNumber<TResult, long>(right)),
+            OperatorType.LogicalAnd => left != default && right != default ? TResult.One : default,
+            OperatorType.BitwiseAnd => TResult.CreateChecked(ConvertNumber<TResult, long>(left) & ConvertNumber<TResult, long>(right)),
+            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? TResult.One : default,
+            OperatorType.BitwiseNegation => ConvertNumber<long, TResult>(~ConvertNumber<TResult, long>(right)),
+            OperatorType.Equal => left == right ? TResult.One : default,
+            OperatorType.NotEqual => left != right ? TResult.One : default,
+            OperatorType.LessThan => left is IComparable<TResult> l && l.CompareTo(right) < 0 ? TResult.One : default,
+            OperatorType.LessThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) <= 0 ? TResult.One : default,
+            OperatorType.GreaterThan => left is IComparable<TResult> l && l.CompareTo(right) > 0 ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) >= 0 ? TResult.One : default,
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+            OperatorType.Modulo when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l % ConvertNumber<TResult, BigInteger>(right)),
+            OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) % ConvertNumber<TResult, long>(right)),
+            OperatorType.Modulo => ConvertNumber<double, TResult>(ConvertNumber<TResult, double>(left) % ConvertNumber<TResult, double>(right)),
+            OperatorType.Power when left is BigInteger l => ConvertNumber<BigInteger, TResult>(BigInteger.Pow(l, ConvertNumber<TResult, int>(right))),
+            OperatorType.Power => ConvertNumber<double, TResult>(Math.Pow(ConvertNumber<TResult, double>(left), ConvertNumber<TResult, double>(right))),
+            OperatorType.Negate => -right,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+#endif
 
     private static decimal Calculate(OperatorType type, decimal left, decimal right)
         => type switch
@@ -278,6 +352,12 @@ internal class MathCompatibleOperator : MathEntity
             case OperatorType.BitwiseNegation:
                 right = BuildConvert<long>(right);
                 break;
+#if NET8_0_OR_GREATER
+            case OperatorType.Power when typeof(TResult) == typeof(BigInteger):
+                left = BuildConvert<BigInteger>(left);
+                right = BuildConvert<int>(right);
+                return Expression.Call(typeof(BigInteger).GetMethod(nameof(BigInteger.Pow), [left.Type, typeof(int)])!, left, right);
+#endif
             case OperatorType.Power when typeof(TResult) == typeof(Complex):
                 left = BuildConvert<Complex>(left);
                 right = BuildConvert<Complex>(right);
@@ -298,22 +378,33 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#endif
     {
         object value;
         switch (left.Value)
         {
+#if NET8_0_OR_GREATER
+            case TResult ld:
+                {
+                    var rd = right.Value is TResult d ? d : (TResult)ChangeType(right.Value, typeof(TResult));
+                    value = Calculate(type, ld, rd);
+                    break;
+                }
+#endif
             case Complex lc:
-            {
-                var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
-                value = Calculate(type, lc, rc);
-                break;
-            }
+                {
+                    var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
+                    value = Calculate(type, lc, rc);
+                    break;
+                }
             case decimal ld:
-            {
-                var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
-                value = Calculate(type, ld, rd);
-                break;
-            }
+                {
+                    var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
+                    value = Calculate(type, ld, rd);
+                    break;
+                }
             default:
                 value = Calculate(type, ConvertToDouble(left.Value), ConvertToDouble(right.Value));
                 break;

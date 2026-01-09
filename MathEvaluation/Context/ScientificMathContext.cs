@@ -15,6 +15,7 @@ public class ScientificMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ScientificMathContext" /> class.</summary>
     public ScientificMathContext()
+        : base()
     {
         BindConstant(Math.PI, 'π');
         BindConstant(Math.PI, "pi");

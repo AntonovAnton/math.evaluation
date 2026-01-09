@@ -10,7 +10,7 @@ public class DotNetStandardMathContext : DotNetStandartMathContext;
 
 /// <summary>
 ///     The .NET Standard 2.1 programming math context
-///     supports all constants and functions provided by <see cref="System.Math" /> class.
+///     supports all constants and functions provided by <see cref="System.Math" /> and <see cref="System.Numerics.Complex" /> classes.
 ///     Provides evaluating C# math expressions.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
@@ -19,6 +19,7 @@ public class DotNetStandartMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DotNetStandardMathContext" /> class.</summary>
     public DotNetStandartMathContext()
+        : base()
     {
         BindConstant(1d, "true");
         BindConstant(0d, "false");

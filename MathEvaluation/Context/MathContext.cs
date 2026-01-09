@@ -56,117 +56,40 @@ public class MathContext
             var key = propertyInfo.Name;
             var value = getter.Invoke(context, null);
             var propertyType = propertyInfo.PropertyType;
-            if (propertyType.IsConvertibleToDouble())
-            {
-                if (propertyType.IsDecimal())
-                    BindConstant((decimal)value!, key);
-                else
-                    BindConstant(Convert.ToDouble(value), key);
-            }
-            else switch (value)
-                {
-                    case string str:
-                        if (string.IsNullOrWhiteSpace(str))
-                            throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
-                        BindExpressionVariable(str, key);
-                        break;
-                    case Complex c:
-                        BindConstant(c, key);
-                        break;
-                    case Func<double> fn1:
-                        BindFunction(fn1, key);
-                        break;
-                    case Func<double, double> fn2:
-                        BindFunction(fn2, key);
-                        break;
-                    case Func<double, double, double> fn3:
-                        BindFunction(fn3, key);
-                        break;
-                    case Func<double, double, double, double> fn4:
-                        BindFunction(fn4, key);
-                        break;
-                    case Func<double, double, double, double, double> fn5:
-                        BindFunction(fn5, key);
-                        break;
-                    case Func<double, double, double, double, double, double> fn6:
-                        BindFunction(fn6, key);
-                        break;
-                    case Func<double[], double> fns:
-                        BindFunction(fns, key);
-                        break;
-                    case Func<decimal> decimalFn1:
-                        BindFunction(decimalFn1, key);
-                        break;
-                    case Func<decimal, decimal> decimalFn2:
-                        BindFunction(decimalFn2, key);
-                        break;
-                    case Func<decimal, decimal, decimal> decimalFn3:
-                        BindFunction(decimalFn3, key);
-                        break;
-                    case Func<decimal, decimal, decimal, decimal> decimalFn4:
-                        BindFunction(decimalFn4, key);
-                        break;
-                    case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
-                        BindFunction(decimalFn5, key);
-                        break;
-                    case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
-                        BindFunction(decimalFn6, key);
-                        break;
-                    case Func<decimal[], decimal> decimalFns:
-                        BindFunction(decimalFns, key);
-                        break;
-                    case Func<bool> boolFn1:
-                        BindFunction(boolFn1, key);
-                        break;
-                    case Func<Complex> complexFn1:
-                        BindFunction(complexFn1, key);
-                        break;
-                    case Func<Complex, Complex> complexFn2:
-                        BindFunction(complexFn2, key);
-                        break;
-                    case Func<Complex, Complex, Complex> complexFn3:
-                        BindFunction(complexFn3, key);
-                        break;
-                    case Func<Complex, Complex, Complex, Complex> complexFn4:
-                        BindFunction(complexFn4, key);
-                        break;
-                    case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
-                        BindFunction(complexFn5, key);
-                        break;
-                    case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
-                        BindFunction(complexFn6, key);
-                        break;
-                    case Func<Complex[], Complex> complexFns:
-                        BindFunction(complexFns, key);
-                        break;
-                    default:
-                        {
-                            if (propertyType.FullName?.StartsWith("System.Func") == true)
-                                throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
-                            throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-                        }
-                }
+            BindKeyValue(propertyType, key, value);
         }
     }
 
     /// <inheritdoc cref="BindConstant(double, char)" />
     /// <exception cref="NotSupportedException" />
     public void BindConstant<T>(T value, char key)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
         => BindConstant(value, key.ToString());
 
     /// <inheritdoc cref="BindConstant(double, char)" />
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
     public void BindConstant<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
     {
+#if NET8_0_OR_GREATER
+        _trie.AddMathEntity(new MathConstant<T>(key, value));
+#else
         var type = typeof(T);
         if (type.IsConvertibleToDouble())
             BindConstant(Convert.ToDouble(value), key);
         else
             throw new NotSupportedException($"{type} isn't supported for '{key}'.");
+#endif
     }
 
     /// <summary>Binds the constant.</summary>
@@ -507,9 +430,294 @@ public class MathContext
 
     #endregion
 
+#if NET8_0_OR_GREATER
+
+    #region INumberBase
+
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
+    public void BindFunction<T>(Func<T> fn, char key)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathGetValueFunction<T>(key.ToString(), fn));
+
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
+    public void BindFunction<T>(Func<T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathGetValueFunction<T>(key, fn));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double}, char)" />
+    public void BindFunction<T>(Func<T, T> fn, char key)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathUnaryFunction<T>(key.ToString(), fn));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double}, char, char)" />
+    public void BindFunction<T>(Func<T, T> fn, char openingSymbol, char closingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathUnaryFunction<T>(openingSymbol.ToString(), fn, null, closingSymbol));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
+    public void BindFunction<T>(Func<T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T[], T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
+
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
+    public void BindOperandOperator<T>(Func<T, T> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperandOperator<T>(key.ToString(), fn, isProcessingLeft, precedence));
+
+    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
+    public void BindOperandOperator<T>(Func<T, T> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperandOperator<T>(key, fn, isProcessingLeft, precedence));
+
+    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
+    public void BindOperandsOperator<T>(Func<T, T, T> fn, char key, int precedence)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperandsOperator<T>(key.ToString(), fn, precedence));
+
+    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)" />
+    public void BindOperandsOperator<T>(Func<T, T, T> fn, string key, int precedence)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperandsOperator<T>(key, fn, precedence));
+
+    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)" />
+    public void BindOperator<T>(Func<T, T, T> fn, char key, int precedence = (int)EvalPrecedence.Basic)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperator<T>(key.ToString(), fn, precedence));
+
+    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int)" />
+    public void BindOperator<T>(Func<T, T, T> fn, string key, int precedence = (int)EvalPrecedence.Basic)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathOperator<T>(key, fn, precedence));
+
+    #endregion
+
+#endif
+
     /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <returns><see cref="IMathEntity" /> instance or null.</returns>
     internal IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
         => _trie.FirstMathEntity(mathString);
+
+    /// <summary>
+    /// Handles the binding logic for a key-value pair.
+    /// </summary>
+    /// <param name="propertyType">The type of the property.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <exception cref="NotSupportedException"></exception>
+    private void BindKeyValue(Type propertyType, string key, object? value)
+    {
+        if (value == null)
+            throw new NotSupportedException($"Cannot bind a variable to a null value for '{key}'.");
+
+#if NET8_0_OR_GREATER
+
+        if (propertyType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(INumberBase<>)))
+        {
+            BindConstant((dynamic)value, key);
+            return;
+        }
+
+#endif
+        if (propertyType.IsConvertibleToDouble())
+        {
+            if (propertyType.IsDecimal())
+                BindConstant((decimal)value!, key);
+            else
+                BindConstant(Convert.ToDouble(value), key);
+
+            return;
+        }
+
+        switch (value)
+        {
+            case string str:
+                if (string.IsNullOrWhiteSpace(str))
+                    throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+                BindExpressionVariable(str, key);
+                break;
+            case Complex c:
+                BindConstant(c, key);
+                break;
+            case Func<double> fn1:
+                BindFunction(fn1, key);
+                break;
+            case Func<double, double> fn2:
+                BindFunction(fn2, key);
+                break;
+            case Func<double, double, double> fn3:
+                BindFunction(fn3, key);
+                break;
+            case Func<double, double, double, double> fn4:
+                BindFunction(fn4, key);
+                break;
+            case Func<double, double, double, double, double> fn5:
+                BindFunction(fn5, key);
+                break;
+            case Func<double, double, double, double, double, double> fn6:
+                BindFunction(fn6, key);
+                break;
+            case Func<double[], double> fns:
+                BindFunction(fns, key);
+                break;
+            case Func<decimal> decimalFn1:
+                BindFunction(decimalFn1, key);
+                break;
+            case Func<decimal, decimal> decimalFn2:
+                BindFunction(decimalFn2, key);
+                break;
+            case Func<decimal, decimal, decimal> decimalFn3:
+                BindFunction(decimalFn3, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal> decimalFn4:
+                BindFunction(decimalFn4, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
+                BindFunction(decimalFn5, key);
+                break;
+            case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
+                BindFunction(decimalFn6, key);
+                break;
+            case Func<decimal[], decimal> decimalFns:
+                BindFunction(decimalFns, key);
+                break;
+            case Func<bool> boolFn1:
+                BindFunction(boolFn1, key);
+                break;
+            case Func<Complex> complexFn1:
+                BindFunction(complexFn1, key);
+                break;
+            case Func<Complex, Complex> complexFn2:
+                BindFunction(complexFn2, key);
+                break;
+            case Func<Complex, Complex, Complex> complexFn3:
+                BindFunction(complexFn3, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex> complexFn4:
+                BindFunction(complexFn4, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
+                BindFunction(complexFn5, key);
+                break;
+            case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
+                BindFunction(complexFn6, key);
+                break;
+            case Func<Complex[], Complex> complexFns:
+                BindFunction(complexFns, key);
+                break;
+            default:
+                {
+#if NET8_0_OR_GREATER
+                    if (TryBindFunction<char>(key, value))
+                        return;
+                    if (TryBindFunction<byte>(key, value))
+                        return;
+                    if (TryBindFunction<sbyte>(key, value))
+                        return;
+                    if (TryBindFunction<short>(key, value))
+                        return;
+                    if (TryBindFunction<ushort>(key, value))
+                        return;
+                    if (TryBindFunction<int>(key, value))
+                        return;
+                    if (TryBindFunction<uint>(key, value))
+                        return;
+                    if (TryBindFunction<long>(key, value))
+                        return;
+                    if (TryBindFunction<ulong>(key, value))
+                        return;
+                    if (TryBindFunction<nint>(key, value))
+                        return;
+                    if (TryBindFunction<nuint>(key, value))
+                        return;
+                    if (TryBindFunction<float>(key, value))
+                        return;
+                    if (TryBindFunction<Half>(key, value))
+                        return;
+                    if (TryBindFunction<Int128>(key, value))
+                        return;
+                    if (TryBindFunction<UInt128>(key, value))
+                        return;
+                    if (TryBindFunction<BigInteger>(key, value))
+                        return;
+#endif
+                    if (propertyType.FullName?.StartsWith("System.Func") == true)
+                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+                }
+        }
+    }
+
+#if NET8_0_OR_GREATER
+
+    private bool TryBindFunction<T>(string key, object value)
+        where T : struct, INumberBase<T>
+    {
+        switch (value)
+        {
+            case Func<T> fn1:
+                BindFunction(fn1, key);
+                return true;
+            case Func<T, T> fn2:
+                BindFunction(fn2, key);
+                return true;
+            case Func<T, T, T> fn3:
+                BindFunction(fn3, key);
+                return true;
+            case Func<T, T, T, T> fn4:
+                BindFunction(fn4, key);
+                return true;
+            case Func<T, T, T, T, T> fn5:
+                BindFunction(fn5, key);
+                return true;
+            case Func<T, T, T, T, T, T> fn6:
+                BindFunction(fn6, key);
+                return true;
+            case Func<T[], T> fns:
+                BindFunction(fns, key);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+#endif
 }

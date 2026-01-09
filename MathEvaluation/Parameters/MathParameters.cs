@@ -57,7 +57,9 @@ public sealed class MathParameters
         {
             var key = pair.Key;
             var value = pair.Value;
-            BindKeyValue(true, key, value);
+            var propertyType = value?.GetType();
+
+            BindKeyValue(propertyType, key, value, true);
         }
     }
 
@@ -78,8 +80,11 @@ public sealed class MathParameters
             if (getter == null)
                 continue;
 
+            var key = propertyInfo.Name;
             var value = getter.Invoke(parameters, null);
-            BindKeyValue(false, propertyInfo.Name, value);
+            var propertyType = propertyInfo.PropertyType;
+
+            BindKeyValue(propertyType, key, value, false);
         }
     }
 
@@ -87,20 +92,32 @@ public sealed class MathParameters
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
     public void BindVariable<T>(T value, char key)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
         => BindVariable(value, key.ToString());
 
     /// <inheritdoc cref="BindVariable(double, char)" />
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
     public void BindVariable<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+#if NET8_0_OR_GREATER
+        where T : struct, INumberBase<T>
+#else
         where T : struct
+#endif
     {
+#if NET8_0_OR_GREATER
+        _trie.AddMathEntity(new MathVariable<T>(key, value));
+#else
         var type = typeof(T);
         if (type.IsConvertibleToDouble())
             BindVariable(Convert.ToDouble(value), key);
         else
             throw new NotSupportedException($"{type} isn't supported for '{key}'.");
+#endif
     }
 
     /// <summary>Binds the variable.</summary>
@@ -312,6 +329,65 @@ public sealed class MathParameters
 
     #endregion
 
+#if NET8_0_OR_GREATER
+
+    #region INumberBase
+
+    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
+    public void BindFunction<T>(Func<T> fn, char key)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathGetValueFunction<T>(key.ToString(), fn));
+
+    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
+    public void BindFunction<T>(Func<T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathGetValueFunction<T>(key, fn));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
+    public void BindFunction<T>(Func<T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T, T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
+    public void BindFunction<T>(Func<T[], T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
+
+    #endregion
+
+#endif
+
     /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <returns><see cref="IMathEntity" /> instance or null.</returns>
@@ -332,12 +408,40 @@ public sealed class MathParameters
         var type = parameters.GetType();
         if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
         {
-            foreach (DictionaryEntry pair in (IDictionary)parameters)
+            foreach (var pair in parameters)
             {
-                if (pair.Key is not string key)
-                    throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                switch (pair)
+                {
+                    case DictionaryEntry dictEntry:
+                        {
+                            if (dictEntry.Key is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
 
-                BindKeyValue(true, key, pair.Value);
+                            var propertyType = dictEntry.Value?.GetType();
+                            BindKeyValue(propertyType, key, dictEntry.Value, true);
+                            break;
+                        }
+                    case KeyValuePair<string, object?> kvp:
+                        {
+                            var propertyType = kvp.Value?.GetType();
+                            BindKeyValue(propertyType, kvp.Key, kvp.Value, true);
+                            break;
+                        }
+                    case var genericPair:
+                        {
+                            var pairType = genericPair.GetType();
+                            var keyProperty = pairType.GetProperty("Key");
+                            var valueProperty = pairType.GetProperty("Value");
+                            if (keyProperty == null || valueProperty == null)
+                                throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+                            var keyObj = keyProperty.GetValue(genericPair);
+                            var valueObj = valueProperty.GetValue(genericPair);
+                            if (keyObj is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                            BindKeyValue(valueProperty.PropertyType, key, valueObj, true);
+                            break;
+                        }
+                }
             }
 
             return;
@@ -349,19 +453,34 @@ public sealed class MathParameters
     /// <summary>
     /// Handles the binding logic for a key-value pair.
     /// </summary>
-    /// <param name="isDictionaryItem"></param>
+    /// <param name="propertyType">The type of the property.</param>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
+    /// <param name="isDictionaryItem"></param>
     /// <exception cref="NotSupportedException"></exception>
-    private void BindKeyValue(bool isDictionaryItem, string key, object? value)
+    private void BindKeyValue(Type? propertyType, string key, object? value, bool isDictionaryItem)
     {
-        var propertyType = (value?.GetType()) ?? throw new NotSupportedException($"Null values are not supported for '{key}'.");
+        if (value == null)
+            throw new NotSupportedException($"Null values are not supported for '{key}'.");
+
+        propertyType ??= value.GetType();
+
+#if NET8_0_OR_GREATER
+
+        if (propertyType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(INumberBase<>)))
+        {
+            BindNumberVariable(key, (dynamic)value, isDictionaryItem);
+            return;
+        }
+
+#endif
+
         if (propertyType.IsConvertibleToDouble())
         {
             if (propertyType.IsDecimal())
-                BindVariable(isDictionaryItem, key, (decimal)value);
+                BindDecimalVariable(key, (decimal)value, isDictionaryItem);
             else
-                BindVariable(isDictionaryItem, key, Convert.ToDouble(value));
+                BindDoubleVariable(key, Convert.ToDouble(value), isDictionaryItem);
 
             return;
         }
@@ -374,7 +493,7 @@ public sealed class MathParameters
                 BindExpressionVariable(str, key);
                 break;
             case Complex c:
-                BindVariable(isDictionaryItem, key, c);
+                BindComplexVariable(key, c, isDictionaryItem);
                 break;
             case Func<double> fn1:
                 BindFunction(fn1, key);
@@ -444,6 +563,40 @@ public sealed class MathParameters
                 break;
             default:
                 {
+#if NET8_0_OR_GREATER
+                    if (TryBindFunction<char>(key, value))
+                        return;
+                    if (TryBindFunction<byte>(key, value))
+                        return;
+                    if (TryBindFunction<sbyte>(key, value))
+                        return;
+                    if (TryBindFunction<short>(key, value))
+                        return;
+                    if (TryBindFunction<ushort>(key, value))
+                        return;
+                    if (TryBindFunction<int>(key, value))
+                        return;
+                    if (TryBindFunction<uint>(key, value))
+                        return;
+                    if (TryBindFunction<long>(key, value))
+                        return;
+                    if (TryBindFunction<ulong>(key, value))
+                        return;
+                    if (TryBindFunction<nint>(key, value))
+                        return;
+                    if (TryBindFunction<nuint>(key, value))
+                        return;
+                    if (TryBindFunction<float>(key, value))
+                        return;
+                    if (TryBindFunction<Half>(key, value))
+                        return;
+                    if (TryBindFunction<Int128>(key, value))
+                        return;
+                    if (TryBindFunction<UInt128>(key, value))
+                        return;
+                    if (TryBindFunction<BigInteger>(key, value))
+                        return;
+#endif
                     if (propertyType.FullName?.StartsWith("System.Func") == true)
                         throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
@@ -452,12 +605,50 @@ public sealed class MathParameters
         }
     }
 
-    private void BindVariable(bool isDictionaryItem, string key, double value)
+    private void BindDoubleVariable(string key, double value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<double>(key.ToString(), value, isDictionaryItem));
 
-    private void BindVariable(bool isDictionaryItem, string key, decimal value)
+    private void BindDecimalVariable(string key, decimal value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<decimal>(key.ToString(), value, isDictionaryItem));
 
-    private void BindVariable(bool isDictionaryItem, string key, Complex value)
+    private void BindComplexVariable(string key, Complex value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<Complex>(key.ToString(), value, isDictionaryItem));
+
+#if NET8_0_OR_GREATER
+    private void BindNumberVariable<T>(string key, T value, bool isDictionaryItem)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathVariable<T>(key.ToString(), value, isDictionaryItem));
+
+    private bool TryBindFunction<T>(string key, object value)
+        where T : struct, INumberBase<T>
+    {
+        switch (value)
+        {
+            case Func<T> fn1:
+                BindFunction(fn1, key);
+                return true;
+            case Func<T, T> fn2:
+                BindFunction(fn2, key);
+                return true;
+            case Func<T, T, T> fn3:
+                BindFunction(fn3, key);
+                return true;
+            case Func<T, T, T, T> fn4:
+                BindFunction(fn4, key);
+                return true;
+            case Func<T, T, T, T, T> fn5:
+                BindFunction(fn5, key);
+                return true;
+            case Func<T, T, T, T, T, T> fn6:
+                BindFunction(fn6, key);
+                return true;
+            case Func<T[], T> fns:
+                BindFunction(fns, key);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+#endif
 }

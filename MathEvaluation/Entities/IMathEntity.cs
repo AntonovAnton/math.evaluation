@@ -35,6 +35,14 @@ internal interface IMathEntity
     /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)" />
     decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
 
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)" />
+    TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+        where TResult : struct, INumberBase<TResult>;
+
+#endif
+
     /// <inheritdoc cref="Evaluate(MathExpression, int, ref int, char?, char?, double)" />
     Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value);
 
@@ -50,5 +58,9 @@ internal interface IMathEntity
     /// <returns></returns>
     /// <param name="left">The expression tree of the left operand.</param>
     Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>;
+#else
         where TResult : struct;
+#endif
 }

@@ -28,6 +28,10 @@ public class EvaluationBenchmarks
     public double MathExpression_Evaluate()
         => "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
 
+    [Benchmark(Description = "MathEvaluator (Evaluate<float>): \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
+    public double MathExpression_Evaluate_Float()
+        => "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate<float>();
+
     [Benchmark(Description = "NCalc: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
     public bool NCalc_Evaluate()
     {

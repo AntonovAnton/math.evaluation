@@ -9,7 +9,11 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 internal class MathOperandsOperator<T> : MathEntity
+#if NET8_0_OR_GREATER
+    where T : struct, INumberBase<T>
+#else
     where T : struct
+#endif
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
@@ -65,6 +69,23 @@ internal class MathOperandsOperator<T> : MathEntity
 
         return ConvertToDecimal(result);
     }
+
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc />
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    {
+        i += Key.Length;
+        var right = mathExpression.EvaluateOperand<T>(ref i, separator, closingSymbol);
+        right = mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, right);
+        var result = Fn(ConvertNumber<TResult, T>(value), right);
+
+        mathExpression.OnEvaluating(start, i, result);
+
+        return ConvertNumber<T, TResult>(result);
+    }
+
+#endif
 
     /// <inheritdoc />
     public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)

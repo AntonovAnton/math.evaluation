@@ -31,29 +31,25 @@ internal static class ReadOnlySpanExtensions
     {
         var numberStr = str.GetNumberString(numberFormat, ref i, out var isBinary, out var isOctal, out var isHex);
         if (isBinary)
-            return Convert.ToInt64(numberStr[2..].ToString(), 2);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 2);
         if (isOctal)
-            return Convert.ToInt64(numberStr[2..].ToString(), 8);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 8);
         if (isHex)
-            return Convert.ToInt64(numberStr[2..].ToString(), 16);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 16);
 
         return double.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
 
-    /// <summary>Parses a number.</summary>
-    /// <param name="str">The math expression string.</param>
-    /// <param name="numberFormat">The number format.</param>
-    /// <param name="i">The current char index.</param>
-    /// <returns>The value.</returns>
+    /// <inheritdoc cref="ParseNumber(ReadOnlySpan{char}, NumberFormatInfo?, ref int)"/>
     internal static decimal ParseDecimalNumber(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
     {
         var numberStr = str.GetNumberString(numberFormat, ref i, out var isBinary, out var isOctal, out var isHex);
         if (isBinary)
-            return Convert.ToInt64(numberStr[2..].ToString(), 2);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 2);
         if (isOctal)
-            return Convert.ToInt64(numberStr[2..].ToString(), 8);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 8);
         if (isHex)
-            return Convert.ToInt64(numberStr[2..].ToString(), 16);
+            return Convert.ToUInt64(numberStr[2..].ToString(), 16);
 
         return decimal.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
     }
@@ -80,14 +76,13 @@ internal static class ReadOnlySpanExtensions
         return new Complex(0d, number);
     }
 
-    /// <summary>Parses a number.</summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="str">The math expression string.</param>
-    /// <param name="numberFormat">The number format.</param>
-    /// <param name="i">The current char index.</param>
-    /// <returns>The value.</returns>
+    /// <inheritdoc cref="ParseNumber(ReadOnlySpan{char}, NumberFormatInfo?, ref int)"/>
     internal static TResult ParseNumber<TResult>(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
+#if NET8_0_OR_GREATER
+        where TResult : struct, INumberBase<TResult>
+#else
         where TResult : struct
+#endif
     {
         if (typeof(TResult) == typeof(Complex))
         {
@@ -100,6 +95,15 @@ internal static class ReadOnlySpanExtensions
             var value = ParseDecimalNumber(str, numberFormat, ref i);
             return value is TResult result ? result : (TResult)Convert.ChangeType(value, typeof(TResult));
         }
+
+#if NET8_0_OR_GREATER
+
+        if (typeof(TResult) != typeof(double))
+        {
+            var value = ParseNumberBase<TResult>(str, numberFormat, ref i);
+            return value;
+        }
+#endif
         else
         {
             var value = ParseNumber(str, numberFormat, ref i);
@@ -137,6 +141,33 @@ internal static class ReadOnlySpanExtensions
         return true;
     }
 
+#if NET8_0_OR_GREATER
+
+    /// <inheritdoc cref="ParseNumber(ReadOnlySpan{char}, NumberFormatInfo?, ref int)"/>
+    private static TResult ParseNumberBase<TResult>(this ReadOnlySpan<char> str, NumberFormatInfo? numberFormat, ref int i)
+        where TResult : INumberBase<TResult>
+    {
+        var numberStr = str.GetNumberString(numberFormat, ref i, out var isBinary, out var isOctal, out var isHex);
+        if (isBinary)
+        {
+            var intValue = Convert.ToUInt64(numberStr[2..].ToString(), 2);
+            return TResult.CreateChecked(intValue);
+        }
+        if (isOctal)
+        {
+            var intValue = Convert.ToUInt64(numberStr[2..].ToString(), 8);
+            return TResult.CreateChecked(intValue);
+        }
+        if (isHex)
+        {
+            var intValue = Convert.ToUInt64(numberStr[2..].ToString(), 16);
+            return TResult.CreateChecked(intValue);
+        }
+        return TResult.Parse(numberStr, NumberStyles.Number | NumberStyles.AllowExponent, numberFormat);
+    }
+
+#endif
+
     /// <summary>Gets the number string.</summary>
     /// <param name="str">The math expression string.</param>
     /// <param name="numberFormat">The number format.</param>
@@ -154,6 +185,7 @@ internal static class ReadOnlySpanExtensions
         isOctal = false;
         isHex = false;
 
+        // Check for binary, octal, or hexadecimal prefixes
         if (str[start] is '0' && str.Length > start + 2)
         {
             if (str[start + 1] is 'b' or 'B' && str[start + 2] is '0' or '1')
