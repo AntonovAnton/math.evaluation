@@ -83,7 +83,7 @@ Multi-targets for optimal performance on each platform.
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.3.0" />
-      <PackageReference Include="MathEvaluator" Version="2.5.0" />
+      <PackageReference Include="MathEvaluator" Version="2.6.0" />
     </ItemGroup>
 
 </Project>
