@@ -1,16 +1,51 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace MathEvaluation.Extensions;
 
 internal static class TypeExtensions
 {
-    public static bool IsConvertibleToDouble(this Type type) => Type.GetTypeCode(type) switch
-    {
-        TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or TypeCode.Int32 or TypeCode.UInt32
-            or TypeCode.Int64 or TypeCode.UInt64 or TypeCode.Single or TypeCode.Double
-            or TypeCode.Decimal or TypeCode.Boolean => true,
-        _ => false
-    };
+    private static readonly HashSet<Type> NumberBaseTypes =
+    [
+        typeof(float),
+        typeof(double),
+        typeof(decimal),
+        typeof(short),
+        typeof(ushort),
+        typeof(int),
+        typeof(uint),
+        typeof(long),
+        typeof(ulong),
+        typeof(sbyte),
+        typeof(byte),
+        typeof(Complex),
+        typeof(Half),
+        typeof(BigInteger),
+        typeof(Int128),
+        typeof(UInt128),
+        typeof(IntPtr),
+        typeof(UIntPtr)
+    ];
 
-    public static bool IsDecimal(this Type type) => type == typeof(decimal);
+    private static readonly Type NumberBaseInterfaceType = typeof(INumberBase<>);
+
+    /// <summary>Determines whether the specified type is a number base type.</summary>
+    public static bool IsNumberBaseType(this Type type)
+    {
+        if (NumberBaseTypes.Contains(type))
+            return true;
+
+        var interfaces = type.GetInterfaces();
+        foreach (var i in interfaces)
+        {
+            if (i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType)
+                return true;
+        }
+
+        return false;
+    }
+
+    public static bool IsBooleanType(this Type type)
+        => type == typeof(bool);
 }

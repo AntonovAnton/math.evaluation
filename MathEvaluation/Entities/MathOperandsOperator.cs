@@ -9,11 +9,7 @@ namespace MathEvaluation.Entities;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 internal class MathOperandsOperator<T> : MathEntity
-#if NET8_0_OR_GREATER
     where T : struct, INumberBase<T>
-#else
-    where T : struct
-#endif
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
@@ -35,44 +31,6 @@ internal class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value)
-    {
-        if (typeof(T) == typeof(decimal))
-            return (double)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (decimal)value);
-
-        i += Key.Length;
-        var right = mathExpression.EvaluateOperand(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, right);
-        var result = Fn(
-            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
-            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
-
-        mathExpression.OnEvaluating(start, i, result);
-
-        return ConvertToDouble(result);
-    }
-
-    /// <inheritdoc />
-    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value)
-    {
-        if (typeof(T) == typeof(double))
-            return (decimal)Evaluate(mathExpression, start, ref i, separator, closingSymbol, (double)value);
-
-        i += Key.Length;
-        var right = mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiationDecimal(start, ref i, separator, closingSymbol, right);
-        var result = Fn(
-            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
-            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
-
-        mathExpression.OnEvaluating(start, i, result);
-
-        return ConvertToDecimal(result);
-    }
-
-#if NET8_0_OR_GREATER
-
-    /// <inheritdoc />
     public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
     {
         i += Key.Length;
@@ -83,23 +41,6 @@ internal class MathOperandsOperator<T> : MathEntity
         mathExpression.OnEvaluating(start, i, result);
 
         return ConvertNumber<T, TResult>(result);
-    }
-
-#endif
-
-    /// <inheritdoc />
-    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value)
-    {
-        i += Key.Length;
-        var right = mathExpression.EvaluateOperandComplex(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiationComplex(start, ref i, separator, closingSymbol, right);
-        var result = Fn(
-            value is T v1 ? v1 : (T)ChangeType(value, typeof(T)),
-            right is T v2 ? v2 : (T)ChangeType(right, typeof(T)));
-
-        mathExpression.OnEvaluating(start, i, result);
-
-        return result is Complex r ? r : ConvertToDouble(result);
     }
 
     /// <inheritdoc />

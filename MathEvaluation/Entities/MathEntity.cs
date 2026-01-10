@@ -24,29 +24,12 @@ internal abstract class MathEntity : IMathEntity
     }
 
     /// <inheritdoc />
-    public abstract double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double value);
-
-    /// <inheritdoc />
-    public abstract decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal value);
-
-#if NET8_0_OR_GREATER
-
-    /// <inheritdoc />
     public abstract TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
         where TResult : struct, INumberBase<TResult>;
 
-#endif
-
-    /// <inheritdoc />
-    public abstract Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex value);
-
     /// <inheritdoc />
     public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>;
-#else
-        where TResult : struct;
-#endif
 
     /// <summary> Converts to string. </summary>
     /// <returns>
@@ -89,19 +72,6 @@ internal abstract class MathEntity : IMathEntity
             _ => Convert.ToDouble(value)
         };
 
-    /// <inheritdoc cref="Convert.ToDecimal(object)" />
-    protected static decimal ConvertToDecimal<T>(T value)
-        => value switch
-        {
-            decimal d => d,
-            double dob => (decimal)dob,
-            Complex c when c.Imaginary != default => throw new InvalidCastException($"Cannot convert the Complex number to a Decimal, value = {value}."),
-            Complex c => (decimal)c.Real,
-            _ => Convert.ToDecimal(value)
-        };
-
-#if NET8_0_OR_GREATER
-
     /// <summary>
     /// Converts the specified value to a number of type TResult.
     /// </summary>
@@ -123,8 +93,6 @@ internal abstract class MathEntity : IMathEntity
         };
     }
 
-#endif
-
     /// <summary>
     ///     Builds the conversion operation.
     /// </summary>
@@ -140,7 +108,7 @@ internal abstract class MathEntity : IMathEntity
             return expression;
 
         if (expression is ConstantExpression c)
-            return Expression.Constant(ChangeType(c.Value, typeof(TResult)));
+            return Expression.Constant(ChangeType(c.Value, typeof(TResult)), typeof(TResult));
 
         if (typeof(TResult) == typeof(Complex))
         {
@@ -173,7 +141,7 @@ internal abstract class MathEntity : IMathEntity
             return ((UnaryExpression)expression).Operand;
 
         if (typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool))
-            return Expression.Condition(expression, Expression.Constant(1.0m), Expression.Constant(0.0m));
+            return Expression.Condition(expression, Expression.Constant(1.0m, typeof(decimal)), Expression.Constant(0.0m, typeof(decimal)));
 
         return Expression.Convert(expression, typeof(TResult)).Reduce();
     }

@@ -20,70 +20,70 @@ public class ComplexScientificMathContext : ScientificMathContext
     public ComplexScientificMathContext()
     {
         static Complex powerFn(Complex v, Complex power) => Complex.Pow(v, power);
-        BindFunction(powerFn, "pow");
-        BindFunction(powerFn, "Pow");
-        BindFunction(powerFn, "POW");
+        BindFunction<Complex>(powerFn, "pow");
+        BindFunction<Complex>(powerFn, "Pow");
+        BindFunction<Complex>(powerFn, "POW");
 
         static Complex absFn(Complex v) => Complex.Abs(v);
 
-        BindFunction(absFn, '|', '|');
-        BindFunction(absFn, "abs");
-        BindFunction(absFn, "Abs");
-        BindFunction(absFn, "ABS");
+        BindFunction<Complex>(absFn, '|', '|');
+        BindFunction<Complex>(absFn, "abs");
+        BindFunction<Complex>(absFn, "Abs");
+        BindFunction<Complex>(absFn, "ABS");
 
         static Complex sqrtFn(Complex v) => Complex.Sqrt(v);
 
-        BindFunction(sqrtFn, '\u221a'); //square root symbol
-        BindFunction(sqrtFn, "sqrt");
-        BindFunction(sqrtFn, "Sqrt");
-        BindFunction(sqrtFn, "SQRT");
+        BindFunction<Complex>(sqrtFn, '\u221a'); //square root symbol
+        BindFunction<Complex>(sqrtFn, "sqrt");
+        BindFunction<Complex>(sqrtFn, "Sqrt");
+        BindFunction<Complex>(sqrtFn, "SQRT");
 
         static Complex cubeFn(Complex v) => Complex.Pow(v, 1 / 3d);
 
-        BindFunction(cubeFn, '\u221b'); //cube root symbol
-        BindFunction(cubeFn, "cbrt");
-        BindFunction(cubeFn, "Cbrt");
-        BindFunction(cubeFn, "CBRT");
+        BindFunction<Complex>(cubeFn, '\u221b'); //cube root symbol
+        BindFunction<Complex>(cubeFn, "cbrt");
+        BindFunction<Complex>(cubeFn, "Cbrt");
+        BindFunction<Complex>(cubeFn, "CBRT");
 
         static Complex fRootFn(Complex v) => Complex.Pow(v, 0.25d);
 
-        BindFunction(fRootFn, '\u221c'); //fourth root symbol
+        BindFunction<Complex>(fRootFn, '\u221c'); //fourth root symbol
 
         static Complex logFn(Complex v) => Complex.Log(v);
 
-        BindFunction(logFn, "ln");
-        BindFunction(logFn, "Ln");
-        BindFunction(logFn, "LN");
+        BindFunction<Complex>(logFn, "ln");
+        BindFunction<Complex>(logFn, "Ln");
+        BindFunction<Complex>(logFn, "LN");
 
         static Complex log10Fn(Complex v) => Complex.Log10(v);
 
-        BindFunction(log10Fn, "log");
-        BindFunction(log10Fn, "Log");
-        BindFunction(log10Fn, "LOG");
+        BindFunction<Complex>(log10Fn, "log");
+        BindFunction<Complex>(log10Fn, "Log");
+        BindFunction<Complex>(log10Fn, "LOG");
 
         #region boolean logic
 
         static Complex equalToFn(Complex left, Complex right) => left == right ? Complex.One : default;
 
-        BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
+        BindOperator<Complex>(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<Complex>(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<Complex>(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static Complex notEqualToFn(Complex left, Complex right) => left != right ? Complex.One : default;
 
-        BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
+        BindOperator<Complex>(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<Complex>(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<Complex>(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
         static Complex implicationFn(Complex left, Complex right) => left == default || right != default ? Complex.One : default;
 
-        BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<Complex>(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<Complex>(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
 
         static Complex reverseImplicationFn(Complex left, Complex right) => left != default || right == default ? Complex.One : default;
 
-        BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<Complex>(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<Complex>(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 
         #endregion
 
@@ -91,224 +91,224 @@ public class ComplexScientificMathContext : ScientificMathContext
 
         static Complex sinFn(Complex v) => MathTrig.Sin(v);
 
-        BindFunction(sinFn, "sin");
-        BindFunction(sinFn, "Sin");
-        BindFunction(sinFn, "SIN");
+        BindFunction<Complex>(sinFn, "sin");
+        BindFunction<Complex>(sinFn, "Sin");
+        BindFunction<Complex>(sinFn, "SIN");
 
         static Complex cosFn(Complex v) => MathTrig.Cos(v);
 
-        BindFunction(cosFn, "cos");
-        BindFunction(cosFn, "Cos");
-        BindFunction(cosFn, "COS");
+        BindFunction<Complex>(cosFn, "cos");
+        BindFunction<Complex>(cosFn, "Cos");
+        BindFunction<Complex>(cosFn, "COS");
 
         static Complex tanFn(Complex v) => MathTrig.Tan(v);
 
-        BindFunction(tanFn, "tan");
-        BindFunction(tanFn, "Tan");
-        BindFunction(tanFn, "TAN");
+        BindFunction<Complex>(tanFn, "tan");
+        BindFunction<Complex>(tanFn, "Tan");
+        BindFunction<Complex>(tanFn, "TAN");
 
         static Complex secFn(Complex v) => MathTrig.Sec(v);
 
-        BindFunction(secFn, "sec");
-        BindFunction(secFn, "Sec");
-        BindFunction(secFn, "SEC");
+        BindFunction<Complex>(secFn, "sec");
+        BindFunction<Complex>(secFn, "Sec");
+        BindFunction<Complex>(secFn, "SEC");
 
         static Complex cscFn(Complex v) => MathTrig.Csc(v);
 
-        BindFunction(cscFn, "csc");
-        BindFunction(cscFn, "Csc");
-        BindFunction(cscFn, "CSC");
+        BindFunction<Complex>(cscFn, "csc");
+        BindFunction<Complex>(cscFn, "Csc");
+        BindFunction<Complex>(cscFn, "CSC");
 
         static Complex cotFn(Complex v) => MathTrig.Cot(v);
 
-        BindFunction(cotFn, "cot");
-        BindFunction(cotFn, "Cot");
-        BindFunction(cotFn, "COT");
+        BindFunction<Complex>(cotFn, "cot");
+        BindFunction<Complex>(cotFn, "Cot");
+        BindFunction<Complex>(cotFn, "COT");
 
         static Complex sinhFn(Complex v) => MathTrig.Sinh(v);
 
-        BindFunction(sinhFn, "sinh");
-        BindFunction(sinhFn, "Sinh");
-        BindFunction(sinhFn, "SINH");
+        BindFunction<Complex>(sinhFn, "sinh");
+        BindFunction<Complex>(sinhFn, "Sinh");
+        BindFunction<Complex>(sinhFn, "SINH");
 
         static Complex coshFn(Complex v) => MathTrig.Cosh(v);
 
-        BindFunction(coshFn, "cosh");
-        BindFunction(coshFn, "Cosh");
-        BindFunction(coshFn, "COSH");
+        BindFunction<Complex>(coshFn, "cosh");
+        BindFunction<Complex>(coshFn, "Cosh");
+        BindFunction<Complex>(coshFn, "COSH");
 
         static Complex tanhFn(Complex v) => MathTrig.Tanh(v);
 
-        BindFunction(tanhFn, "tanh");
-        BindFunction(tanhFn, "Tanh");
-        BindFunction(tanhFn, "TANH");
+        BindFunction<Complex>(tanhFn, "tanh");
+        BindFunction<Complex>(tanhFn, "Tanh");
+        BindFunction<Complex>(tanhFn, "TANH");
 
         static Complex sechFn(Complex v) => MathTrig.Sech(v);
 
-        BindFunction(sechFn, "sech");
-        BindFunction(sechFn, "Sech");
-        BindFunction(sechFn, "SECH");
+        BindFunction<Complex>(sechFn, "sech");
+        BindFunction<Complex>(sechFn, "Sech");
+        BindFunction<Complex>(sechFn, "SECH");
 
         static Complex cschFn(Complex v) => MathTrig.Csch(v);
 
-        BindFunction(cschFn, "csch");
-        BindFunction(cschFn, "Csch");
-        BindFunction(cschFn, "CSCH");
+        BindFunction<Complex>(cschFn, "csch");
+        BindFunction<Complex>(cschFn, "Csch");
+        BindFunction<Complex>(cschFn, "CSCH");
 
         static Complex cothFn(Complex v) => MathTrig.Coth(v);
 
-        BindFunction(cothFn, "coth");
-        BindFunction(cothFn, "Coth");
-        BindFunction(cothFn, "COTH");
+        BindFunction<Complex>(cothFn, "coth");
+        BindFunction<Complex>(cothFn, "Coth");
+        BindFunction<Complex>(cothFn, "COTH");
 
         static Complex asinFn(Complex v) => MathTrig.Asin(v);
 
-        BindFunction(asinFn, "sin^-1");
-        BindFunction(asinFn, "Sin^-1");
-        BindFunction(asinFn, "SIN^-1");
+        BindFunction<Complex>(asinFn, "sin^-1");
+        BindFunction<Complex>(asinFn, "Sin^-1");
+        BindFunction<Complex>(asinFn, "SIN^-1");
 
         static Complex acosFn(Complex v) => MathTrig.Acos(v);
 
-        BindFunction(acosFn, "cos^-1");
-        BindFunction(acosFn, "Cos^-1");
-        BindFunction(acosFn, "COS^-1");
+        BindFunction<Complex>(acosFn, "cos^-1");
+        BindFunction<Complex>(acosFn, "Cos^-1");
+        BindFunction<Complex>(acosFn, "COS^-1");
 
         static Complex atanFn(Complex v) => MathTrig.Atan(v);
 
-        BindFunction(atanFn, "tan^-1");
-        BindFunction(atanFn, "Tan^-1");
-        BindFunction(atanFn, "TAN^-1");
+        BindFunction<Complex>(atanFn, "tan^-1");
+        BindFunction<Complex>(atanFn, "Tan^-1");
+        BindFunction<Complex>(atanFn, "TAN^-1");
 
         static Complex asecFn(Complex v) => MathTrig.Asec(v);
 
-        BindFunction(asecFn, "sec^-1");
-        BindFunction(asecFn, "Sec^-1");
-        BindFunction(asecFn, "SEC^-1");
+        BindFunction<Complex>(asecFn, "sec^-1");
+        BindFunction<Complex>(asecFn, "Sec^-1");
+        BindFunction<Complex>(asecFn, "SEC^-1");
 
         static Complex acscFn(Complex v) => MathTrig.Acsc(v);
 
-        BindFunction(acscFn, "csc^-1");
-        BindFunction(acscFn, "Csc^-1");
-        BindFunction(acscFn, "CSC^-1");
+        BindFunction<Complex>(acscFn, "csc^-1");
+        BindFunction<Complex>(acscFn, "Csc^-1");
+        BindFunction<Complex>(acscFn, "CSC^-1");
 
         static Complex acotFn(Complex v) => MathTrig.Acot(v);
 
-        BindFunction(acotFn, "cot^-1");
-        BindFunction(acotFn, "Cot^-1");
-        BindFunction(acotFn, "COT^-1");
+        BindFunction<Complex>(acotFn, "cot^-1");
+        BindFunction<Complex>(acotFn, "Cot^-1");
+        BindFunction<Complex>(acotFn, "COT^-1");
 
         static Complex asinhFn(Complex v) => MathTrig.Asinh(v);
 
-        BindFunction(asinhFn, "sinh^-1");
-        BindFunction(asinhFn, "Sinh^-1");
-        BindFunction(asinhFn, "SINH^-1");
+        BindFunction<Complex>(asinhFn, "sinh^-1");
+        BindFunction<Complex>(asinhFn, "Sinh^-1");
+        BindFunction<Complex>(asinhFn, "SINH^-1");
 
         static Complex acoshFn(Complex v) => MathTrig.Acosh(v);
 
-        BindFunction(acoshFn, "cosh^-1");
-        BindFunction(acoshFn, "Cosh^-1");
-        BindFunction(acoshFn, "COSH^-1");
+        BindFunction<Complex>(acoshFn, "cosh^-1");
+        BindFunction<Complex>(acoshFn, "Cosh^-1");
+        BindFunction<Complex>(acoshFn, "COSH^-1");
 
         static Complex atanhFn(Complex v) => MathTrig.Atanh(v);
 
-        BindFunction(atanhFn, "tanh^-1");
-        BindFunction(atanhFn, "Tanh^-1");
-        BindFunction(atanhFn, "TANH^-1");
+        BindFunction<Complex>(atanhFn, "tanh^-1");
+        BindFunction<Complex>(atanhFn, "Tanh^-1");
+        BindFunction<Complex>(atanhFn, "TANH^-1");
 
         static Complex asechFn(Complex v) => MathTrig.Asech(v);
 
-        BindFunction(asechFn, "sech^-1");
-        BindFunction(asechFn, "Sech^-1");
-        BindFunction(asechFn, "SECH^-1");
+        BindFunction<Complex>(asechFn, "sech^-1");
+        BindFunction<Complex>(asechFn, "Sech^-1");
+        BindFunction<Complex>(asechFn, "SECH^-1");
 
         static Complex acschFn(Complex v) => MathTrig.Acsch(v);
 
-        BindFunction(acschFn, "csch^-1");
-        BindFunction(acschFn, "Csch^-1");
-        BindFunction(acschFn, "CSCH^-1");
+        BindFunction<Complex>(acschFn, "csch^-1");
+        BindFunction<Complex>(acschFn, "Csch^-1");
+        BindFunction<Complex>(acschFn, "CSCH^-1");
 
         static Complex acothFn(Complex v) => MathTrig.Acoth(v);
 
-        BindFunction(acothFn, "coth^-1");
-        BindFunction(acothFn, "Coth^-1");
-        BindFunction(acothFn, "COTH^-1");
+        BindFunction<Complex>(acothFn, "coth^-1");
+        BindFunction<Complex>(acothFn, "Coth^-1");
+        BindFunction<Complex>(acothFn, "COTH^-1");
 
-        BindFunction(asinFn, "arcsin");
-        BindFunction(asinFn, "Arcsin");
-        BindFunction(asinFn, "ARCSIN");
-        BindFunction(acosFn, "arccos");
-        BindFunction(acosFn, "Arccos");
-        BindFunction(acosFn, "ARCCOS");
-        BindFunction(atanFn, "arctan");
-        BindFunction(atanFn, "Arctan");
-        BindFunction(atanFn, "ARCTAN");
-        BindFunction(asecFn, "arcsec");
-        BindFunction(asecFn, "Arcsec");
-        BindFunction(asecFn, "ARCSEC");
-        BindFunction(acscFn, "arccsc");
-        BindFunction(acscFn, "Arccsc");
-        BindFunction(acscFn, "ARCCSC");
-        BindFunction(acotFn, "arccot");
-        BindFunction(acotFn, "Arccot");
-        BindFunction(acotFn, "ARCCOT");
+        BindFunction<Complex>(asinFn, "arcsin");
+        BindFunction<Complex>(asinFn, "Arcsin");
+        BindFunction<Complex>(asinFn, "ARCSIN");
+        BindFunction<Complex>(acosFn, "arccos");
+        BindFunction<Complex>(acosFn, "Arccos");
+        BindFunction<Complex>(acosFn, "ARCCOS");
+        BindFunction<Complex>(atanFn, "arctan");
+        BindFunction<Complex>(atanFn, "Arctan");
+        BindFunction<Complex>(atanFn, "ARCTAN");
+        BindFunction<Complex>(asecFn, "arcsec");
+        BindFunction<Complex>(asecFn, "Arcsec");
+        BindFunction<Complex>(asecFn, "ARCSEC");
+        BindFunction<Complex>(acscFn, "arccsc");
+        BindFunction<Complex>(acscFn, "Arccsc");
+        BindFunction<Complex>(acscFn, "ARCCSC");
+        BindFunction<Complex>(acotFn, "arccot");
+        BindFunction<Complex>(acotFn, "Arccot");
+        BindFunction<Complex>(acotFn, "ARCCOT");
 
-        BindFunction(asinFn, "asin");
-        BindFunction(asinFn, "Asin");
-        BindFunction(asinFn, "ASIN");
-        BindFunction(acosFn, "acos");
-        BindFunction(acosFn, "Acos");
-        BindFunction(acosFn, "ACOS");
-        BindFunction(atanFn, "atan");
-        BindFunction(atanFn, "Atan");
-        BindFunction(atanFn, "ATAN");
-        BindFunction(asecFn, "asec");
-        BindFunction(asecFn, "Asec");
-        BindFunction(asecFn, "ASEC");
-        BindFunction(acscFn, "acsc");
-        BindFunction(acscFn, "Acsc");
-        BindFunction(acscFn, "ACSC");
-        BindFunction(acotFn, "acot");
-        BindFunction(acotFn, "Acot");
-        BindFunction(acotFn, "ACOT");
+        BindFunction<Complex>(asinFn, "asin");
+        BindFunction<Complex>(asinFn, "Asin");
+        BindFunction<Complex>(asinFn, "ASIN");
+        BindFunction<Complex>(acosFn, "acos");
+        BindFunction<Complex>(acosFn, "Acos");
+        BindFunction<Complex>(acosFn, "ACOS");
+        BindFunction<Complex>(atanFn, "atan");
+        BindFunction<Complex>(atanFn, "Atan");
+        BindFunction<Complex>(atanFn, "ATAN");
+        BindFunction<Complex>(asecFn, "asec");
+        BindFunction<Complex>(asecFn, "Asec");
+        BindFunction<Complex>(asecFn, "ASEC");
+        BindFunction<Complex>(acscFn, "acsc");
+        BindFunction<Complex>(acscFn, "Acsc");
+        BindFunction<Complex>(acscFn, "ACSC");
+        BindFunction<Complex>(acotFn, "acot");
+        BindFunction<Complex>(acotFn, "Acot");
+        BindFunction<Complex>(acotFn, "ACOT");
 
-        BindFunction(asinhFn, "arsinh");
-        BindFunction(asinhFn, "Arsinh");
-        BindFunction(asinhFn, "ARSINH");
-        BindFunction(acoshFn, "arcosh");
-        BindFunction(acoshFn, "Arcosh");
-        BindFunction(acoshFn, "ARCOSH");
-        BindFunction(atanhFn, "artanh");
-        BindFunction(atanhFn, "Artanh");
-        BindFunction(atanhFn, "ARTANH");
-        BindFunction(asechFn, "arsech");
-        BindFunction(asechFn, "Arsech");
-        BindFunction(asechFn, "ARSECH");
-        BindFunction(acschFn, "arcsch");
-        BindFunction(acschFn, "Arcsch");
-        BindFunction(acschFn, "ARCSCH");
-        BindFunction(acothFn, "arcoth");
-        BindFunction(acothFn, "Arcoth");
-        BindFunction(acothFn, "ARCOTH");
+        BindFunction<Complex>(asinhFn, "arsinh");
+        BindFunction<Complex>(asinhFn, "Arsinh");
+        BindFunction<Complex>(asinhFn, "ARSINH");
+        BindFunction<Complex>(acoshFn, "arcosh");
+        BindFunction<Complex>(acoshFn, "Arcosh");
+        BindFunction<Complex>(acoshFn, "ARCOSH");
+        BindFunction<Complex>(atanhFn, "artanh");
+        BindFunction<Complex>(atanhFn, "Artanh");
+        BindFunction<Complex>(atanhFn, "ARTANH");
+        BindFunction<Complex>(asechFn, "arsech");
+        BindFunction<Complex>(asechFn, "Arsech");
+        BindFunction<Complex>(asechFn, "ARSECH");
+        BindFunction<Complex>(acschFn, "arcsch");
+        BindFunction<Complex>(acschFn, "Arcsch");
+        BindFunction<Complex>(acschFn, "ARCSCH");
+        BindFunction<Complex>(acothFn, "arcoth");
+        BindFunction<Complex>(acothFn, "Arcoth");
+        BindFunction<Complex>(acothFn, "ARCOTH");
 
 
-        BindFunction(asinhFn, "asinh");
-        BindFunction(asinhFn, "Asinh");
-        BindFunction(asinhFn, "ASINH");
-        BindFunction(acoshFn, "acosh");
-        BindFunction(acoshFn, "Acosh");
-        BindFunction(acoshFn, "ACOSH");
-        BindFunction(atanhFn, "atanh");
-        BindFunction(atanhFn, "Atanh");
-        BindFunction(atanhFn, "ATANH");
-        BindFunction(asechFn, "asech");
-        BindFunction(asechFn, "Asech");
-        BindFunction(asechFn, "ASECH");
-        BindFunction(acschFn, "acsch");
-        BindFunction(acschFn, "Acsch");
-        BindFunction(acschFn, "ACSCH");
-        BindFunction(acothFn, "acoth");
-        BindFunction(acothFn, "Acoth");
-        BindFunction(acothFn, "ACOTH");
+        BindFunction<Complex>(asinhFn, "asinh");
+        BindFunction<Complex>(asinhFn, "Asinh");
+        BindFunction<Complex>(asinhFn, "ASINH");
+        BindFunction<Complex>(acoshFn, "acosh");
+        BindFunction<Complex>(acoshFn, "Acosh");
+        BindFunction<Complex>(acoshFn, "ACOSH");
+        BindFunction<Complex>(atanhFn, "atanh");
+        BindFunction<Complex>(atanhFn, "Atanh");
+        BindFunction<Complex>(atanhFn, "ATANH");
+        BindFunction<Complex>(asechFn, "asech");
+        BindFunction<Complex>(asechFn, "Asech");
+        BindFunction<Complex>(asechFn, "ASECH");
+        BindFunction<Complex>(acschFn, "acsch");
+        BindFunction<Complex>(acschFn, "Acsch");
+        BindFunction<Complex>(acschFn, "ACSCH");
+        BindFunction<Complex>(acothFn, "acoth");
+        BindFunction<Complex>(acothFn, "Acoth");
+        BindFunction<Complex>(acothFn, "ACOTH");
 
         #endregion
     }

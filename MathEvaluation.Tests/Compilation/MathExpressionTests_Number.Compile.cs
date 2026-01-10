@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Numerics;
 using Xunit.Abstractions;
 
-#if NET8_0_OR_GREATER
-
 namespace MathEvaluation.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
@@ -704,4 +702,3 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 }
 
-#endif

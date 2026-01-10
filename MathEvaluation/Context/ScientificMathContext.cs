@@ -36,7 +36,7 @@ public class ScientificMathContext : MathContext
 
         static double floorDivisionFn(double left, double right) => Math.Floor(left / right);
 
-        BindOperator(floorDivisionFn, "//");
+        BindOperator<double>(floorDivisionFn, "//");
 
         BindOperator('×', OperatorType.Multiply);
         BindOperator('·', OperatorType.Multiply);
@@ -44,64 +44,64 @@ public class ScientificMathContext : MathContext
         BindOperator('^', OperatorType.Power);
 
         static double powerFn(double left, double right) => Math.Pow(left, right);
-        BindFunction(powerFn, "pow");
-        BindFunction(powerFn, "Pow");
-        BindFunction(powerFn, "POW");
+        BindFunction<double>(powerFn, "pow");
+        BindFunction<double>(powerFn, "Pow");
+        BindFunction<double>(powerFn, "POW");
 
         static double absFn(double v) => Math.Abs(v);
 
-        BindFunction(absFn, '|', '|');
-        BindFunction(absFn, "abs");
-        BindFunction(absFn, "Abs");
-        BindFunction(absFn, "ABS");
+        BindFunction<double>(absFn, '|', '|');
+        BindFunction<double>(absFn, "abs");
+        BindFunction<double>(absFn, "Abs");
+        BindFunction<double>(absFn, "ABS");
 
         static double ceilingFn(double v) => Math.Ceiling(v);
 
-        BindFunction(ceilingFn, '⌈', '⌉');
-        BindFunction(ceilingFn, "ceil");
-        BindFunction(ceilingFn, "Ceil");
-        BindFunction(ceilingFn, "CEIL");
+        BindFunction<double>(ceilingFn, '⌈', '⌉');
+        BindFunction<double>(ceilingFn, "ceil");
+        BindFunction<double>(ceilingFn, "Ceil");
+        BindFunction<double>(ceilingFn, "CEIL");
 
         static double floorFn(double v) => Math.Floor(v);
 
-        BindFunction(floorFn, '⌊', '⌋');
-        BindFunction(floorFn, "floor");
-        BindFunction(floorFn, "Floor");
-        BindFunction(floorFn, "FLOOR");
+        BindFunction<double>(floorFn, '⌊', '⌋');
+        BindFunction<double>(floorFn, "floor");
+        BindFunction<double>(floorFn, "Floor");
+        BindFunction<double>(floorFn, "FLOOR");
 
         static double sqrtFn(double v) => Math.Sqrt(v);
 
-        BindFunction(sqrtFn, '\u221a'); //square root symbol
-        BindFunction(sqrtFn, "sqrt");
-        BindFunction(sqrtFn, "Sqrt");
-        BindFunction(sqrtFn, "SQRT");
+        BindFunction<double>(sqrtFn, '\u221a'); //square root symbol
+        BindFunction<double>(sqrtFn, "sqrt");
+        BindFunction<double>(sqrtFn, "Sqrt");
+        BindFunction<double>(sqrtFn, "SQRT");
 
         static double cubeFn(double v) => Math.Pow(v, 1 / 3d);
 
-        BindFunction(cubeFn, '\u221b'); //cube root symbol
-        BindFunction(cubeFn, "cbrt");
-        BindFunction(cubeFn, "Cbrt");
-        BindFunction(cubeFn, "CBRT");
+        BindFunction<double>(cubeFn, '\u221b'); //cube root symbol
+        BindFunction<double>(cubeFn, "cbrt");
+        BindFunction<double>(cubeFn, "Cbrt");
+        BindFunction<double>(cubeFn, "CBRT");
 
         static double fRootFn(double v) => Math.Pow(v, 0.25d);
 
-        BindFunction(fRootFn, '\u221c'); //fourth root symbol
+        BindFunction<double>(fRootFn, '\u221c'); //fourth root symbol
 
         static double logFn(double v) => Math.Log(v);
 
-        BindFunction(logFn, "ln");
-        BindFunction(logFn, "Ln");
-        BindFunction(logFn, "LN");
+        BindFunction<double>(logFn, "ln");
+        BindFunction<double>(logFn, "Ln");
+        BindFunction<double>(logFn, "LN");
 
         static double log10Fn(double v) => Math.Log10(v);
 
-        BindFunction(log10Fn, "log");
-        BindFunction(log10Fn, "Log");
-        BindFunction(log10Fn, "LOG");
+        BindFunction<double>(log10Fn, "log");
+        BindFunction<double>(log10Fn, "Log");
+        BindFunction<double>(log10Fn, "LOG");
 
         static double factorialFn(double v) => Factorial(v);
 
-        BindOperandOperator(factorialFn, '!', true);
+        BindOperandOperator<double>(factorialFn, '!', true);
 
         #region boolean logic
 
@@ -122,15 +122,15 @@ public class ScientificMathContext : MathContext
 
         static double equalToFn(double left, double right) => left == right ? 1.0 : default;
 
-        BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
+        BindOperator<double>(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<double>(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<double>(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static double notEqualToFn(double left, double right) => left != right ? 1.0 : default;
 
-        BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
+        BindOperator<double>(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<double>(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<double>(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
         BindOperator('>', OperatorType.GreaterThan);
         BindOperator('<', OperatorType.LessThan);
@@ -143,13 +143,13 @@ public class ScientificMathContext : MathContext
 
         static double implicationFn(double left, double right) => left == default || right != default ? 1.0 : default;
 
-        BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<double>(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<double>(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
 
         static double reverseImplicationFn(double left, double right) => left != default || right == default ? 1.0 : default;
 
-        BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<double>(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<double>(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 
         BindOperator('∧', OperatorType.LogicalAnd);
         BindOperator("and", OperatorType.LogicalAnd);
@@ -177,235 +177,235 @@ public class ScientificMathContext : MathContext
 
         static double radiansFn(double v) => MathTrig.DegreesToRadians(v);
 
-        BindOperandOperator(radiansFn, '\u00b0', true); //degree symbol
-        BindFunction(radiansFn, "rad");
-        BindFunction(radiansFn, "Rad");
-        BindFunction(radiansFn, "RAD");
+        BindOperandOperator<double>(radiansFn, '\u00b0', true); //degree symbol
+        BindFunction<double>(radiansFn, "rad");
+        BindFunction<double>(radiansFn, "Rad");
+        BindFunction<double>(radiansFn, "RAD");
 
         static double degreesFn(double v) => MathTrig.RadiansToDegrees(v);
-        BindFunction(degreesFn, "deg");
-        BindFunction(degreesFn, "Deg");
-        BindFunction(degreesFn, "DEG");
+        BindFunction<double>(degreesFn, "deg");
+        BindFunction<double>(degreesFn, "Deg");
+        BindFunction<double>(degreesFn, "DEG");
 
         static double sinFn(double v) => MathTrig.Sin(v);
 
-        BindFunction(sinFn, "sin");
-        BindFunction(sinFn, "Sin");
-        BindFunction(sinFn, "SIN");
+        BindFunction<double>(sinFn, "sin");
+        BindFunction<double>(sinFn, "Sin");
+        BindFunction<double>(sinFn, "SIN");
 
         static double cosFn(double v) => MathTrig.Cos(v);
 
-        BindFunction(cosFn, "cos");
-        BindFunction(cosFn, "Cos");
-        BindFunction(cosFn, "COS");
+        BindFunction<double>(cosFn, "cos");
+        BindFunction<double>(cosFn, "Cos");
+        BindFunction<double>(cosFn, "COS");
 
         static double tanFn(double v) => MathTrig.Tan(v);
 
-        BindFunction(tanFn, "tan");
-        BindFunction(tanFn, "Tan");
-        BindFunction(tanFn, "TAN");
+        BindFunction<double>(tanFn, "tan");
+        BindFunction<double>(tanFn, "Tan");
+        BindFunction<double>(tanFn, "TAN");
 
         static double secFn(double v) => MathTrig.Sec(v);
 
-        BindFunction(secFn, "sec");
-        BindFunction(secFn, "Sec");
-        BindFunction(secFn, "SEC");
+        BindFunction<double>(secFn, "sec");
+        BindFunction<double>(secFn, "Sec");
+        BindFunction<double>(secFn, "SEC");
 
         static double cscFn(double v) => MathTrig.Csc(v);
 
-        BindFunction(cscFn, "csc");
-        BindFunction(cscFn, "Csc");
-        BindFunction(cscFn, "CSC");
+        BindFunction<double>(cscFn, "csc");
+        BindFunction<double>(cscFn, "Csc");
+        BindFunction<double>(cscFn, "CSC");
 
         static double cotFn(double v) => MathTrig.Cot(v);
 
-        BindFunction(cotFn, "cot");
-        BindFunction(cotFn, "Cot");
-        BindFunction(cotFn, "COT");
+        BindFunction<double>(cotFn, "cot");
+        BindFunction<double>(cotFn, "Cot");
+        BindFunction<double>(cotFn, "COT");
 
         static double sinhFn(double v) => MathTrig.Sinh(v);
 
-        BindFunction(sinhFn, "sinh");
-        BindFunction(sinhFn, "Sinh");
-        BindFunction(sinhFn, "SINH");
+        BindFunction<double>(sinhFn, "sinh");
+        BindFunction<double>(sinhFn, "Sinh");
+        BindFunction<double>(sinhFn, "SINH");
 
         static double coshFn(double v) => MathTrig.Cosh(v);
 
-        BindFunction(coshFn, "cosh");
-        BindFunction(coshFn, "Cosh");
-        BindFunction(coshFn, "COSH");
+        BindFunction<double>(coshFn, "cosh");
+        BindFunction<double>(coshFn, "Cosh");
+        BindFunction<double>(coshFn, "COSH");
 
         static double tanhFn(double v) => MathTrig.Tanh(v);
 
-        BindFunction(tanhFn, "tanh");
-        BindFunction(tanhFn, "Tanh");
-        BindFunction(tanhFn, "TANH");
+        BindFunction<double>(tanhFn, "tanh");
+        BindFunction<double>(tanhFn, "Tanh");
+        BindFunction<double>(tanhFn, "TANH");
 
         static double sechFn(double v) => MathTrig.Sech(v);
 
-        BindFunction(sechFn, "sech");
-        BindFunction(sechFn, "Sech");
-        BindFunction(sechFn, "SECH");
+        BindFunction<double>(sechFn, "sech");
+        BindFunction<double>(sechFn, "Sech");
+        BindFunction<double>(sechFn, "SECH");
 
         static double cschFn(double v) => MathTrig.Csch(v);
 
-        BindFunction(cschFn, "csch");
-        BindFunction(cschFn, "Csch");
-        BindFunction(cschFn, "CSCH");
+        BindFunction<double>(cschFn, "csch");
+        BindFunction<double>(cschFn, "Csch");
+        BindFunction<double>(cschFn, "CSCH");
 
         static double cothFn(double v) => MathTrig.Coth(v);
 
-        BindFunction(cothFn, "coth");
-        BindFunction(cothFn, "Coth");
-        BindFunction(cothFn, "COTH");
+        BindFunction<double>(cothFn, "coth");
+        BindFunction<double>(cothFn, "Coth");
+        BindFunction<double>(cothFn, "COTH");
 
         static double asinFn(double v) => MathTrig.Asin(v);
 
-        BindFunction(asinFn, "sin^-1");
-        BindFunction(asinFn, "Sin^-1");
-        BindFunction(asinFn, "SIN^-1");
+        BindFunction<double>(asinFn, "sin^-1");
+        BindFunction<double>(asinFn, "Sin^-1");
+        BindFunction<double>(asinFn, "SIN^-1");
 
         static double acosFn(double v) => MathTrig.Acos(v);
 
-        BindFunction(acosFn, "cos^-1");
-        BindFunction(acosFn, "Cos^-1");
-        BindFunction(acosFn, "COS^-1");
+        BindFunction<double>(acosFn, "cos^-1");
+        BindFunction<double>(acosFn, "Cos^-1");
+        BindFunction<double>(acosFn, "COS^-1");
 
         static double atanFn(double v) => MathTrig.Atan(v);
 
-        BindFunction(atanFn, "tan^-1");
-        BindFunction(atanFn, "Tan^-1");
-        BindFunction(atanFn, "TAN^-1");
+        BindFunction<double>(atanFn, "tan^-1");
+        BindFunction<double>(atanFn, "Tan^-1");
+        BindFunction<double>(atanFn, "TAN^-1");
 
         static double asecFn(double v) => MathTrig.Asec(v);
 
-        BindFunction(asecFn, "sec^-1");
-        BindFunction(asecFn, "Sec^-1");
-        BindFunction(asecFn, "SEC^-1");
+        BindFunction<double>(asecFn, "sec^-1");
+        BindFunction<double>(asecFn, "Sec^-1");
+        BindFunction<double>(asecFn, "SEC^-1");
 
         static double acscFn(double v) => MathTrig.Acsc(v);
 
-        BindFunction(acscFn, "csc^-1");
-        BindFunction(acscFn, "Csc^-1");
-        BindFunction(acscFn, "CSC^-1");
+        BindFunction<double>(acscFn, "csc^-1");
+        BindFunction<double>(acscFn, "Csc^-1");
+        BindFunction<double>(acscFn, "CSC^-1");
 
         static double acotFn(double v) => MathTrig.Acot(v);
 
-        BindFunction(acotFn, "cot^-1");
-        BindFunction(acotFn, "Cot^-1");
-        BindFunction(acotFn, "COT^-1");
+        BindFunction<double>(acotFn, "cot^-1");
+        BindFunction<double>(acotFn, "Cot^-1");
+        BindFunction<double>(acotFn, "COT^-1");
 
         static double asinhFn(double v) => MathTrig.Asinh(v);
 
-        BindFunction(asinhFn, "sinh^-1");
-        BindFunction(asinhFn, "Sinh^-1");
-        BindFunction(asinhFn, "SINH^-1");
+        BindFunction<double>(asinhFn, "sinh^-1");
+        BindFunction<double>(asinhFn, "Sinh^-1");
+        BindFunction<double>(asinhFn, "SINH^-1");
 
         static double acoshFn(double v) => MathTrig.Acosh(v);
 
-        BindFunction(acoshFn, "cosh^-1");
-        BindFunction(acoshFn, "Cosh^-1");
-        BindFunction(acoshFn, "COSH^-1");
+        BindFunction<double>(acoshFn, "cosh^-1");
+        BindFunction<double>(acoshFn, "Cosh^-1");
+        BindFunction<double>(acoshFn, "COSH^-1");
 
         static double atanhFn(double v) => MathTrig.Atanh(v);
 
-        BindFunction(atanhFn, "tanh^-1");
-        BindFunction(atanhFn, "Tanh^-1");
-        BindFunction(atanhFn, "TANH^-1");
+        BindFunction<double>(atanhFn, "tanh^-1");
+        BindFunction<double>(atanhFn, "Tanh^-1");
+        BindFunction<double>(atanhFn, "TANH^-1");
 
         static double asechFn(double v) => MathTrig.Asech(v);
 
-        BindFunction(asechFn, "sech^-1");
-        BindFunction(asechFn, "Sech^-1");
-        BindFunction(asechFn, "SECH^-1");
+        BindFunction<double>(asechFn, "sech^-1");
+        BindFunction<double>(asechFn, "Sech^-1");
+        BindFunction<double>(asechFn, "SECH^-1");
 
         static double acschFn(double v) => MathTrig.Acsch(v);
 
-        BindFunction(acschFn, "csch^-1");
-        BindFunction(acschFn, "Csch^-1");
-        BindFunction(acschFn, "CSCH^-1");
+        BindFunction<double>(acschFn, "csch^-1");
+        BindFunction<double>(acschFn, "Csch^-1");
+        BindFunction<double>(acschFn, "CSCH^-1");
 
         static double acothFn(double v) => MathTrig.Acoth(v);
 
-        BindFunction(acothFn, "coth^-1");
-        BindFunction(acothFn, "Coth^-1");
-        BindFunction(acothFn, "COTH^-1");
+        BindFunction<double>(acothFn, "coth^-1");
+        BindFunction<double>(acothFn, "Coth^-1");
+        BindFunction<double>(acothFn, "COTH^-1");
 
-        BindFunction(asinFn, "arcsin");
-        BindFunction(asinFn, "Arcsin");
-        BindFunction(asinFn, "ARCSIN");
-        BindFunction(acosFn, "arccos");
-        BindFunction(acosFn, "Arccos");
-        BindFunction(acosFn, "ARCCOS");
-        BindFunction(atanFn, "arctan");
-        BindFunction(atanFn, "Arctan");
-        BindFunction(atanFn, "ARCTAN");
-        BindFunction(asecFn, "arcsec");
-        BindFunction(asecFn, "Arcsec");
-        BindFunction(asecFn, "ARCSEC");
-        BindFunction(acscFn, "arccsc");
-        BindFunction(acscFn, "Arccsc");
-        BindFunction(acscFn, "ARCCSC");
-        BindFunction(acotFn, "arccot");
-        BindFunction(acotFn, "Arccot");
-        BindFunction(acotFn, "ARCCOT");
+        BindFunction<double>(asinFn, "arcsin");
+        BindFunction<double>(asinFn, "Arcsin");
+        BindFunction<double>(asinFn, "ARCSIN");
+        BindFunction<double>(acosFn, "arccos");
+        BindFunction<double>(acosFn, "Arccos");
+        BindFunction<double>(acosFn, "ARCCOS");
+        BindFunction<double>(atanFn, "arctan");
+        BindFunction<double>(atanFn, "Arctan");
+        BindFunction<double>(atanFn, "ARCTAN");
+        BindFunction<double>(asecFn, "arcsec");
+        BindFunction<double>(asecFn, "Arcsec");
+        BindFunction<double>(asecFn, "ARCSEC");
+        BindFunction<double>(acscFn, "arccsc");
+        BindFunction<double>(acscFn, "Arccsc");
+        BindFunction<double>(acscFn, "ARCCSC");
+        BindFunction<double>(acotFn, "arccot");
+        BindFunction<double>(acotFn, "Arccot");
+        BindFunction<double>(acotFn, "ARCCOT");
 
-        BindFunction(asinFn, "asin");
-        BindFunction(asinFn, "Asin");
-        BindFunction(asinFn, "ASIN");
-        BindFunction(acosFn, "acos");
-        BindFunction(acosFn, "Acos");
-        BindFunction(acosFn, "ACOS");
-        BindFunction(atanFn, "atan");
-        BindFunction(atanFn, "Atan");
-        BindFunction(atanFn, "ATAN");
-        BindFunction(asecFn, "asec");
-        BindFunction(asecFn, "Asec");
-        BindFunction(asecFn, "ASEC");
-        BindFunction(acscFn, "acsc");
-        BindFunction(acscFn, "Acsc");
-        BindFunction(acscFn, "ACSC");
-        BindFunction(acotFn, "acot");
-        BindFunction(acotFn, "Acot");
-        BindFunction(acotFn, "ACOT");
+        BindFunction<double>(asinFn, "asin");
+        BindFunction<double>(asinFn, "Asin");
+        BindFunction<double>(asinFn, "ASIN");
+        BindFunction<double>(acosFn, "acos");
+        BindFunction<double>(acosFn, "Acos");
+        BindFunction<double>(acosFn, "ACOS");
+        BindFunction<double>(atanFn, "atan");
+        BindFunction<double>(atanFn, "Atan");
+        BindFunction<double>(atanFn, "ATAN");
+        BindFunction<double>(asecFn, "asec");
+        BindFunction<double>(asecFn, "Asec");
+        BindFunction<double>(asecFn, "ASEC");
+        BindFunction<double>(acscFn, "acsc");
+        BindFunction<double>(acscFn, "Acsc");
+        BindFunction<double>(acscFn, "ACSC");
+        BindFunction<double>(acotFn, "acot");
+        BindFunction<double>(acotFn, "Acot");
+        BindFunction<double>(acotFn, "ACOT");
 
-        BindFunction(asinhFn, "arsinh");
-        BindFunction(asinhFn, "Arsinh");
-        BindFunction(asinhFn, "ARSINH");
-        BindFunction(acoshFn, "arcosh");
-        BindFunction(acoshFn, "Arcosh");
-        BindFunction(acoshFn, "ARCOSH");
-        BindFunction(atanhFn, "artanh");
-        BindFunction(atanhFn, "Artanh");
-        BindFunction(atanhFn, "ARTANH");
-        BindFunction(asechFn, "arsech");
-        BindFunction(asechFn, "Arsech");
-        BindFunction(asechFn, "ARSECH");
-        BindFunction(acschFn, "arcsch");
-        BindFunction(acschFn, "Arcsch");
-        BindFunction(acschFn, "ARCSCH");
-        BindFunction(acothFn, "arcoth");
-        BindFunction(acothFn, "Arcoth");
-        BindFunction(acothFn, "ARCOTH");
+        BindFunction<double>(asinhFn, "arsinh");
+        BindFunction<double>(asinhFn, "Arsinh");
+        BindFunction<double>(asinhFn, "ARSINH");
+        BindFunction<double>(acoshFn, "arcosh");
+        BindFunction<double>(acoshFn, "Arcosh");
+        BindFunction<double>(acoshFn, "ARCOSH");
+        BindFunction<double>(atanhFn, "artanh");
+        BindFunction<double>(atanhFn, "Artanh");
+        BindFunction<double>(atanhFn, "ARTANH");
+        BindFunction<double>(asechFn, "arsech");
+        BindFunction<double>(asechFn, "Arsech");
+        BindFunction<double>(asechFn, "ARSECH");
+        BindFunction<double>(acschFn, "arcsch");
+        BindFunction<double>(acschFn, "Arcsch");
+        BindFunction<double>(acschFn, "ARCSCH");
+        BindFunction<double>(acothFn, "arcoth");
+        BindFunction<double>(acothFn, "Arcoth");
+        BindFunction<double>(acothFn, "ARCOTH");
 
-        BindFunction(asinhFn, "asinh");
-        BindFunction(asinhFn, "Asinh");
-        BindFunction(asinhFn, "ASINH");
-        BindFunction(acoshFn, "acosh");
-        BindFunction(acoshFn, "Acosh");
-        BindFunction(acoshFn, "ACOSH");
-        BindFunction(atanhFn, "atanh");
-        BindFunction(atanhFn, "Atanh");
-        BindFunction(atanhFn, "ATANH");
-        BindFunction(asechFn, "asech");
-        BindFunction(asechFn, "Asech");
-        BindFunction(asechFn, "ASECH");
-        BindFunction(acschFn, "acsch");
-        BindFunction(acschFn, "Acsch");
-        BindFunction(acschFn, "ACSCH");
-        BindFunction(acothFn, "acoth");
-        BindFunction(acothFn, "Acoth");
-        BindFunction(acothFn, "ACOTH");
+        BindFunction<double>(asinhFn, "asinh");
+        BindFunction<double>(asinhFn, "Asinh");
+        BindFunction<double>(asinhFn, "ASINH");
+        BindFunction<double>(acoshFn, "acosh");
+        BindFunction<double>(acoshFn, "Acosh");
+        BindFunction<double>(acoshFn, "ACOSH");
+        BindFunction<double>(atanhFn, "atanh");
+        BindFunction<double>(atanhFn, "Atanh");
+        BindFunction<double>(atanhFn, "ATANH");
+        BindFunction<double>(asechFn, "asech");
+        BindFunction<double>(asechFn, "Asech");
+        BindFunction<double>(asechFn, "ASECH");
+        BindFunction<double>(acschFn, "acsch");
+        BindFunction<double>(acschFn, "Acsch");
+        BindFunction<double>(acschFn, "ACSCH");
+        BindFunction<double>(acothFn, "acoth");
+        BindFunction<double>(acothFn, "Acoth");
+        BindFunction<double>(acothFn, "ACOTH");
 
         #endregion
     }

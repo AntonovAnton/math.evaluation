@@ -12,18 +12,21 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 ## Features
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
-- Supports `INumberBase<T>` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+- Supports `INumberBase<T>` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
-- Multi-targets .NET Standard 2.1, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
+- Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
+- .NET Standard 2.1 compatible in versions prior to [3.0.0](https://github.com/your-repo/MathEvaluator/releases/tag/v3.0.0).
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
 
 ## Performance
-This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher. 
+This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher.
+
+**NOTE:** In version [3.0.0](https://github.com/your-repo/MathEvaluator/releases/tag/v3.0.0) or higher, minimal .NET 7 is required.
 
 This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, and avoidance of regular expressions. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
 
@@ -365,15 +368,15 @@ For .NET 8 and higher, MathEvaluator supports any numeric type that implements `
 #### How to evaluate a C# math expression string
 **DotNetStandardMathContext** is the .NET Standard 2.1 programming math context supports all constants and functions provided by the `System.Math` and `System.Numerics.Complex`, along with equality, comparison, and logical boolean operators.
 
-**DotNetMathContext** (.NET 8+ only): Enhanced version that includes all features of DotNetStandardMathContext plus:
-- Latest .NET 8+ Math functions: `Math.Log2`, `Math.ILogB`, `Math.ScaleB`, `Math.BitIncrement`, `Math.BitDecrement`, `Math.CopySign`, `Math.FusedMultiplyAdd`, etc.
+**DotNetMathContext** (.NET 7+ only): Enhanced version that includes all features of DotNetStandardMathContext plus:
+- Latest .NET 7+ Math functions: `Math.Log2`, `Math.ILogB`, `Math.ScaleB`, `Math.BitIncrement`, `Math.BitDecrement`, `Math.CopySign`, `Math.FusedMultiplyAdd`, etc.
 - Full `BigInteger` support: `BigInteger.Pow`, `BigInteger.ModPow`, `BigInteger.GreatestCommonDivisor`, and all arithmetic operations
 - Modern numeric types: `Half`, `Int128`, `UInt128`, `nint`, `nuint`
 - Enhanced constants: `Math.Tau`, type-specific min/max values for all numeric types
 
 **Example using DotNetMathContext:**
 
-    // BigInteger cryptography example (.NET 8+)
+    // BigInteger cryptography example (.NET 7+)
     var p = BigInteger.Parse("2305843009213693951");
     var q = BigInteger.Parse("2305843009213693967");
     var n = p * q;

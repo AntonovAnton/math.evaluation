@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -15,18 +15,18 @@
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile; FastExpressionCompiler;</PackageTags>
-        <PackageReleaseNotes>It targets .NET Standard 2.1 and higher version.
-Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
+        <PackageReleaseNotes>Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
-Supports `INumberBase` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+Supports `INumberBase` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
 Extended with the FastExpressionCompiler's CompileFast() methods, offering 10-40x faster performance compared to the traditional Compile() method.
-Multi-targets for optimal performance on each platform.
+Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
+.NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>2.6.0</Version>
+        <Version>3.0.0</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>
@@ -83,7 +83,7 @@ Multi-targets for optimal performance on each platform.
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.3.0" />
-      <PackageReference Include="MathEvaluator" Version="2.6.0" />
+      <PackageReference Include="MathEvaluator" Version="3.0.0" />
     </ItemGroup>
 
 </Project>

@@ -158,7 +158,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     public void MathExpression_Evaluate_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
     {
         var context = new MathContext();
-        context.BindFunction(Math.Pow, "pow");
+        context.BindFunction<double>(Math.Pow, "pow");
 
         using var expression = new MathExpression(mathString, context, new CultureInfo(cultureName));
         expression.Evaluating += SubscribeToEvaluating;
@@ -603,7 +603,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var x = "x1 + x2";
         var context = new MathContext();
         context.BindExpressionVariable(x);
-        context.BindFunction(Math.Sin, "sin");
+        context.BindFunction<double>(Math.Sin, "sin");
 
         var mathString = "x + sin(x)";
         using var expression = new MathExpression(mathString, context, CultureInfo.InvariantCulture);
