@@ -18,7 +18,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 - Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
-- .NET Standard 2.1 compatible in versions prior to [3.0.0](https://github.com/your-repo/MathEvaluator/releases/tag/v3.0.0).
+- .NET Standard 2.1 compatible in versions prior to [3.0.0](https://github.com/AntonovAnton/MathEvaluator/releases/tag/v3.0.0).
 
 ## Articles
 [Evaluating Boolean logical expressions.](https://medium.com/@AntonAntonov88/evaluate-boolean-expression-from-string-in-c-net-af80e08453ea)
@@ -26,7 +26,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 ## Performance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher.
 
-**NOTE:** In version [3.0.0](https://github.com/your-repo/MathEvaluator/releases/tag/v3.0.0) or higher, minimal .NET 7 is required.
+**NOTE:** In version [3.0.0](https://github.com/AntonovAnton/MathEvaluator/releases/tag/v3.0.0) or higher, minimal .NET 7 is required.
 
 This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, and avoidance of regular expressions. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
 
@@ -404,3 +404,4 @@ This project is licensed under the Apache License, Version 2.0 - see the [LICENS
 
 ## Contact
 If you have any questions or suggestions, feel free to open an issue or contact me directly.
+
