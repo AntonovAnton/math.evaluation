@@ -2,8 +2,6 @@ using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using System.Numerics;
 
-#if NET8_0_OR_GREATER
-
 namespace MathEvaluation.Tests.Context;
 
 public class DotNetMathContextTests
@@ -377,4 +375,3 @@ public class DotNetMathContextTests
     }
 }
 
-#endif

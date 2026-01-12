@@ -25,8 +25,6 @@ public static class StringExtensions
         MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-#if NET8_0_OR_GREATER
-
     /// <inheritdoc cref="MathExpression.Evaluate{TResult}(MathParameters?)" />
     public static TResult Evaluate<TResult>(this string mathString, MathContext? context, IFormatProvider? provider = null)
         where TResult : struct, INumberBase<TResult>
@@ -43,8 +41,6 @@ public static class StringExtensions
         MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
         where TResult : struct, INumberBase<TResult>
         => new MathExpression(mathString, context, provider).Evaluate<TResult>(parameters);
-
-#endif
 
     /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
     public static decimal EvaluateDecimal(this string mathString, MathContext? context, IFormatProvider? provider = null)
@@ -92,13 +88,10 @@ public static class StringExtensions
     public static Func<T, double> Compile<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new MathExpression(mathString, context, provider).Compile(parameters);
 
-#if NET8_0_OR_GREATER
-
     /// <inheritdoc cref="MathExpression.Compile{T, TResult}(T)" />
     public static Func<T, TResult> Compile<T, TResult>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         where TResult : struct, INumberBase<TResult>
         => new MathExpression(mathString, context, provider).Compile<T, TResult>(parameters);
-#endif
 
     /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)" />
     public static Func<T, decimal> CompileDecimal<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
@@ -210,11 +203,7 @@ public static class StringExtensions
     /// <returns>
     ///     <c>true</c> if the specified char is meaningless; otherwise, <c>false</c>.
     /// </returns>
-#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-#else
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     private static bool IsMeaningless(char c)
         => c is ' ' or '\t' or '\n' or '\r';
 }

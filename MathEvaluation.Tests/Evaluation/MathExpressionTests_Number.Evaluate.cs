@@ -5,8 +5,6 @@ using System.Globalization;
 using System.Numerics;
 using Xunit.Abstractions;
 
-#if NET8_0_OR_GREATER
-
 namespace MathEvaluation.Tests.Evaluation;
 
 // ReSharper disable once InconsistentNaming
@@ -368,6 +366,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         var value = expression.Evaluate<BigInteger>(parameters);
 
         parameters.b = 2; // just to show that we can add more parameters later
+        expression.Evaluating -= SubscribeToEvaluating;
         value = expression.Evaluate<BigInteger>(parameters);
 
         testOutputHelper.WriteLine($"result: {value}");
@@ -445,4 +444,3 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 }
 
-#endif

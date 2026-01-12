@@ -155,7 +155,7 @@ public partial class MathExpressionTests
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var context = new ProgrammingMathContext();
-        context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
+        context.BindFunction<double>((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
 
         var parameters = new MathParameters();
         parameters.BindVariable(a);

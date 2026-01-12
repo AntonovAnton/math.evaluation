@@ -28,7 +28,7 @@ public class ProgrammingMathContext : MathContext
 
         static double floorDivisionFn(double left, double right) => Math.Floor(left / right);
 
-        BindOperator(floorDivisionFn, "//");
+        BindOperator<double>(floorDivisionFn, "//");
 
         BindOperator("**", OperatorType.Power);
 
@@ -64,8 +64,8 @@ public class ProgrammingMathContext : MathContext
                     ? throw new ArgumentOutOfRangeException(nameof(args), "Count of args > 3")
                     : 0d;
 
-        BindFunction(iifFn, "iif");
-        BindFunction(iifFn, "Iif");
-        BindFunction(iifFn, "IIF");
+        BindFunction<double>(iifFn, "iif");
+        BindFunction<double>(iifFn, "Iif");
+        BindFunction<double>(iifFn, "IIF");
     }
 }

@@ -6,14 +6,10 @@ namespace MathEvaluation.Context;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <inheritdoc />
-public class DecimalDotNetStandardMathContext : DecimalDotNetStandartMathContext;
-
-/// <inheritdoc />
-[Obsolete("Use DecimalDotNetStandardMathContext instead.", false)]
-public class DecimalDotNetStandartMathContext : DotNetStandardMathContext
+public class DecimalDotNetStandardMathContext : DotNetStandardMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandardMathContext" /> class.</summary>
-    public DecimalDotNetStandartMathContext()
+    public DecimalDotNetStandardMathContext()
         : base()
     {
         BindConstant(1m, "true");
@@ -24,57 +20,57 @@ public class DecimalDotNetStandartMathContext : DotNetStandardMathContext
 
         static decimal postfixIncrementFn(decimal left) => left;
 
-        BindOperandOperator(postfixIncrementFn, "++ ", true);
-        BindOperandOperator(postfixIncrementFn, "++\t", true);
-        BindOperandOperator(postfixIncrementFn, "++\r", true);
-        BindOperandOperator(postfixIncrementFn, "++\n", true);
+        BindOperandOperator<decimal>(postfixIncrementFn, "++ ", true);
+        BindOperandOperator<decimal>(postfixIncrementFn, "++\t", true);
+        BindOperandOperator<decimal>(postfixIncrementFn, "++\r", true);
+        BindOperandOperator<decimal>(postfixIncrementFn, "++\n", true);
 
         static decimal postfixDecrementFn(decimal left) => left;
 
-        BindOperandOperator(postfixDecrementFn, "-- ", true);
-        BindOperandOperator(postfixDecrementFn, "--\t", true);
-        BindOperandOperator(postfixDecrementFn, "--\r", true);
-        BindOperandOperator(postfixDecrementFn, "--\n", true);
+        BindOperandOperator<decimal>(postfixDecrementFn, "-- ", true);
+        BindOperandOperator<decimal>(postfixDecrementFn, "--\t", true);
+        BindOperandOperator<decimal>(postfixDecrementFn, "--\r", true);
+        BindOperandOperator<decimal>(postfixDecrementFn, "--\n", true);
 
         static decimal absFn(decimal v) => Math.Abs(v);
 
-        BindFunction(absFn, "Math.Abs");
+        BindFunction<decimal>(absFn, "Math.Abs");
 
         static decimal bigMul(decimal a, decimal b) => Math.BigMul((int)a, (int)b);
 
-        BindFunction(bigMul, "Math.BigMul");
+        BindFunction<decimal>(bigMul, "Math.BigMul");
 
         static decimal ceilingFn(decimal value) => Math.Ceiling(value);
 
-        BindFunction(ceilingFn, "Math.Ceiling");
+        BindFunction<decimal>(ceilingFn, "Math.Ceiling");
 
         static decimal clampFn(decimal value, decimal min, decimal max) => Math.Clamp(value, min, max);
 
-        BindFunction(clampFn, "Math.Clamp");
+        BindFunction<decimal>(clampFn, "Math.Clamp");
 
         static decimal floorFn(decimal value) => Math.Floor(value);
 
-        BindFunction(floorFn, "Math.Floor");
+        BindFunction<decimal>(floorFn, "Math.Floor");
 
         static decimal maxFn(decimal val1, decimal val2) => Math.Max(val1, val2);
 
-        BindFunction(maxFn, "Math.Max");
+        BindFunction<decimal>(maxFn, "Math.Max");
 
         static decimal minFn(decimal val1, decimal val2) => Math.Min(val1, val2);
 
-        BindFunction(minFn, "Math.Min");
+        BindFunction<decimal>(minFn, "Math.Min");
 
         static decimal roundFn(decimal[] args) => args.Length == 1 ? Math.Round(args[0]) : Math.Round(args[0], (int)args[1]);
 
-        BindFunction(roundFn, "Math.Round");
+        BindFunction<decimal>(roundFn, "Math.Round");
 
         static decimal signFn(decimal value) => Math.Sign(value);
 
-        BindFunction(signFn, "Math.Sign");
+        BindFunction<decimal>(signFn, "Math.Sign");
 
         static decimal truncateFn(decimal value) => Math.Truncate(value);
 
-        BindFunction(truncateFn, "Math.Truncate");
+        BindFunction<decimal>(truncateFn, "Math.Truncate");
 
         BindConstant(decimal.One);
         BindConstant(decimal.MinusOne);

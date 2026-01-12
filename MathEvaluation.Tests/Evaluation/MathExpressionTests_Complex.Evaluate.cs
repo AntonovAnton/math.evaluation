@@ -139,7 +139,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     public void MathExpression_EvaluateComplex_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
     {
         var context = new MathContext();
-        context.BindFunction(Math.Pow, "pow");
+        context.BindFunction<Complex>(Complex.Pow, "pow");
 
         using var expression = new MathExpression(mathString, context, new CultureInfo(cultureName));
         expression.Evaluating += SubscribeToEvaluating;

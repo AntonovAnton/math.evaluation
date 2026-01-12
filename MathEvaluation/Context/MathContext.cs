@@ -30,8 +30,7 @@ public class MathContext
     /// <exception cref="NotSupportedException" />
     public MathContext(object context)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         Bind(context);
     }
@@ -42,8 +41,7 @@ public class MathContext
     /// <exception cref="System.NotSupportedException"></exception>
     public void Bind(object context)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         foreach (var propertyInfo in context.GetType()
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -61,48 +59,6 @@ public class MathContext
         }
     }
 
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    /// <exception cref="NotSupportedException" />
-    public void BindConstant<T>(T value, char key)
-#if NET8_0_OR_GREATER
-        where T : struct, INumberBase<T>
-#else
-        where T : struct
-#endif
-        => BindConstant(value, key.ToString());
-
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    /// <exception cref="ArgumentNullException" />
-    /// <exception cref="NotSupportedException" />
-    public void BindConstant<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
-#if NET8_0_OR_GREATER
-        where T : struct, INumberBase<T>
-#else
-        where T : struct
-#endif
-    {
-#if NET8_0_OR_GREATER
-        _trie.AddMathEntity(new MathConstant<T>(key, value));
-#else
-        var type = typeof(T);
-        if (type.IsConvertibleToDouble())
-            BindConstant(Convert.ToDouble(value), key);
-        else
-            throw new NotSupportedException($"{type} isn't supported for '{key}'.");
-#endif
-    }
-
-    /// <summary>Binds the constant.</summary>
-    /// <param name="value">The value.</param>
-    /// <param name="key">The key.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindConstant(double value, char key)
-        => _trie.AddMathEntity(new MathConstant<double>(key.ToString(), value));
-
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    public void BindConstant(double value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<double>(key, value));
-
     /// <summary>Binds the variable that is defined as an expression.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <param name="key">The key.</param>
@@ -113,117 +69,6 @@ public class MathContext
     /// <inheritdoc cref="BindExpressionVariable(string, char)" />
     public void BindExpressionVariable(string mathString, [CallerArgumentExpression(nameof(mathString))] string? key = null)
         => _trie.AddMathEntity(new MathExpressionVariable(key, mathString));
-
-    /// <summary>Binds the getting value function.</summary>
-    /// <param name="fn">The getting value function.</param>
-    /// <param name="key">The key.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindFunction(Func<double> fn, char key)
-        => _trie.AddMathEntity(new MathGetValueFunction<double>(key.ToString(), fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
-    public void BindFunction(Func<double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _trie.AddMathEntity(new MathGetValueFunction<double>(key, fn));
-
-    /// <summary>Binds the unary function.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindFunction(Func<double, double> fn, char key)
-        => _trie.AddMathEntity(new MathUnaryFunction<double>(key.ToString(), fn));
-
-    /// <summary>Binds the unary function.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindFunction(Func<double, double> fn, char openingSymbol, char closingSymbol)
-        => _trie.AddMathEntity(new MathUnaryFunction<double>(openingSymbol.ToString(), fn, null, closingSymbol));
-
-    /// <summary>Binds the function.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindFunction(Func<double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char? openingSymbol = null, char? closingSymbol = null)
-        => _trie.AddMathEntity(new MathUnaryFunction<double>(key, fn, openingSymbol, closingSymbol));
-
-    /// <summary>Binds the function.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="openingSymbol">The opening symbol.</param>
-    /// <param name="separator">The parameter separator.</param>
-    /// <param name="closingSymbol">The closing symbol.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindFunction(Func<double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<double, double, double, double, double, double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<double[], double> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => _trie.AddMathEntity(new MathFunction<double>(key, fn, openingSymbol, separator, closingSymbol));
-
-    /// <summary>Binds the operator that performs an action on one math operand.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="isProcessingLeft">
-    ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
-    /// </param>
-    /// <param name="precedence">The operator precedence.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindOperandOperator(Func<double, double> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key.ToString(), fn, isProcessingLeft, precedence));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
-    public void BindOperandOperator(Func<double, double> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<double>(key, fn, isProcessingLeft, precedence));
-
-    /// <summary>Binds the math operator that can process the left and right math operands.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="precedence">The operator precedence.</param>
-    /// <param name="key">The key.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindOperandsOperator(Func<double, double, double> fn, char key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<double>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
-    public void BindOperandsOperator(Func<double, double, double> fn, string key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<double>(key, fn, precedence));
-
-    /// <summary>Binds the math operator that processes the left and right expressions.</summary>
-    /// <param name="fn">The function.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="precedence">The operator precedence.</param>
-    /// <exception cref="ArgumentNullException" />
-    public void BindOperator(Func<double, double, double> fn, char key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)" />
-    public void BindOperator(Func<double, double, double> fn, string key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<double>(key, fn, precedence));
 
     /// <summary>Binds the compatible math operator that matches a C# operator (it allows to improve performance).</summary>
     /// <param name="key">The key.</param>
@@ -236,298 +81,169 @@ public class MathContext
     public void BindOperator(string key, OperatorType operatorType)
         => _trie.AddMathEntity(new MathCompatibleOperator(key, operatorType));
 
-    #region decimal
-
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    public void BindConstant(decimal value, char key)
-        => _trie.AddMathEntity(new MathConstant<decimal>(key.ToString(), value));
-
-    /// <inheritdoc cref="BindConstant(double, string?)" />
-    public void BindConstant(decimal value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<decimal>(key, value));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
-    public void BindFunction(Func<decimal> fn, char key)
-        => _trie.AddMathEntity(new MathGetValueFunction<decimal>(key.ToString(), fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
-    public void BindFunction(Func<decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _trie.AddMathEntity(new MathGetValueFunction<decimal>(key, fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char)" />
-    public void BindFunction(Func<decimal, decimal> fn, char key)
-        => _trie.AddMathEntity(new MathUnaryFunction<decimal>(key.ToString(), fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char, char)" />
-    public void BindFunction(Func<decimal, decimal> fn, char openingSymbol, char closingSymbol)
-        => _trie.AddMathEntity(new MathUnaryFunction<decimal>(openingSymbol.ToString(), fn, null, closingSymbol));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
-    public void BindFunction(Func<decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char? openingSymbol = null, char? closingSymbol = null)
-        => _trie.AddMathEntity(new MathUnaryFunction<decimal>(key, fn, openingSymbol, closingSymbol));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<decimal, decimal, decimal, decimal, decimal, decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
-    public void BindFunction(Func<decimal[], decimal> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => _trie.AddMathEntity(new MathFunction<decimal>(key, fn, openingSymbol, separator, closingSymbol));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
-    public void BindOperandOperator(Func<decimal, decimal> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key.ToString(), fn, isProcessingLeft, precedence));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
-    public void BindOperandOperator(Func<decimal, decimal> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<decimal>(key, fn, isProcessingLeft, precedence));
-
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
-    public void BindOperandsOperator(Func<decimal, decimal, decimal> fn, char key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<decimal>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)" />
-    public void BindOperandsOperator(Func<decimal, decimal, decimal> fn, string key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<decimal>(key, fn, precedence));
-
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)" />
-    public void BindOperator(Func<decimal, decimal, decimal> fn, char key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int)" />
-    public void BindOperator(Func<decimal, decimal, decimal> fn, string key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<decimal>(key, fn, precedence));
-
-    #endregion
-
-    #region boolean
-
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    public void BindConstant(bool value, char key)
-        => _trie.AddMathEntity(new MathConstant<double>(key.ToString(), Convert.ToDouble(value)));
-
-    /// <inheritdoc cref="BindConstant(double, string?)" />
-    public void BindConstant(bool value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<double>(key, Convert.ToDouble(value)));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
-    public void BindFunction(Func<bool> fn, char key)
-        => _trie.AddMathEntity(new MathGetValueFunction<double>(key.ToString(), () => Convert.ToDouble(fn())));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
-    public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
-
-    #endregion
-
-    #region complex
-
-    /// <inheritdoc cref="BindConstant(double, char)" />
-    public void BindConstant(Complex value, char key)
-        => _trie.AddMathEntity(new MathConstant<Complex>(key.ToString(), value));
-
-    /// <inheritdoc cref="BindConstant(double, string?)" />
-    public void BindConstant(Complex value, [CallerArgumentExpression(nameof(value))] string? key = null)
-        => _trie.AddMathEntity(new MathConstant<Complex>(key, value));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
-    public void BindFunction(Func<Complex> fn, char key)
-        => _trie.AddMathEntity(new MathGetValueFunction<Complex>(key.ToString(), fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
-    public void BindFunction(Func<Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _trie.AddMathEntity(new MathGetValueFunction<Complex>(key, fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char)" />
-    public void BindFunction(Func<Complex, Complex> fn, char key)
-        => _trie.AddMathEntity(new MathUnaryFunction<Complex>(key.ToString(), fn));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char, char)" />
-    public void BindFunction(Func<Complex, Complex> fn, char openingSymbol, char closingSymbol)
-        => _trie.AddMathEntity(new MathUnaryFunction<Complex>(openingSymbol.ToString(), fn, null, closingSymbol));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
-    public void BindFunction(Func<Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char? openingSymbol = null, char? closingSymbol = null)
-        => _trie.AddMathEntity(new MathUnaryFunction<Complex>(key, fn, openingSymbol, closingSymbol));
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
-    public void BindFunction(Func<Complex, Complex, Complex, Complex, Complex, Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => BindFunction(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
-    public void BindFunction(Func<Complex[], Complex> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        => _trie.AddMathEntity(new MathFunction<Complex>(key, fn, openingSymbol, separator, closingSymbol));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
-    public void BindOperandOperator(Func<Complex, Complex> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key.ToString(), fn, isProcessingLeft, precedence));
-
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
-    public void BindOperandOperator(Func<Complex, Complex> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
-        => _trie.AddMathEntity(new MathOperandOperator<Complex>(key, fn, isProcessingLeft, precedence));
-
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
-    public void BindOperandsOperator(Func<Complex, Complex, Complex> fn, char key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<Complex>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)" />
-    public void BindOperandsOperator(Func<Complex, Complex, Complex> fn, string key, int precedence)
-        => _trie.AddMathEntity(new MathOperandsOperator<Complex>(key, fn, precedence));
-
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)" />
-    public void BindOperator(Func<Complex, Complex, Complex> fn, char key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<Complex>(key.ToString(), fn, precedence));
-
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int)" />
-    public void BindOperator(Func<Complex, Complex, Complex> fn, string key, int precedence = (int)EvalPrecedence.Basic)
-        => _trie.AddMathEntity(new MathOperator<Complex>(key, fn, precedence));
-
-    #endregion
-
-#if NET8_0_OR_GREATER
-
     #region INumberBase
 
-    /// <inheritdoc cref="BindFunction(Func{double}, char)" />
+    /// <summary>Binds the constant.</summary>
+    /// <param name="value">The value.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindConstant<T>(T value, char key)
+        where T : struct, INumberBase<T>
+        => BindConstant(value, key.ToString());
+
+    /// <inheritdoc cref="BindConstant{T}(T, char)" />
+    public void BindConstant<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathConstant<T>(key, value));
+
+    /// <summary>Binds the getting value function.</summary>
+    /// <param name="fn">The getting value function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindFunction<T>(Func<T> fn, char key)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathGetValueFunction<T>(key.ToString(), fn));
 
-    /// <inheritdoc cref="BindFunction(Func{double}, string?)" />
+    /// <summary>Binds the unary function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindFunction<T>(Func<T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathGetValueFunction<T>(key, fn));
 
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char)" />
+    /// <inheritdoc cref="BindFunction{T}(Func{T, T}, char)" />
     public void BindFunction<T>(Func<T, T> fn, char key)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathUnaryFunction<T>(key.ToString(), fn));
 
-    /// <inheritdoc cref="BindFunction(Func{double, double}, char, char)" />
+    /// <summary>Binds the unary function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindFunction<T>(Func<T, T> fn, char openingSymbol, char closingSymbol)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathUnaryFunction<T>(openingSymbol.ToString(), fn, null, closingSymbol));
 
-    /// <inheritdoc cref="BindFunction(Func{double, double}, string?, char?, char?)" />
+    /// <summary>Binds the function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindFunction<T>(Func<T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char? openingSymbol = null, char? closingSymbol = null)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double}, string?, char, char, char)" />
+    /// <summary>Binds the function.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="separator">The parameter separator.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindFunction<T>(Func<T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double, double, double, double, double, double}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindFunction(Func{double[], double}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T[], T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, char, bool, int)" />
+    /// <summary>Binds the operator that performs an action on one math operand.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="isProcessingLeft">
+    ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
+    /// </param>
+    /// <param name="precedence">The operator precedence.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindOperandOperator<T>(Func<T, T> fn, char key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperandOperator<T>(key.ToString(), fn, isProcessingLeft, precedence));
 
-    /// <inheritdoc cref="BindOperandOperator(Func{double, double}, string, bool, int)" />
+    /// <inheritdoc cref="BindOperandOperator{T}(Func{T, T}, string, bool, int)" />
     public void BindOperandOperator<T>(Func<T, T> fn, string key, bool isProcessingLeft = false, int precedence = (int)EvalPrecedence.OperandUnaryOperator)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperandOperator<T>(key, fn, isProcessingLeft, precedence));
 
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, char, int)" />
+    /// <summary>Binds the math operator that can process the left and right math operands.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="precedence">The operator precedence.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindOperandsOperator<T>(Func<T, T, T> fn, char key, int precedence)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperandsOperator<T>(key.ToString(), fn, precedence));
 
-    /// <inheritdoc cref="BindOperandsOperator(Func{double, double, double}, string, int)" />
+    /// <inheritdoc cref="BindOperandsOperator{T}(Func{T, T, T}, string, int)" />
     public void BindOperandsOperator<T>(Func<T, T, T> fn, string key, int precedence)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperandsOperator<T>(key, fn, precedence));
 
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, char, int)" />
+    /// <summary>Binds the math operator that processes the left and right expressions.</summary>
+    /// <param name="fn">The function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="precedence">The operator precedence.</param>
+    /// <exception cref="ArgumentNullException" />
     public void BindOperator<T>(Func<T, T, T> fn, char key, int precedence = (int)EvalPrecedence.Basic)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperator<T>(key.ToString(), fn, precedence));
 
-    /// <inheritdoc cref="BindOperator(Func{double, double, double}, string, int)" />
+    /// <inheritdoc cref="BindOperator{T}(Func{T, T, T}, char, int)" />
     public void BindOperator<T>(Func<T, T, T> fn, string key, int precedence = (int)EvalPrecedence.Basic)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathOperator<T>(key, fn, precedence));
 
     #endregion
 
-#endif
+    #region boolean
+
+    /// <inheritdoc cref="BindConstant{T}(T, char)" />
+    public void BindConstant(bool value, char key)
+        => _trie.AddMathEntity(new MathConstant<double>(key.ToString(), Convert.ToDouble(value)));
+
+    /// <inheritdoc cref="BindConstant{T}(T, string?)" />
+    public void BindConstant(bool value, [CallerArgumentExpression(nameof(value))] string? key = null)
+        => _trie.AddMathEntity(new MathConstant<double>(key, Convert.ToDouble(value)));
+
+    /// <inheritdoc cref="BindFunction{T}(Func{T}, char)" />
+    public void BindFunction(Func<bool> fn, char key)
+        => _trie.AddMathEntity(new MathGetValueFunction<double>(key.ToString(), () => Convert.ToDouble(fn())));
+
+    /// <inheritdoc cref="BindFunction{T}(Func{T}, string?)" />
+    public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
+
+    #endregion
 
     /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
     /// <param name="mathString">The math expression string.</param>
@@ -547,22 +263,54 @@ public class MathContext
         if (value == null)
             throw new NotSupportedException($"Cannot bind a variable to a null value for '{key}'.");
 
-#if NET8_0_OR_GREATER
-
-        if (propertyType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(INumberBase<>)))
+        if (propertyType.IsBooleanType())
         {
-            BindConstant((dynamic)value, key);
+            BindConstant(Convert.ToDouble((bool)value), key);
             return;
         }
 
-#endif
-        if (propertyType.IsConvertibleToDouble())
-        {
-            if (propertyType.IsDecimal())
-                BindConstant((decimal)value!, key);
-            else
-                BindConstant(Convert.ToDouble(value), key);
+        if (TryBind<double>(key, value))
+            return;
+        if (TryBind<decimal>(key, value))
+            return;
+        if (TryBind<Complex>(key, value))
+            return;
+        if (TryBind<float>(key, value))
+            return;
+        if (TryBind<int>(key, value))
+            return;
+        if (TryBind<Half>(key, value))
+            return;
+        if (TryBind<BigInteger>(key, value))
+            return;
+        if (TryBind<char>(key, value))
+            return;
+        if (TryBind<byte>(key, value))
+            return;
+        if (TryBind<sbyte>(key, value))
+            return;
+        if (TryBind<short>(key, value))
+            return;
+        if (TryBind<ushort>(key, value))
+            return;
+        if (TryBind<uint>(key, value))
+            return;
+        if (TryBind<long>(key, value))
+            return;
+        if (TryBind<ulong>(key, value))
+            return;
+        if (TryBind<nint>(key, value))
+            return;
+        if (TryBind<nuint>(key, value))
+            return;
+        if (TryBind<Int128>(key, value))
+            return;
+        if (TryBind<UInt128>(key, value))
+            return;
 
+        if (propertyType.IsNumberBaseType())
+        {
+            BindConstant((dynamic)value, key);
             return;
         }
 
@@ -572,112 +320,12 @@ public class MathContext
                 if (string.IsNullOrWhiteSpace(str))
                     throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
                 BindExpressionVariable(str, key);
-                break;
-            case Complex c:
-                BindConstant(c, key);
-                break;
-            case Func<double> fn1:
-                BindFunction(fn1, key);
-                break;
-            case Func<double, double> fn2:
-                BindFunction(fn2, key);
-                break;
-            case Func<double, double, double> fn3:
-                BindFunction(fn3, key);
-                break;
-            case Func<double, double, double, double> fn4:
-                BindFunction(fn4, key);
-                break;
-            case Func<double, double, double, double, double> fn5:
-                BindFunction(fn5, key);
-                break;
-            case Func<double, double, double, double, double, double> fn6:
-                BindFunction(fn6, key);
-                break;
-            case Func<double[], double> fns:
-                BindFunction(fns, key);
-                break;
-            case Func<decimal> decimalFn1:
-                BindFunction(decimalFn1, key);
-                break;
-            case Func<decimal, decimal> decimalFn2:
-                BindFunction(decimalFn2, key);
-                break;
-            case Func<decimal, decimal, decimal> decimalFn3:
-                BindFunction(decimalFn3, key);
-                break;
-            case Func<decimal, decimal, decimal, decimal> decimalFn4:
-                BindFunction(decimalFn4, key);
-                break;
-            case Func<decimal, decimal, decimal, decimal, decimal> decimalFn5:
-                BindFunction(decimalFn5, key);
-                break;
-            case Func<decimal, decimal, decimal, decimal, decimal, decimal> decimalFn6:
-                BindFunction(decimalFn6, key);
-                break;
-            case Func<decimal[], decimal> decimalFns:
-                BindFunction(decimalFns, key);
-                break;
+                break; ;
             case Func<bool> boolFn1:
                 BindFunction(boolFn1, key);
                 break;
-            case Func<Complex> complexFn1:
-                BindFunction(complexFn1, key);
-                break;
-            case Func<Complex, Complex> complexFn2:
-                BindFunction(complexFn2, key);
-                break;
-            case Func<Complex, Complex, Complex> complexFn3:
-                BindFunction(complexFn3, key);
-                break;
-            case Func<Complex, Complex, Complex, Complex> complexFn4:
-                BindFunction(complexFn4, key);
-                break;
-            case Func<Complex, Complex, Complex, Complex, Complex> complexFn5:
-                BindFunction(complexFn5, key);
-                break;
-            case Func<Complex, Complex, Complex, Complex, Complex, Complex> complexFn6:
-                BindFunction(complexFn6, key);
-                break;
-            case Func<Complex[], Complex> complexFns:
-                BindFunction(complexFns, key);
-                break;
             default:
                 {
-#if NET8_0_OR_GREATER
-                    if (TryBindFunction<char>(key, value))
-                        return;
-                    if (TryBindFunction<byte>(key, value))
-                        return;
-                    if (TryBindFunction<sbyte>(key, value))
-                        return;
-                    if (TryBindFunction<short>(key, value))
-                        return;
-                    if (TryBindFunction<ushort>(key, value))
-                        return;
-                    if (TryBindFunction<int>(key, value))
-                        return;
-                    if (TryBindFunction<uint>(key, value))
-                        return;
-                    if (TryBindFunction<long>(key, value))
-                        return;
-                    if (TryBindFunction<ulong>(key, value))
-                        return;
-                    if (TryBindFunction<nint>(key, value))
-                        return;
-                    if (TryBindFunction<nuint>(key, value))
-                        return;
-                    if (TryBindFunction<float>(key, value))
-                        return;
-                    if (TryBindFunction<Half>(key, value))
-                        return;
-                    if (TryBindFunction<Int128>(key, value))
-                        return;
-                    if (TryBindFunction<UInt128>(key, value))
-                        return;
-                    if (TryBindFunction<BigInteger>(key, value))
-                        return;
-#endif
                     if (propertyType.FullName?.StartsWith("System.Func") == true)
                         throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
@@ -686,13 +334,14 @@ public class MathContext
         }
     }
 
-#if NET8_0_OR_GREATER
-
-    private bool TryBindFunction<T>(string key, object value)
+    private bool TryBind<T>(string key, object value)
         where T : struct, INumberBase<T>
     {
         switch (value)
         {
+            case T variableValue:
+                BindConstant(variableValue, key);
+                return true;
             case Func<T> fn1:
                 BindFunction(fn1, key);
                 return true;
@@ -718,6 +367,4 @@ public class MathContext
                 return false;
         }
     }
-
-#endif
 }

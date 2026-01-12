@@ -65,58 +65,6 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc />
-    public override double Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, double left)
-    {
-        var tokenPosition = i;
-        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
-            start = tokenPosition;
-
-        i += Key.Length;
-        var right = _isProcessingOperand
-            ? mathExpression.EvaluateOperand(ref i, separator, closingSymbol)
-            : mathExpression.Evaluate(ref i, separator, closingSymbol, Precedence);
-
-        if (_isProcessingOperand)
-        {
-            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
-            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
-            right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
-        }
-
-        var value = Calculate(OperatorType, left, right);
-
-        mathExpression.OnEvaluating(start, i, value);
-        return value;
-    }
-
-    /// <inheritdoc />
-    public override decimal Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, decimal left)
-    {
-        var tokenPosition = i;
-        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
-            start = tokenPosition;
-
-        i += Key.Length;
-        var right = _isProcessingOperand
-            ? mathExpression.EvaluateOperandDecimal(ref i, separator, closingSymbol)
-            : mathExpression.EvaluateDecimal(ref i, separator, closingSymbol, Precedence);
-
-        if (_isProcessingOperand)
-        {
-            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
-            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
-            right = mathExpression.EvaluateExponentiationDecimal(startExponentiation, ref i, separator, closingSymbol, right);
-        }
-
-        var value = Calculate(OperatorType, left, right);
-
-        mathExpression.OnEvaluating(start, i, value);
-        return value;
-    }
-
-#if NET8_0_OR_GREATER
-
-    /// <inheritdoc />
     public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult left)
     {
         var tokenPosition = i;
@@ -133,33 +81,6 @@ internal class MathCompatibleOperator : MathEntity
             //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
             var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
             right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
-        }
-
-        var value = Calculate(OperatorType, left, right);
-
-        mathExpression.OnEvaluating(start, i, value);
-        return value;
-    }
-
-#endif
-
-    /// <inheritdoc />
-    public override Complex Evaluate(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Complex left)
-    {
-        var tokenPosition = i;
-        if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
-            start = tokenPosition;
-
-        i += Key.Length;
-        var right = _isProcessingOperand
-            ? mathExpression.EvaluateOperandComplex(ref i, separator, closingSymbol)
-            : mathExpression.EvaluateComplex(ref i, separator, closingSymbol, Precedence);
-
-        if (_isProcessingOperand)
-        {
-            //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
-            var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
-            right = mathExpression.EvaluateExponentiationComplex(startExponentiation, ref i, separator, closingSymbol, right);
         }
 
         var value = Calculate(OperatorType, left, right);
@@ -194,45 +115,12 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#endif
         => left is ConstantExpression l && right is ConstantExpression r
             ? BuildConstant<TResult>(type, l, r)
             : BuildNotConstant<TResult>(type, left, right);
 
     #region private static Methods
-
-    private static double Calculate(OperatorType type, double left, double right)
-        => type switch
-        {
-            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0 : default,
-            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0 : default,
-            OperatorType.LogicalOr => left != default || right != default ? 1.0 : default,
-            OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => (left != default) ^ (right != default) ? 1.0 : default,
-            OperatorType.BitwiseXor => (long)left ^ (long)right,
-            OperatorType.LogicalAnd => left != default && right != default ? 1.0 : default,
-            OperatorType.BitwiseAnd => (long)left & (long)right,
-            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0 : default,
-            OperatorType.BitwiseNegation => ~(long)right,
-            OperatorType.Equal => left == right ? 1.0 : default,
-            OperatorType.NotEqual => left != right ? 1.0 : default,
-            OperatorType.LessThan => left < right ? 1.0 : default,
-            OperatorType.LessThanOrEqual => left <= right ? 1.0 : default,
-            OperatorType.GreaterThan => left > right ? 1.0 : default,
-            OperatorType.GreaterThanOrEqual => left >= right ? 1.0 : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo => left % right,
-            OperatorType.Power => Math.Pow(left, right),
-            OperatorType.Negate => -right,
-            _ => throw new NotImplementedException()
-        };
-
-#if NET8_0_OR_GREATER
 
     private static TResult Calculate<TResult>(OperatorType type, TResult left, TResult right)
         where TResult : struct, INumberBase<TResult>
@@ -242,70 +130,156 @@ internal class MathCompatibleOperator : MathEntity
 
         return type switch
         {
+            OperatorType.Multiply => left * right,
+            OperatorType.Divide => left / right,
+            OperatorType.Add => left + right,
+            OperatorType.Subtract => left - right,
+
             OperatorType.LogicalConditionalOr => left != default || right != default ? TResult.One : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? TResult.One : default,
             OperatorType.LogicalOr => left != default || right != default ? TResult.One : default,
+
+            OperatorType.BitwiseOr when left is Int128 l => ConvertNumber<Int128, TResult>(l | ConvertNumber<TResult, Int128>(right)),
+            OperatorType.BitwiseOr when left is UInt128 l => ConvertNumber<UInt128, TResult>(l | ConvertNumber<TResult, UInt128>(right)),
+            OperatorType.BitwiseOr when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l | ConvertNumber<TResult, BigInteger>(right)),
             OperatorType.BitwiseOr => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) | ConvertNumber<TResult, long>(right)),
+
             OperatorType.LogicalXor => (left != default) ^ (right != default) ? TResult.One : default,
+
+            OperatorType.BitwiseXor when left is Int128 l => ConvertNumber<Int128, TResult>(l ^ ConvertNumber<TResult, Int128>(right)),
+            OperatorType.BitwiseXor when left is UInt128 l => ConvertNumber<UInt128, TResult>(l ^ ConvertNumber<TResult, UInt128>(right)),
+            OperatorType.BitwiseXor when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l ^ ConvertNumber<TResult, BigInteger>(right)),
             OperatorType.BitwiseXor => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) ^ ConvertNumber<TResult, long>(right)),
+
             OperatorType.LogicalAnd => left != default && right != default ? TResult.One : default,
-            OperatorType.BitwiseAnd => TResult.CreateChecked(ConvertNumber<TResult, long>(left) & ConvertNumber<TResult, long>(right)),
+
+            OperatorType.BitwiseAnd when left is Int128 l => ConvertNumber<Int128, TResult>(l & ConvertNumber<TResult, Int128>(right)),
+            OperatorType.BitwiseAnd when left is UInt128 l => ConvertNumber<UInt128, TResult>(l & ConvertNumber<TResult, UInt128>(right)),
+            OperatorType.BitwiseAnd when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l & ConvertNumber<TResult, BigInteger>(right)),
+            OperatorType.BitwiseAnd => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) & ConvertNumber<TResult, long>(right)),
+
             OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? TResult.One : default,
+
+            OperatorType.BitwiseNegation when right is Int128 r => ConvertNumber<Int128, TResult>(~r),
+            OperatorType.BitwiseNegation when right is UInt128 r => ConvertNumber<UInt128, TResult>(~r),
+            OperatorType.BitwiseNegation when right is BigInteger r => ConvertNumber<BigInteger, TResult>(~r),
             OperatorType.BitwiseNegation => ConvertNumber<long, TResult>(~ConvertNumber<TResult, long>(right)),
+
             OperatorType.Equal => left == right ? TResult.One : default,
             OperatorType.NotEqual => left != right ? TResult.One : default,
+
+            OperatorType.Modulo when left is Int128 l => ConvertNumber<Int128, TResult>(l % ConvertNumber<TResult, Int128>(right)),
+            OperatorType.Modulo when left is UInt128 l => ConvertNumber<UInt128, TResult>(l % ConvertNumber<TResult, UInt128>(right)),
+            OperatorType.Modulo when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l % ConvertNumber<TResult, BigInteger>(right)),
+            OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) % ConvertNumber<TResult, long>(right)),
+            OperatorType.Modulo => ConvertNumber<double, TResult>(ConvertNumber<TResult, double>(left) % ConvertNumber<TResult, double>(right)),
+
+            OperatorType.Power when left is BigInteger l => ConvertNumber<BigInteger, TResult>(BigInteger.Pow(l, ConvertNumber<TResult, int>(right))),
+            OperatorType.Power => ConvertNumber<double, TResult>(Math.Pow(ConvertNumber<TResult, double>(left), ConvertNumber<TResult, double>(right))),
+
+            OperatorType.Negate => -right,
+
+            OperatorType.LessThan when left is double l => l < ConvertNumber<TResult, double>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is double l => l <= ConvertNumber<TResult, double>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is double l => l > ConvertNumber<TResult, double>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is double l => l >= ConvertNumber<TResult, double>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is decimal l => l < ConvertNumber<TResult, decimal>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is decimal l => l <= ConvertNumber<TResult, decimal>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is decimal l => l > ConvertNumber<TResult, decimal>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is decimal l => l >= ConvertNumber<TResult, decimal>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is float l => l < ConvertNumber<TResult, float>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is float l => l <= ConvertNumber<TResult, float>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is float l => l > ConvertNumber<TResult, float>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is float l => l >= ConvertNumber<TResult, float>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is Half l => l < ConvertNumber<TResult, Half>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is Half l => l <= ConvertNumber<TResult, Half>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is Half l => l > ConvertNumber<TResult, Half>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is Half l => l >= ConvertNumber<TResult, Half>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is int l => l < ConvertNumber<TResult, int>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is int l => l <= ConvertNumber<TResult, int>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is int l => l > ConvertNumber<TResult, int>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is int l => l >= ConvertNumber<TResult, int>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is uint l => l < ConvertNumber<TResult, uint>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is uint l => l <= ConvertNumber<TResult, uint>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is uint l => l > ConvertNumber<TResult, uint>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is uint l => l >= ConvertNumber<TResult, uint>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is long l => l < ConvertNumber<TResult, long>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is long l => l <= ConvertNumber<TResult, long>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is long l => l > ConvertNumber<TResult, long>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is long l => l >= ConvertNumber<TResult, long>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is ulong l => l < ConvertNumber<TResult, ulong>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is ulong l => l <= ConvertNumber<TResult, ulong>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is ulong l => l > ConvertNumber<TResult, ulong>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is ulong l => l >= ConvertNumber<TResult, ulong>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is short l => l < ConvertNumber<TResult, short>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is short l => l <= ConvertNumber<TResult, short>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is short l => l > ConvertNumber<TResult, short>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is short l => l >= ConvertNumber<TResult, short>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is ushort l => l < ConvertNumber<TResult, ushort>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is ushort l => l <= ConvertNumber<TResult, ushort>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is ushort l => l > ConvertNumber<TResult, ushort>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is ushort l => l >= ConvertNumber<TResult, ushort>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is byte l => l < ConvertNumber<TResult, byte>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is byte l => l <= ConvertNumber<TResult, byte>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is byte l => l > ConvertNumber<TResult, byte>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is byte l => l >= ConvertNumber<TResult, byte>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is sbyte l => l < ConvertNumber<TResult, sbyte>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is sbyte l => l <= ConvertNumber<TResult, sbyte>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is sbyte l => l > ConvertNumber<TResult, sbyte>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is sbyte l => l >= ConvertNumber<TResult, sbyte>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is nint l => l < ConvertNumber<TResult, nint>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is nint l => l <= ConvertNumber<TResult, nint>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is nint l => l > ConvertNumber<TResult, nint>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is nint l => l >= ConvertNumber<TResult, nint>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is nuint l => l < ConvertNumber<TResult, nuint>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is nuint l => l <= ConvertNumber<TResult, nuint>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is nuint l => l > ConvertNumber<TResult, nuint>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is nuint l => l >= ConvertNumber<TResult, nuint>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is Int128 l => l < ConvertNumber<TResult, Int128>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is Int128 l => l <= ConvertNumber<TResult, Int128>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is Int128 l => l > ConvertNumber<TResult, Int128>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is Int128 l => l >= ConvertNumber<TResult, Int128>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is UInt128 l => l < ConvertNumber<TResult, UInt128>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is UInt128 l => l <= ConvertNumber<TResult, UInt128>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is UInt128 l => l > ConvertNumber<TResult, UInt128>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is UInt128 l => l >= ConvertNumber<TResult, UInt128>(right) ? TResult.One : default,
+
+            OperatorType.LessThan when left is BigInteger l => l < ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is BigInteger l => l <= ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
+            OperatorType.GreaterThan when left is BigInteger l => l > ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is BigInteger l => l >= ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
+
             OperatorType.LessThan => left is IComparable<TResult> l && l.CompareTo(right) < 0 ? TResult.One : default,
             OperatorType.LessThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) <= 0 ? TResult.One : default,
             OperatorType.GreaterThan => left is IComparable<TResult> l && l.CompareTo(right) > 0 ? TResult.One : default,
             OperatorType.GreaterThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) >= 0 ? TResult.One : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l % ConvertNumber<TResult, BigInteger>(right)),
-            OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) % ConvertNumber<TResult, long>(right)),
-            OperatorType.Modulo => ConvertNumber<double, TResult>(ConvertNumber<TResult, double>(left) % ConvertNumber<TResult, double>(right)),
-            OperatorType.Power when left is BigInteger l => ConvertNumber<BigInteger, TResult>(BigInteger.Pow(l, ConvertNumber<TResult, int>(right))),
-            OperatorType.Power => ConvertNumber<double, TResult>(Math.Pow(ConvertNumber<TResult, double>(left), ConvertNumber<TResult, double>(right))),
-            OperatorType.Negate => -right,
+
             _ => throw new NotImplementedException()
         };
     }
 
-#endif
-
-    private static decimal Calculate(OperatorType type, decimal left, decimal right)
+    private static Complex Calculate(OperatorType type, Complex left, Complex right)
         => type switch
         {
-            OperatorType.LogicalConditionalOr => left != default || right != default ? 1.0m : default,
-            OperatorType.LogicalConditionalAnd => left != default && right != default ? 1.0m : default,
-            OperatorType.LogicalOr => left != default || right != default ? 1.0m : default,
-            OperatorType.BitwiseOr => (long)left | (long)right,
-            OperatorType.LogicalXor => (left != default) ^ (right != default) ? 1.0m : default,
-            OperatorType.BitwiseXor => (long)left ^ (long)right,
-            OperatorType.LogicalAnd => left != default && right != default ? 1.0m : default,
-            OperatorType.BitwiseAnd => (long)left & (long)right,
-            OperatorType.LogicalNot or OperatorType.LogicalNegation => right == default ? 1.0m : default,
-            OperatorType.BitwiseNegation => ~(long)right,
-            OperatorType.Equal => left == right ? 1.0m : default,
-            OperatorType.NotEqual => left != right ? 1.0m : default,
-            OperatorType.LessThan => left < right ? 1.0m : default,
-            OperatorType.LessThanOrEqual => left <= right ? 1.0m : default,
-            OperatorType.GreaterThan => left > right ? 1.0m : default,
-            OperatorType.GreaterThanOrEqual => left >= right ? 1.0m : default,
             OperatorType.Multiply => left * right,
             OperatorType.Divide => left / right,
             OperatorType.Add => left + right,
             OperatorType.Subtract => left - right,
-            OperatorType.Modulo => left % right,
-            OperatorType.Power => (decimal)Math.Pow((double)left, (double)right),
-            OperatorType.Negate => -right,
-            _ => throw new NotImplementedException()
-        };
-
-    private static Complex Calculate(OperatorType type, Complex left, Complex right)
-        => type switch
-        {
             OperatorType.LogicalConditionalOr => ConvertToBoolean(left) || ConvertToBoolean(right) ? Complex.One : default,
             OperatorType.LogicalConditionalAnd => ConvertToBoolean(left) && ConvertToBoolean(right) ? Complex.One : default,
             OperatorType.LogicalOr => ConvertToBoolean(left) || ConvertToBoolean(right) ? Complex.One : default,
@@ -318,17 +292,13 @@ internal class MathCompatibleOperator : MathEntity
             OperatorType.BitwiseNegation => ~(long)ConvertToDouble(right),
             OperatorType.Equal => left == right ? Complex.One : default,
             OperatorType.NotEqual => left != right ? Complex.One : default,
+            OperatorType.Modulo => ConvertToDouble(left) % ConvertToDouble(right),
+            OperatorType.Power => Complex.Pow(left, right),
+            OperatorType.Negate => -right,
             OperatorType.LessThan => ConvertToDouble(left) < ConvertToDouble(right) ? Complex.One : default,
             OperatorType.LessThanOrEqual => ConvertToDouble(left) <= ConvertToDouble(right) ? Complex.One : default,
             OperatorType.GreaterThan => ConvertToDouble(left) > ConvertToDouble(right) ? Complex.One : default,
             OperatorType.GreaterThanOrEqual => ConvertToDouble(left) >= ConvertToDouble(right) ? Complex.One : default,
-            OperatorType.Multiply => left * right,
-            OperatorType.Divide => left / right,
-            OperatorType.Add => left + right,
-            OperatorType.Subtract => left - right,
-            OperatorType.Modulo => ConvertToDouble(left) % ConvertToDouble(right),
-            OperatorType.Power => Complex.Pow(left, right),
-            OperatorType.Negate => -right,
             _ => throw new NotImplementedException()
         };
 
@@ -352,12 +322,10 @@ internal class MathCompatibleOperator : MathEntity
             case OperatorType.BitwiseNegation:
                 right = BuildConvert<long>(right);
                 break;
-#if NET8_0_OR_GREATER
             case OperatorType.Power when typeof(TResult) == typeof(BigInteger):
                 left = BuildConvert<BigInteger>(left);
                 right = BuildConvert<int>(right);
                 return Expression.Call(typeof(BigInteger).GetMethod(nameof(BigInteger.Pow), [left.Type, typeof(int)])!, left, right);
-#endif
             case OperatorType.Power when typeof(TResult) == typeof(Complex):
                 left = BuildConvert<Complex>(left);
                 right = BuildConvert<Complex>(right);
@@ -378,43 +346,17 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#endif
     {
-        object value;
-        switch (left.Value)
-        {
-#if NET8_0_OR_GREATER
-            case TResult ld:
-                {
-                    var rd = right.Value is TResult d ? d : (TResult)ChangeType(right.Value, typeof(TResult));
-                    value = Calculate(type, ld, rd);
-                    break;
-                }
-#endif
-            case Complex lc:
-                {
-                    var rc = right.Value is Complex c ? c : ConvertToDouble(right.Value);
-                    value = Calculate(type, lc, rc);
-                    break;
-                }
-            case decimal ld:
-                {
-                    var rd = right.Value is decimal d ? d : ConvertToDecimal(right.Value);
-                    value = Calculate(type, ld, rd);
-                    break;
-                }
-            default:
-                value = Calculate(type, ConvertToDouble(left.Value), ConvertToDouble(right.Value));
-                break;
-        }
+        var l = left.Value is TResult lr ? lr : (TResult)ChangeType(left.Value, typeof(TResult));
+        var r = right.Value is TResult rr ? rr : (TResult)ChangeType(right.Value, typeof(TResult));
+        var value = Calculate(type, l, r);
 
-        return BuildConvert<TResult>(Expression.Constant(value));
+        return BuildConvert<TResult>(Expression.Constant(value, typeof(TResult)));
     }
 
     private static bool ConvertToBoolean(Complex value)
-        => (bool)ChangeType(value, typeof(bool));
+        => ConvertToDouble(value) != default;
 
     #endregion
 }

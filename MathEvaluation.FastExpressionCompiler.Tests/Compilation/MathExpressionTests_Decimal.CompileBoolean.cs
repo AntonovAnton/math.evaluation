@@ -164,7 +164,7 @@ public partial class MathExpressionTests_Decimal
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var context = new ProgrammingMathContext();
-        context.BindFunction((c, v1, v2) => c != 0.0 ? v1 : v2, "if");
+        context.BindFunction<decimal>((c, v1, v2) => c != 0.0m ? v1 : v2, "if");
 
         var fn = expression.CompileDecimalFast(new { a }, context);
         var value = fn(new { a });

@@ -21,32 +21,32 @@ public class DecimalScientificMathContext : ScientificMathContext
     {
         static decimal floorDivisionFn(decimal left, decimal right) => Math.Floor(left / right);
 
-        BindOperator(floorDivisionFn, "//");
+        BindOperator<decimal>(floorDivisionFn, "//");
 
         static decimal absFn(decimal v) => Math.Abs(v);
 
-        BindFunction(absFn, '|', '|');
-        BindFunction(absFn, "abs");
-        BindFunction(absFn, "Abs");
-        BindFunction(absFn, "ABS");
+        BindFunction<decimal>(absFn, '|', '|');
+        BindFunction<decimal>(absFn, "abs");
+        BindFunction<decimal>(absFn, "Abs");
+        BindFunction<decimal>(absFn, "ABS");
 
         static decimal ceilingFn(decimal v) => Math.Ceiling(v);
 
-        BindFunction(ceilingFn, '⌈', '⌉');
-        BindFunction(ceilingFn, "ceil");
-        BindFunction(ceilingFn, "Ceil");
-        BindFunction(ceilingFn, "CEIL");
+        BindFunction<decimal>(ceilingFn, '⌈', '⌉');
+        BindFunction<decimal>(ceilingFn, "ceil");
+        BindFunction<decimal>(ceilingFn, "Ceil");
+        BindFunction<decimal>(ceilingFn, "CEIL");
 
         static decimal floorFn(decimal v) => Math.Floor(v);
 
-        BindFunction(floorFn, '⌊', '⌋');
-        BindFunction(floorFn, "floor");
-        BindFunction(floorFn, "Floor");
-        BindFunction(floorFn, "FLOOR");
+        BindFunction<decimal>(floorFn, '⌊', '⌋');
+        BindFunction<decimal>(floorFn, "floor");
+        BindFunction<decimal>(floorFn, "Floor");
+        BindFunction<decimal>(floorFn, "FLOOR");
 
         static decimal factorialFn(decimal v) => Factorial(v);
 
-        BindOperandOperator(factorialFn, '!', true);
+        BindOperandOperator<decimal>(factorialFn, '!', true);
 
         #region boolean logic
 
@@ -64,25 +64,25 @@ public class DecimalScientificMathContext : ScientificMathContext
 
         static decimal equalToFn(decimal left, decimal right) => left == right ? 1.0m : default;
 
-        BindOperator(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
+        BindOperator<decimal>(equalToFn, '↔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<decimal>(equalToFn, '⇔', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<decimal>(equalToFn, '≡', (int)EvalPrecedence.Equivalence);
 
         static decimal notEqualToFn(decimal left, decimal right) => left != right ? 1.0m : default;
 
-        BindOperator(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
-        BindOperator(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
+        BindOperator<decimal>(notEqualToFn, '↮', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<decimal>(notEqualToFn, '⇎', (int)EvalPrecedence.BiconditionalLogicalEquivalence);
+        BindOperator<decimal>(notEqualToFn, '≢', (int)EvalPrecedence.Equivalence);
 
         static decimal implicationFn(decimal left, decimal right) => left == default || right != default ? 1.0m : default;
 
-        BindOperator(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<decimal>(implicationFn, '→', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<decimal>(implicationFn, '⇒', (int)EvalPrecedence.LogicalImplication);
 
         static decimal reverseImplicationFn(decimal left, decimal right) => left != default || right == default ? 1.0m : default;
 
-        BindOperator(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
-        BindOperator(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<decimal>(reverseImplicationFn, '←', (int)EvalPrecedence.LogicalImplication);
+        BindOperator<decimal>(reverseImplicationFn, '⟸', (int)EvalPrecedence.LogicalImplication);
 
         #endregion
     }

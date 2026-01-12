@@ -151,7 +151,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         string cultureName)
     {
         var context = new MathContext();
-        context.BindFunction(Math.Pow, "pow");
+        context.BindFunction<double>(Math.Pow, "pow");
 
         using var expression = new MathExpression(mathString, context, new CultureInfo(cultureName));
         expression.Evaluating += SubscribeToEvaluating;

@@ -119,7 +119,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     public void FastMathExpression_CompileThenInvoke_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
     {
         var context = new MathContext();
-        context.BindFunction(Math.Pow, "pow");
+        context.BindFunction<double>(Math.Pow, "pow");
 
         using var expression = new FastMathExpression(mathString, context, new CultureInfo(cultureName));
         expression.Evaluating += SubscribeToEvaluating;

@@ -20,19 +20,6 @@ public class MathParametersTests
             ex.Message);
     }
 
-#if !NET8_0_OR_GREATER
-
-    [Fact]
-    public void MathContext_BindVariable_HasNotSupportedType_ThrowNotSupportedException()
-    {
-        var ex = Record.Exception(() => new MathParameters().BindVariable(new Vector2(1f), 'v'));
-
-        Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("System.Numerics.Vector2 isn't supported for 'v'.", ex.Message);
-    }
-
-#endif
-
     [Fact]
     public void MathParameters_Bind_HasNotSupportedType_ThrowNotSupportedException()
     {
@@ -54,8 +41,6 @@ public class MathParametersTests
         Assert.IsType<NotSupportedException>(ex);
         Assert.Equal("Cannot bind a variable to an empty or whitespace-only expression string for 'v'.", ex.Message);
     }
-
-#if NET8_0_OR_GREATER
 
     #region INumberBase Function Tests
 
@@ -284,6 +269,4 @@ public class MathParametersTests
     }
 
     #endregion
-
-#endif
 }

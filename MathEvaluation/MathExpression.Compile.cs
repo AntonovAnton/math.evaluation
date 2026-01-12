@@ -31,11 +31,7 @@ public partial class MathExpression
     /// <returns>A delegate that represents the compiled expression.</returns>
     /// <exception cref="MathExpressionException" />
     public Func<TResult> Compile<TResult>()
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         try
         {
@@ -59,11 +55,7 @@ public partial class MathExpression
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException">parameters</exception>
     public Func<T, TResult> Compile<T, TResult>(T parameters)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         try
         {
@@ -89,11 +81,7 @@ public partial class MathExpression
     }
 
     internal Expression Build<TResult>()
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         _evaluatingStep = 0;
 
@@ -107,11 +95,7 @@ public partial class MathExpression
     }
 
     internal Expression Build<T, TResult>(T parameters)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
@@ -122,11 +106,7 @@ public partial class MathExpression
     }
 
     internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
@@ -143,11 +123,7 @@ public partial class MathExpression
 
     internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         var span = MathString.AsSpan();
         Expression expression = Expression.Constant(default(TResult));
@@ -296,11 +272,7 @@ public partial class MathExpression
     }
 
     internal static Expression BuildMultiplyIfLeftNotDefault<TResult>(Expression left, Expression right)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         if (left.IsDefault<TResult>())
             return right;
@@ -309,11 +281,7 @@ public partial class MathExpression
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         var start = i;
         var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
@@ -324,11 +292,7 @@ public partial class MathExpression
     }
 
     internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
-#if NET8_0_OR_GREATER
         where TResult : struct, INumberBase<TResult>
-#else
-        where TResult : struct
-#endif
     {
         MathString.SkipMeaningless(ref i);
         if (MathString.Length <= i)
