@@ -25,7 +25,7 @@ Extensible with custom functions and operators.
 Multi-targets for optimal performance on each platform.
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>2.6.0</Version>
+        <Version>2.6.1</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
         <PackageIcon>logo.png</PackageIcon>
