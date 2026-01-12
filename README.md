@@ -237,7 +237,7 @@ These numeric systems work seamlessly with all mathematical operations and conte
 
 Added in version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0)
 
-For .NET 8 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
+For .NET 7 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
 
 ### BigInteger Examples
 
@@ -404,6 +404,7 @@ This project is licensed under the Apache License, Version 2.0 - see the [LICENS
 
 ## Contact
 If you have any questions or suggestions, feel free to open an issue or contact me directly.
+
 
 
 
