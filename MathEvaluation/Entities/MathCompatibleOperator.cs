@@ -137,6 +137,7 @@ internal class MathCompatibleOperator : MathEntity
 
             OperatorType.LogicalConditionalOr => left != default || right != default ? TResult.One : default,
             OperatorType.LogicalConditionalAnd => left != default && right != default ? TResult.One : default,
+
             OperatorType.LogicalOr => left != default || right != default ? TResult.One : default,
 
             OperatorType.BitwiseOr when left is Int128 l => ConvertNumber<Int128, TResult>(l | ConvertNumber<TResult, Int128>(right)),
@@ -303,24 +304,17 @@ internal class MathCompatibleOperator : MathEntity
         };
 
     private static Expression BuildNotConstant<TResult>(OperatorType type, Expression left, Expression right)
+        where TResult : INumberBase<TResult>
     {
         switch (type)
         {
             case OperatorType.LogicalConditionalAnd or OperatorType.LogicalAnd
-                or OperatorType.LogicalConditionalOr or OperatorType.LogicalOr:
-                left = BuildConvert<bool>(left);
-                right = BuildConvert<bool>(right);
-                break;
-            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr
-                or OperatorType.LogicalXor or OperatorType.BitwiseXor:
-                left = BuildConvert<long>(left);
-                right = BuildConvert<long>(right);
+                or OperatorType.LogicalConditionalOr or OperatorType.LogicalOr or OperatorType.LogicalXor:
+                left = Expression.NotEqual(left, Expression.Default(left.Type)).Reduce();
+                right = Expression.NotEqual(right, Expression.Default(right.Type)).Reduce();
                 break;
             case OperatorType.LogicalNot or OperatorType.LogicalNegation:
-                right = BuildConvert<bool>(right);
-                break;
-            case OperatorType.BitwiseNegation:
-                right = BuildConvert<long>(right);
+                right = Expression.NotEqual(right, Expression.Default(right.Type)).Reduce();
                 break;
             case OperatorType.Power when typeof(TResult) == typeof(BigInteger):
                 left = BuildConvert<BigInteger>(left);
@@ -335,6 +329,34 @@ internal class MathCompatibleOperator : MathEntity
             case OperatorType.Power:
                 left = BuildConvert<double>(left);
                 right = BuildConvert<double>(right);
+                break;
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor when typeof(TResult) == typeof(Int128):
+                left = BuildConvert<Int128>(left);
+                right = BuildConvert<Int128>(right);
+                break;
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor when typeof(TResult) == typeof(UInt128):
+                left = BuildConvert<UInt128>(left);
+                right = BuildConvert<UInt128>(right);
+                break;
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor when typeof(BigInteger) == typeof(BigInteger):
+                left = BuildConvert<BigInteger>(left);
+                right = BuildConvert<BigInteger>(right);
+                break;
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor:
+                left = BuildConvert<long>(left);
+                right = BuildConvert<long>(right);
+                break;
+            case OperatorType.BitwiseNegation when typeof(TResult) == typeof(Int128):
+                right = BuildConvert<Int128>(right);
+                break;
+            case OperatorType.BitwiseNegation when typeof(TResult) == typeof(UInt128):
+                right = BuildConvert<UInt128>(right);
+                break;
+            case OperatorType.BitwiseNegation when typeof(TResult) == typeof(BigInteger):
+                right = BuildConvert<BigInteger>(right);
+                break;
+            case OperatorType.BitwiseNegation:
+                right = BuildConvert<long>(right);
                 break;
         }
 

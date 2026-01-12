@@ -103,6 +103,7 @@ internal abstract class MathEntity : IMathEntity
     /// <param name="expression">The expression tree.</param>
     /// <returns></returns>
     protected static Expression BuildConvert<TResult>(Expression expression)
+        where TResult : INumberBase<TResult>
     {
         if (expression.Type == typeof(TResult))
             return expression;
@@ -114,14 +115,8 @@ internal abstract class MathEntity : IMathEntity
         {
             //convert to Complex
             var real = BuildConvert<double>(expression);
-            var imaginary = Expression.Constant(0.0);
+            var imaginary = Expression.Constant(0.0, typeof(double));
             return Expression.New(typeof(Complex).GetConstructor([typeof(double), typeof(double)])!, real, imaginary);
-        }
-
-        if (typeof(TResult) == typeof(bool))
-        {
-            //if it is default then false otherwise true
-            return Expression.NotEqual(expression, Expression.Default(expression.Type)).Reduce();
         }
 
         if (expression.Type == typeof(Complex))
@@ -140,8 +135,8 @@ internal abstract class MathEntity : IMathEntity
         if (expression.NodeType == ExpressionType.Convert && ((UnaryExpression)expression).Operand?.Type == typeof(TResult))
             return ((UnaryExpression)expression).Operand;
 
-        if (typeof(TResult) == typeof(decimal) && expression.Type == typeof(bool))
-            return Expression.Condition(expression, Expression.Constant(1.0m, typeof(decimal)), Expression.Constant(0.0m, typeof(decimal)));
+        if (expression.Type == typeof(bool))
+            return Expression.Condition(expression, Expression.Constant(TResult.One, typeof(TResult)), Expression.Constant(TResult.Zero, typeof(TResult)));
 
         return Expression.Convert(expression, typeof(TResult)).Reduce();
     }
