@@ -30,6 +30,12 @@ public class DecimalScientificMathContext : ScientificMathContext
         BindFunction<decimal>(absFn, "Abs");
         BindFunction<decimal>(absFn, "ABS");
 
+        static decimal posFn(decimal v) => Math.Max(v, 0m);
+
+        BindFunction<decimal>(posFn, "pos");
+        BindFunction<decimal>(posFn, "Pos");
+        BindFunction<decimal>(posFn, "POS");
+
         static decimal ceilingFn(decimal v) => Math.Ceiling(v);
 
         BindFunction<decimal>(ceilingFn, '⌈', '⌉');

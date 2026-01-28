@@ -26,7 +26,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
 .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>3.0.1</Version>
+        <Version>3.0.2</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>

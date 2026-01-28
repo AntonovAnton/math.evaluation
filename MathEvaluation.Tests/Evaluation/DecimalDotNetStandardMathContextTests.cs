@@ -2,7 +2,6 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
-using Xunit.Abstractions;
 
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand

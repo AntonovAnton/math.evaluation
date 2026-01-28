@@ -2,7 +2,6 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
-using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 
@@ -65,7 +64,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
-        
+
         var value = expression.Evaluate();
 
         Assert.Equal(10 + 7, value);
@@ -89,9 +88,9 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var mathString = "0o12 + 0O7";
         using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
-        
+
         var value = expression.Evaluate();
-        
+
         Assert.Equal(10 + 7, value);
     }
 
@@ -465,6 +464,40 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("⌈2 + 3.5⌉", 6d)]
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
     public void MathExpression_Evaluate_HasCeiling_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.Evaluate();
+
+        Assert.Equal(expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("pos(5)", 5d)]
+    [InlineData("Pos(5)", 5d)]
+    [InlineData("POS(5)", 5d)]
+    [InlineData("pos(-3)", 0d)]
+    [InlineData("pos(0)", 0d)]
+    [InlineData("pos(-20.3)", 0d)]
+    [InlineData("pos(20.3)", 20.3d)]
+    [InlineData("-pos(5)", -5d)]
+    [InlineData("3pos(-5)", 0d)]
+    [InlineData("3pos(5)", 15d)]
+    [InlineData("2 / pos(5) / 2 * 5", 2d / 5 / 2 * 5)]
+    [InlineData("pos(2 + (5 - 1))", 2 + (5 - 1))]
+    [InlineData("2(5 - pos(-1))", 2 * (5 - 0))]
+    [InlineData("2(5 - pos(1))", 2 * (5 - 1))]
+    [InlineData("pos(5 - 1)(3 + 1)", 4d * 4d)]
+    [InlineData("(3 + 1)*pos(5 - 1)", (3 + 1) * 4d)]
+    [InlineData("(3 + 1)*pos(-(1 - 5))", 16d)]
+    [InlineData("6 + pos(-4)", 6d)]
+    [InlineData("6 + pos(4)", 10d)]
+    [InlineData("6 + - pos(4)", 2d)]
+    [InlineData("pos(sin3)", 0.1411200080598672d)]
+    [InlineData("pos(sin-3)", 0d)]
+    [InlineData("3 + 2pos(2 + 3.5)^2", 3 + 2 * 5.5d * 5.5d)]
+    public void MathExpression_Evaluate_HasPos_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;

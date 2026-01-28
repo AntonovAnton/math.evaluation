@@ -20,9 +20,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("10 / 3", 10 / 3)]
     [InlineData("-20", -20)]
     [InlineData("6 + -(4)", 6 + -(4))]
-    public void MathExpression_CompileThenInvoke_Int32_ExpectedValue(string mathString, int expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int32_ExpectedValue(string mathString, int expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<int>();
@@ -37,9 +37,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("4 % 3", 1)]
     [InlineData("10 % 3", 1)]
     [InlineData("7 % 4", 3)]
-    public void MathExpression_CompileThenInvoke_Int32_HasModulus_ExpectedValue(string mathString, int expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int32_HasModulus_ExpectedValue(string mathString, int expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<int>();
@@ -54,9 +54,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 ** 3", 8)]
     [InlineData("2 ** 4", 16)]
     [InlineData("3 ** 3", 27)]
-    public void MathExpression_CompileThenInvoke_Int32_HasPower_ExpectedValue(string mathString, int expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int32_HasPower_ExpectedValue(string mathString, int expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<int>();
@@ -71,9 +71,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("x + y", 5, 3, 8)]
     [InlineData("x * y", 5, 3, 15)]
     [InlineData("x - y", 5, 3, 2)]
-    public void MathExpression_CompileThenInvoke_Int32_HasVariables_ExpectedValue(string mathString, int x, int y, int expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int32_HasVariables_ExpectedValue(string mathString, int x, int y, int expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         dynamic parameters = new ExpandoObject();
@@ -96,9 +96,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 * 5 / 2", 2L * 5 / 2)]
     [InlineData("1000000000 * 2", 1000000000L * 2)]
     [InlineData("-20", -20L)]
-    public void MathExpression_CompileThenInvoke_Int64_ExpectedValue(string mathString, long expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int64_ExpectedValue(string mathString, long expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<long>();
@@ -112,7 +112,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [Theory]
     [InlineData("x + y", 5000000000L, 3000000000L, 8000000000L)]
     [InlineData("x - y", 5000000000L, 3000000000L, 2000000000L)]
-    public void MathExpression_CompileThenInvoke_Int64_HasVariables_ExpectedValue(string mathString, long x, long y, long expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int64_HasVariables_ExpectedValue(string mathString, long x, long y, long expectedValue)
     {
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x = {x}, y = {y}");
@@ -134,9 +134,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("10.0 / 4.0", 10.0f / 4.0f)]
     [InlineData("-20.5", -20.5f)]
     [InlineData("2.5 * 2.0", 2.5f * 2.0f)]
-    public void MathExpression_CompileThenInvoke_Single_ExpectedValue(string mathString, float expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Single_ExpectedValue(string mathString, float expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<float>();
@@ -150,7 +150,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [Theory]
     [InlineData("x + y", 2.5f, 1.5f, 4.0f)]
     [InlineData("x * y", 2.5f, 2.0f, 5.0f)]
-    public void MathExpression_CompileThenInvoke_Single_HasVariables_ExpectedValue(string mathString, float x, float y, float expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Single_HasVariables_ExpectedValue(string mathString, float x, float y, float expectedValue)
     {
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x = {x}, y = {y}");
@@ -172,9 +172,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("10.0 / 4.0", 2.5)]
     [InlineData("-20.5", -20.5)]
     [InlineData("2.5 * 2.0", 5.0)]
-    public void MathExpression_CompileThenInvoke_Half_ExpectedValue(string mathString, double expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Half_ExpectedValue(string mathString, double expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<Half>();
@@ -188,7 +188,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [Theory]
     [InlineData("x + y", 2.5, 1.5, 4.0)]
     [InlineData("x * y", 2.5, 2.0, 5.0)]
-    public void MathExpression_CompileThenInvoke_Half_HasVariables_ExpectedValue(string mathString, double x, double y, double expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Half_HasVariables_ExpectedValue(string mathString, double x, double y, double expectedValue)
     {
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x = {x}, y = {y}");
@@ -214,9 +214,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", (byte)(2 + 5))]
     [InlineData("10 * 2", (byte)(10 * 2))]
     [InlineData("20 - 5", (byte)(20 - 5))]
-    public void MathExpression_CompileThenInvoke_Byte_ExpectedValue(string mathString, byte expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Byte_ExpectedValue(string mathString, byte expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<byte>();
@@ -235,9 +235,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", 2u + 5u)]
     [InlineData("10 * 2", 10u * 2u)]
     [InlineData("20 - 5", 20u - 5u)]
-    public void MathExpression_CompileThenInvoke_UInt32_ExpectedValue(string mathString, uint expectedValue)
+    public void FastMathExpression_CompileThenInvoke_UInt32_ExpectedValue(string mathString, uint expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<uint>();
@@ -256,9 +256,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", 2UL + 5UL)]
     [InlineData("10 * 2", 10UL * 2UL)]
     [InlineData("5000000000 + 3000000000", 5000000000UL + 3000000000UL)]
-    public void MathExpression_CompileThenInvoke_UInt64_ExpectedValue(string mathString, ulong expectedValue)
+    public void FastMathExpression_CompileThenInvoke_UInt64_ExpectedValue(string mathString, ulong expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ulong>();
@@ -277,9 +277,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", (short)(2 + 5))]
     [InlineData("10 * 2", (short)(10 * 2))]
     [InlineData("-20", (short)-20)]
-    public void MathExpression_CompileThenInvoke_Int16_ExpectedValue(string mathString, short expectedValue)
+    public void FastMathExpression_CompileThenInvoke_Int16_ExpectedValue(string mathString, short expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<short>();
@@ -298,9 +298,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", (ushort)(2 + 5))]
     [InlineData("10 * 2", (ushort)(10 * 2))]
     [InlineData("100 / 5", (ushort)(100 / 5))]
-    public void MathExpression_CompileThenInvoke_UInt16_ExpectedValue(string mathString, ushort expectedValue)
+    public void FastMathExpression_CompileThenInvoke_UInt16_ExpectedValue(string mathString, ushort expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ushort>();
@@ -319,9 +319,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 + 5", (sbyte)(2 + 5))]
     [InlineData("10 - 5", (sbyte)(10 - 5))]
     [InlineData("-20", (sbyte)-20)]
-    public void MathExpression_CompileThenInvoke_SByte_ExpectedValue(string mathString, sbyte expectedValue)
+    public void FastMathExpression_CompileThenInvoke_SByte_ExpectedValue(string mathString, sbyte expectedValue)
     {
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<sbyte>();
@@ -342,11 +342,11 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("999999999999999999999999999999 - 1", "999999999999999999999999999998")]
     [InlineData("100000000000000000000 / 50000000000000000000", "2")]
     [InlineData("-123456789012345678901234567890", "-123456789012345678901234567890")]
-    public void MathExpression_CompileThenInvoke_BigInteger_ExpectedValue(string mathString, string expectedValueString)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_ExpectedValue(string mathString, string expectedValueString)
     {
         var expectedValue = BigInteger.Parse(expectedValueString);
 
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<BigInteger>();
@@ -362,9 +362,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("1000000000000000000 % 3", 1)]
     [InlineData("123456789012345678901234567894 % 7", 4)]
     [InlineData("123456789012345678901234567894 % a", 4)]
-    public void MathExpression_CompileThenInvoke_BigInteger_HasModulus_ExpectedValue(string mathString, long expectedValue)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_HasModulus_ExpectedValue(string mathString, long expectedValue)
     {
-        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var parameters = new Dictionary<string, object>
@@ -383,11 +383,11 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("2 ** 100", "1267650600228229401496703205376")]
     [InlineData("a ** 30", "1000000000000000000000000000000")]
     [InlineData("2 ** a ** 2", "1267650600228229401496703205376")]
-    public void MathExpression_CompileThenInvoke_BigInteger_HasPower_ExpectedValue(string mathString, string expectedValueString)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_HasPower_ExpectedValue(string mathString, string expectedValueString)
     {
         var expectedValue = BigInteger.Parse(expectedValueString);
 
-        using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         dynamic parameters = new ExpandoObject();
@@ -408,7 +408,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("x + y", "123456789012345678901234567890", "987654321098765432109876543210", "1111111110111111111011111111100")]
     [InlineData("x * y", "1000000000000000000", "1000000000000000000", "1000000000000000000000000000000000000")]
     [InlineData("x - y", "999999999999999999999999999999", "1", "999999999999999999999999999998")]
-    public void MathExpression_CompileThenInvoke_BigInteger_HasVariables_ExpectedValue(string mathString, string xString, string yString, string expectedValueString)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_HasVariables_ExpectedValue(string mathString, string xString, string yString, string expectedValueString)
     {
         var x = BigInteger.Parse(xString);
         var y = BigInteger.Parse(yString);
@@ -434,11 +434,11 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("0xFFFFFFFFFFFFFFFF + 1", "18446744073709551616")]
     [InlineData("0b1111111111111111111111111111111111111111111111111111111111111111 + 1", "18446744073709551616")]
     [InlineData("0o1777777777777777777777 + 1", "18446744073709551616")]
-    public void MathExpression_CompileThenInvoke_BigInteger_HasDifferentNotations_ExpectedValue(string mathString, string expectedValueString)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_HasDifferentNotations_ExpectedValue(string mathString, string expectedValueString)
     {
         var expectedValue = BigInteger.Parse(expectedValueString);
 
-        using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<BigInteger>();
@@ -454,7 +454,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     #region INumberBase Function Compilation Tests
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasInt32Function_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasInt32Function_ExpectedValue()
     {
         Func<int, int> square = x => x * x;
         Func<int, int, int> add = (a, b) => a + b;
@@ -468,14 +468,14 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
             { "y", 3 }
         };
 
-        var fn = "square(x) + add(y, 10)".Compile<Dictionary<string, object>, int>(dict, context);
+        var fn = "square(x) + add(y, 10)".CompileFast<Dictionary<string, object>, int>(dict, context);
         var result = fn(dict);
 
         Assert.Equal(38, result); // 25 + 13
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasBigIntegerFunction_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasBigIntegerFunction_ExpectedValue()
     {
         Func<BigInteger, BigInteger> square = x => x * x;
         Func<BigInteger, BigInteger, BigInteger> multiply = (a, b) => a * b;
@@ -489,7 +489,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
             { "y", new BigInteger(100) }
         };
 
-        var fn = "multiply(square(x), y)".Compile<Dictionary<string, object>, BigInteger>(dict, context);
+        var fn = "multiply(square(x), y)".CompileFast<Dictionary<string, object>, BigInteger>(dict, context);
         var result = fn(dict);
 
         var expected = BigInteger.Parse("100000000000000000000000000");
@@ -497,7 +497,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasLongFunctionWithVariables_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasLongFunctionWithVariables_ExpectedValue()
     {
         Func<long, long, long> max = (a, b) => Math.Max(a, b);
         Func<long, long, long> min = (a, b) => Math.Min(a, b);
@@ -509,7 +509,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         parameters.x = 500L;
         parameters.y = 2000L;
 
-        using var expression = new MathExpression("max(x, min(y, 1000))", context, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression("max(x, min(y, 1000))", context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ExpandoObject, long>(parameters);
@@ -524,7 +524,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasFloatFunctionChain_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasFloatFunctionChain_ExpectedValue()
     {
         Func<float, float> abs = x => Math.Abs(x);
         Func<float, float, float> pow = (a, b) => (float)Math.Pow(a, b);
@@ -538,14 +538,14 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
             { "y", -3f }
         };
 
-        var fn = "pow(abs(x), 2) + abs(y)".Compile<Dictionary<string, object>, float>(dict, context);
+        var fn = "pow(abs(x), 2) + abs(y)".CompileFast<Dictionary<string, object>, float>(dict, context);
         var result = fn(dict);
 
         Assert.Equal(28f, result, precision: 5); // 25 + 3
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasVariadicBigIntegerFunction_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasVariadicBigIntegerFunction_ExpectedValue()
     {
         Func<BigInteger[], BigInteger> sum = args =>
         {
@@ -563,7 +563,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         parameters.y = BigInteger.Parse("200000000000000000");
         parameters.z = BigInteger.Parse("300000000000000000");
 
-        using var expression = new MathExpression("sum(x, y, z, 1000)", context, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression("sum(x, y, z, 1000)", context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ExpandoObject, BigInteger>(parameters);
@@ -574,7 +574,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasMixedINumberBaseFunctions_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasMixedINumberBaseFunctions_ExpectedValue()
     {
         Func<int, int> doubleInt = x => x * 2;
         Func<BigInteger, BigInteger> squareBig = x => x * x;
@@ -585,8 +585,8 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         var dictInt = new Dictionary<string, object> { { "x", 15 } };
         var dictBig = new Dictionary<string, object> { { "y", BigInteger.Parse("1000000000") } };
 
-        var fnInt = "doubleInt(x) + 10".Compile<Dictionary<string, object>, int>(dictInt, context);
-        var fnBig = "squareBig(y)".Compile<Dictionary<string, object>, BigInteger>(dictBig, context);
+        var fnInt = "doubleInt(x) + 10".CompileFast<Dictionary<string, object>, int>(dictInt, context);
+        var fnBig = "squareBig(y)".CompileFast<Dictionary<string, object>, BigInteger>(dictBig, context);
 
         var resultInt = fnInt(dictInt);
         var resultBig = fnBig(dictBig);
@@ -596,7 +596,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasBigIntegerCryptographyFunction_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasBigIntegerCryptographyFunction_ExpectedValue()
     {
         Func<BigInteger, BigInteger, BigInteger, BigInteger> modPow = static (value, exponent, modulus) =>
             BigInteger.ModPow(value, exponent, modulus);
@@ -615,7 +615,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
             { "e", new BigInteger(65537) }
         };
 
-        var fn = "modPow(message, e, n)".Compile<Dictionary<string, object>, BigInteger>(dict, context);
+        var fn = "modPow(message, e, n)".CompileFast<Dictionary<string, object>, BigInteger>(dict, context);
         var encrypted = fn(dict);
 
         var expected = BigInteger.ModPow(new BigInteger(123456789), new BigInteger(65537), n);
@@ -623,7 +623,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasByteFunction_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasByteFunction_ExpectedValue()
     {
         Func<byte, byte, byte> max = (a, b) => a > b ? a : b;
         
@@ -634,7 +634,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         p.x = (byte)100;
         p.y = (byte)25;
 
-        using var expression = new MathExpression("max(x, max(y, 50))", context, CultureInfo.InvariantCulture);
+        using var expression = new FastMathExpression("max(x, max(y, 50))", context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ExpandoObject, byte>(p);
@@ -644,7 +644,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasHalfFunctionWithDictionary_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasHalfFunctionWithDictionary_ExpectedValue()
     {
         Func<Half, Half, Half> add = (a, b) => (Half)((double)a + (double)b);
         
@@ -657,14 +657,14 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
             { "y", (Half)3.5 }
         };
 
-        var fn = "add(x, y) + add(x, x)".Compile<Dictionary<string, object>, Half>(dict, context);
+        var fn = "add(x, y) + add(x, x)".CompileFast<Dictionary<string, object>, Half>(dict, context);
         var result = fn(dict);
 
         Assert.Equal((Half)11.0, result); // (2.5 + 3.5) + (2.5 + 2.5)
     }
 
     [Fact]
-    public void MathExpression_CompileThenInvoke_HasComplexINumberBaseExpressions_ExpectedValue()
+    public void FastMathExpression_CompileThenInvoke_HasComplexINumberBaseExpressions_ExpectedValue()
     {
         Func<int, int, int, int> triple = (a, b, c) => a + b + c;
         Func<long, long> negate = x => -x;
@@ -680,8 +680,8 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         };
         var dictLong = new Dictionary<string, object> { { "a", 50L } };
 
-        var fnInt = "triple(x, y, z) * 2".Compile<Dictionary<string, object>, int>(dictInt, context);
-        var fnLong = "negate(a) + 100".Compile<Dictionary<string, object>, long>(dictLong, context);
+        var fnInt = "triple(x, y, z) * 2".CompileFast<Dictionary<string, object>, int>(dictInt, context);
+        var fnLong = "negate(a) + 100".CompileFast<Dictionary<string, object>, long>(dictLong, context);
 
         var resultInt = fnInt(dictInt);
         var resultLong = fnLong(dictLong);
