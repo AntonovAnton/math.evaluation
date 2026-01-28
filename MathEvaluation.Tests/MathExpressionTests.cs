@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace MathEvaluation.Tests;
+﻿namespace MathEvaluation.Tests;
 
 public class MathExpressionTests(ITestOutputHelper testOutputHelper)
 {

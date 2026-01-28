@@ -9,6 +9,11 @@ namespace MathEvaluation.Extensions;
 /// </summary>
 public static class StringExtensions
 {
+    /// <inheritdoc cref="MathExpression.Compile{T, TResult}(T)" />
+    public static Func<T, TResult> CompileFast<T, TResult>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        where TResult : struct, INumberBase<TResult>
+        => new MathExpression(mathString, context, provider).Compile<T, TResult>(parameters);
+
     /// <inheritdoc cref="MathExpression.Compile{T}(T)" />
     public static Func<T, double> CompileFast<T>(this string mathString, T parameters, MathContext? context = null, IFormatProvider? provider = null)
         => new FastMathExpression(mathString, context, provider).Compile(parameters);

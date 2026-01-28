@@ -55,6 +55,12 @@ public class ScientificMathContext : MathContext
         BindFunction<double>(absFn, "Abs");
         BindFunction<double>(absFn, "ABS");
 
+        static double posFn(double v) => Math.Max(v, 0d);
+
+        BindFunction<double>(posFn, "pos");
+        BindFunction<double>(posFn, "Pos");
+        BindFunction<double>(posFn, "POS");
+
         static double ceilingFn(double v) => Math.Ceiling(v);
 
         BindFunction<double>(ceilingFn, '⌈', '⌉');

@@ -1,7 +1,6 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using System.Globalization;
-using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
@@ -390,6 +389,42 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("⌈2 + 3.5⌉", 6d)]
     [InlineData("3 + 2⌈2 + 3.5⌉  ^2", 3 + 2 * 6d * 6d)]
     public void MathExpression_CompileDecimalThenInvoke_HasCeiling_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.CompileDecimal();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal((decimal)expectedValue, value);
+    }
+
+    [Theory]
+    [InlineData("pos(5)", 5d)]
+    [InlineData("Pos(5)", 5d)]
+    [InlineData("POS(5)", 5d)]
+    [InlineData("pos(-3)", 0d)]
+    [InlineData("pos(0)", 0d)]
+    [InlineData("pos(-20.3)", 0d)]
+    [InlineData("pos(20.3)", 20.3d)]
+    [InlineData("-pos(5)", -5d)]
+    [InlineData("3pos(-5)", 0d)]
+    [InlineData("3pos(5)", 15d)]
+    [InlineData("2 / pos(5) / 2 * 5", 2d / 5 / 2 * 5)]
+    [InlineData("pos(2 + (5 - 1))", 2 + (5 - 1))]
+    [InlineData("2(5 - pos(-1))", 2 * (5 - 0))]
+    [InlineData("2(5 - pos(1))", 2 * (5 - 1))]
+    [InlineData("pos(5 - 1)(3 + 1)", 4d * 4d)]
+    [InlineData("(3 + 1)*pos(5 - 1)", (3 + 1) * 4d)]
+    [InlineData("6 + pos(-4)", 6d)]
+    [InlineData("6 + pos(4)", 10d)]
+    [InlineData("6 + - pos(4)", 2d)]
+    [InlineData("pos(sin3)", 0.1411200080598672d)]
+    [InlineData("pos(sin-3)", 0d)]
+    [InlineData("3 + 2pos(2 + 3.5)^2", 3 + 2 * 5.5d * 5.5d)]
+    public void MathExpression_CompileDecimalThenInvoke_HasPos_ExpectedValue(string mathString, double expectedValue)
     {
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;

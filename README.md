@@ -175,6 +175,10 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
     fn = "x1 + Math.Sin(x3) * Math.Cos(x4)"
         .Compile(dict, new DotNetStandardMathContext());
 
+**MathContext** class defines the mathematical "language" available in expressions - what operators, functions, and constants can be used. It's reusable across multiple evaluations and determines syntax rules (e.g., whether to use `^` or `**` for exponentiation, which functions like `sin`, `cos`, `sqrt` are available).
+
+**MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
+
 ## How to debug or log
 
 Added in version [2.1.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.1.0)
@@ -310,6 +314,7 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
 | Modulus | mod, Mod, MOD, modulo, Modulo, or MODULO | 100 |
 | Floor Division  | // | 100 |
 | Absolute  | \| \|, abs, Abs, ABS | 200 |
+| Positive part | pos, Pos, POS | 200 |
 | Ceiling | ⌈ ⌉, ceil, Ceil, CEIL | 200 |
 | Floor | ⌊ ⌋, floor, Floor, FLOOR | 200 |
 | Square root | √, sqrt, Sqrt, SQRT | 200 |
@@ -377,14 +382,13 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
 **Example using DotNetMathContext:**
 
     // BigInteger cryptography example (.NET 7+)
-    var p = BigInteger.Parse("2305843009213693951");
-    var q = BigInteger.Parse("2305843009213693967");
-    var n = p * q;
-
     var context = new DotNetMathContext();
+    
+    var p = "2305843009213693951";
+    var q = "2305843009213693967";
 
-    var encrypted = "BigInteger.ModPow(message, e, n)"
-        .Evaluate<BigInteger>(new { message = 123456789, e = 65537, n }, context);
+    var encrypted = "BigInteger.ModPow(message, e, p * q)"
+        .Evaluate<BigInteger>(new { message = 123456789, e = 65537, p, q }, context);
 
     // Using new Math functions
     var result = "Math.Log2(1024) + Math.Tau / 2".Evaluate(null, context);
@@ -392,6 +396,22 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
 
     // Int128 calculations
     var bigCalc = "x + y".Evaluate<Int128>(new { x = Int128.MaxValue / 2, y = Int128.One }, context);
+
+## Error Handling
+
+When an invalid mathematical expression is provided, the library throws a `MathExpressionException` with a descriptive error message that includes the position of the error. This helps you quickly identify and fix issues in your expressions.
+
+Example:
+
+    try
+    {
+        "12 + abs()".Evaluate(context: new ScientificMathContext());
+    }
+    catch (MathExpressionException ex)
+    {
+        Console.WriteLine(ex.Message);
+        // Output: Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.
+    }
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

@@ -3,7 +3,6 @@ using MathEvaluation.Extensions;
 using System.Dynamic;
 using System.Globalization;
 using System.Numerics;
-using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Evaluation;
 

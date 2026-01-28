@@ -2,7 +2,6 @@
 using MathEvaluation.Extensions;
 using System.Globalization;
 using System.Numerics;
-using Xunit.Abstractions;
 
 namespace MathEvaluation.Tests.Compilation;
 
