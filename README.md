@@ -394,9 +394,6 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
     var result = "Math.Log2(1024) + Math.Tau / 2".Evaluate(null, context);
     // Result: 10 + π
 
-    // Int128 calculations
-    var bigCalc = "x + y".Evaluate<Int128>(new { x = Int128.MaxValue / 2, y = Int128.One }, context);
-
 ## Error Handling
 
 When an invalid mathematical expression is provided, the library throws a `MathExpressionException` with a descriptive error message that includes the position of the error. This helps you quickly identify and fix issues in your expressions.
