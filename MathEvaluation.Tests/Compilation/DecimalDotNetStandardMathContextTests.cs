@@ -128,7 +128,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]

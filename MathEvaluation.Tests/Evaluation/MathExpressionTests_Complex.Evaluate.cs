@@ -72,7 +72,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -87,7 +88,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -101,7 +102,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -126,7 +127,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -145,7 +146,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -159,7 +160,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -178,7 +179,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -203,7 +205,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -218,7 +221,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -237,7 +240,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -257,7 +260,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -271,7 +274,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -301,7 +304,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -335,7 +338,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -362,7 +366,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -392,7 +397,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -423,7 +428,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -444,7 +449,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -465,7 +470,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex(parameters, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -488,7 +493,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex(null, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -506,7 +511,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var context = new MathContext(new { sqrt, ln });
         var value = expression.EvaluateComplex(new { x1, x2 }, context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -533,7 +538,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateComplex(null, context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Fact]

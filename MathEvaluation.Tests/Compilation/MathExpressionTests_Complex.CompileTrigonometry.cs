@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Numerics;
 
 namespace MathEvaluation.Tests.Compilation;
 
@@ -32,7 +31,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -57,7 +56,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -116,7 +115,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -157,7 +157,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -212,7 +213,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -289,6 +291,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 }

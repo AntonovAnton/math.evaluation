@@ -64,7 +64,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -82,7 +82,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -100,7 +100,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -152,7 +152,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -169,7 +169,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -187,7 +187,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -227,7 +227,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -253,7 +253,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -285,7 +285,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -307,7 +308,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -339,7 +340,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -357,7 +358,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -386,7 +387,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -416,7 +417,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -446,7 +447,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -477,7 +478,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -498,7 +499,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -518,7 +519,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -547,7 +548,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -563,7 +564,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)

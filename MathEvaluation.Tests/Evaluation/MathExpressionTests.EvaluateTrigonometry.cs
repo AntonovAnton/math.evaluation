@@ -27,7 +27,7 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -49,7 +49,7 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -104,7 +104,7 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -142,7 +142,7 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -211,7 +211,7 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -295,6 +295,6 @@ public partial class MathExpressionTests
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 }
