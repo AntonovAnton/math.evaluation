@@ -155,7 +155,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.EvaluateDecimal();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]

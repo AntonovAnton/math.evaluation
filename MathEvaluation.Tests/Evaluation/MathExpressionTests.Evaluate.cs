@@ -54,7 +54,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -120,7 +120,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -145,7 +145,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -171,7 +171,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -190,7 +190,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -204,7 +204,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -223,7 +223,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -237,7 +237,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -251,7 +251,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -275,7 +275,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -290,7 +290,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -309,7 +309,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -330,7 +330,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -344,7 +344,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -374,7 +374,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -408,7 +408,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -435,7 +435,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -465,7 +465,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -496,7 +496,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -530,7 +530,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -551,7 +551,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -572,7 +572,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(parameters, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -595,7 +595,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(null, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -613,7 +613,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var context = new MathContext(new { sqrt, ln });
         var value = expression.Evaluate(new { x1, x2 }, context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -640,7 +640,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(null, context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Fact]

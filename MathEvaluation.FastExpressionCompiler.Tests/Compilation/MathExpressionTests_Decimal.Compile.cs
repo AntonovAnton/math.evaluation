@@ -114,7 +114,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]

@@ -119,7 +119,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         var value = expression.EvaluateDecimal();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]

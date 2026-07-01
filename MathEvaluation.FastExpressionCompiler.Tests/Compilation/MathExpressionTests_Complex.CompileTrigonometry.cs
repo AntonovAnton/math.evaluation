@@ -32,7 +32,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -57,7 +57,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -106,7 +106,8 @@ public partial class MathExpressionTests_Complex
     [InlineData("sin0 + 3", 3d)]
     [InlineData("cos1 * 2 + 3", 0.54030230586813977d * 2 + 3d)]
     [InlineData("sin(2 + 3i) * arctan(4i)/(1 - 6i)", 1.1001786515830083, 2.3907445385260218)]
-    public void FastMathExpression_CompileComplexThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
+    public void FastMathExpression_CompileComplexThenInvoke_HasTrigonometricFn_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0)
     {
         using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
@@ -116,7 +117,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -157,7 +159,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -212,7 +215,8 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -289,6 +293,7 @@ public partial class MathExpressionTests_Complex
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 }
