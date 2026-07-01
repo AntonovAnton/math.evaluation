@@ -83,7 +83,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.4.1" />
-      <PackageReference Include="MathEvaluator" Version="3.2.0" />
+      <PackageReference Include="MathEvaluator" Version="3.1.0" />
     </ItemGroup>
 
 </Project>

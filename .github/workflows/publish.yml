@@ -40,11 +40,29 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   # ────────────────────────────────────────────────────────────────────────────
-  # 2. Build, pack and publish MathEvaluator
+  # 2. Run tests — publishing is blocked if any test fails
+  # ────────────────────────────────────────────────────────────────────────────
+  run-tests:
+    name: Run Tests
+    needs: read-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 3. Build, pack and publish MathEvaluator
   # ────────────────────────────────────────────────────────────────────────────
   publish-mathevaluator:
     name: Publish MathEvaluator
-    needs: read-version
+    needs: [read-version, run-tests]
     runs-on: ubuntu-latest
     environment: production
     outputs:
@@ -92,7 +110,7 @@ jobs:
           echo "published=true" >> $GITHUB_OUTPUT
 
   # ────────────────────────────────────────────────────────────────────────────
-  # 3. Wait for MathEvaluator to be indexed, then publish MathEvaluator.FastExpressionCompiler
+  # 4. Wait for MathEvaluator to be indexed, then publish MathEvaluator.FastExpressionCompiler
   # ────────────────────────────────────────────────────────────────────────────
   publish-fec:
     name: Publish MathEvaluator.FastExpressionCompiler
@@ -170,7 +188,7 @@ jobs:
             --api-key "$OIDC_TOKEN"
 
   # ────────────────────────────────────────────────────────────────────────────
-  # 4. Tag the commit and create a GitHub Release with auto-generated notes
+  # 5. Tag the commit and create a GitHub Release with auto-generated notes
   #    Runs only when MathEvaluator was newly published in this workflow run
   # ────────────────────────────────────────────────────────────────────────────
   create-release:

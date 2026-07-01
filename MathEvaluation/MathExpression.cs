@@ -56,11 +56,12 @@ public partial class MathExpression : IDisposable
 
         MathString = mathString;
         Context = context;
-        Provider = provider;
         Compiler = compiler;
 
         // Parsers use CurrentCulture when provider is null, so do not set number info for current culture to avoid unnecessary overhead.
         _numberFormat = NumberFormatInfo.GetInstance(provider);
+        Provider = _numberFormat;
+
         _decimalSeparator = _numberFormat.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
 
