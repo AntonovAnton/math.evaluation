@@ -14,7 +14,6 @@ public class ProgrammingMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="ProgrammingMathContext" /> class.</summary>
     public ProgrammingMathContext()
-        : base()
     {
         BindConstant(1d, "true");
         BindConstant(1d, "True");

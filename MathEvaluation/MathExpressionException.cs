@@ -8,10 +8,12 @@ namespace MathEvaluation;
 public class MathExpressionException : ApplicationException
 {
     /// <summary>The default error message.</summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public const string DefaultMessage = "Error of evaluating the expression.";
 
     /// <summary>Gets the invalid token position.</summary>
     /// <value>The invalid token position.</value>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public int InvalidTokenPosition { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathExpressionException" /> class.</summary>

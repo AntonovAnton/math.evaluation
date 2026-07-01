@@ -12,12 +12,12 @@ namespace MathEvaluation.Entities;
 internal class MathOperandOperator<T> : MathEntity
     where T : struct, INumberBase<T>
 {
-    /// <summary>Gets the function.</summary>
-    /// <value>The function.</value>
-    public Func<T, T> Fn { get; }
-
     /// <inheritdoc />
     public override int Precedence { get; }
+
+    /// <summary>Gets the function.</summary>
+    /// <value>The function.</value>
+    private Func<T, T> Fn { get; }
 
     /// <summary>
     ///     Gets a value indicating whether this instance is processing left operand.
@@ -25,7 +25,7 @@ internal class MathOperandOperator<T> : MathEntity
     /// <value>
     ///     <c>true</c> if this instance is processing left operand; otherwise, <c>false</c>.
     /// </value>
-    public bool IsProcessingLeft { get; }
+    private bool IsProcessingLeft { get; }
 
     /// <summary>
     ///     Gets a value indicating whether this instance is processing right operand.

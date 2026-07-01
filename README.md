@@ -44,21 +44,21 @@ Below are the results comparing MathEvaluator with the NCalc library:
 
 | Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **465.7 ns** | 1.14 ns | 1.07 ns | 0.0033 | **112 B** |
-| NCalc | .NET 10.0 | 6,236.1 ns | 26.36 ns | 23.36 ns | 0.1373 | 4480 B |
-| **MathEvaluator** | .NET 8.0 | **591.8 ns** | 3.14 ns | 2.94 ns | 0.0029 | **112 B** |
-| NCalc | .NET 8.0 | 7,225.6 ns | 91.16 ns | 85.27 ns | 0.1450 | 4512 B |
+| **MathEvaluator** | .NET 10.0 | **506.6 ns** | 3.21 ns |  2.85 ns | 0.0029 | **112 B** |
+| NCalc | .NET 10.0 | 5,763.5 ns | 12.98 ns | 11.51 ns | 0.0763 |    2896 B |
+| **MathEvaluator** | .NET 8.0 | **664.5 ns** | 13.31 ns | 16.83 ns |      - |     **112 B** |
+| NCalc | .NET 8.0 | 6,729.4 ns | 16.27 ns | 14.43 ns | 0.0076 |    2896 B |
 
-**Performance gain**: MathEvaluator is **10-13x faster** than NCalc with **40x less memory allocation**.
+**Performance gain**: MathEvaluator is **10-13x faster** than NCalc with **25x less memory allocation**.
 
 #### More Complex Expressions
 
 | Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
 |------------|---------|-----------|----------|---------|
-| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **317.5 ns** | **373.4 ns** | **13-15x** |
-| | NCalc | 4,275.0 ns | 4,954.0 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **411.1 ns** | **506.8 ns** | **11-12x** |
-| | NCalc | 4,623.2 ns | 5,431.4 ns | |
+| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **364.3 ns** | **429.1 ns** | **13-15x** |
+| | NCalc | 4,281.1 ns | 5,069.1 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **476.0 ns** | **582.3 ns** | **11-12x** |
+| | NCalc | 5,167.5 ns | 5,982.1 ns | |
 
 ***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
 

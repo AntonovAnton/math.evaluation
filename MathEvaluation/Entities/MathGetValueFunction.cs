@@ -12,12 +12,12 @@ namespace MathEvaluation.Entities;
 internal class MathGetValueFunction<T> : MathEntity
     where T : struct, INumberBase<T>
 {
-    /// <summary>Gets the getting value function.</summary>
-    /// <value>The getting value function.</value>
-    public Func<T> Fn { get; }
-
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Function;
+
+    /// <summary>Gets the getting value function.</summary>
+    /// <value>The getting value function.</value>
+    private Func<T> Fn { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathGetValueFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>

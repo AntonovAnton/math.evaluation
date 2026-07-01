@@ -1,6 +1,9 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable BuiltInTypeReferenceStyle
+// ReSharper disable PreferConcreteValueOverDefault
+
 namespace MathEvaluation.Context;
 
 /// <summary>
@@ -14,7 +17,6 @@ public class DotNetMathContext : DotNetStandardMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DotNetMathContext" /> class.</summary>
     public DotNetMathContext()
-        : base()
     {
         BindConstant(default(float));
         BindConstant(default(int));
@@ -192,9 +194,11 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Half>(static value => (Half)Half.ILogB(value), "Half.ILogB");
 
         static Half halfLogFn(Half[] args) => args.Length == 1 ? Half.Log(args[0]) : Half.Log(args[0], args[1]);
+
         BindFunction<Half>(halfLogFn, "Half.Log");
 
         static Half halfRoundFn(Half[] args) => args.Length == 1 ? Half.Round(args[0]) : Half.Round(args[0], (int)args[1]);
+
         BindFunction<Half>(halfRoundFn, "Half.Round");
 
         BindFunction<Half>(Half.Log10);
@@ -202,7 +206,10 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Half>(Half.Pow);
         BindFunction<Half>(static (x, n) => Half.RootN(x, (int)n), "Half.RootN");
         BindFunction<Half>(static (x, n) => Half.ScaleB(x, (int)n), "Half.ScaleB");
-        BindFunction<Half>(static value => (Half)Half.Sign(value), "Half.Sign");
+
+        static Half halfSignFn(Half value) => (Half)Half.Sign(value);
+
+        BindFunction<Half>(halfSignFn, "Half.Sign");
         BindFunction<Half>(Half.Sin);
         BindFunction<Half>(Half.Sinh);
         BindFunction<Half>(Half.Sqrt);
@@ -287,9 +294,11 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<double>(v => double.ILogB(v), "double.ILogB");
 
         static double doubleLogFn(double[] args) => args.Length == 1 ? double.Log(args[0]) : double.Log(args[0], args[1]);
+
         BindFunction<double>(doubleLogFn, "double.Log");
 
         static double doubleRoundFn(double[] args) => args.Length == 1 ? double.Round(args[0]) : double.Round(args[0], (int)args[1]);
+
         BindFunction<double>(doubleRoundFn, "double.Round");
 
         BindFunction<double>(double.Log10);
@@ -380,10 +389,14 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<double>(Double.FusedMultiplyAdd);
         BindFunction<double>(v => Double.ILogB(v), "Double.ILogB");
 
+        // ReSharper disable once InconsistentNaming
         static Double DoubleLogFn(Double[] args) => args.Length == 1 ? Double.Log(args[0]) : Double.Log(args[0], args[1]);
+
         BindFunction<double>(DoubleLogFn, "Double.Log");
 
+        // ReSharper disable once InconsistentNaming
         static Double DoubleRoundFn(Double[] args) => args.Length == 1 ? Double.Round(args[0]) : Double.Round(args[0], (int)args[1]);
+
         BindFunction<double>(DoubleRoundFn, "Double.Round");
 
         BindFunction<double>(Double.Log10);
@@ -474,9 +487,11 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<float>(static value => float.ILogB(value), "Single.ILogB");
 
         static float floatLogFn(float[] args) => args.Length == 1 ? float.Log(args[0]) : float.Log(args[0], args[1]);
+
         BindFunction<float>(floatLogFn, "float.Log");
 
         static float floatRoundFn(float[] args) => args.Length == 1 ? float.Round(args[0]) : float.Round(args[0], (int)args[1]);
+
         BindFunction<float>(floatRoundFn, "float.Round");
 
         BindFunction<float>(float.Log10);
@@ -567,9 +582,11 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Single>(static value => Single.ILogB(value), "Single.ILogB");
 
         static Single singleLogFn(Single[] args) => args.Length == 1 ? Single.Log(args[0]) : Single.Log(args[0], args[1]);
+
         BindFunction<Single>(singleLogFn, "Single.Log");
 
         static Single singleRoundFn(Single[] args) => args.Length == 1 ? Single.Round(args[0]) : Single.Round(args[0], (int)args[1]);
+
         BindFunction<Single>(singleRoundFn, "Single.Round");
 
         BindFunction<Single>(Single.Log10);
@@ -577,7 +594,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Single>(Single.Pow);
         BindFunction<Single>(static (x, n) => Single.RootN(x, (int)n), "Single.RootN");
         BindFunction<Single>(static (x, n) => Single.ScaleB(x, (int)n), "Single.ScaleB");
-        BindFunction<Single>(static v => Single.Sign(v), "Single.Sign");
+        BindFunction<Single>(static v => float.Sign(v), "Single.Sign");
         BindFunction<Single>(Single.Sin);
         BindFunction<Single>(Single.Sinh);
         BindFunction<Single>(Single.Sqrt);
@@ -667,6 +684,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<decimal>(decimal.Subtract);
 
         static decimal decimalRoundFn(decimal[] args) => args.Length == 1 ? decimal.Round(args[0]) : decimal.Round(args[0], (int)args[1]);
+
         BindFunction<decimal>(decimalRoundFn, "decimal.Round");
 
         #endregion
@@ -692,18 +710,20 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Decimal>(Decimal.MaxMagnitude);
         BindFunction<Decimal>(Decimal.Min);
         BindFunction<Decimal>(Decimal.MinMagnitude);
-        BindFunction<Decimal>(static v => Decimal.Sign(v), "Decimal.Sign");
+        BindFunction<Decimal>(static v => decimal.Sign(v), "Decimal.Sign");
         BindFunction<Decimal>(Decimal.Truncate);
         BindFunction<Decimal>(Decimal.CopySign);
         BindFunction<Decimal>(Decimal.Add);
         BindFunction<Decimal>(Decimal.Divide);
-        BindFunction<Decimal>(static cy => Decimal.FromOACurrency((long)cy), "Decimal.FromOACurrency");
+        BindFunction<Decimal>(static cy => decimal.FromOACurrency((long)cy), "Decimal.FromOACurrency");
         BindFunction<Decimal>(Decimal.Multiply);
         BindFunction<Decimal>(Decimal.Negate);
         BindFunction<Decimal>(Decimal.Remainder);
         BindFunction<Decimal>(Decimal.Subtract);
 
+        // ReSharper disable once InconsistentNaming
         static Decimal DecimalRoundFn(Decimal[] args) => args.Length == 1 ? Decimal.Round(args[0]) : Decimal.Round(args[0], (int)args[1]);
+
         BindFunction<Decimal>(DecimalRoundFn, "Decimal.Round");
 
         #endregion
@@ -716,6 +736,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(BigInteger.MinusOne);
 
         static BigInteger newComplexFn(BigInteger arg) => new((double)arg);
+
         BindFunction<BigInteger>(newComplexFn, "new BigInteger");
 
         BindFunction<BigInteger>(BigInteger.Abs);
@@ -738,6 +759,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<BigInteger>(BigInteger.LeadingZeroCount);
 
         static double biLogFn(double[] args) => args.Length == 1 ? BigInteger.Log((BigInteger)args[0]) : BigInteger.Log((BigInteger)args[0], args[1]);
+
         BindFunction<double>(biLogFn, "BigInteger.Log");
 
         BindFunction<double>(static v => BigInteger.Log10((BigInteger)v), "BigInteger.Log10");
@@ -767,9 +789,11 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(UInt128.MinValue);
 
         static Int128 newInt128Fn(Int128 upper, Int128 lower) => new((ulong)upper, (ulong)lower);
+
         BindFunction<Int128>(newInt128Fn, "new Int128");
 
         static UInt128 newUInt128Fn(UInt128 upper, UInt128 lower) => new((ulong)upper, (ulong)lower);
+
         BindFunction<UInt128>(newUInt128Fn, "new UInt128");
 
         BindFunction<Int128>(Int128.Abs);
@@ -816,8 +840,8 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<byte>(byte.Max);
         BindFunction<byte>(byte.Min);
         BindFunction<byte>(byte.PopCount);
-        BindFunction<byte>(static (value, shift) => byte.RotateLeft(value, (int)shift), "byte.RotateLeft");
-        BindFunction<byte>(static (value, shift) => byte.RotateRight(value, (int)shift), "byte.RotateRight");
+        BindFunction<byte>(static (value, shift) => byte.RotateLeft(value, shift), "byte.RotateLeft");
+        BindFunction<byte>(static (value, shift) => byte.RotateRight(value, shift), "byte.RotateRight");
         BindFunction<byte>(static value => (byte)byte.Sign(value), "byte.Sign");
         BindFunction<byte>(byte.TrailingZeroCount);
 
@@ -834,9 +858,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Byte>(Byte.Max);
         BindFunction<Byte>(Byte.Min);
         BindFunction<Byte>(Byte.PopCount);
-        BindFunction<Byte>(static (value, shift) => Byte.RotateLeft(value, (int)shift), "Byte.RotateLeft");
-        BindFunction<Byte>(static (value, shift) => Byte.RotateRight(value, (int)shift), "Byte.RotateRight");
-        BindFunction<Byte>(static value => (Byte)Byte.Sign(value), "Byte.Sign");
+        BindFunction<Byte>(static (value, shift) => Byte.RotateLeft(value, shift), "Byte.RotateLeft");
+        BindFunction<Byte>(static (value, shift) => Byte.RotateRight(value, shift), "Byte.RotateRight");
+        BindFunction<Byte>(static value => (byte)byte.Sign(value), "Byte.Sign");
         BindFunction<Byte>(Byte.TrailingZeroCount);
 
         #endregion
@@ -856,8 +880,8 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<sbyte>(sbyte.Min);
         BindFunction<sbyte>(sbyte.MinMagnitude);
         BindFunction<sbyte>(sbyte.PopCount);
-        BindFunction<sbyte>(static (value, shift) => sbyte.RotateLeft(value, (int)shift), "sbyte.RotateLeft");
-        BindFunction<sbyte>(static (value, shift) => sbyte.RotateRight(value, (int)shift), "sbyte.RotateRight");
+        BindFunction<sbyte>(static (value, shift) => sbyte.RotateLeft(value, shift), "sbyte.RotateLeft");
+        BindFunction<sbyte>(static (value, shift) => sbyte.RotateRight(value, shift), "sbyte.RotateRight");
         BindFunction<sbyte>(static value => (sbyte)sbyte.Sign(value), "sbyte.Sign");
         BindFunction<sbyte>(sbyte.TrailingZeroCount);
 
@@ -878,9 +902,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<SByte>(SByte.Min);
         BindFunction<SByte>(SByte.MinMagnitude);
         BindFunction<SByte>(SByte.PopCount);
-        BindFunction<SByte>(static (value, shift) => SByte.RotateLeft(value, (int)shift), "SByte.RotateLeft");
-        BindFunction<SByte>(static (value, shift) => SByte.RotateRight(value, (int)shift), "SByte.RotateRight");
-        BindFunction<SByte>(static value => (SByte)SByte.Sign(value), "SByte.Sign");
+        BindFunction<SByte>(static (value, shift) => sbyte.RotateLeft(value, shift), "SByte.RotateLeft");
+        BindFunction<SByte>(static (value, shift) => sbyte.RotateRight(value, shift), "SByte.RotateRight");
+        BindFunction<SByte>(static value => (sbyte)sbyte.Sign(value), "SByte.Sign");
         BindFunction<SByte>(SByte.TrailingZeroCount);
 
         #endregion
@@ -900,8 +924,8 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<short>(short.Min);
         BindFunction<short>(short.MinMagnitude);
         BindFunction<short>(short.PopCount);
-        BindFunction<short>(static (value, shift) => short.RotateLeft(value, (int)shift), "short.RotateLeft");
-        BindFunction<short>(static (value, shift) => short.RotateRight(value, (int)shift), "short.RotateRight");
+        BindFunction<short>(static (value, shift) => short.RotateLeft(value, shift), "short.RotateLeft");
+        BindFunction<short>(static (value, shift) => short.RotateRight(value, shift), "short.RotateRight");
         BindFunction<short>(static value => (short)short.Sign(value), "short.Sign");
         BindFunction<short>(short.TrailingZeroCount);
 
@@ -922,9 +946,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Int16>(Int16.Min);
         BindFunction<Int16>(Int16.MinMagnitude);
         BindFunction<Int16>(Int16.PopCount);
-        BindFunction<Int16>(static (value, shift) => Int16.RotateLeft(value, (int)shift), "Int16.RotateLeft");
-        BindFunction<Int16>(static (value, shift) => Int16.RotateRight(value, (int)shift), "Int16.RotateRight");
-        BindFunction<Int16>(static value => (Int16)Int16.Sign(value), "Int16.Sign");
+        BindFunction<Int16>(static (value, shift) => short.RotateLeft(value, shift), "Int16.RotateLeft");
+        BindFunction<Int16>(static (value, shift) => short.RotateRight(value, shift), "Int16.RotateRight");
+        BindFunction<Int16>(static value => (short)short.Sign(value), "Int16.Sign");
         BindFunction<Int16>(Int16.TrailingZeroCount);
 
         #endregion
@@ -940,8 +964,8 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<ushort>(ushort.Max);
         BindFunction<ushort>(ushort.Min);
         BindFunction<ushort>(ushort.PopCount);
-        BindFunction<ushort>(static (value, shift) => ushort.RotateLeft(value, (int)shift), "ushort.RotateLeft");
-        BindFunction<ushort>(static (value, shift) => ushort.RotateRight(value, (int)shift), "ushort.RotateRight");
+        BindFunction<ushort>(static (value, shift) => ushort.RotateLeft(value, shift), "ushort.RotateLeft");
+        BindFunction<ushort>(static (value, shift) => ushort.RotateRight(value, shift), "ushort.RotateRight");
         BindFunction<ushort>(ushort.TrailingZeroCount);
 
         #endregion
@@ -957,8 +981,8 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<UInt16>(UInt16.Max);
         BindFunction<UInt16>(UInt16.Min);
         BindFunction<UInt16>(UInt16.PopCount);
-        BindFunction<UInt16>(static (value, shift) => UInt16.RotateLeft(value, (int)shift), "UInt16.RotateLeft");
-        BindFunction<UInt16>(static (value, shift) => UInt16.RotateRight(value, (int)shift), "UInt16.RotateRight");
+        BindFunction<UInt16>(static (value, shift) => ushort.RotateLeft(value, shift), "UInt16.RotateLeft");
+        BindFunction<UInt16>(static (value, shift) => ushort.RotateRight(value, shift), "UInt16.RotateRight");
         BindFunction<UInt16>(UInt16.TrailingZeroCount);
 
         #endregion
@@ -1078,9 +1102,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Int64>(Int64.Min);
         BindFunction<Int64>(Int64.MinMagnitude);
         BindFunction<Int64>(Int64.PopCount);
-        BindFunction<Int64>(static (value, shift) => Int64.RotateLeft(value, (int)shift), "Int64.RotateLeft");
-        BindFunction<Int64>(static (value, shift) => Int64.RotateRight(value, (int)shift), "Int64.RotateRight");
-        BindFunction<Int64>(static value => Int64.Sign(value), "Int64.Sign");
+        BindFunction<Int64>(static (value, shift) => long.RotateLeft(value, (int)shift), "Int64.RotateLeft");
+        BindFunction<Int64>(static (value, shift) => long.RotateRight(value, (int)shift), "Int64.RotateRight");
+        BindFunction<Int64>(static value => long.Sign(value), "Int64.Sign");
         BindFunction<Int64>(Int64.TrailingZeroCount);
 
         #endregion
@@ -1114,9 +1138,12 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<UInt64>(UInt64.Max);
         BindFunction<UInt64>(UInt64.Min);
         BindFunction<UInt64>(UInt64.PopCount);
-        BindFunction<UInt64>(static (value, shift) => UInt64.RotateLeft(value, (int)shift), "UInt64.RotateLeft");
-        BindFunction<UInt64>(static (value, shift) => UInt64.RotateRight(value, (int)shift), "UInt64.RotateRight");
-        BindFunction<UInt64>(static value => (UInt64)UInt64.Sign(value), "UInt64.Sign");
+        BindFunction<UInt64>(static (value, shift) => ulong.RotateLeft(value, (int)shift), "UInt64.RotateLeft");
+        BindFunction<UInt64>(static (value, shift) => ulong.RotateRight(value, (int)shift), "UInt64.RotateRight");
+
+        static UInt64 uint64SignFn(ulong value) => (ulong)ulong.Sign(value);
+
+        BindFunction<UInt64>(uint64SignFn, "UInt64.Sign");
         BindFunction<UInt64>(UInt64.TrailingZeroCount);
 
         #endregion
@@ -1158,9 +1185,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<IntPtr>(IntPtr.Min);
         BindFunction<IntPtr>(IntPtr.MinMagnitude);
         BindFunction<IntPtr>(IntPtr.PopCount);
-        BindFunction<IntPtr>(static (value, shift) => IntPtr.RotateLeft(value, (int)shift), "IntPtr.RotateLeft");
-        BindFunction<IntPtr>(static (value, shift) => IntPtr.RotateRight(value, (int)shift), "IntPtr.RotateRight");
-        BindFunction<IntPtr>(static value => IntPtr.Sign(value), "IntPtr.Sign");
+        BindFunction<IntPtr>(static (value, shift) => nint.RotateLeft(value, (int)shift), "IntPtr.RotateLeft");
+        BindFunction<IntPtr>(static (value, shift) => nint.RotateRight(value, (int)shift), "IntPtr.RotateRight");
+        BindFunction<IntPtr>(static value => nint.Sign(value), "IntPtr.Sign");
         BindFunction<IntPtr>(IntPtr.TrailingZeroCount);
 
         #endregion
@@ -1168,6 +1195,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         #region nuint Type Support
 
         static nuint newNuintFn(nuint arg) => new(arg);
+
         BindFunction<nuint>(newNuintFn, "new nuint");
 
         BindFunction<nuint>(nuint.Clamp);
@@ -1189,6 +1217,7 @@ public class DotNetMathContext : DotNetStandardMathContext
         #region nuint Type Support (using explicit UIntPtr type)
 
         static UIntPtr newUIntPtrFn(UIntPtr arg) => new(arg);
+
         BindFunction<nuint>(newUIntPtrFn, "new UIntPtr");
 
         BindFunction<UIntPtr>(UIntPtr.Clamp);
@@ -1200,9 +1229,9 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<UIntPtr>(UIntPtr.Max);
         BindFunction<UIntPtr>(UIntPtr.Min);
         BindFunction<UIntPtr>(UIntPtr.PopCount);
-        BindFunction<UIntPtr>(static (value, shift) => UIntPtr.RotateLeft(value, (int)shift), "UIntPtr.RotateLeft");
-        BindFunction<UIntPtr>(static (value, shift) => UIntPtr.RotateRight(value, (int)shift), "UIntPtr.RotateRight");
-        BindFunction<UIntPtr>(static value => (UIntPtr)UIntPtr.Sign(value), "UIntPtr.Sign");
+        BindFunction<UIntPtr>(static (value, shift) => nuint.RotateLeft(value, (int)shift), "UIntPtr.RotateLeft");
+        BindFunction<UIntPtr>(static (value, shift) => nuint.RotateRight(value, (int)shift), "UIntPtr.RotateRight");
+        BindFunction<UIntPtr>(static value => (nuint)nuint.Sign(value), "UIntPtr.Sign");
         BindFunction<UIntPtr>(UIntPtr.TrailingZeroCount);
 
         #endregion

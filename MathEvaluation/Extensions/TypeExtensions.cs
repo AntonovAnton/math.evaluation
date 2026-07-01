@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace MathEvaluation.Extensions;
@@ -30,22 +31,19 @@ internal static class TypeExtensions
 
     private static readonly Type NumberBaseInterfaceType = typeof(INumberBase<>);
 
-    /// <summary>Determines whether the specified type is a number base type.</summary>
-    public static bool IsNumberBaseType(this Type type)
+    extension(Type type)
     {
-        if (NumberBaseTypes.Contains(type))
-            return true;
-
-        var interfaces = type.GetInterfaces();
-        foreach (var i in interfaces)
+        /// <summary>Determines whether the specified type is a number base type.</summary>
+        public bool IsNumberBaseType()
         {
-            if (i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType)
+            if (NumberBaseTypes.Contains(type))
                 return true;
+
+            var interfaces = type.GetInterfaces();
+            return interfaces.Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType);
         }
 
-        return false;
+        public bool IsBooleanType()
+            => type == typeof(bool);
     }
-
-    public static bool IsBooleanType(this Type type)
-        => type == typeof(bool);
 }

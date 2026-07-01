@@ -6,13 +6,20 @@ namespace MathEvaluation.Entities;
 /// <summary>
 ///     The math variable uses as a parameter, that should be evaluated as an expression.
 /// </summary>
-internal class MathExpressionVariable(string? key, string mathString) : MathEntity(key)
+internal class MathExpressionVariable : MathEntity
 {
+    private readonly string _mathString;
+
+    /// <summary>
+    ///     The math variable uses as a parameter, that should be evaluated as an expression.
+    /// </summary>
+    public MathExpressionVariable(string? key, string mathString) : base(key)
+    {
+        _mathString = mathString;
+    }
+
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
-
-    /// <summary>Gets the math expression string that defineds variable.</summary>
-    public string MathString => mathString;
 
     /// <inheritdoc />
     public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
@@ -20,11 +27,11 @@ internal class MathExpressionVariable(string? key, string mathString) : MathEnti
         var tokenPosition = i;
         i += Key.Length;
 
-        using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
-        varMathExpression.Evaluating += (sender, args) =>
+        using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
+        varMathExpression.Evaluating += (_, args) =>
         {
             // Forward the evaluating event to the math expression.
-            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
         };
         var result = varMathExpression.Evaluate<TResult>(mathExpression.Parameters);
 
@@ -54,10 +61,11 @@ internal class MathExpressionVariable(string? key, string mathString) : MathEnti
             mathExpression.ExpressionVariables ??= [];
             mathExpression.ExpressionStatements ??= [];
 
-            using var varMathExpression = new MathExpression(MathString, mathExpression.Context, mathExpression.Provider);
-            varMathExpression.Evaluating += (sender, args) =>
+            using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
+            varMathExpression.Evaluating += (_, args) =>
             {
-                mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, mathString, false);
+                // Forward the evaluating event to the math expression.
+                mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
             };
 
             // Build the right-hand side expression (like: 'a + b')

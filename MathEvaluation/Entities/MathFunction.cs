@@ -13,24 +13,24 @@ namespace MathEvaluation.Entities;
 internal class MathFunction<T> : MathEntity
     where T : struct, INumberBase<T>
 {
+    /// <inheritdoc />
+    public override int Precedence => (int)EvalPrecedence.Function;
+
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
-    public Func<T[], T> Fn { get; }
+    private Func<T[], T> Fn { get; }
 
     /// <summary>Gets the opening symbol.</summary>
     /// <value>The opening symbol.</value>
-    public char OpeningSymbol { get; }
+    private char OpeningSymbol { get; }
 
     /// <summary>Gets the parameters separator.</summary>
     /// <value>The parameter separator.</value>
-    public char Separator { get; }
+    private char Separator { get; }
 
     /// <summary>Gets the closing symbol.</summary>
     /// <value>The closing symbol.</value>
-    public char ClosingSymbol { get; }
-
-    /// <inheritdoc />
-    public override int Precedence => (int)EvalPrecedence.Function;
+    private char ClosingSymbol { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>

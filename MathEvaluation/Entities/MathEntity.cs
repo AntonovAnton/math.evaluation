@@ -51,7 +51,7 @@ internal abstract class MathEntity : IMathEntity
 
         var result = value switch
         {
-            Complex c when c.Imaginary != default => throw new InvalidCastException(
+            Complex c when c.Imaginary != 0.0 => throw new InvalidCastException(
                 $"Cannot convert the Complex number to a {conversionType.Name}, value = {value}."),
             Complex c => conversionType == typeof(double) ? c.Real : Convert.ChangeType(c.Real, conversionType),
             IConvertible ic => Convert.ChangeType(ic, conversionType),
@@ -67,7 +67,7 @@ internal abstract class MathEntity : IMathEntity
         {
             double d => d,
             decimal dec => (double)dec,
-            Complex c when c.Imaginary != default => throw new InvalidCastException($"Cannot convert the Complex number to a Double, value = {value}."),
+            Complex c when c.Imaginary != 0.0 => throw new InvalidCastException($"Cannot convert the Complex number to a Double, value = {value}."),
             Complex c => c.Real,
             _ => Convert.ToDouble(value)
         };
@@ -132,7 +132,7 @@ internal abstract class MathEntity : IMathEntity
             expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(typeof(double))), real, exceptionExpr);
         }
 
-        if (expression.NodeType == ExpressionType.Convert && ((UnaryExpression)expression).Operand?.Type == typeof(TResult))
+        if (expression.NodeType == ExpressionType.Convert && ((UnaryExpression)expression).Operand.Type == typeof(TResult))
             return ((UnaryExpression)expression).Operand;
 
         if (expression.Type == typeof(bool))

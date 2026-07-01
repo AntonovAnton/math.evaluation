@@ -11,15 +11,24 @@ namespace MathEvaluation.Entities;
 ///     The math variable uses as a parameter.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = false) : MathEntity(key)
+internal class MathVariable<T> : MathEntity
     where T : struct, INumberBase<T>
 {
+    private readonly bool _isDictionaryItem;
+    private readonly T _variableValue;
+
+    /// <summary>
+    ///     The math variable uses as a parameter.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public MathVariable(string? key, T value, bool isDictionaryItem = false) : base(key)
+    {
+        _isDictionaryItem = isDictionaryItem;
+        _variableValue = value;
+    }
+
     /// <inheritdoc />
     public override int Precedence => (int)EvalPrecedence.Variable;
-
-    /// <summary>Gets the value.</summary>
-    /// <value>The value.</value>
-    public T Value { get; } = value;
 
     /// <inheritdoc />
     public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
@@ -27,7 +36,7 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         var tokenPosition = i;
         i += Key.Length;
 
-        var result = ConvertNumber<T, TResult>(Value);
+        var result = ConvertNumber<T, TResult>(_variableValue);
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
@@ -46,14 +55,13 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
         i += Key.Length;
 
         Expression right;
-        if (isDictinaryItem)
+        if (_isDictionaryItem)
         {
             var parameterType = mathExpression.ParameterExpression!.Type;
 
             // Try to get the default indexer property
             var indexerProperty = parameterType.GetProperties()
-                .FirstOrDefault(p => p.GetIndexParameters().Length > 0
-                                   && p.GetIndexParameters()[0].ParameterType == typeof(string));
+                .FirstOrDefault(p => p.GetIndexParameters().Length > 0 && p.GetIndexParameters()[0].ParameterType == typeof(string));
 
             if (indexerProperty != null)
             {
@@ -65,11 +73,10 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
             {
                 // Fallback: Try to use TryGetValue or ContainsKey/get_Item pattern
                 var dictionaryInterface = parameterType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType &&
-                                        i.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
-                                        i.GetGenericArguments()[0] == typeof(string));
+                    .FirstOrDefault(i
+                        => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && i.GetGenericArguments()[0] == typeof(string));
 
-                MethodInfo? tryGetValueMethod = null;
+                MethodInfo? tryGetValueMethod;
                 Type? dictionaryValueType = null;
 
                 const string methodName = "TryGetValue";
@@ -115,11 +122,7 @@ internal class MathVariable<T>(string? key, T value, bool isDictinaryItem = fals
                         resultExpression = Expression.Convert(valueVariable, typeof(T));
                     }
 
-                    right = Expression.Block(
-                        [valueVariable],
-                        tryGetValueCall,
-                        resultExpression
-                    );
+                    right = Expression.Block([valueVariable], tryGetValueCall, resultExpression);
                 }
                 else
                 {
