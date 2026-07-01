@@ -90,9 +90,13 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build MathEvaluator
+        if: steps.check.outputs.skip == 'false'
+        run: dotnet build MathEvaluation/MathEvaluation.csproj -c Release
+
       - name: Pack MathEvaluator
         if: steps.check.outputs.skip == 'false'
-        run: dotnet pack MathEvaluation/MathEvaluation.csproj -c Release -o ./nupkgs
+        run: dotnet pack MathEvaluation/MathEvaluation.csproj -c Release -o ./nupkgs --no-build
 
       - name: Publish MathEvaluator to NuGet (Trusted Publishing)
         if: steps.check.outputs.skip == 'false'
@@ -170,9 +174,13 @@ jobs:
           echo "MathEvaluator reference pinned to $VERSION"
           grep 'PackageReference Include="MathEvaluator"' MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj
 
+      - name: Build MathEvaluator.FastExpressionCompiler
+        if: steps.check.outputs.skip == 'false'
+        run: dotnet build MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj -c Release
+
       - name: Pack MathEvaluator.FastExpressionCompiler
         if: steps.check.outputs.skip == 'false'
-        run: dotnet pack MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj -c Release -o ./nupkgs
+        run: dotnet pack MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj -c Release -o ./nupkgs --no-build
 
       - name: Publish MathEvaluator.FastExpressionCompiler to NuGet (Trusted Publishing)
         if: steps.check.outputs.skip == 'false'
