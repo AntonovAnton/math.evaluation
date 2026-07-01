@@ -8,6 +8,9 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace MathEvaluation.Parameters;
 
 /// <summary>
@@ -52,12 +55,9 @@ public sealed class MathParameters
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters), "The parameters argument cannot be null.");
 
-        foreach (var pair in parameters)
+        foreach (var (key, value) in parameters)
         {
-            var key = pair.Key;
-            var value = pair.Value;
             var propertyType = value?.GetType();
-
             BindKeyValue(propertyType, key, value, true);
         }
     }
@@ -224,34 +224,36 @@ public sealed class MathParameters
                 switch (pair)
                 {
                     case DictionaryEntry dictEntry:
-                        {
-                            if (dictEntry.Key is not string key)
-                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                    {
+                        if (dictEntry.Key is not string key)
+                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
 
-                            var propertyType = dictEntry.Value?.GetType();
-                            BindKeyValue(propertyType, key, dictEntry.Value, true);
-                            break;
-                        }
+                        var propertyType = dictEntry.Value?.GetType();
+                        BindKeyValue(propertyType, key, dictEntry.Value, true);
+                        break;
+                    }
                     case KeyValuePair<string, object?> kvp:
-                        {
-                            var propertyType = kvp.Value?.GetType();
-                            BindKeyValue(propertyType, kvp.Key, kvp.Value, true);
-                            break;
-                        }
-                    case var genericPair:
-                        {
-                            var pairType = genericPair.GetType();
-                            var keyProperty = pairType.GetProperty("Key");
-                            var valueProperty = pairType.GetProperty("Value");
-                            if (keyProperty == null || valueProperty == null)
-                                throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
-                            var keyObj = keyProperty.GetValue(genericPair);
-                            var valueObj = valueProperty.GetValue(genericPair);
-                            if (keyObj is not string key)
-                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
-                            BindKeyValue(valueProperty.PropertyType, key, valueObj, true);
-                            break;
-                        }
+                    {
+                        var propertyType = kvp.Value?.GetType();
+                        BindKeyValue(propertyType, kvp.Key, kvp.Value, true);
+                        break;
+                    }
+                    default:
+                    {
+                        var pairType = pair.GetType();
+                        var keyProperty = pairType.GetProperty("Key");
+                        var valueProperty = pairType.GetProperty("Value");
+                        if (keyProperty == null || valueProperty == null)
+                            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+
+                        var keyObj = keyProperty.GetValue(pair);
+                        var valueObj = valueProperty.GetValue(pair);
+                        if (keyObj is not string key)
+                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                        BindKeyValue(valueProperty.PropertyType, key, valueObj, true);
+                        break;
+                    }
                 }
             }
 
@@ -332,24 +334,25 @@ public sealed class MathParameters
             case string str:
                 if (string.IsNullOrWhiteSpace(str))
                     throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+
                 BindExpressionVariable(str, key);
-                break; ;
+                break;
             case Func<bool> boolFn1:
                 BindFunction(boolFn1, key);
                 break;
             default:
-                {
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+            {
+                if (propertyType.FullName?.StartsWith("System.Func") == true)
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-                }
+                throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+            }
         }
     }
 
     private void BindVariable<T>(string key, T value, bool isDictionaryItem)
         where T : struct, INumberBase<T>
-        => _trie.AddMathEntity(new MathVariable<T>(key.ToString(), value, isDictionaryItem));
+        => _trie.AddMathEntity(new MathVariable<T>(key, value, isDictionaryItem));
 
     private bool TryBind<T>(string key, object value, bool isDictionaryItem)
         where T : struct, INumberBase<T>

@@ -11,12 +11,12 @@ namespace MathEvaluation.Entities;
 internal class MathOperator<T> : MathEntity
     where T : struct, INumberBase<T>
 {
-    /// <summary>Gets the function.</summary>
-    /// <value>The function.</value>
-    public Func<T, T, T> Fn { get; }
-
     /// <inheritdoc />
     public override int Precedence { get; }
+
+    /// <summary>Gets the function.</summary>
+    /// <value>The function.</value>
+    private Func<T, T, T> Fn { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathOperator{T}" /> class.</summary>
     /// <param name="key">The key (the operator notation).</param>

@@ -17,16 +17,12 @@ internal class MathCompatibleOperator : MathEntity
 
     private readonly bool _isProcessingOperand;
 
-    /// <summary>Gets the type of the expression node.</summary>
-    /// <value>The type of the expression node.</value>
-    public ExpressionType ExpressionType { get; }
-
     /// <inheritdoc />
     public override int Precedence { get; }
 
     /// <summary>Gets the type of the operator.</summary>
     /// <value>The type of the operator.</value>
-    public OperatorType OperatorType { get; }
+    private OperatorType OperatorType { get; }
 
     static MathCompatibleOperator()
     {
@@ -57,7 +53,6 @@ internal class MathCompatibleOperator : MathEntity
         : base(key)
     {
         OperatorType = operatorType;
-        ExpressionType = ExpressionTypeByOperatorType[operatorType];
 
         var precedence = EvalPrecedenceByOperatorType[operatorType];
         Precedence = (int)precedence;
@@ -172,7 +167,8 @@ internal class MathCompatibleOperator : MathEntity
             OperatorType.Modulo when left is Int128 l => ConvertNumber<Int128, TResult>(l % ConvertNumber<TResult, Int128>(right)),
             OperatorType.Modulo when left is UInt128 l => ConvertNumber<UInt128, TResult>(l % ConvertNumber<TResult, UInt128>(right)),
             OperatorType.Modulo when left is BigInteger l => ConvertNumber<BigInteger, TResult>(l % ConvertNumber<TResult, BigInteger>(right)),
-            OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) % ConvertNumber<TResult, long>(right)),
+            OperatorType.Modulo when TResult.IsInteger(left) && TResult.IsInteger(right) => ConvertNumber<long, TResult>(ConvertNumber<TResult, long>(left) %
+                ConvertNumber<TResult, long>(right)),
             OperatorType.Modulo => ConvertNumber<double, TResult>(ConvertNumber<TResult, double>(left) % ConvertNumber<TResult, double>(right)),
 
             OperatorType.Power when left is BigInteger l => ConvertNumber<BigInteger, TResult>(BigInteger.Pow(l, ConvertNumber<TResult, int>(right))),
@@ -338,7 +334,7 @@ internal class MathCompatibleOperator : MathEntity
                 left = BuildConvert<UInt128>(left);
                 right = BuildConvert<UInt128>(right);
                 break;
-            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor when typeof(BigInteger) == typeof(BigInteger):
+            case OperatorType.BitwiseAnd or OperatorType.BitwiseOr or OperatorType.BitwiseXor when typeof(TResult) == typeof(BigInteger):
                 left = BuildConvert<BigInteger>(left);
                 right = BuildConvert<BigInteger>(right);
                 break;
@@ -361,7 +357,8 @@ internal class MathCompatibleOperator : MathEntity
         }
 
         var expression = type is OperatorType.LogicalNot or OperatorType.LogicalNegation or OperatorType.BitwiseNegation or OperatorType.Negate
-            ? Expression.MakeUnary(ExpressionTypeByOperatorType[type], right, null!).Reduce() // null is okey here because the type is not needed for these operators
+            ? Expression.MakeUnary(ExpressionTypeByOperatorType[type], right, null!)
+                .Reduce() // null is okay here because the type is not needed for these operators
             : Expression.MakeBinary(ExpressionTypeByOperatorType[type], left, right).Reduce();
 
         return BuildConvert<TResult>(expression);
@@ -378,7 +375,7 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     private static bool ConvertToBoolean(Complex value)
-        => ConvertToDouble(value) != default;
+        => ConvertToDouble(value) != 0.0;
 
     #endregion
 }

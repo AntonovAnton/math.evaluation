@@ -15,7 +15,7 @@ public partial class MathExpression
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
             var lambda = Expression.Lambda<Func<bool>>(ExpressionTree);
-            ExpressionTree =  lambda;
+            ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();
         }
@@ -58,13 +58,13 @@ public partial class MathExpression
         // Avoid unnecessary conversion for boolean expressions
         if (expression.NodeType == ExpressionType.Convert &&
             expression is UnaryExpression unaryExpression &&
-            unaryExpression.Operand?.Type == typeof(bool))
+            unaryExpression.Operand.Type == typeof(bool))
         {
             return unaryExpression.Operand;
         }
         else
         {
-            return Expression.NotEqual(expression, Expression.Constant(default(double)));
+            return Expression.NotEqual(expression, Expression.Constant(0.0));
         }
     }
 }

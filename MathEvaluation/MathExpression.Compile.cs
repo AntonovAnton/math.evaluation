@@ -12,6 +12,7 @@ public partial class MathExpression
 {
     /// <summary>Gets the expression tree.</summary>
     /// <value>The expression tree.</value>
+    // ReSharper disable once MemberCanBePrivate.Global
     public Expression? ExpressionTree { get; private set; }
 
     internal ParameterExpression? ParameterExpression { get; private set; }
@@ -80,35 +81,10 @@ public partial class MathExpression
         }
     }
 
-    internal Expression Build<TResult>()
-        where TResult : struct, INumberBase<TResult>
-    {
-        _evaluatingStep = 0;
-
-        var i = 0;
-        var expression = Build<TResult>(ref i, null, null);
-
-        if (_evaluatingStep == 0)
-            OnEvaluating(0, i, expression);
-
-        return expression;
-    }
-
-    internal Expression Build<T, TResult>(T parameters)
-        where TResult : struct, INumberBase<TResult>
-    {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
-
-        const string parameterName = "args";
-        var parameterExpression = Expression.Parameter(typeof(T), parameterName);
-        return Build<TResult>(parameterExpression, new MathParameters(parameters));
-    }
-
     internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters)
         where TResult : struct, INumberBase<TResult>
     {
-        _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
         _evaluatingStep = 0;
 
@@ -140,7 +116,7 @@ public partial class MathExpression
                 return expression;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a number.
+            if (char.IsAsciiDigit(span[i]) || span[i] == _decimalSeparator || //the real part of a number.
                 (typeof(TResult) == typeof(Complex) &&
                  span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1])))) //the imaginary part of a complex number.
             {
@@ -151,21 +127,21 @@ public partial class MathExpression
                 var value = span.ParseNumber<TResult>(_numberFormat, ref i);
                 expression = Expression.Constant(value);
 
-                if (value is Complex c && c.Imaginary != default)
+                if (value is Complex c && c.Imaginary != 0.0)
                     OnEvaluating(tokenPosition, i, expression);
                 continue;
             }
 
             switch (span[i])
             {
-                case '(':
+                case Constants.DefaultOpeningSymbol:
                     if (precedence >= (int)EvalPrecedence.Function)
                         return expression;
 
                     var tokenPosition = i;
                     i++;
-                    var right = Build<TResult>(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
+                    var right = Build<TResult>(ref i, null, Constants.DefaultClosingSymbol);
+                    MathString.ThrowExceptionIfNotClosed(Constants.DefaultClosingSymbol, tokenPosition, ref i);
                     if (isOperand)
                         return right;
 
@@ -176,7 +152,7 @@ public partial class MathExpression
                         OnEvaluating(start, i, expression);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
-                    if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i)))
+                    if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsWhiteSpace(start, i)))
                         return expression;
 
                     i++;
@@ -190,8 +166,8 @@ public partial class MathExpression
 
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
-                    var isMeaningless = MathString.IsMeaningless(start, i);
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isMeaningless)
+                    var isWhiteSpace = MathString.IsWhiteSpace(start, i);
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isWhiteSpace)
                         return expression;
 
                     i++;
@@ -203,14 +179,14 @@ public partial class MathExpression
                     //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
                     if (right is ConstantExpression { Value: Complex value })
                     {
-                        if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out var isImaginaryPart))
+                        if (isWhiteSpace && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out var isImaginaryPart))
                             expression = Expression.Constant(isImaginaryPart ? Complex.Conjugate(value) : new Complex(-value.Real, value.Imaginary));
                         else
                             expression = MathCompatibleOperator.Build<TResult>(OperatorType.Subtract, expression, right);
                     }
                     else
                     {
-                        var operatorType = isMeaningless ? OperatorType.Negate : OperatorType.Subtract;
+                        var operatorType = isWhiteSpace ? OperatorType.Negate : OperatorType.Subtract;
                         expression = MathCompatibleOperator.Build<TResult>(operatorType, expression, right);
                     }
 
@@ -239,10 +215,13 @@ public partial class MathExpression
 
                     OnEvaluating(start, i, expression);
                     break;
-                case ' ' or '\t' or '\n' or '\r': //whitespace, tab, LF, or CR
-                    i++;
-                    break;
                 default:
+                    if (char.IsWhiteSpace(span[i]))
+                    {
+                        i++;
+                        break;
+                    }
+
                     var entity = FirstMathEntity(span[i..]);
                     if (entity == null)
                     {
@@ -274,10 +253,9 @@ public partial class MathExpression
     internal static Expression BuildMultiplyIfLeftNotDefault<TResult>(Expression left, Expression right)
         where TResult : struct, INumberBase<TResult>
     {
-        if (left.IsDefault<TResult>())
-            return right;
-
-        return MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
+        return left.IsDefault<TResult>()
+            ? right
+            : MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
     internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
@@ -294,7 +272,7 @@ public partial class MathExpression
     internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, INumberBase<TResult>
     {
-        MathString.SkipMeaningless(ref i);
+        MathString.SkipWhiteSpace(ref i);
         if (MathString.Length <= i)
             return left;
 
@@ -302,5 +280,30 @@ public partial class MathExpression
         return entity is { Precedence: >= (int)EvalPrecedence.Exponentiation }
             ? entity.Build<TResult>(this, start, ref i, separator, closingSymbol, left)
             : left;
+    }
+
+    private Expression Build<TResult>()
+        where TResult : struct, INumberBase<TResult>
+    {
+        _evaluatingStep = 0;
+
+        var i = 0;
+        var expression = Build<TResult>(ref i, null, null);
+
+        if (_evaluatingStep == 0)
+            OnEvaluating(0, i, expression);
+
+        return expression;
+    }
+
+    private Expression Build<T, TResult>(T parameters)
+        where TResult : struct, INumberBase<TResult>
+    {
+        if (parameters == null)
+            throw new ArgumentNullException(nameof(parameters));
+
+        const string parameterName = "args";
+        var parameterExpression = Expression.Parameter(typeof(T), parameterName);
+        return Build<TResult>(parameterExpression, new MathParameters(parameters));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using MathEvaluation.Entities;
+
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
 namespace MathEvaluation.Context;
@@ -15,7 +16,6 @@ public class DotNetStandardMathContext : MathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DotNetStandardMathContext" /> class.</summary>
     public DotNetStandardMathContext()
-        : base()
     {
         BindConstant(1d, "true");
         BindConstant(0d, "false");

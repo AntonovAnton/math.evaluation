@@ -1,0 +1,212 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - main
+
+# id-token: write  — required for NuGet Trusted Publishing via OIDC (no API keys needed)
+# contents: write  — required to create git tags and GitHub Releases
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # 1. Read versions from both csproj files and ensure they match
+  # ────────────────────────────────────────────────────────────────────────────
+  read-version:
+    name: Read & Validate Versions
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read and validate versions
+        id: read
+        run: |
+          VERSION=$(grep -oP '(?<=<Version>)[^<]+' MathEvaluation/MathEvaluation.csproj | tr -d '[:space:]')
+          FEC_VERSION=$(grep -oP '(?<=<Version>)[^<]+' MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj | tr -d '[:space:]')
+
+          echo "MathEvaluator version:                       $VERSION"
+          echo "MathEvaluator.FastExpressionCompiler version: $FEC_VERSION"
+
+          if [ "$VERSION" != "$FEC_VERSION" ]; then
+            echo "::error::Version mismatch — MathEvaluator=$VERSION, MathEvaluator.FastExpressionCompiler=$FEC_VERSION. Both csproj files must have the same <Version>."
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 2. Run tests — publishing is blocked if any test fails
+  # ────────────────────────────────────────────────────────────────────────────
+  run-tests:
+    name: Run Tests
+    needs: read-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 3. Build, pack and publish MathEvaluator
+  # ────────────────────────────────────────────────────────────────────────────
+  publish-mathevaluator:
+    name: Publish MathEvaluator
+    needs: [read-version, run-tests]
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Check if MathEvaluator ${{ needs.read-version.outputs.version }} is already published
+        id: check
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.nuget.org/v3-flatcontainer/mathevaluator/${VERSION}/mathevaluator.${VERSION}.nupkg")
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "MathEvaluator $VERSION is already published — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "MathEvaluator $VERSION is not yet published."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pack MathEvaluator
+        if: steps.check.outputs.skip == 'false'
+        run: dotnet pack MathEvaluation/MathEvaluation.csproj -c Release -o ./nupkgs
+
+      - name: Publish MathEvaluator to NuGet (Trusted Publishing)
+        if: steps.check.outputs.skip == 'false'
+        id: publish
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          OIDC_TOKEN=$(curl -fsSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api.nuget.org" \
+            | jq -r '.value')
+          dotnet nuget push "./nupkgs/MathEvaluator.${VERSION}.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "$OIDC_TOKEN"
+          echo "published=true" >> $GITHUB_OUTPUT
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 4. Wait for MathEvaluator to be indexed, then publish MathEvaluator.FastExpressionCompiler
+  # ────────────────────────────────────────────────────────────────────────────
+  publish-fec:
+    name: Publish MathEvaluator.FastExpressionCompiler
+    needs: [read-version, publish-mathevaluator]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Check if MathEvaluator.FastExpressionCompiler ${{ needs.read-version.outputs.version }} is already published
+        id: check
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.nuget.org/v3-flatcontainer/mathevaluator.fastexpressioncompiler/${VERSION}/mathevaluator.fastexpressioncompiler.${VERSION}.nupkg")
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "MathEvaluator.FastExpressionCompiler $VERSION is already published — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "MathEvaluator.FastExpressionCompiler $VERSION is not yet published."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for MathEvaluator ${{ needs.read-version.outputs.version }} to be indexed on NuGet
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          echo "Waiting for MathEvaluator $VERSION to be indexed on NuGet..."
+          for i in $(seq 1 30); do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://api.nuget.org/v3-flatcontainer/mathevaluator/${VERSION}/mathevaluator.${VERSION}.nupkg")
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "MathEvaluator $VERSION is indexed and available."
+              exit 0
+            fi
+            echo "Attempt $i/30: not indexed yet — retrying in 30s..."
+            sleep 30
+          done
+          echo "::error::MathEvaluator $VERSION was not indexed within 15 minutes."
+          exit 1
+
+      - name: Pin MathEvaluator reference to ${{ needs.read-version.outputs.version }}
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          sed -i \
+            "s|<PackageReference Include=\"MathEvaluator\" Version=\"[^\"]*\"|<PackageReference Include=\"MathEvaluator\" Version=\"$VERSION\"|" \
+            MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj
+          echo "MathEvaluator reference pinned to $VERSION"
+          grep 'PackageReference Include="MathEvaluator"' MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj
+
+      - name: Pack MathEvaluator.FastExpressionCompiler
+        if: steps.check.outputs.skip == 'false'
+        run: dotnet pack MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj -c Release -o ./nupkgs
+
+      - name: Publish MathEvaluator.FastExpressionCompiler to NuGet (Trusted Publishing)
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          OIDC_TOKEN=$(curl -fsSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api.nuget.org" \
+            | jq -r '.value')
+          dotnet nuget push "./nupkgs/MathEvaluator.FastExpressionCompiler.${VERSION}.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "$OIDC_TOKEN"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 5. Tag the commit and create a GitHub Release with auto-generated notes
+  #    Runs only when MathEvaluator was newly published in this workflow run
+  # ────────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: Tag & Create GitHub Release
+    needs: [read-version, publish-mathevaluator, publish-fec]
+    if: needs.publish-mathevaluator.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so GitHub can generate meaningful release notes
+
+      - name: Create tag v${{ needs.read-version.outputs.version }} and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.read-version.outputs.version }}
+        run: |
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            --latest

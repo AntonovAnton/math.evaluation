@@ -15,10 +15,9 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathExpression : IDisposable
 {
-    private readonly NumberFormatInfo? _numberFormat;
+    private readonly NumberFormatInfo _numberFormat;
     private readonly char _decimalSeparator;
 
-    private MathParameters? _parameters;
     private int _evaluatingStep;
 
     /// <summary>Gets the math expression string.</summary>
@@ -35,9 +34,10 @@ public partial class MathExpression : IDisposable
 
     /// <summary> Gets the expression compiler used to compile and evaluate expressions.</summary>
     /// <value>The expression compiler.</value>
+    // ReSharper disable once MemberCanBePrivate.Global
     public IExpressionCompiler? Compiler { get; }
 
-    internal MathParameters? Parameters => _parameters;
+    internal MathParameters? Parameters { get; private set; }
 
     /// <summary>Initializes a new instance of the <see cref="MathExpression" /> class.</summary>
     /// <param name="mathString">The math expression string.</param>
@@ -56,13 +56,13 @@ public partial class MathExpression : IDisposable
 
         MathString = mathString;
         Context = context;
-        Provider = provider;
         Compiler = compiler;
 
         // Parsers use CurrentCulture when provider is null, so do not set number info for current culture to avoid unnecessary overhead.
-        _numberFormat = provider != null ? NumberFormatInfo.GetInstance(provider) : null;
-        var numberFormat = _numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
-        _decimalSeparator = numberFormat.NumberDecimalSeparator.Length > 0 ? numberFormat.NumberDecimalSeparator[0] : '.';
+        _numberFormat = NumberFormatInfo.GetInstance(provider);
+        Provider = _numberFormat;
+
+        _decimalSeparator = _numberFormat.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
 
     /// <inheritdoc cref="Evaluate(MathParameters?)" />
@@ -88,7 +88,7 @@ public partial class MathExpression : IDisposable
     public TResult Evaluate<TResult>(MathParameters? parameters)
         where TResult : struct, INumberBase<TResult>
     {
-        _parameters = parameters;
+        Parameters = parameters;
         _evaluatingStep = 0;
 
         try
@@ -120,10 +120,12 @@ public partial class MathExpression : IDisposable
         => $"{nameof(MathString)}: \"{MathString}\", {nameof(Context)}: {Context?.ToString() ?? "null"}, {nameof(Provider)}: {Provider?.ToString() ?? "null"}";
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-    public void Dispose()
+#pragma warning disable CA1816
+    void IDisposable.Dispose()
+#pragma warning restore CA1816
     {
         Evaluating = null;
-        _parameters = null;
+        Parameters = null;
         ParameterExpression = null;
         ExpressionTree = null;
     }
@@ -147,7 +149,7 @@ public partial class MathExpression : IDisposable
                 return value;
             }
 
-            if (span[i] is >= '0' and <= '9' || span[i] == _decimalSeparator || //the real part of a number.
+            if (char.IsAsciiDigit(span[i]) || span[i] == _decimalSeparator || //the real part of a number.
                 (typeof(TResult) == typeof(Complex) &&
                  span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1])))) //the imaginary part of a complex number.
             {
@@ -157,21 +159,21 @@ public partial class MathExpression : IDisposable
                 var tokenPosition = i;
                 value = span.ParseNumber<TResult>(_numberFormat, ref i);
 
-                if (value is Complex c && c.Imaginary != default)
+                if (value is Complex c && c.Imaginary != 0.0)
                     OnEvaluating(tokenPosition, i, value);
                 continue;
             }
 
             switch (span[i])
             {
-                case '(':
+                case Constants.DefaultOpeningSymbol:
                     if (precedence >= (int)EvalPrecedence.Function)
                         return value;
 
                     var tokenPosition = i;
                     i++;
-                    var result = Evaluate<TResult>(ref i, null, ')');
-                    MathString.ThrowExceptionIfNotClosed(')', tokenPosition, ref i);
+                    var result = Evaluate<TResult>(ref i, null, Constants.DefaultClosingSymbol);
+                    MathString.ThrowExceptionIfNotClosed(Constants.DefaultClosingSymbol, tokenPosition, ref i);
                     if (isOperand)
                         return result;
 
@@ -182,7 +184,7 @@ public partial class MathExpression : IDisposable
                         OnEvaluating(start, i, value, skipNaN: true);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
-                    if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsMeaningless(start, i)))
+                    if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsWhiteSpace(start, i)))
                         return value;
 
                     i++;
@@ -195,8 +197,8 @@ public partial class MathExpression : IDisposable
 
                     break;
                 case '-' when span.Length == i + 1 || span[i + 1] != '-':
-                    var isMeaningless = MathString.IsMeaningless(start, i);
-                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isMeaningless)
+                    var isWhiteSpace = MathString.IsWhiteSpace(start, i);
+                    if (precedence >= (int)EvalPrecedence.LowestBasic && !isWhiteSpace)
                         return value;
 
                     i++;
@@ -208,13 +210,13 @@ public partial class MathExpression : IDisposable
                     if (result is Complex c)
                     {
                         //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
-                        if (isMeaningless && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out var isImaginaryPart))
+                        if (isWhiteSpace && span[numberPosition..i].IsComplexNumberPart(_numberFormat, out var isImaginaryPart))
                             value = TResult.CreateChecked(isImaginaryPart ? Complex.Conjugate(c) : new Complex(-c.Real, c.Imaginary));
                         else
                             value -= result;
                     }
                     else
-                        value = isMeaningless ? -result : value - result; //it keeps sign
+                        value = isWhiteSpace ? -result : value - result; //it keeps sign
 
                     OnEvaluating(start, i, value);
                     if (isOperand)
@@ -239,10 +241,13 @@ public partial class MathExpression : IDisposable
 
                     OnEvaluating(start, i, value);
                     break;
-                case ' ' or '\t' or '\n' or '\r': //whitespace, tab, LF, or CR
-                    i++;
-                    break;
                 default:
+                    if (char.IsWhiteSpace(span[i]))
+                    {
+                        i++;
+                        break;
+                    }
+
                     var entity = FirstMathEntity(span[i..]);
                     if (entity == null)
                     {
@@ -285,7 +290,7 @@ public partial class MathExpression : IDisposable
     internal TResult EvaluateExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, TResult value)
         where TResult : struct, INumberBase<TResult>
     {
-        MathString.SkipMeaningless(ref i);
+        MathString.SkipWhiteSpace(ref i);
         if (MathString.Length <= i)
             return value;
 
@@ -300,11 +305,13 @@ public partial class MathExpression : IDisposable
         if (Evaluating == null)
             return;
 
-        if (skipNaN && (value is double d && double.IsNaN(d) ||
-            value is float f && float.IsNaN(f) ||
-            value is Half h && Half.IsNaN(h) ||
-            value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
+        if (skipNaN && (value is double.NaN ||
+                        value is float.NaN ||
+                        value is Half h && Half.IsNaN(h) ||
+                        value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
+        {
             return;
+        }
 
         mathString ??= MathString;
         _evaluatingStep++;
@@ -334,19 +341,22 @@ public partial class MathExpression : IDisposable
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
     {
-        var p = _parameters?.FirstMathEntity(mathString);
-        if (p != null)
+        var p = Parameters?.FirstMathEntity(mathString);
+        if (p == null)
         {
-            var c = Context?.FirstMathEntity(mathString);
-            if (c != null) //parameter and context entity are found so compare them to get the longest key it says what entity is found
-                return c.Key.Length > p.Key.Length ? c : p;
-
-            return p;
+            return Context?.FirstMathEntity(mathString);
         }
 
-        return Context?.FirstMathEntity(mathString);
+        var c = Context?.FirstMathEntity(mathString);
+        if (c != null)
+        {
+            //parameter and context entity are found so compare them to get the longest key it says what entity is found
+            return c.Key.Length > p.Key.Length ? c : p;
+        }
+
+        return p;
     }
 
     private bool IsParamSeparator(char separator, int start, int i)
-        => MathString[i] == separator && (_decimalSeparator != separator || !MathString.IsMeaningless(start, i));
+        => MathString[i] == separator && (_decimalSeparator != separator || !MathString.IsWhiteSpace(start, i));
 }

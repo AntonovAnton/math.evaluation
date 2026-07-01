@@ -3,7 +3,7 @@
 namespace MathEvaluation.Entities;
 
 /// <summary>
-///     Enumering precedence of math evaluation.
+///     Enumerating precedence of math evaluation.
 /// </summary>
 [Serializable]
 public enum EvalPrecedence

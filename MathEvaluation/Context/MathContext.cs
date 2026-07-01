@@ -6,6 +6,10 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace MathEvaluation.Context;
 
 /// <summary>
@@ -319,18 +323,19 @@ public class MathContext
             case string str:
                 if (string.IsNullOrWhiteSpace(str))
                     throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+
                 BindExpressionVariable(str, key);
-                break; ;
+                break;
             case Func<bool> boolFn1:
                 BindFunction(boolFn1, key);
                 break;
             default:
-                {
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+            {
+                if (propertyType.FullName?.StartsWith("System.Func") == true)
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
 
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-                }
+                throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+            }
         }
     }
 
