@@ -98,19 +98,20 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         run: dotnet pack MathEvaluation/MathEvaluation.csproj -c Release -o ./nupkgs --no-build
 
+      - name: NuGet login (OIDC)
+        if: steps.check.outputs.skip == 'false'
+        uses: NuGet/login@v1
+        id: nuget-login
+
       - name: Publish MathEvaluator to NuGet (Trusted Publishing)
         if: steps.check.outputs.skip == 'false'
         id: publish
         env:
           VERSION: ${{ needs.read-version.outputs.version }}
         run: |
-          OIDC_TOKEN=$(curl -fsSL \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api.nuget.org" \
-            | jq -r '.value')
           dotnet nuget push "./nupkgs/MathEvaluator.${VERSION}.nupkg" \
             --source https://api.nuget.org/v3/index.json \
-            --api-key "$OIDC_TOKEN"
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
           echo "published=true" >> $GITHUB_OUTPUT
 
   # ────────────────────────────────────────────────────────────────────────────
@@ -182,18 +183,19 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         run: dotnet pack MathEvaluation.FastExpressionCompiler/MathEvaluation.FastExpressionCompiler.csproj -c Release -o ./nupkgs --no-build
 
+      - name: NuGet login (OIDC)
+        if: steps.check.outputs.skip == 'false'
+        uses: NuGet/login@v1
+        id: nuget-login
+
       - name: Publish MathEvaluator.FastExpressionCompiler to NuGet (Trusted Publishing)
         if: steps.check.outputs.skip == 'false'
         env:
           VERSION: ${{ needs.read-version.outputs.version }}
         run: |
-          OIDC_TOKEN=$(curl -fsSL \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api.nuget.org" \
-            | jq -r '.value')
           dotnet nuget push "./nupkgs/MathEvaluator.FastExpressionCompiler.${VERSION}.nupkg" \
             --source https://api.nuget.org/v3/index.json \
-            --api-key "$OIDC_TOKEN"
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
 
   # ────────────────────────────────────────────────────────────────────────────
   # 5. Tag the commit and create a GitHub Release with auto-generated notes
