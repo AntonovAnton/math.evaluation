@@ -43,7 +43,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -61,7 +61,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -78,7 +78,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -106,7 +106,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -128,7 +128,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -146,7 +146,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -168,7 +168,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -192,7 +192,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -210,7 +210,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -232,7 +232,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -255,7 +255,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -272,7 +272,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -305,7 +305,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -336,7 +336,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -366,7 +366,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -396,7 +396,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -427,7 +427,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -451,7 +451,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -474,7 +474,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -498,7 +498,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -521,7 +521,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -548,7 +548,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Fact]

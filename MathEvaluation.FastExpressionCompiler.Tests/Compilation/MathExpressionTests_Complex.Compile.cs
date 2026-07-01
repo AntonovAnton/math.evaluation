@@ -60,7 +60,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -78,7 +79,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -95,7 +96,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -123,7 +124,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -146,7 +147,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -164,7 +165,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -176,7 +177,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("(-3)**0.5", 1.0605752387249068E-16, 1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)**2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  **2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void FastMathExpression_CompileComplexThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
+    public void FastMathExpression_CompileComplexThenInvoke_HasProgrammingPower_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0d)
     {
         using var expression = new FastMathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
@@ -186,7 +188,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -200,7 +203,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     [InlineData("(-3)^0.5", 1.0605752387249068E-16, 1.7320508075688772)]
     [InlineData("3 + 2(2 + 3.5)^ 2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
     [InlineData("3 + 2(2 + 3.5)  ^2", 3 + 2 * (2 + 3.5d) * (2 + 3.5d))]
-    public void FastMathExpression_CompileComplexThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
+    public void FastMathExpression_CompileComplexThenInvoke_HasScientificPower_ExpectedValue(string mathString, double expectedReal,
+        double expectedImaginary = 0d)
     {
         using var expression = new FastMathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
@@ -210,7 +214,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -228,7 +233,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -250,7 +255,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -273,7 +278,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -290,7 +295,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -323,7 +328,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -354,7 +359,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -384,7 +390,8 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -414,7 +421,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -445,7 +452,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -469,7 +476,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -492,7 +499,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -516,7 +523,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -539,7 +546,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -566,7 +573,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)

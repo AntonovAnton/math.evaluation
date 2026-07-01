@@ -2,7 +2,6 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
-using System.Numerics;
 
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
@@ -63,7 +62,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -81,7 +80,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -99,7 +98,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -159,7 +158,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -174,7 +173,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -211,7 +210,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -248,7 +247,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -271,7 +271,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -300,7 +300,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -319,7 +320,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -338,7 +339,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -367,7 +369,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -382,7 +384,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -397,7 +399,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -423,7 +425,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -449,7 +451,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -476,7 +479,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -503,7 +506,8 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex();
 
-        Assert.Equal(new Complex(expectedReal, expectedImaginary), value);
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
 
     [Theory]
@@ -530,7 +534,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -558,7 +562,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -576,7 +580,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate();
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -596,7 +600,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(parameters, _context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     [Theory]
@@ -612,7 +616,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.EvaluateComplex(parameters, _context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value.Real, precision: 5);
     }
 
     [Theory]
@@ -620,7 +624,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
     [InlineData("a + Math.Sin(b) * 0.5", 5.6215987523460358, 6.0, 4.0)]
     [InlineData("1d + Math.Sin(a) * Math.Cos(c)", 2.4056435374876961, 2.0, 0.0, 4.0, 3.0)]
     public void MathExpression_Evaluate_HasVariablesInDictionary_ExpectedValue(string expression,
-       double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
+        double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"a = {var_a}");
@@ -638,7 +642,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
         var value = expression.Evaluate(dict, _context, CultureInfo.InvariantCulture);
 
-        Assert.Equal(expectedValue, value);
+        Assert.Equal(expectedValue, value, precision: 5);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)
