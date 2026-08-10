@@ -31,11 +31,12 @@ internal class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
     {
         i += Key.Length;
-        var right = mathExpression.EvaluateOperand<T>(ref i, separator, closingSymbol);
-        right = mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, right);
+        var right = mathExpression.EvaluateOperand<T>(ref i, depth, separator, closingSymbol);
+        right = mathExpression.EvaluateExponentiation(start, ref i, depth, separator, closingSymbol, right);
         var result = Fn(ConvertNumber<TResult, T>(value), right);
 
         mathExpression.OnEvaluating(start, i, result);
@@ -44,13 +45,14 @@ internal class MathOperandsOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         i += Key.Length;
 
         left = BuildConvert<T>(left);
-        var right = mathExpression.BuildOperand<T>(ref i, separator, closingSymbol);
-        right = mathExpression.BuildExponentiation<T>(start, ref i, separator, closingSymbol, right);
+        var right = mathExpression.BuildOperand<T>(ref i, depth, separator, closingSymbol);
+        right = mathExpression.BuildExponentiation<T>(start, ref i, depth, separator, closingSymbol, right);
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
 

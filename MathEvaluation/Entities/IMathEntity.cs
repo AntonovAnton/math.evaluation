@@ -26,11 +26,12 @@ internal interface IMathEntity
     /// <param name="mathExpression">The math expression.</param>
     /// <param name="start">The starting char index of the evaluating.</param>
     /// <param name="i">The current char index.</param>
+    /// <param name="depth">The current recursion depth of the parsing, it has to be passed to every recursive call.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <returns></returns>
     /// <param name="value">The value.</param>
-    TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol, TResult value)
         where TResult : struct, INumberBase<TResult>;
 
     /// <summary>
@@ -40,10 +41,11 @@ internal interface IMathEntity
     /// <param name="mathExpression">The math expression.</param>
     /// <param name="start">The starting char index of the evaluating.</param>
     /// <param name="i">The current char index.</param>
+    /// <param name="depth">The current recursion depth of the parsing, it has to be passed to every recursive call.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <returns></returns>
     /// <param name="left">The expression tree of the left operand.</param>
-    Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, INumberBase<TResult>;
 }

@@ -24,11 +24,13 @@ internal abstract class MathEntity : IMathEntity
     }
 
     /// <inheritdoc />
-    public abstract TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public abstract TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
         where TResult : struct, INumberBase<TResult>;
 
     /// <inheritdoc />
-    public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
         where TResult : struct, INumberBase<TResult>;
 
     /// <summary> Converts to string. </summary>

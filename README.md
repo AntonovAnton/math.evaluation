@@ -410,6 +410,30 @@ Example:
         // Output: Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.
     }
 
+### Nesting depth
+
+The parser is recursive, so the nesting depth of a math expression string is limited by the call stack size of the
+thread that evaluates or compiles it. There is no hardcoded limit: the parser probes the remaining call stack as it
+goes, so a thread with a bigger stack evaluates a deeper expression. When the call stack is about to run out, the
+parsing stops and throws a `MathExpressionException` instead of terminating the process with a `StackOverflowException`,
+which .NET cannot catch. The depth that was reached is reported by `MathExpressionException.NestingDepth` and by
+`ex.Data["nestingDepth"]`.
+
+Example:
+
+    try
+    {
+        new string('(', 1000000).Evaluate();
+    }
+    catch (MathExpressionException ex)
+    {
+        Console.WriteLine(ex.NestingDepth);
+        // Output: the nesting depth at which the parsing was stopped, for example 784.
+    }
+
+Note that a long chain of operators, such as `1 + 1 + 1 + ...`, is not a nesting, so parsing it doesn't consume the
+call stack and its length is not limited by the guard.
+
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.
 If you enjoy my work and find it valuable, please consider becoming my [sponsor on GitHub](https://github.com/sponsors/AntonovAnton). Your support will enable me to share more open-source code. Together, we can make a positive impact in the developer community!

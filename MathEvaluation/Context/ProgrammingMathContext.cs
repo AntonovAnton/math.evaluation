@@ -55,7 +55,7 @@ public class ProgrammingMathContext : MathContext
         BindOperator("Not", OperatorType.LogicalNot);
         BindOperator("NOT", OperatorType.LogicalNot);
 
-        static double iifFn(double[] args) => args[0] != default
+        static double iifFn(double[] args) => args[0] != 0.0
             ? args.Length > 1 ? args[1] : 1d
             : args.Length > 2
                 ? args[2]

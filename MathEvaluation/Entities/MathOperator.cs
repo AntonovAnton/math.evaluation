@@ -31,11 +31,12 @@ internal class MathOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
     {
         i += Key.Length;
         var left = ConvertNumber<TResult, T>(value);
-        var right = mathExpression.Evaluate<T>(ref i, separator, closingSymbol, Precedence);
+        var right = mathExpression.Evaluate<T>(ref i, depth, separator, closingSymbol, Precedence);
         var result = Fn(left, right);
 
         mathExpression.OnEvaluating(start, i, result);
@@ -44,12 +45,13 @@ internal class MathOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         i += Key.Length;
 
         left = BuildConvert<T>(left);
-        var right = mathExpression.Build<T>(ref i, separator, closingSymbol, Precedence);
+        var right = mathExpression.Build<T>(ref i, depth, separator, closingSymbol, Precedence);
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
 
         mathExpression.OnEvaluating(start, i, result);

@@ -16,6 +16,15 @@ public class MathExpressionException : ApplicationException
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public int InvalidTokenPosition { get; }
 
+    /// <summary>Gets the recursion depth of the parsing at which the evaluating was stopped.</summary>
+    /// <value>
+    ///     The nesting depth, or -1 if the exception isn't caused by a too deeply nested math expression string.
+    ///     It counts the recursive calls of the parser, which is what consumes the call stack,
+    ///     so it is proportional to, but not equal to, the nesting depth of the math expression string.
+    /// </value>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public int NestingDepth { get; init; } = -1;
+
     /// <summary>Initializes a new instance of the <see cref="MathExpressionException" /> class.</summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="invalidTokenPosition">The invalid token position.</param>
