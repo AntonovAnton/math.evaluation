@@ -390,7 +390,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     [InlineData("a + b * 0.5", 8.0, 6.0, 4.0)]
     [InlineData("1d + a * c", 11.0, 2.0, 0.0, 4.0, 3.0)]
     public void MathExpression_EvaluateDecimal_HasVariablesInDictionary_ExpectedValue(string expression,
-       double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
+        double expectedValue, double var_a, double var_b = 0d, double var_c = 0d, double var_d = 0d)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"a = {var_a}");

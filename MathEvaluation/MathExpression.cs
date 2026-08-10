@@ -22,7 +22,7 @@ public partial class MathExpression : IDisposable
     ///     when N is 1, because 'depth &amp; 0' is always 0, so the guard would be silently disabled.
     ///     It matches at the depth of 1, 1 + N, 1 + 2N, and so on, so the very first level is probed immediately.
     ///     Probing the first level matters only when the caller is already close to exhausting the call stack,
-    ///     for example when it evaluates a math expression string from inside its own deep recursion. Otherwise the
+    ///     for example when it evaluates a math expression string from inside its own deep recursion. Otherwise, the
     ///     reserve that the runtime keeps below the stack limit, measured as 110-130KB on 64-bit, is much bigger
     ///     than what N levels consume, so the first probe could be deferred without a risk.
     ///     Do not raise N without re-measuring: the most expensive level, the one of a Complex or decimal expression

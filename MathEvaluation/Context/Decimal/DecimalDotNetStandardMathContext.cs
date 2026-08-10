@@ -113,4 +113,3 @@ public class DecimalDotNetStandardMathContext : DotNetStandardMathContext
         BindConstant((decimal)ulong.MinValue, "UInt64.MinValue");
     }
 }
-

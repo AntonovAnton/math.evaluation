@@ -300,6 +300,7 @@ public class MathContextTests
         Func<BigInteger, BigInteger> factorial = n =>
         {
             if (n <= 1) return BigInteger.One;
+
             var result = BigInteger.One;
             for (var i = 2; i <= (int)n; i++)
                 result *= i;

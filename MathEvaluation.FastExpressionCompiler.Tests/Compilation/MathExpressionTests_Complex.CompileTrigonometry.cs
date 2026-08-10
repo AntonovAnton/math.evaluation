@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Numerics;
 
 namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 

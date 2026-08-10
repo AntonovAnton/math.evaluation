@@ -4,7 +4,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Numerics;
 
-namespace MathEvaluation.Tests.Compilation;
+namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 
 // ReSharper disable once InconsistentNaming
 public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelper)
@@ -408,7 +408,8 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     [InlineData("x + y", "123456789012345678901234567890", "987654321098765432109876543210", "1111111110111111111011111111100")]
     [InlineData("x * y", "1000000000000000000", "1000000000000000000", "1000000000000000000000000000000000000")]
     [InlineData("x - y", "999999999999999999999999999999", "1", "999999999999999999999999999998")]
-    public void FastMathExpression_CompileThenInvoke_BigInteger_HasVariables_ExpectedValue(string mathString, string xString, string yString, string expectedValueString)
+    public void FastMathExpression_CompileThenInvoke_BigInteger_HasVariables_ExpectedValue(string mathString, string xString, string yString,
+        string expectedValueString)
     {
         var x = BigInteger.Parse(xString);
         var y = BigInteger.Parse(yString);
@@ -513,9 +514,9 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ExpandoObject, long>(parameters);
-        
+
         var result1 = fn(parameters);
-        
+
         parameters.y = 100L;
         var result2 = fn(parameters);
 
@@ -567,7 +568,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.Compile<ExpandoObject, BigInteger>(parameters);
-        
+
         var result = fn(parameters);
 
         Assert.Equal(BigInteger.Parse("600000000000001000"), result);
@@ -578,7 +579,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     {
         Func<int, int> doubleInt = x => x * 2;
         Func<BigInteger, BigInteger> squareBig = x => x * x;
-        
+
         var context = new MathContext();
         context.Bind(new { doubleInt, squareBig });
 
@@ -626,7 +627,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     public void FastMathExpression_CompileThenInvoke_HasByteFunction_ExpectedValue()
     {
         Func<byte, byte, byte> max = (a, b) => a > b ? a : b;
-        
+
         var context = new MathContext();
         context.Bind(new { max });
 
@@ -647,7 +648,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     public void FastMathExpression_CompileThenInvoke_HasHalfFunctionWithDictionary_ExpectedValue()
     {
         Func<Half, Half, Half> add = (a, b) => (Half)((double)a + (double)b);
-        
+
         var context = new MathContext();
         context.Bind(new { add });
 
@@ -668,7 +669,7 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
     {
         Func<int, int, int, int> triple = (a, b, c) => a + b + c;
         Func<long, long> negate = x => -x;
-        
+
         var context = new MathContext();
         context.Bind(new { triple, negate });
 
@@ -699,4 +700,3 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         testOutputHelper.WriteLine(msg);
     }
 }
-

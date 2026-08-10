@@ -374,4 +374,3 @@ public class DotNetMathContextTests
         Assert.Equal(UInt128.One, min);
     }
 }
-
