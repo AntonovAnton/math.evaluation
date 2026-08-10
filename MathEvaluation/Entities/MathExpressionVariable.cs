@@ -22,7 +22,8 @@ internal class MathExpressionVariable : MathEntity
     public override int Precedence => (int)EvalPrecedence.Variable;
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
     {
         var tokenPosition = i;
         i += Key.Length;
@@ -33,14 +34,15 @@ internal class MathExpressionVariable : MathEntity
             // Forward the evaluating event to the math expression.
             mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
         };
-        var result = varMathExpression.Evaluate<TResult>(mathExpression.Parameters);
+        // The variable is evaluated on the same call stack, so it continues the recursion depth of this math expression.
+        var result = varMathExpression.Evaluate<TResult>(mathExpression.Parameters, depth);
 
         // Bind the variable to the math expression parameters to ensure it can be used in further evaluations.
         mathExpression.Parameters!.BindVariable(result, Key);
 
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
-        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
         if (value != result && !(value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
@@ -50,7 +52,8 @@ internal class MathExpressionVariable : MathEntity
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         var tokenPosition = i;
         i += Key.Length;
@@ -68,10 +71,12 @@ internal class MathExpressionVariable : MathEntity
                 mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
             };
 
-            // Build the right-hand side expression (like: 'a + b')
+            // Build the right-hand side expression (like: 'a + b'),
+            // it is built on the same call stack, so it continues the recursion depth of this math expression.
             var result = varMathExpression.Build<TResult>(
                 mathExpression.ParameterExpression!,
-                mathExpression.Parameters!);
+                mathExpression.Parameters!,
+                depth);
 
             // Declare the variable (like: 'var x')
             parameterExpression = Expression.Variable(typeof(TResult), Key);
@@ -87,7 +92,7 @@ internal class MathExpressionVariable : MathEntity
         }
 
         var right = BuildConvert<TResult>(parameterExpression!);
-        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)

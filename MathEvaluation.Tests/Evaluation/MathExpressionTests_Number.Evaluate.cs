@@ -442,4 +442,3 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
         testOutputHelper.WriteLine(msg);
     }
 }
-

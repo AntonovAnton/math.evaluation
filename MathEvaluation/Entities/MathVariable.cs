@@ -31,7 +31,8 @@ internal class MathVariable<T> : MathEntity
     public override int Precedence => (int)EvalPrecedence.Variable;
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
     {
         var tokenPosition = i;
         i += Key.Length;
@@ -39,7 +40,7 @@ internal class MathVariable<T> : MathEntity
         var result = ConvertNumber<T, TResult>(_variableValue);
         mathExpression.OnEvaluating(tokenPosition, i, result);
 
-        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+        result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
         if (value != result)
@@ -49,7 +50,8 @@ internal class MathVariable<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         var tokenPosition = i;
         i += Key.Length;
@@ -139,7 +141,7 @@ internal class MathVariable<T> : MathEntity
         right = BuildConvert<TResult>(right);
         mathExpression.OnEvaluating(tokenPosition, i, right);
 
-        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)

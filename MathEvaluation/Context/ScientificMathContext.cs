@@ -43,6 +43,7 @@ public class ScientificMathContext : MathContext
         BindOperator('^', OperatorType.Power);
 
         static double powerFn(double left, double right) => Math.Pow(left, right);
+
         BindFunction<double>(powerFn, "pow");
         BindFunction<double>(powerFn, "Pow");
         BindFunction<double>(powerFn, "POW");
@@ -188,6 +189,7 @@ public class ScientificMathContext : MathContext
         BindFunction<double>(radiansFn, "RAD");
 
         static double degreesFn(double v) => MathTrig.RadiansToDegrees(v);
+
         BindFunction<double>(degreesFn, "deg");
         BindFunction<double>(degreesFn, "Deg");
         BindFunction<double>(degreesFn, "DEG");

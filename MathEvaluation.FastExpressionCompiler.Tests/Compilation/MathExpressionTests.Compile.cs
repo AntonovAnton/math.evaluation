@@ -115,7 +115,8 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     [InlineData("pow(,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, 2)", 0.23 * 0.23, "af")]
     [InlineData("pow( \r\n\t,23, ,2 * 10)", 0.23 * 0.23, "af")]
-    public void FastMathExpression_CompileThenInvoke_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue, string cultureName)
+    public void FastMathExpression_CompileThenInvoke_HasCommaAsDecimalSeparatorInNumbers_ExpectedValue(string mathString, double expectedValue,
+        string cultureName)
     {
         var context = new MathContext();
         context.BindFunction<double>(Math.Pow, "pow");

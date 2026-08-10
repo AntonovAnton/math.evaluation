@@ -60,7 +60,8 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult left)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult left)
     {
         var tokenPosition = i;
         if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
@@ -68,14 +69,14 @@ internal class MathCompatibleOperator : MathEntity
 
         i += Key.Length;
         var right = _isProcessingOperand
-            ? mathExpression.EvaluateOperand<TResult>(ref i, separator, closingSymbol)
-            : mathExpression.Evaluate<TResult>(ref i, separator, closingSymbol, Precedence);
+            ? mathExpression.EvaluateOperand<TResult>(ref i, depth, separator, closingSymbol)
+            : mathExpression.Evaluate<TResult>(ref i, depth, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
         {
             //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
             var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
-            right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, separator, closingSymbol, right);
+            right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, depth, separator, closingSymbol, right);
         }
 
         var value = Calculate(OperatorType, left, right);
@@ -85,7 +86,8 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         var tokenPosition = i;
         if (OperatorType is OperatorType.LogicalNot or OperatorType.BitwiseNegation)
@@ -93,14 +95,14 @@ internal class MathCompatibleOperator : MathEntity
 
         i += Key.Length;
         var right = _isProcessingOperand
-            ? mathExpression.BuildOperand<TResult>(ref i, separator, closingSymbol)
-            : mathExpression.Build<TResult>(ref i, separator, closingSymbol, Precedence);
+            ? mathExpression.BuildOperand<TResult>(ref i, depth, separator, closingSymbol)
+            : mathExpression.Build<TResult>(ref i, depth, separator, closingSymbol, Precedence);
 
         if (_isProcessingOperand)
         {
             //for case such as 2^3^2 we should evaluate first 3^2, so start position = 1 + 1 in this example.
             var startExponentiation = OperatorType == OperatorType.Power ? tokenPosition + Key.Length : start;
-            right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, separator, closingSymbol, right);
+            right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, depth, separator, closingSymbol, right);
         }
 
         var expression = Build<TResult>(OperatorType, left, right);

@@ -15,6 +15,7 @@ public class EvaluationBenchmarks
 {
     // ReSharper disable once InconsistentNaming
     private const double a = Math.PI / 6;
+
     // ReSharper disable once InconsistentNaming
     private const double b = Math.PI / 3;
 

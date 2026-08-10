@@ -40,27 +40,33 @@ Let's compare performance of evaluating the mathematical expression:
 
     22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
 
-Below are the results comparing MathEvaluator with the NCalc library:
+Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.0):
 
 | Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **506.6 ns** | 3.21 ns |  2.85 ns | 0.0029 | **112 B** |
-| NCalc | .NET 10.0 | 5,763.5 ns | 12.98 ns | 11.51 ns | 0.0763 |    2896 B |
-| **MathEvaluator** | .NET 8.0 | **664.5 ns** | 13.31 ns | 16.83 ns |      - |     **112 B** |
-| NCalc | .NET 8.0 | 6,729.4 ns | 16.27 ns | 14.43 ns | 0.0076 |    2896 B |
+| **MathEvaluator** | .NET 10.0 | **517.1 ns** | 2.21 ns |  2.06 ns | 0.0029 | **112 B** |
+| NCalc | .NET 10.0 | 7,872.5 ns | 35.39 ns | 29.55 ns | 0.2289 |    8728 B |
+| **MathEvaluator** | .NET 8.0 | **669.0 ns** | 3.56 ns | 3.16 ns |      - |     **112 B** |
+| NCalc | .NET 8.0 | 9,378.5 ns | 57.05 ns | 53.37 ns | 0.0305 |    8992 B |
 
-**Performance gain**: MathEvaluator is **10-13x faster** than NCalc with **25x less memory allocation**.
+**Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~78x less memory allocation**.
 
 #### More Complex Expressions
 
 | Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
 |------------|---------|-----------|----------|---------|
-| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **364.3 ns** | **429.1 ns** | **13-15x** |
-| | NCalc | 4,281.1 ns | 5,069.1 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **476.0 ns** | **582.3 ns** | **11-12x** |
-| | NCalc | 5,167.5 ns | 5,982.1 ns | |
+| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **359.7 ns** | **412.2 ns** | **31-32x** |
+| | NCalc | 11,606.6 ns | 12,839.1 ns | |
+| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **387.0 ns** | **436.9 ns** | **27-28x** |
+| | NCalc | 10,459.6 ns | 12,236.0 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **487.6 ns** | **571.0 ns** | **26-27x** |
+| | NCalc | 13,197.2 ns | 14,717.9 ns | |
+| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **881.0 ns** | **992.0 ns** | **15x** |
+| | NCalc | 13,143.2 ns | 15,337.3 ns | |
 
 ***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
+
+*Measured with BenchmarkDotNet v0.15.8 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
@@ -409,6 +415,30 @@ Example:
         Console.WriteLine(ex.Message);
         // Output: Error of evaluating the expression. The operand is not recognizable. Invalid token at position 9.
     }
+
+### Nesting depth
+
+The parser is recursive, so the nesting depth of a math expression string is limited by the call stack size of the
+thread that evaluates or compiles it. There is no hardcoded limit: the parser probes the remaining call stack as it
+goes, so a thread with a bigger stack evaluates a deeper expression. When the call stack is about to run out, the
+parsing stops and throws a `MathExpressionException` instead of terminating the process with a `StackOverflowException`,
+which .NET cannot catch. The depth that was reached is reported by `MathExpressionException.NestingDepth` and by
+`ex.Data["nestingDepth"]`.
+
+Example:
+
+    try
+    {
+        new string('(', 1000000).Evaluate();
+    }
+    catch (MathExpressionException ex)
+    {
+        Console.WriteLine(ex.NestingDepth);
+        // Output: the nesting depth at which the parsing was stopped, for example 784.
+    }
+
+Note that a long chain of operators, such as `1 + 1 + 1 + ...`, is not a nesting, so parsing it doesn't consume the
+call stack and its length is not limited by the guard.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.

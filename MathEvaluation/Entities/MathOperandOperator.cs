@@ -52,7 +52,8 @@ internal class MathOperandOperator<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        TResult value)
     {
         i += Key.Length;
 
@@ -62,18 +63,19 @@ internal class MathOperandOperator<T> : MathEntity
         else
         {
             start = i - Key.Length; //tokenPosition
-            var right = mathExpression.EvaluateOperand<T>(ref i, separator, closingSymbol);
+            var right = mathExpression.EvaluateOperand<T>(ref i, depth, separator, closingSymbol);
             result = Fn(right);
         }
 
         mathExpression.OnEvaluating(start, i, result);
 
         value = ConvertNumber<T, TResult>(result);
-        return mathExpression.EvaluateExponentiation(start, ref i, separator, closingSymbol, value);
+        return mathExpression.EvaluateExponentiation(start, ref i, depth, separator, closingSymbol, value);
     }
 
     /// <inheritdoc />
-    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
+        Expression left)
     {
         i += Key.Length;
 
@@ -86,13 +88,13 @@ internal class MathOperandOperator<T> : MathEntity
         else
         {
             start = i - Key.Length; //tokenPosition
-            var right = mathExpression.Build<T>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+            var right = mathExpression.Build<T>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
             result = Expression.Invoke(Expression.Constant(Fn), right);
         }
 
         mathExpression.OnEvaluating(start, i, result);
 
         result = BuildConvert<TResult>(result);
-        return mathExpression.BuildExponentiation<TResult>(start, ref i, separator, closingSymbol, result);
+        return mathExpression.BuildExponentiation<TResult>(start, ref i, depth, separator, closingSymbol, result);
     }
 }

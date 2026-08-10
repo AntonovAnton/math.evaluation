@@ -81,7 +81,7 @@ public partial class MathExpression
         }
     }
 
-    internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters)
+    internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters, int depth = 0)
         where TResult : struct, INumberBase<TResult>
     {
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -89,7 +89,7 @@ public partial class MathExpression
         _evaluatingStep = 0;
 
         var i = 0;
-        var expression = Build<TResult>(ref i, null, null);
+        var expression = Build<TResult>(ref i, depth, null, null);
 
         if (_evaluatingStep == 0)
             OnEvaluating(0, i, expression);
@@ -97,10 +97,13 @@ public partial class MathExpression
         return expression;
     }
 
-    internal Expression Build<TResult>(ref int i, char? separator, char? closingSymbol,
+    internal Expression Build<TResult>(ref int i, int depth, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
         where TResult : struct, INumberBase<TResult>
     {
+        if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
+            EnsureNestingDepth(depth, i);
+
         var span = MathString.AsSpan();
         Expression expression = Expression.Constant(default(TResult));
 
@@ -121,7 +124,7 @@ public partial class MathExpression
                  span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1])))) //the imaginary part of a complex number.
             {
                 if (isOperand)
-                    return Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
+                    return Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Function);
 
                 var tokenPosition = i;
                 var value = span.ParseNumber<TResult>(_numberFormat, ref i);
@@ -140,12 +143,12 @@ public partial class MathExpression
 
                     var tokenPosition = i;
                     i++;
-                    var right = Build<TResult>(ref i, null, Constants.DefaultClosingSymbol);
+                    var right = Build<TResult>(ref i, depth, null, Constants.DefaultClosingSymbol);
                     MathString.ThrowExceptionIfNotClosed(Constants.DefaultClosingSymbol, tokenPosition, ref i);
                     if (isOperand)
                         return right;
 
-                    right = BuildExponentiation<TResult>(tokenPosition, ref i, separator, closingSymbol, right);
+                    right = BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
                     expression = BuildMultiplyIfLeftNotDefault<TResult>(expression, right);
 
                     if (expression != right)
@@ -157,7 +160,7 @@ public partial class MathExpression
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
+                    right = Build<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Add, expression, right);
 
                     OnEvaluating(start, i, expression);
@@ -174,7 +177,7 @@ public partial class MathExpression
                     var numberPosition = i;
 
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    right = Build<TResult>(ref i, separator, closingSymbol, p, isOperand);
+                    right = Build<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
 
                     //it keeps sign of the part of the complex number, correct sign is important in complex analysis.
                     if (right is ConstantExpression { Value: Complex value })
@@ -200,7 +203,7 @@ public partial class MathExpression
                         return expression;
 
                     i++;
-                    right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    right = Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, expression, right);
 
                     OnEvaluating(start, i, expression);
@@ -210,7 +213,7 @@ public partial class MathExpression
                         return expression;
 
                     i++;
-                    right = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    right = Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Divide, expression, right);
 
                     OnEvaluating(start, i, expression);
@@ -235,7 +238,7 @@ public partial class MathExpression
                     if (precedence >= entity.Precedence)
                         return expression;
 
-                    expression = entity.Build<TResult>(this, start, ref i, separator, closingSymbol, expression);
+                    expression = entity.Build<TResult>(this, start, ref i, depth, separator, closingSymbol, expression);
 
                     if (isOperand)
                         return expression;
@@ -258,18 +261,18 @@ public partial class MathExpression
             : MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
-    internal Expression BuildOperand<TResult>(ref int i, char? separator, char? closingSymbol)
+    internal Expression BuildOperand<TResult>(ref int i, int depth, char? separator, char? closingSymbol)
         where TResult : struct, INumberBase<TResult>
     {
         var start = i;
-        var expression = Build<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        var expression = Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
         if (expression.IsDefault<TResult>())
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return expression;
     }
 
-    internal Expression BuildExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, Expression left)
+    internal Expression BuildExponentiation<TResult>(int start, ref int i, int depth, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, INumberBase<TResult>
     {
         MathString.SkipWhiteSpace(ref i);
@@ -277,9 +280,15 @@ public partial class MathExpression
             return left;
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
-        return entity is { Precedence: >= (int)EvalPrecedence.Exponentiation }
-            ? entity.Build<TResult>(this, start, ref i, separator, closingSymbol, left)
-            : left;
+        if (entity is not { Precedence: >= (int)EvalPrecedence.Exponentiation })
+            return left;
+
+        //an operand operator that processes the left operand recurses back here without calling Build,
+        //for example '2!!!!', so this cycle has to probe the call stack on its own.
+        if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
+            EnsureNestingDepth(depth, i);
+
+        return entity.Build<TResult>(this, start, ref i, depth, separator, closingSymbol, left);
     }
 
     private Expression Build<TResult>()
@@ -288,7 +297,7 @@ public partial class MathExpression
         _evaluatingStep = 0;
 
         var i = 0;
-        var expression = Build<TResult>(ref i, null, null);
+        var expression = Build<TResult>(ref i, 0, null, null);
 
         if (_evaluatingStep == 0)
             OnEvaluating(0, i, expression);

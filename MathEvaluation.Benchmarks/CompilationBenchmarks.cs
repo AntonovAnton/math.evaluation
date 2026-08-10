@@ -16,6 +16,7 @@ public class CompilationBenchmarks
 {
     // ReSharper disable once InconsistentNaming
     private const double a = Math.PI / 6;
+
     // ReSharper disable once InconsistentNaming
     private const double b = Math.PI / 3;
 
@@ -54,7 +55,6 @@ public class CompilationBenchmarks
     }
 
 
-
     [Benchmark(Description = "MathEvaluator: \"true or not false and (true or false)\"")]
     public Func<bool> MathExpression_CompileBoolean()
         => new MathExpression("true or not false and (true or false)", _programmingContext)
@@ -72,7 +72,6 @@ public class CompilationBenchmarks
         var expression = new Expression(str, ExpressionOptions.NoCache);
         return expression.ToLambda<bool>();
     }
-
 
 
     [Benchmark(Description = "MathEvaluator: \"A or not B and (C or B)\"")]
@@ -94,7 +93,6 @@ public class CompilationBenchmarks
     }
 
 
-
     [Benchmark(Description = "MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })")]
     public bool MathEvaluator_CompiledBoolean_HasVariables()
         => _mathEvalCompiledFn(new BooleanVariables { A = true, B = false, C = true });
@@ -106,7 +104,6 @@ public class CompilationBenchmarks
     [Benchmark(Description = "NCalc: fn(new BooleanVariables { A = a, B = b, C = c })")]
     public bool NCalc_CompiledBoolean_HasVariables()
         => _nCalcCompiledFn(new BooleanVariables { A = true, B = false, C = true });
-
 
 
     [Benchmark(Description = "MathEvaluator: \"Sin(pi/6) + Cos(pi/3)\"")]
@@ -133,7 +130,6 @@ public class CompilationBenchmarks
     }
 
 
-
     [Benchmark(Description = "MathEvaluator: \"Sin(a) + Cos(b)\"")]
     public Func<Variables, double> MathExpression_CompileSinCos_HasVariables()
         => "Sin(a) + Cos(b)".Compile(new Variables { a = a, b = b }, _scientificContext);
@@ -151,13 +147,13 @@ public class CompilationBenchmarks
     }
 
 
-
     public record Variables
     {
 #pragma warning disable IDE1006 // Naming Styles
         // ReSharper disable once InconsistentNaming
         // ReSharper disable once MemberHidesStaticFromOuterClass
         public double a { get; set; }
+
         // ReSharper disable once InconsistentNaming
         // ReSharper disable once MemberHidesStaticFromOuterClass
         public double b { get; set; }

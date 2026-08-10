@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace MathEvaluation;
 
@@ -15,6 +16,21 @@ namespace MathEvaluation;
 /// </summary>
 public partial class MathExpression : IDisposable
 {
+    /// <summary>
+    ///     Probes the call stack on every Nth level of the parsing recursion.
+    ///     Must be a power of two greater than one: the check is '(depth &amp; (N - 1)) == 1', which never matches
+    ///     when N is 1, because 'depth &amp; 0' is always 0, so the guard would be silently disabled.
+    ///     It matches at the depth of 1, 1 + N, 1 + 2N, and so on, so the very first level is probed immediately.
+    ///     Probing the first level matters only when the caller is already close to exhausting the call stack,
+    ///     for example when it evaluates a math expression string from inside its own deep recursion. Otherwise, the
+    ///     reserve that the runtime keeps below the stack limit, measured as 110-130KB on 64-bit, is much bigger
+    ///     than what N levels consume, so the first probe could be deferred without a risk.
+    ///     Do not raise N without re-measuring: the most expensive level, the one of a Complex or decimal expression
+    ///     variable, costs about 2.1KB in a release build and about 3KB in a debug one, so N = 16 keeps at least
+    ///     a 2.7x margin against the reserve, while N = 32 would drop it to 1.4x.
+    /// </summary>
+    private const int NestingDepthProbeInterval = 16;
+
     private readonly NumberFormatInfo _numberFormat;
     private readonly char _decimalSeparator;
 
@@ -88,23 +104,35 @@ public partial class MathExpression : IDisposable
     public TResult Evaluate<TResult>(MathParameters? parameters)
         where TResult : struct, INumberBase<TResult>
     {
-        Parameters = parameters;
-        _evaluatingStep = 0;
-
         try
         {
-            var i = 0;
-            var value = Evaluate<TResult>(ref i, null, null);
-
-            if (_evaluatingStep == 0)
-                OnEvaluating(0, i, value);
-
-            return value;
+            return Evaluate<TResult>(parameters, 0);
         }
         catch (Exception ex)
         {
             throw CreateException(ex, parameters);
         }
+    }
+
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <param name="depth">
+    ///     The recursion depth that the parsing starts from. It isn't zero when the math expression string
+    ///     is a variable that is evaluated as a part of another math expression string.
+    /// </param>
+    internal TResult Evaluate<TResult>(MathParameters? parameters, int depth)
+        where TResult : struct, INumberBase<TResult>
+    {
+        Parameters = parameters;
+        _evaluatingStep = 0;
+
+        var i = 0;
+        var value = Evaluate<TResult>(ref i, depth, null, null);
+
+        if (_evaluatingStep == 0)
+            OnEvaluating(0, i, value);
+
+        return value;
     }
 
     /// <summary>
@@ -130,10 +158,13 @@ public partial class MathExpression : IDisposable
         ExpressionTree = null;
     }
 
-    internal TResult Evaluate<TResult>(ref int i, char? separator, char? closingSymbol,
+    internal TResult Evaluate<TResult>(ref int i, int depth, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
         where TResult : struct, INumberBase<TResult>
     {
+        if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
+            EnsureNestingDepth(depth, i);
+
         var span = MathString.AsSpan();
         var value = default(TResult);
 
@@ -154,7 +185,7 @@ public partial class MathExpression : IDisposable
                  span[i] is 'i' && (span.Length == i + 1 || !char.IsLetterOrDigit(span[i + 1])))) //the imaginary part of a complex number.
             {
                 if (isOperand)
-                    return Evaluate<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Function);
+                    return Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Function);
 
                 var tokenPosition = i;
                 value = span.ParseNumber<TResult>(_numberFormat, ref i);
@@ -172,12 +203,12 @@ public partial class MathExpression : IDisposable
 
                     var tokenPosition = i;
                     i++;
-                    var result = Evaluate<TResult>(ref i, null, Constants.DefaultClosingSymbol);
+                    var result = Evaluate<TResult>(ref i, depth, null, Constants.DefaultClosingSymbol);
                     MathString.ThrowExceptionIfNotClosed(Constants.DefaultClosingSymbol, tokenPosition, ref i);
                     if (isOperand)
                         return result;
 
-                    result = EvaluateExponentiation(tokenPosition, ref i, separator, closingSymbol, result);
+                    result = EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
                     value = value == default ? result : value * result;
 
                     if (value != result)
@@ -189,7 +220,7 @@ public partial class MathExpression : IDisposable
 
                     i++;
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    value += Evaluate<TResult>(ref i, separator, closingSymbol, p, isOperand);
+                    value += Evaluate<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
 
                     OnEvaluating(start, i, value);
                     if (isOperand)
@@ -205,7 +236,7 @@ public partial class MathExpression : IDisposable
                     var numberPosition = i;
 
                     p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
-                    result = Evaluate<TResult>(ref i, separator, closingSymbol, p, isOperand);
+                    result = Evaluate<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
 
                     if (result is Complex c)
                     {
@@ -228,7 +259,7 @@ public partial class MathExpression : IDisposable
                         return value;
 
                     i++;
-                    value *= Evaluate<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value *= Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
                     OnEvaluating(start, i, value);
                     break;
@@ -237,7 +268,7 @@ public partial class MathExpression : IDisposable
                         return value;
 
                     i++;
-                    value /= Evaluate<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic);
+                    value /= Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
                     OnEvaluating(start, i, value);
                     break;
@@ -261,7 +292,7 @@ public partial class MathExpression : IDisposable
                     if (precedence >= entity.Precedence)
                         return value;
 
-                    value = entity.Evaluate(this, start, ref i, separator, closingSymbol, value);
+                    value = entity.Evaluate(this, start, ref i, depth, separator, closingSymbol, value);
 
                     if (isOperand)
                         return value;
@@ -276,18 +307,18 @@ public partial class MathExpression : IDisposable
         return value;
     }
 
-    internal TResult EvaluateOperand<TResult>(ref int i, char? separator, char? closingSymbol)
+    internal TResult EvaluateOperand<TResult>(ref int i, int depth, char? separator, char? closingSymbol)
         where TResult : struct, INumberBase<TResult>
     {
         var start = i;
-        var value = Evaluate<TResult>(ref i, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
+        var value = Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic, true);
         if (value == default)
             MathString.ThrowExceptionIfNotEvaluated(true, start, i);
 
         return value;
     }
 
-    internal TResult EvaluateExponentiation<TResult>(int start, ref int i, char? separator, char? closingSymbol, TResult value)
+    internal TResult EvaluateExponentiation<TResult>(int start, ref int i, int depth, char? separator, char? closingSymbol, TResult value)
         where TResult : struct, INumberBase<TResult>
     {
         MathString.SkipWhiteSpace(ref i);
@@ -295,9 +326,15 @@ public partial class MathExpression : IDisposable
             return value;
 
         var entity = FirstMathEntity(MathString.AsSpan(i));
-        return entity is { Precedence: >= (int)EvalPrecedence.Exponentiation }
-            ? entity.Evaluate(this, start, ref i, separator, closingSymbol, value)
-            : value;
+        if (entity is not { Precedence: >= (int)EvalPrecedence.Exponentiation })
+            return value;
+
+        //an operand operator that processes the left operand recurses back here without calling Evaluate,
+        //for example '2!!!!', so this cycle has to probe the call stack on its own.
+        if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
+            EnsureNestingDepth(depth, i);
+
+        return entity.Evaluate(this, start, ref i, depth, separator, closingSymbol, value);
     }
 
     internal void OnEvaluating<T>(int start, int i, T value, string? mathString = null, bool? isCompleted = null, bool skipNaN = false)
@@ -318,6 +355,26 @@ public partial class MathExpression : IDisposable
         Evaluating.Invoke(this, new EvaluatingEventArgs(mathString, start, i - 1, _evaluatingStep, value!, isCompleted));
     }
 
+    /// <summary>
+    ///     Throws the <see cref="MathExpressionException" /> if the call stack is running out,
+    ///     so a too deeply nested math expression string is reported instead of terminating the process
+    ///     with an uncatchable <see cref="StackOverflowException" />.
+    /// </summary>
+    /// <param name="depth">The current recursion depth of the parsing.</param>
+    /// <param name="i">The current char index.</param>
+    /// <exception cref="MathExpressionException" />
+    [MethodImpl(MethodImplOptions.NoInlining)] //the throwing path must not take space in the recursive frame
+    private static void EnsureNestingDepth(int depth, int i)
+    {
+        if (RuntimeHelpers.TryEnsureSufficientExecutionStack())
+            return;
+
+        throw new MathExpressionException(
+            $"The math expression string is nested too deeply, the nesting depth {depth} doesn't fit into the call stack of the current thread. " +
+            "Simplify the math expression string, or evaluate it on a thread that has a bigger stack size.",
+            i) { NestingDepth = depth };
+    }
+
     private MathExpressionException CreateException(Exception ex, object? parameters)
     {
         ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
@@ -326,6 +383,10 @@ public partial class MathExpression : IDisposable
         ex.Data["provider"] = Provider;
         ex.Data["compiler"] = Compiler;
         ex.Data[nameof(parameters)] = parameters;
+
+        if (ex is MathExpressionException { NestingDepth: >= 0 } depthEx)
+            ex.Data["nestingDepth"] = depthEx.NestingDepth;
+
         return (MathExpressionException)ex;
     }
 
