@@ -38,13 +38,13 @@ internal class MathVariable<T> : MathEntity
         i += Key.Length;
 
         var result = ConvertNumber<T, TResult>(_variableValue);
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        mathExpression.RaiseEvaluatingStep(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
         if (value != result)
-            mathExpression.OnEvaluating(start, i, value, skipNaN: true);
+            mathExpression.RaiseEvaluatingStep(start, i, value, skipNaN: true);
 
         return value;
     }
@@ -139,13 +139,13 @@ internal class MathVariable<T> : MathEntity
         }
 
         right = BuildConvert<TResult>(right);
-        mathExpression.OnEvaluating(tokenPosition, i, right);
+        mathExpression.RaiseEvaluatingStep(tokenPosition, i, right);
 
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
-            mathExpression.OnEvaluating(start, i, expression);
+            mathExpression.RaiseEvaluatingStep(start, i, expression);
 
         return expression;
     }

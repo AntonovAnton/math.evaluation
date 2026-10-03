@@ -92,7 +92,7 @@ public partial class MathExpression
         var expression = Build<TResult>(ref i, depth, null, null);
 
         if (_evaluatingStep == 0)
-            OnEvaluating(0, i, expression);
+            RaiseEvaluatingStep(0, i, expression);
 
         return expression;
     }
@@ -131,7 +131,7 @@ public partial class MathExpression
                 expression = Expression.Constant(value);
 
                 if (value is Complex c && c.Imaginary != 0.0)
-                    OnEvaluating(tokenPosition, i, expression);
+                    RaiseEvaluatingStep(tokenPosition, i, expression);
                 continue;
             }
 
@@ -152,7 +152,7 @@ public partial class MathExpression
                     expression = BuildMultiplyIfLeftNotDefault<TResult>(expression, right);
 
                     if (expression != right)
-                        OnEvaluating(start, i, expression);
+                        RaiseEvaluatingStep(start, i, expression);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsWhiteSpace(start, i)))
@@ -163,7 +163,7 @@ public partial class MathExpression
                     right = Build<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Add, expression, right);
 
-                    OnEvaluating(start, i, expression);
+                    RaiseEvaluatingStep(start, i, expression);
                     if (isOperand)
                         return expression;
 
@@ -193,7 +193,7 @@ public partial class MathExpression
                         expression = MathCompatibleOperator.Build<TResult>(operatorType, expression, right);
                     }
 
-                    OnEvaluating(start, i, expression);
+                    RaiseEvaluatingStep(start, i, expression);
                     if (isOperand)
                         return expression;
 
@@ -206,7 +206,7 @@ public partial class MathExpression
                     right = Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, expression, right);
 
-                    OnEvaluating(start, i, expression);
+                    RaiseEvaluatingStep(start, i, expression);
                     break;
                 case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -216,7 +216,7 @@ public partial class MathExpression
                     right = Build<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
                     expression = MathCompatibleOperator.Build<TResult>(OperatorType.Divide, expression, right);
 
-                    OnEvaluating(start, i, expression);
+                    RaiseEvaluatingStep(start, i, expression);
                     break;
                 default:
                     if (char.IsWhiteSpace(span[i]))
@@ -300,7 +300,7 @@ public partial class MathExpression
         var expression = Build<TResult>(ref i, 0, null, null);
 
         if (_evaluatingStep == 0)
-            OnEvaluating(0, i, expression);
+            RaiseEvaluatingStep(0, i, expression);
 
         return expression;
     }

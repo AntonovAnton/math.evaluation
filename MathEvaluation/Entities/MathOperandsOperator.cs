@@ -39,7 +39,7 @@ internal class MathOperandsOperator<T> : MathEntity
         right = mathExpression.EvaluateExponentiation(start, ref i, depth, separator, closingSymbol, right);
         var result = Fn(ConvertNumber<TResult, T>(value), right);
 
-        mathExpression.OnEvaluating(start, i, result);
+        mathExpression.RaiseEvaluatingStep(start, i, result);
 
         return ConvertNumber<T, TResult>(result);
     }
@@ -56,7 +56,7 @@ internal class MathOperandsOperator<T> : MathEntity
 
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
 
-        mathExpression.OnEvaluating(start, i, result);
+        mathExpression.RaiseEvaluatingStep(start, i, result);
 
         result = BuildConvert<TResult>(result);
         return result;

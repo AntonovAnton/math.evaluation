@@ -79,7 +79,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MathTrigonometric" Version="1.2.0" />
+        <PackageReference Include="MathTrigonometric" Version="1.3.0" />
     </ItemGroup>
 
     <ItemGroup>

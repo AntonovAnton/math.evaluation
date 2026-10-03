@@ -32,7 +32,7 @@ internal class MathExpressionVariable : MathEntity
         varMathExpression.Evaluating += (_, args) =>
         {
             // Forward the evaluating event to the math expression.
-            mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
+            mathExpression.RaiseEvaluatingStep(args.Start, args.End + 1, args.Value, _mathString, true);
         };
         // The variable is evaluated on the same call stack, so it continues the recursion depth of this math expression.
         var result = varMathExpression.Evaluate<TResult>(mathExpression.Parameters, depth);
@@ -40,13 +40,13 @@ internal class MathExpressionVariable : MathEntity
         // Bind the variable to the math expression parameters to ensure it can be used in further evaluations.
         mathExpression.Parameters!.BindVariable(result, Key);
 
-        mathExpression.OnEvaluating(tokenPosition, i, result);
+        mathExpression.RaiseEvaluatingStep(tokenPosition, i, result);
 
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
         if (value != result && !(value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
-            mathExpression.OnEvaluating(start, i, value);
+            mathExpression.RaiseEvaluatingStep(start, i, value);
 
         return value;
     }
@@ -68,7 +68,7 @@ internal class MathExpressionVariable : MathEntity
             varMathExpression.Evaluating += (_, args) =>
             {
                 // Forward the evaluating event to the math expression.
-                mathExpression.OnEvaluating(args.Start, args.End + 1, args.Value, _mathString, false);
+                mathExpression.RaiseEvaluatingStep(args.Start, args.End + 1, args.Value, _mathString, true);
             };
 
             // Build the right-hand side expression (like: 'a + b'),
@@ -88,7 +88,7 @@ internal class MathExpressionVariable : MathEntity
             mathExpression.ExpressionVariables[Key] = parameterExpression;
             mathExpression.ExpressionStatements.Add(assignExpr); // <-- assuming you have a list for body expressions
 
-            mathExpression.OnEvaluating(tokenPosition, i, result);
+            mathExpression.RaiseEvaluatingStep(tokenPosition, i, result);
         }
 
         var right = BuildConvert<TResult>(parameterExpression!);
@@ -96,7 +96,7 @@ internal class MathExpressionVariable : MathEntity
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
-            mathExpression.OnEvaluating(start, i, expression);
+            mathExpression.RaiseEvaluatingStep(start, i, expression);
 
         return expression;
     }
