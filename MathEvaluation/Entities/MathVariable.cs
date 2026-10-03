@@ -20,7 +20,6 @@ internal class MathVariable<T> : MathEntity
     /// <summary>
     ///     The math variable uses as a parameter.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public MathVariable(string? key, T value, bool isDictionaryItem = false) : base(key)
     {
         _isDictionaryItem = isDictionaryItem;

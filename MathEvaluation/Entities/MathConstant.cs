@@ -15,7 +15,6 @@ internal class MathConstant<T> : MathEntity
     /// <summary>
     ///     The math constant.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public MathConstant(string? key, T constantValue) : base(key)
     {
         _constantValue = constantValue;
