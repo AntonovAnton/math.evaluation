@@ -189,7 +189,7 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 
 Added in version [2.1.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.1.0)
 
-By using the Evaluating event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
+By using the `Evaluating` event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
 
     using var expression = new MathExpression("-3^4sin(-PI/2)", new ScientificMathContext());
 
@@ -213,6 +213,8 @@ Output:
     5: sin(-PI/2) = -1;
     6: 3^4sin(-PI/2) = -81;
     7: -3^4sin(-PI/2) = 81; //completed
+
+You can also ovverride the `OnEvaluating` method in a derived class of `MathExpression` to handle the Evaluating event. Delegates are more expensive than a virtual method call. So by overriding the method means a subclass can subscribe to an event with less runtime overhead than using an event-handler.
 
 ***NOTE**: To prevent memory leaks, it's important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
 

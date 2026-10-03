@@ -348,11 +348,14 @@ public partial class MathExpression : IDisposable
             return;
         }
 
-        mathString ??= MathString;
         _evaluatingStep++;
+
+        if (Evaluating == null)
+            return;
 
         // The evaluation is completed when the current step is not a sub-expression,
         // the start index is 0, and the end index is the last character of the math string.
+        mathString ??= MathString;
         var isCompleted = !isSubExpression && start == 0 && mathString.Length == i;
 
         // i - 1 represents the inclusive end index of the step
@@ -410,6 +413,7 @@ public partial class MathExpression : IDisposable
         ex.Data["context"] = Context;
         ex.Data["provider"] = Provider;
         ex.Data["compiler"] = Compiler;
+        ex.Data["evaluatingStep"] = _evaluatingStep;
         ex.Data[nameof(parameters)] = parameters;
 
         if (ex is MathExpressionException { NestingDepth: >= 0 } depthEx)
