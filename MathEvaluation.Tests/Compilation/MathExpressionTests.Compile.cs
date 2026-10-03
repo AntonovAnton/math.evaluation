@@ -412,6 +412,27 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("exp(0)", 1d)]
+    [InlineData("exp(1)", Math.E)]
+    [InlineData("Exp(1)", Math.E)]
+    [InlineData("EXP(1)", Math.E)]
+    [InlineData("exp(2)", 7.3890560989306502d)]
+    [InlineData("ln(exp(5))", 5d)]
+    [InlineData("exp(ln(10))", 10d)]
+    public void MathExpression_CompileThenInvoke_HasExponentialFn_ExpectedValue(string mathString, double expectedValue)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var fn = expression.Compile();
+        var value = fn();
+
+        testOutputHelper.WriteLine($"result: {value}");
+
+        Assert.Equal(expectedValue, value, precision: 5);
+    }
+
+    [Theory]
     [InlineData("⌊-20.3⌋", -21d)]
     [InlineData("-⌊20.3⌋", -20d)]
     [InlineData("-⌊0⌋", 0d)]

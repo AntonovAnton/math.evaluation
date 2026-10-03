@@ -371,6 +371,25 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     }
 
     [Theory]
+    [InlineData("exp(0)", 1d)]
+    [InlineData("exp(1)", Math.E)]
+    [InlineData("Exp(1)", Math.E)]
+    [InlineData("EXP(1)", Math.E)]
+    [InlineData("exp(2)", 7.3890560989306502d)]
+    [InlineData("ln(exp(5))", 5d)]
+    [InlineData("exp(ln(10))", 10d)]
+    public void MathExpression_EvaluateComplex_HasExponentialFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0d)
+    {
+        using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
+        expression.Evaluating += SubscribeToEvaluating;
+
+        var value = expression.EvaluateComplex();
+
+        Assert.Equal(expectedReal, value.Real, precision: 5);
+        Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
+    }
+
+    [Theory]
     [InlineData("⌊-20.3⌋", -21d)]
     [InlineData("floor(-20.3)", -21d)]
     [InlineData("Floor(-20.3)", -21d)]

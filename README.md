@@ -331,6 +331,7 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
 | Natural logarithmic base | e | 300 |
 | Natural logarithm | ln, Ln, LN | 200 |
 | Common logarithm (base 10) | log, Log, LOG | 200 |
+| Exponential function | exp, Exp, EXP | 200 |
 | Factorial | ! | 500 |
 | Infinity | ∞ | 300 |
 | Logical constants  | true, false, True, False, TRUE, FALSE, T, F, ⊤, ⊥ | 300 |
