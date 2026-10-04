@@ -26,7 +26,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
 .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>3.3.0</Version>
+        <Version>3.4.0</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>
@@ -35,7 +35,9 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
         
         <!-- Performance Optimizations for Library (configuration-independent) -->
         <Deterministic>true</Deterministic>
-        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+        
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <ProduceReferenceAssemblyInPackage>true</ProduceReferenceAssemblyInPackage>
 
         <!-- Deterministic build: normalizes source paths so the produced package is reproducible.
              Enabled only on CI, because it rewrites local source paths and breaks stepping into
@@ -54,7 +56,8 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <WarningLevel>9999</WarningLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        
         <!-- Debug configuration - NO optimizations for better debugging -->
         <Optimize>false</Optimize>
         <DebugType>full</DebugType>
@@ -62,7 +65,8 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <WarningLevel>9999</WarningLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        
         <!-- Release configuration - Full optimizations -->
         <Optimize>true</Optimize>
         <DebugType>embedded</DebugType>
@@ -90,7 +94,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
 
     <ItemGroup>
       <PackageReference Include="FastExpressionCompiler" Version="5.4.1" />
-      <PackageReference Include="MathEvaluator" Version="3.2.0" />
+      <PackageReference Include="MathEvaluator" Version="3.3.0" />
     </ItemGroup>
 
 </Project>

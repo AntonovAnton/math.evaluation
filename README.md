@@ -44,10 +44,10 @@ Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.
 
 | Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **517.1 ns** | 2.21 ns |  2.06 ns | 0.0029 | **112 B** |
-| NCalc | .NET 10.0 | 7,872.5 ns | 35.39 ns | 29.55 ns | 0.2289 |    8728 B |
-| **MathEvaluator** | .NET 8.0 | **669.0 ns** | 3.56 ns | 3.16 ns |      - |     **112 B** |
-| NCalc | .NET 8.0 | 9,378.5 ns | 57.05 ns | 53.37 ns | 0.0305 |    8992 B |
+| **MathEvaluator** | .NET 10.0 | **527.5 ns** | 1.63 ns |  1.28 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 10.0 | 7,425.2 ns | 15.15 ns | 14.17 ns | 0.2747 |    8744 B |
+| **MathEvaluator** | .NET 8.0 | **648.7 ns** |  2.95 ns |  2.76 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 8.0 | 9,222.8 ns | 19.41 ns | 16.21 ns | 0.2747 |    9008 B |
 
 **Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~78x less memory allocation**.
 
@@ -55,14 +55,12 @@ Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.
 
 | Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
 |------------|---------|-----------|----------|---------|
-| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **359.7 ns** | **412.2 ns** | **31-32x** |
-| | NCalc | 11,606.6 ns | 12,839.1 ns | |
-| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **387.0 ns** | **436.9 ns** | **27-28x** |
-| | NCalc | 10,459.6 ns | 12,236.0 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **487.6 ns** | **571.0 ns** | **26-27x** |
-| | NCalc | 13,197.2 ns | 14,717.9 ns | |
-| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **881.0 ns** | **992.0 ns** | **15x** |
-| | NCalc | 13,143.2 ns | 15,337.3 ns | |
+| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **347.2 ns** | **399.3 ns** | **31-32x** |
+| | NCalc | 10,402.7 ns | 12,938.1 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **434.6 ns** | **550.3 ns** | **26-27x** |
+| | NCalc | 11,720.6 ns | 14,895.4 ns | |
+| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **827.7 ns** | **960.6 ns** | **15x** |
+| | NCalc | 11,836.5 ns | 14,303.8 ns | |
 
 ***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
 
@@ -189,7 +187,7 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 
 Added in version [2.1.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.1.0)
 
-By using the Evaluating event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
+By using the `Evaluating` event, you can debug or log the steps of a math expression's evaluation. This event is triggered at each step during the evaluation process. The following code demonstrates how to use to this event:
 
     using var expression = new MathExpression("-3^4sin(-PI/2)", new ScientificMathContext());
 
@@ -213,6 +211,8 @@ Output:
     5: sin(-PI/2) = -1;
     6: 3^4sin(-PI/2) = -81;
     7: -3^4sin(-PI/2) = 81; //completed
+
+You can also ovverride the `OnEvaluating` method in a derived class of `MathExpression` to handle the Evaluating event. Delegates are more expensive than a virtual method call. So by overriding the method means a subclass can subscribe to an event with less runtime overhead than using an event-handler.
 
 ***NOTE**: To prevent memory leaks, it's important to unsubscribe from the event after subscribing to it. The Evaluating event is cleaned up in the Dispose method, so I recommend using the **using** statement to ensure proper disposal and efficient resource management.*
 
@@ -329,6 +329,7 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
 | Natural logarithmic base | e | 300 |
 | Natural logarithm | ln, Ln, LN | 200 |
 | Common logarithm (base 10) | log, Log, LOG | 200 |
+| Exponential function | exp, Exp, EXP | 200 |
 | Factorial | ! | 500 |
 | Infinity | ∞ | 300 |
 | Logical constants  | true, false, True, False, TRUE, FALSE, T, F, ⊤, ⊥ | 300 |

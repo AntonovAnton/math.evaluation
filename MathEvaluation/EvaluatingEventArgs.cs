@@ -43,15 +43,15 @@ public class EvaluatingEventArgs : EventArgs
     /// <param name="end">The end position of the token in the math expression string.</param>
     /// <param name="step">The evaluation step number.</param>
     /// <param name="value">The value of the token.</param>
-    /// <param name="isCompleted">if set to <c>null</c> then it will be calculated based on the start and end positions.</param>
-    internal EvaluatingEventArgs(string mathString, int start, int end, int step, object value, bool? isCompleted = null)
+    /// <param name="isCompleted">True if the evaluation is completed; otherwise, false.</param>
+    internal EvaluatingEventArgs(string mathString, int start, int end, int step, object value, bool isCompleted)
     {
         MathString = mathString;
         Start = start;
         End = end;
         Step = step;
         Value = value;
-        IsCompleted = isCompleted ?? start == 0 && mathString.Length == end + 1;
+        IsCompleted = isCompleted;
     }
 
     /// <summary> Converts to string.</summary>

@@ -81,7 +81,7 @@ internal class MathCompatibleOperator : MathEntity
 
         var value = Calculate(OperatorType, left, right);
 
-        mathExpression.OnEvaluating(start, i, value);
+        mathExpression.RaiseEvaluatingStep(start, i, value);
         return value;
     }
 
@@ -107,7 +107,7 @@ internal class MathCompatibleOperator : MathEntity
 
         var expression = Build<TResult>(OperatorType, left, right);
 
-        mathExpression.OnEvaluating(start, i, expression.NodeType == ExpressionType.Convert ? ((UnaryExpression)expression).Operand : expression);
+        mathExpression.RaiseEvaluatingStep(start, i, expression.NodeType == ExpressionType.Convert ? ((UnaryExpression)expression).Operand : expression);
         return expression;
     }
 

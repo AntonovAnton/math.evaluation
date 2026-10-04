@@ -38,14 +38,14 @@ internal class MathGetValueFunction<T> : MathEntity
         mathExpression.MathString.SkipParenthesis(ref i);
 
         var fnResult = Fn();
-        mathExpression.OnEvaluating(tokenPosition, i, fnResult);
+        mathExpression.RaiseEvaluatingStep(tokenPosition, i, fnResult);
 
         var result = ConvertNumber<T, TResult>(fnResult);
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
         if (value != result)
-            mathExpression.OnEvaluating(start, i, value, skipNaN: true);
+            mathExpression.RaiseEvaluatingStep(start, i, value, skipNaN: true);
 
         return value;
     }
@@ -59,14 +59,14 @@ internal class MathGetValueFunction<T> : MathEntity
         mathExpression.MathString.SkipParenthesis(ref i);
 
         Expression right = Expression.Invoke(Expression.Constant(Fn));
-        mathExpression.OnEvaluating(tokenPosition, i, right);
+        mathExpression.RaiseEvaluatingStep(tokenPosition, i, right);
 
         right = BuildConvert<TResult>(right);
         right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
         var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
 
         if (expression != right)
-            mathExpression.OnEvaluating(start, i, expression);
+            mathExpression.RaiseEvaluatingStep(start, i, expression);
 
         return expression;
     }

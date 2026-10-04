@@ -114,27 +114,6 @@ public partial class MathExpression : IDisposable
         }
     }
 
-    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
-    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
-    /// <param name="depth">
-    ///     The recursion depth that the parsing starts from. It isn't zero when the math expression string
-    ///     is a variable that is evaluated as a part of another math expression string.
-    /// </param>
-    internal TResult Evaluate<TResult>(MathParameters? parameters, int depth)
-        where TResult : struct, INumberBase<TResult>
-    {
-        Parameters = parameters;
-        _evaluatingStep = 0;
-
-        var i = 0;
-        var value = Evaluate<TResult>(ref i, depth, null, null);
-
-        if (_evaluatingStep == 0)
-            OnEvaluating(0, i, value);
-
-        return value;
-    }
-
     /// <summary>
     ///     Occurs when the <see cref="MathString">math string</see> is evaluating and triggers at each step of the evaluation.
     /// </summary>
@@ -156,6 +135,27 @@ public partial class MathExpression : IDisposable
         Parameters = null;
         ParameterExpression = null;
         ExpressionTree = null;
+    }
+
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <param name="depth">
+    ///     The recursion depth that the parsing starts from. It isn't zero when the math expression string
+    ///     is a variable that is evaluated as a part of another math expression string.
+    /// </param>
+    internal TResult Evaluate<TResult>(MathParameters? parameters, int depth)
+        where TResult : struct, INumberBase<TResult>
+    {
+        Parameters = parameters;
+        _evaluatingStep = 0;
+
+        var i = 0;
+        var value = Evaluate<TResult>(ref i, depth, null, null);
+
+        if (_evaluatingStep == 0)
+            RaiseEvaluatingStep(0, i, value);
+
+        return value;
     }
 
     internal TResult Evaluate<TResult>(ref int i, int depth, char? separator, char? closingSymbol,
@@ -191,7 +191,7 @@ public partial class MathExpression : IDisposable
                 value = span.ParseNumber<TResult>(_numberFormat, ref i);
 
                 if (value is Complex c && c.Imaginary != 0.0)
-                    OnEvaluating(tokenPosition, i, value);
+                    RaiseEvaluatingStep(tokenPosition, i, value);
                 continue;
             }
 
@@ -212,7 +212,7 @@ public partial class MathExpression : IDisposable
                     value = value == default ? result : value * result;
 
                     if (value != result)
-                        OnEvaluating(start, i, value, skipNaN: true);
+                        RaiseEvaluatingStep(start, i, value, skipNaN: true);
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsWhiteSpace(start, i)))
@@ -222,7 +222,7 @@ public partial class MathExpression : IDisposable
                     var p = precedence > (int)EvalPrecedence.LowestBasic ? precedence : (int)EvalPrecedence.LowestBasic;
                     value += Evaluate<TResult>(ref i, depth, separator, closingSymbol, p, isOperand);
 
-                    OnEvaluating(start, i, value);
+                    RaiseEvaluatingStep(start, i, value);
                     if (isOperand)
                         return value;
 
@@ -249,7 +249,7 @@ public partial class MathExpression : IDisposable
                     else
                         value = isWhiteSpace ? -result : value - result; //it keeps sign
 
-                    OnEvaluating(start, i, value);
+                    RaiseEvaluatingStep(start, i, value);
                     if (isOperand)
                         return value;
 
@@ -261,7 +261,7 @@ public partial class MathExpression : IDisposable
                     i++;
                     value *= Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
-                    OnEvaluating(start, i, value);
+                    RaiseEvaluatingStep(start, i, value);
                     break;
                 case '/' when span.Length == i + 1 || span[i + 1] != '/':
                     if (precedence >= (int)EvalPrecedence.Basic)
@@ -270,7 +270,7 @@ public partial class MathExpression : IDisposable
                     i++;
                     value /= Evaluate<TResult>(ref i, depth, separator, closingSymbol, (int)EvalPrecedence.Basic);
 
-                    OnEvaluating(start, i, value);
+                    RaiseEvaluatingStep(start, i, value);
                     break;
                 default:
                     if (char.IsWhiteSpace(span[i]))
@@ -337,22 +337,42 @@ public partial class MathExpression : IDisposable
         return entity.Evaluate(this, start, ref i, depth, separator, closingSymbol, value);
     }
 
-    internal void OnEvaluating<T>(int start, int i, T value, string? mathString = null, bool? isCompleted = null, bool skipNaN = false)
+    internal void RaiseEvaluatingStep<T>(
+        int start, int i, T value, string? mathString = null, bool isSubExpression = false, bool skipNaN = false)
     {
-        if (Evaluating == null)
-            return;
-
-        if (skipNaN && (value is double.NaN ||
-                        value is float.NaN ||
+        if (skipNaN && (value is double d && double.IsNaN(d) ||
+                        value is float f && float.IsNaN(f) ||
                         value is Half h && Half.IsNaN(h) ||
                         value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
         {
             return;
         }
 
-        mathString ??= MathString;
         _evaluatingStep++;
-        Evaluating.Invoke(this, new EvaluatingEventArgs(mathString, start, i - 1, _evaluatingStep, value!, isCompleted));
+
+        if (Evaluating == null)
+            return;
+
+        // The evaluation is completed when the current step is not a sub-expression,
+        // the start index is 0, and the end index is the last character of the math string.
+        mathString ??= MathString;
+        var isCompleted = !isSubExpression && start == 0 && mathString.Length == i;
+
+        // i - 1 represents the inclusive end index of the step
+        OnEvaluating(mathString, start, i - 1, _evaluatingStep, value, isCompleted);
+    }
+
+    /// <summary> Raises the <see cref="Evaluating" /> event with the specified parameters.
+    /// </summary>
+    /// <param name="mathString">The math expression string.</param>
+    /// <param name="start">The start position of the token in the math expression string.</param>
+    /// <param name="end">The end position of the token in the math expression string.</param>
+    /// <param name="step">The evaluation step number.</param>
+    /// <param name="value">The value of the token.</param>
+    /// <param name="isCompleted">True if the evaluation is completed; otherwise, false.</param>
+    protected virtual void OnEvaluating<T>(string mathString, int start, int end, int step, T value, bool isCompleted)
+    {
+        Evaluating?.Invoke(this, new EvaluatingEventArgs(mathString, start, end, step, value!, isCompleted));
     }
 
     /// <summary>
@@ -372,22 +392,8 @@ public partial class MathExpression : IDisposable
         throw new MathExpressionException(
             $"The math expression string is nested too deeply, the nesting depth {depth} doesn't fit into the call stack of the current thread. " +
             "Simplify the math expression string, or evaluate it on a thread that has a bigger stack size.",
-            i) { NestingDepth = depth };
-    }
-
-    private MathExpressionException CreateException(Exception ex, object? parameters)
-    {
-        ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
-        ex.Data["mathString"] = MathString;
-        ex.Data["context"] = Context;
-        ex.Data["provider"] = Provider;
-        ex.Data["compiler"] = Compiler;
-        ex.Data[nameof(parameters)] = parameters;
-
-        if (ex is MathExpressionException { NestingDepth: >= 0 } depthEx)
-            ex.Data["nestingDepth"] = depthEx.NestingDepth;
-
-        return (MathExpressionException)ex;
+            i)
+        { NestingDepth = depth };
     }
 
     private static MathExpressionException CreateExceptionInvalidToken(ReadOnlySpan<char> span, int invalidTokenPosition)
@@ -398,6 +404,22 @@ public partial class MathExpression : IDisposable
         var unknownSubstring = end > i ? span[i..end] : span[i..];
 
         return new MathExpressionException($"'{unknownSubstring}' is not recognizable, maybe setting the appropriate MathContext could help.", i);
+    }
+
+    private MathExpressionException CreateException(Exception ex, object? parameters)
+    {
+        ex = ex is not MathExpressionException ? new MathExpressionException(ex.Message, ex) : ex;
+        ex.Data["mathString"] = MathString;
+        ex.Data["context"] = Context;
+        ex.Data["provider"] = Provider;
+        ex.Data["compiler"] = Compiler;
+        ex.Data["evaluatingStep"] = _evaluatingStep;
+        ex.Data[nameof(parameters)] = parameters;
+
+        if (ex is MathExpressionException { NestingDepth: >= 0 } depthEx)
+            ex.Data["nestingDepth"] = depthEx.NestingDepth;
+
+        return (MathExpressionException)ex;
     }
 
     private IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)

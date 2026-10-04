@@ -39,7 +39,7 @@ internal class MathOperator<T> : MathEntity
         var right = mathExpression.Evaluate<T>(ref i, depth, separator, closingSymbol, Precedence);
         var result = Fn(left, right);
 
-        mathExpression.OnEvaluating(start, i, result);
+        mathExpression.RaiseEvaluatingStep(start, i, result);
 
         return ConvertNumber<T, TResult>(result);
     }
@@ -54,7 +54,7 @@ internal class MathOperator<T> : MathEntity
         var right = mathExpression.Build<T>(ref i, depth, separator, closingSymbol, Precedence);
         Expression result = Expression.Invoke(Expression.Constant(Fn), left, right);
 
-        mathExpression.OnEvaluating(start, i, result);
+        mathExpression.RaiseEvaluatingStep(start, i, result);
 
         result = BuildConvert<TResult>(result);
         return result;

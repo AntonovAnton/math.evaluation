@@ -61,6 +61,12 @@ public class ComplexScientificMathContext : ScientificMathContext
         BindFunction<Complex>(log10Fn, "Log");
         BindFunction<Complex>(log10Fn, "LOG");
 
+        static Complex expFn(Complex v) => Complex.Exp(v);
+
+        BindFunction<Complex>(expFn, "exp");
+        BindFunction<Complex>(expFn, "Exp");
+        BindFunction<Complex>(expFn, "EXP");
+
         #region boolean logic
 
         static Complex equalToFn(Complex left, Complex right) => left == right ? Complex.One : default;

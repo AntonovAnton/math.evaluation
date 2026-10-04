@@ -105,6 +105,12 @@ public class ScientificMathContext : MathContext
         BindFunction<double>(log10Fn, "Log");
         BindFunction<double>(log10Fn, "LOG");
 
+        static double expFn(double v) => Math.Exp(v);
+
+        BindFunction<double>(expFn, "exp");
+        BindFunction<double>(expFn, "Exp");
+        BindFunction<double>(expFn, "EXP");
+
         static double factorialFn(double v) => Factorial(v);
 
         BindOperandOperator<double>(factorialFn, '!', true);
