@@ -44,10 +44,10 @@ Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.
 
 | Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **517.1 ns** | 2.21 ns |  2.06 ns | 0.0029 | **112 B** |
-| NCalc | .NET 10.0 | 7,872.5 ns | 35.39 ns | 29.55 ns | 0.2289 |    8728 B |
-| **MathEvaluator** | .NET 8.0 | **669.0 ns** | 3.56 ns | 3.16 ns |      - |     **112 B** |
-| NCalc | .NET 8.0 | 9,378.5 ns | 57.05 ns | 53.37 ns | 0.0305 |    8992 B |
+| **MathEvaluator** | .NET 10.0 | **527.5 ns** | 1.63 ns |  1.28 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 10.0 | 7,425.2 ns | 15.15 ns | 14.17 ns | 0.2747 |    8744 B |
+| **MathEvaluator** | .NET 8.0 | **648.7 ns** |  2.95 ns |  2.76 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 8.0 | 9,222.8 ns | 19.41 ns | 16.21 ns | 0.2747 |    9008 B |
 
 **Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~78x less memory allocation**.
 
@@ -55,14 +55,12 @@ Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.
 
 | Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
 |------------|---------|-----------|----------|---------|
-| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **359.7 ns** | **412.2 ns** | **31-32x** |
-| | NCalc | 11,606.6 ns | 12,839.1 ns | |
-| `"Sin(a) + Cos(b)"` | **MathEvaluator** | **387.0 ns** | **436.9 ns** | **27-28x** |
-| | NCalc | 10,459.6 ns | 12,236.0 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **487.6 ns** | **571.0 ns** | **26-27x** |
-| | NCalc | 13,197.2 ns | 14,717.9 ns | |
-| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **881.0 ns** | **992.0 ns** | **15x** |
-| | NCalc | 13,143.2 ns | 15,337.3 ns | |
+| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **347.2 ns** | **399.3 ns** | **31-32x** |
+| | NCalc | 10,402.7 ns | 12,938.1 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **434.6 ns** | **550.3 ns** | **26-27x** |
+| | NCalc | 11,720.6 ns | 14,895.4 ns | |
+| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **827.7 ns** | **960.6 ns** | **15x** |
+| | NCalc | 11,836.5 ns | 14,303.8 ns | |
 
 ***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
 
