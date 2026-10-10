@@ -1,5 +1,6 @@
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 using System.Dynamic;
 using System.Globalization;
 using System.Numerics;
@@ -366,7 +367,10 @@ public partial class MathExpressionTests_Number(ITestOutputHelper testOutputHelp
 
         parameters.b = 2; // just to show that we can add more parameters later
         expression.Evaluating -= SubscribeToEvaluating;
-        value = expression.Evaluate<BigInteger>(parameters);
+
+        var mathParameters = new MathParameters();
+        mathParameters.Bind(parameters);
+        value = expression.Evaluate<BigInteger>(mathParameters);
 
         testOutputHelper.WriteLine($"result: {value}");
 

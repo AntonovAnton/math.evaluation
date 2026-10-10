@@ -39,7 +39,7 @@ public class MathParametersTests
         var ex = Record.Exception(() => new MathParameters().Bind(new { v }));
 
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("Cannot bind a variable to an empty or whitespace-only expression string for 'v'.", ex.Message);
+        Assert.Equal("Cannot bind an empty or whitespace-only expression string for 'v'.", ex.Message);
     }
 
     #region INumberBase Function Tests
@@ -243,6 +243,38 @@ public class MathParametersTests
         };
 
         var parameters = new MathParameters(dict);
+
+        var result = "add(square(value), 50)".Evaluate<int>(parameters);
+
+        Assert.Equal(150, result);
+    }
+
+    [Fact]
+    public void MathParameters_BindFromTypeSafeDictionary_HasINumberBaseFunctions_ExpectedValue()
+    {
+        var dict = new Dictionary<string, int>
+        {
+            { "a", 1 },
+            { "b", 2 },
+        };
+
+        var result = "a + b".Evaluate<double>(dict);
+
+        Assert.Equal(3.0, result, double.Epsilon);
+    }
+
+    [Fact]
+    public void MathParameters_BindFromDictionaryExlicitly_HasINumberBaseFunctions_ExpectedValue()
+    {
+        var dict = new Dictionary<string, object>
+        {
+            { "square", new Func<int, int>(x => x * x) },
+            { "add", new Func<int, int, int>((a, b) => a + b) },
+            { "value", 10 }
+        };
+
+        var parameters = new MathParameters();
+        parameters.Bind(dict);
 
         var result = "add(square(value), 50)".Evaluate<int>(parameters);
 

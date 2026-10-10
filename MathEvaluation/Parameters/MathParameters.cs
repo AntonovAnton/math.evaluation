@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedMember.Global
@@ -37,9 +36,12 @@ public sealed class MathParameters
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
-        if (parameters is IEnumerable dictionary)
+        if (parameters is IEnumerable enumerable)
         {
-            Bind(dictionary);
+            if (TryBindDictionary(enumerable))
+                return;
+
+            Bind(enumerable);
             return;
         }
 
@@ -50,15 +52,37 @@ public sealed class MathParameters
     /// <param name="parameters">A dictionary containing variables.</param>
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException"></exception>
-    public void Bind<TValue>(IDictionary<string, TValue> parameters)
+    public void Bind(IDictionary<string, object> parameters)
     {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters), "The parameters argument cannot be null.");
+        ArgumentNullException.ThrowIfNull(parameters);
 
         foreach (var (key, value) in parameters)
         {
-            var propertyType = value?.GetType();
-            BindKeyValue(propertyType, key, value, true);
+            BindProperty(null, key, value, true);
+        }
+    }
+
+    /// <inheritdoc cref="Bind(IDictionary{string, object?})"/>
+    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+    public void Bind<TValue>(IDictionary<string, TValue> parameters)
+        where TValue : struct, INumberBase<TValue>
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+
+        foreach (var (key, value) in parameters)
+        {
+            BindVariable(key, value, true);
+        }
+    }
+
+    /// <inheritdoc cref="Bind(IDictionary{string, object?})"/>
+    public void Bind(IDictionary<string, bool> parameters)
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+
+        foreach (var (key, value) in parameters)
+        {
+            BindBoolVariable(key, value, true);
         }
     }
 
@@ -70,9 +94,7 @@ public sealed class MathParameters
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
-        foreach (var propertyInfo in parameters.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => p.CanRead))
+        foreach (var propertyInfo in parameters.GetType().GetReadableProperties())
         {
             var getter = propertyInfo.GetGetMethod();
             if (getter == null)
@@ -82,7 +104,7 @@ public sealed class MathParameters
             var value = getter.Invoke(parameters, null);
             var propertyType = propertyInfo.PropertyType;
 
-            BindKeyValue(propertyType, key, value, false);
+            BindProperty(propertyType, key, value, false);
         }
     }
 
@@ -206,81 +228,21 @@ public sealed class MathParameters
         => _trie.FirstMathEntity(mathString);
 
     /// <summary>
-    /// Binds variables and functions from a dictionary.
-    /// </summary>
-    /// <param name="parameters">A dictionary containing variables and functions.</param>
-    /// <exception cref="ArgumentNullException">parameters</exception>
-    /// <exception cref="NotSupportedException"></exception>
-    private void Bind(IEnumerable parameters)
-    {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters), "The parameters argument cannot be null.");
-
-        var type = parameters.GetType();
-        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
-        {
-            foreach (var pair in parameters)
-            {
-                switch (pair)
-                {
-                    case DictionaryEntry dictEntry:
-                    {
-                        if (dictEntry.Key is not string key)
-                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
-
-                        var propertyType = dictEntry.Value?.GetType();
-                        BindKeyValue(propertyType, key, dictEntry.Value, true);
-                        break;
-                    }
-                    case KeyValuePair<string, object?> kvp:
-                    {
-                        var propertyType = kvp.Value?.GetType();
-                        BindKeyValue(propertyType, kvp.Key, kvp.Value, true);
-                        break;
-                    }
-                    default:
-                    {
-                        var pairType = pair.GetType();
-                        var keyProperty = pairType.GetProperty("Key");
-                        var valueProperty = pairType.GetProperty("Value");
-                        if (keyProperty == null || valueProperty == null)
-                            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
-
-                        var keyObj = keyProperty.GetValue(pair);
-                        var valueObj = valueProperty.GetValue(pair);
-                        if (keyObj is not string key)
-                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
-
-                        BindKeyValue(valueProperty.PropertyType, key, valueObj, true);
-                        break;
-                    }
-                }
-            }
-
-            return;
-        }
-
-        throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
-    }
-
-    /// <summary>
-    /// Handles the binding logic for a key-value pair.
+    /// Binds the property based on its type and value. It supports various numeric types, boolean values, and expression strings.
     /// </summary>
     /// <param name="propertyType">The type of the property.</param>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <param name="isDictionaryItem"></param>
     /// <exception cref="NotSupportedException"></exception>
-    private void BindKeyValue(Type? propertyType, string key, object? value, bool isDictionaryItem)
+    private void BindProperty(Type? propertyType, string key, object? value, bool isDictionaryItem)
     {
         if (value == null)
             throw new NotSupportedException($"Null values are not supported for '{key}'.");
 
-        propertyType ??= value.GetType();
-
-        if (propertyType.IsBooleanType())
+        if (value is bool boolValue)
         {
-            BindVariable(key, Convert.ToDouble((bool)value), isDictionaryItem);
+            BindBoolVariable(key, boolValue, isDictionaryItem);
             return;
         }
 
@@ -323,17 +285,11 @@ public sealed class MathParameters
         if (TryBind<UInt128>(key, value, isDictionaryItem))
             return;
 
-        if (propertyType.IsNumberBaseType())
-        {
-            BindVariable(key, (dynamic)value, isDictionaryItem);
-            return;
-        }
-
         switch (value)
         {
             case string str:
                 if (string.IsNullOrWhiteSpace(str))
-                    throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+                    throw new NotSupportedException($"Cannot bind an empty or whitespace-only expression string for '{key}'.");
 
                 BindExpressionVariable(str, key);
                 break;
@@ -341,18 +297,28 @@ public sealed class MathParameters
                 BindFunction(boolFn1, key);
                 break;
             default:
-            {
-                if (propertyType.FullName?.StartsWith("System.Func") == true)
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+                {
+                    propertyType ??= value.GetType();
+                    if (propertyType.IsNumberBaseType())
+                    {
+                        BindVariable(key, (dynamic)value, isDictionaryItem);
+                        return;
+                    }
 
-                throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-            }
+                    if (propertyType.FullName?.StartsWith("System.Func") == true)
+                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+                }
         }
     }
 
     private void BindVariable<T>(string key, T value, bool isDictionaryItem)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathVariable<T>(key, value, isDictionaryItem));
+
+    private void BindBoolVariable(string key, bool value, bool isDictionaryItem)
+        => _trie.AddMathEntity(new MathVariable<double>(key, Convert.ToDouble(value), isDictionaryItem));
 
     private bool TryBind<T>(string key, object value, bool isDictionaryItem)
         where T : struct, INumberBase<T>
@@ -386,5 +352,122 @@ public sealed class MathParameters
             default:
                 return false;
         }
+    }
+
+    private bool TryBindDictionary(object parameters)
+    {
+        if (TryBindDictionary<double>(parameters))
+            return true;
+        if (TryBindDictionary<decimal>(parameters))
+            return true;
+        if (TryBindDictionary<Complex>(parameters))
+            return true;
+        if (TryBindDictionary<float>(parameters))
+            return true;
+        if (TryBindDictionary<int>(parameters))
+            return true;
+        if (TryBindDictionary<Half>(parameters))
+            return true;
+        if (TryBindDictionary<BigInteger>(parameters))
+            return true;
+        if (TryBindDictionary<char>(parameters))
+            return true;
+        if (TryBindDictionary<byte>(parameters))
+            return true;
+        if (TryBindDictionary<sbyte>(parameters))
+            return true;
+        if (TryBindDictionary<short>(parameters))
+            return true;
+        if (TryBindDictionary<ushort>(parameters))
+            return true;
+        if (TryBindDictionary<uint>(parameters))
+            return true;
+        if (TryBindDictionary<long>(parameters))
+            return true;
+        if (TryBindDictionary<ulong>(parameters))
+            return true;
+        if (TryBindDictionary<nint>(parameters))
+            return true;
+        if (TryBindDictionary<nuint>(parameters))
+            return true;
+        if (TryBindDictionary<Int128>(parameters))
+            return true;
+        if (TryBindDictionary<UInt128>(parameters))
+            return true;
+
+        if (parameters is IDictionary<string, bool> boolValuesDict)
+        {
+            Bind(boolValuesDict);
+            return true;
+        }
+
+        if (parameters is IDictionary<string, object> dictionary)
+        {
+            Bind(dictionary);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryBindDictionary<TValue>(object parameters)
+        where TValue : struct, INumberBase<TValue>
+    {
+        if (parameters is IDictionary<string, TValue> dictionary)
+        {
+            Bind(dictionary);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Binds variables and functions from a dictionary.
+    /// </summary>
+    /// <param name="parameters">A dictionary containing variables and functions.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException"></exception>
+    private void Bind(IEnumerable parameters)
+    {
+        var type = parameters.GetType();
+        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
+        {
+            foreach (var pair in parameters)
+            {
+                switch (pair)
+                {
+                    case DictionaryEntry dictEntry:
+                        {
+                            if (dictEntry.Key is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                            var propertyType = dictEntry.Value?.GetType();
+                            BindProperty(propertyType, key, dictEntry.Value, true);
+                            break;
+                        }
+                    default:
+                        {
+                            var pairType = pair.GetType();
+                            var keyProperty = pairType.GetProperty("Key");
+                            var valueProperty = pairType.GetProperty("Value");
+                            if (keyProperty == null || valueProperty == null)
+                                throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+
+                            var keyObj = keyProperty.GetValue(pair);
+                            var valueObj = valueProperty.GetValue(pair);
+                            if (keyObj is not string key)
+                                throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                            BindProperty(valueProperty.PropertyType, key, valueObj, true);
+                            break;
+                        }
+                }
+            }
+
+            return;
+        }
+
+        throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
     }
 }

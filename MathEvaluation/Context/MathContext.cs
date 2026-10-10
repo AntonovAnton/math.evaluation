@@ -1,9 +1,7 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
-using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedMember.Global
@@ -47,9 +45,7 @@ public class MathContext
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        foreach (var propertyInfo in context.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => p.CanRead))
+        foreach (var propertyInfo in context.GetType().GetReadableProperties())
         {
             var getter = propertyInfo.GetGetMethod();
             if (getter == null)
@@ -59,7 +55,7 @@ public class MathContext
             var value = getter.Invoke(context, null);
             var propertyType = propertyInfo.PropertyType;
 
-            BindKeyValue(propertyType, key, value);
+            BindProperty(propertyType, key, value);
         }
     }
 
@@ -256,20 +252,20 @@ public class MathContext
         => _trie.FirstMathEntity(mathString);
 
     /// <summary>
-    /// Handles the binding logic for a key-value pair.
+    /// Binds the property based on its type and value. It supports various numeric types, boolean values, and expression strings.
     /// </summary>
     /// <param name="propertyType">The type of the property.</param>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <exception cref="NotSupportedException"></exception>
-    private void BindKeyValue(Type propertyType, string key, object? value)
+    private void BindProperty(Type propertyType, string key, object? value)
     {
         if (value == null)
-            throw new NotSupportedException($"Cannot bind a variable to a null value for '{key}'.");
+            throw new NotSupportedException($"Null values are not supported for '{key}'.");
 
-        if (propertyType.IsBooleanType())
+        if (value is bool boolValue)
         {
-            BindConstant(Convert.ToDouble((bool)value), key);
+            BindConstant(boolValue, key);
             return;
         }
 
@@ -312,17 +308,11 @@ public class MathContext
         if (TryBind<UInt128>(key, value))
             return;
 
-        if (propertyType.IsNumberBaseType())
-        {
-            BindConstant((dynamic)value, key);
-            return;
-        }
-
         switch (value)
         {
             case string str:
                 if (string.IsNullOrWhiteSpace(str))
-                    throw new NotSupportedException($"Cannot bind a variable to an empty or whitespace-only expression string for '{key}'.");
+                    throw new NotSupportedException($"Cannot bind an empty or whitespace-only expression string for '{key}'.");
 
                 BindExpressionVariable(str, key);
                 break;
@@ -330,12 +320,18 @@ public class MathContext
                 BindFunction(boolFn1, key);
                 break;
             default:
-            {
-                if (propertyType.FullName?.StartsWith("System.Func") == true)
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+                {
+                    if (propertyType.IsNumberBaseType())
+                    {
+                        BindConstant((dynamic)value, key);
+                        return;
+                    }
 
-                throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-            }
+                    if (propertyType.FullName?.StartsWith("System.Func") == true)
+                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
+
+                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+                }
         }
     }
 
