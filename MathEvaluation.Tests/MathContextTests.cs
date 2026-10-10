@@ -38,7 +38,7 @@ public class MathContextTests
         var ex = Record.Exception(() => new MathContext().Bind(new { v }));
 
         Assert.IsType<NotSupportedException>(ex);
-        Assert.Equal("Cannot bind a variable to an empty or whitespace-only expression string for 'v'.", ex.Message);
+        Assert.Equal("Cannot bind an empty or whitespace-only expression string for 'v'.", ex.Message);
     }
 
     #region INumberBase Function Tests
