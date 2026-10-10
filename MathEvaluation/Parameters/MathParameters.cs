@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedMember.Global
@@ -37,11 +36,11 @@ public sealed class MathParameters
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
-        if (TryBindDictionary(parameters))
-            return;
-
         if (parameters is IEnumerable enumerable)
         {
+            if (TryBindDictionary(enumerable))
+                return;
+
             Bind(enumerable);
             return;
         }
@@ -95,9 +94,7 @@ public sealed class MathParameters
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
-        foreach (var propertyInfo in parameters.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => p.CanRead))
+        foreach (var propertyInfo in parameters.GetType().GetReadableProperties())
         {
             var getter = propertyInfo.GetGetMethod();
             if (getter == null)

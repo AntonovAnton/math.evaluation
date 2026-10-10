@@ -1,9 +1,7 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
-using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedMember.Global
@@ -47,9 +45,7 @@ public class MathContext
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        foreach (var propertyInfo in context.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => p.CanRead))
+        foreach (var propertyInfo in context.GetType().GetReadableProperties())
         {
             var getter = propertyInfo.GetGetMethod();
             if (getter == null)
