@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>MathEvaluation.Benchmarks.CompilationBenchmarks-20261004-140529</title>
+<title>MathEvaluation.Benchmarks.CompilationBenchmarks-20261011-115147</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -25,42 +25,42 @@ BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9550/25H2/2025Update/HudsonValle
 <table>
 <thead><tr><th>Method                                                                                       </th><th>Job</th><th>Runtime</th><th>Mean    </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>23,714.491 ns</td><td>74.3857 ns</td><td>62.1154 ns</td><td>0.1221</td><td>0.0610</td><td>5146 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>2,813.061 ns</td><td>12.7333 ns</td><td>11.2878 ns</td><td>0.0763</td><td>0.0725</td><td>2424 B</td>
-</tr><tr><td>&#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>10,395.089 ns</td><td>35.7141 ns</td><td>31.6596 ns</td><td>0.2747</td><td>0.2441</td><td>9103 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>23,071.042 ns</td><td>83.1475 ns</td><td>77.7762 ns</td><td>0.1221</td><td>0.0610</td><td>4644 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>578.497 ns</td><td>1.0117 ns</td><td>0.8969 ns</td><td>0.0286</td><td>-</td><td>896 B</td>
-</tr><tr><td>&#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>6,190.994 ns</td><td>17.1918 ns</td><td>15.2401 ns</td><td>0.2365</td><td>-</td><td>7440 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>120,964.087 ns</td><td>333.1082 ns</td><td>295.2917 ns</td><td>0.2441</td><td>-</td><td>12982 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>6,939.235 ns</td><td>103.0353 ns</td><td>96.3792 ns</td><td>0.2136</td><td>0.1831</td><td>6653 B</td>
-</tr><tr><td>&#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>15,399.115 ns</td><td>39.2404 ns</td><td>34.7856 ns</td><td>0.9155</td><td>0.8545</td><td>30103 B</td>
-</tr><tr><td>&#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3.352 ns</td><td>0.0096 ns</td><td>0.0075 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3.769 ns</td><td>0.0147 ns</td><td>0.0123 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3.986 ns</td><td>0.0087 ns</td><td>0.0068 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>110,209.166 ns</td><td>282.4262 ns</td><td>250.3635 ns</td><td>-</td><td>-</td><td>5688 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3,539.434 ns</td><td>47.5313 ns</td><td>42.1353 ns</td><td>0.0763</td><td>0.0610</td><td>2413 B</td>
-</tr><tr><td>&#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>14,124.071 ns</td><td>49.4198 ns</td><td>46.2273 ns</td><td>0.7935</td><td>0.7324</td><td>24896 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>129,782.347 ns</td><td>241.3975 ns</td><td>213.9926 ns</td><td>-</td><td>-</td><td>7264 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>4,002.066 ns</td><td>28.2159 ns</td><td>25.0126 ns</td><td>0.1068</td><td>0.0916</td><td>3359 B</td>
-</tr><tr><td>&#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>13,952.622 ns</td><td>78.4607 ns</td><td>73.3922 ns</td><td>0.7324</td><td>0.6104</td><td>25621 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>14,141.599 ns</td><td>80.1235 ns</td><td>74.9475 ns</td><td>0.1526</td><td>0.1221</td><td>5150 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3,109.853 ns</td><td>12.2346 ns</td><td>11.4443 ns</td><td>0.0763</td><td>0.0725</td><td>2423 B</td>
-</tr><tr><td>&#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>12,395.092 ns</td><td>46.9044 ns</td><td>43.8744 ns</td><td>0.2441</td><td>0.1831</td><td>9363 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>13,045.650 ns</td><td>67.3099 ns</td><td>62.9617 ns</td><td>0.1221</td><td>0.0916</td><td>4644 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>701.552 ns</td><td>1.7262 ns</td><td>1.6147 ns</td><td>0.0286</td><td>-</td><td>896 B</td>
-</tr><tr><td>&#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>7,337.453 ns</td><td>13.6061 ns</td><td>12.0614 ns</td><td>0.2441</td><td>-</td><td>7704 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>110,125.531 ns</td><td>285.6209 ns</td><td>267.1699 ns</td><td>0.2441</td><td>-</td><td>12982 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>8,045.719 ns</td><td>33.2261 ns</td><td>31.0797 ns</td><td>0.2136</td><td>0.1831</td><td>6656 B</td>
-</tr><tr><td>&#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>18,975.814 ns</td><td>283.9109 ns</td><td>251.6796 ns</td><td>1.0071</td><td>0.9766</td><td>31168 B</td>
-</tr><tr><td>&#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3.651 ns</td><td>0.0585 ns</td><td>0.0519 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4.484 ns</td><td>0.1050 ns</td><td>0.0982 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3.801 ns</td><td>0.0302 ns</td><td>0.0268 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>96,773.354 ns</td><td>660.8678 ns</td><td>585.8421 ns</td><td>-</td><td>-</td><td>5688 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3,858.521 ns</td><td>15.9916 ns</td><td>14.1762 ns</td><td>0.0763</td><td>0.0725</td><td>2416 B</td>
-</tr><tr><td>&#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>18,044.369 ns</td><td>290.7697 ns</td><td>242.8059 ns</td><td>0.7324</td><td>0.6104</td><td>26125 B</td>
-</tr><tr><td>&#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>112,614.853 ns</td><td>383.7718 ns</td><td>320.4668 ns</td><td>0.2441</td><td>-</td><td>7400 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4,767.546 ns</td><td>49.1259 ns</td><td>45.9524 ns</td><td>0.1068</td><td>0.0992</td><td>3360 B</td>
-</tr><tr><td>&#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>18,175.802 ns</td><td>132.2652 ns</td><td>110.4474 ns</td><td>0.8545</td><td>0.7324</td><td>26856 B</td>
+</thead><tbody><tr><td>&#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>23,792.580 ns</td><td>85.6583 ns</td><td>75.9338 ns</td><td>0.1221</td><td>0.0610</td><td>5146 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>2,804.346 ns</td><td>9.2598 ns</td><td>7.7324 ns</td><td>0.0763</td><td>0.0725</td><td>2424 B</td>
+</tr><tr><td>&#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>10,413.667 ns</td><td>40.5238 ns</td><td>37.9060 ns</td><td>0.2747</td><td>0.2441</td><td>9103 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>22,888.263 ns</td><td>63.1518 ns</td><td>59.0722 ns</td><td>0.1221</td><td>0.0610</td><td>4643 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>579.443 ns</td><td>4.1037 ns</td><td>3.6378 ns</td><td>0.0286</td><td>-</td><td>896 B</td>
+</tr><tr><td>&#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>6,101.313 ns</td><td>13.9401 ns</td><td>13.0396 ns</td><td>0.2365</td><td>-</td><td>7440 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>121,184.534 ns</td><td>255.9119 ns</td><td>226.8593 ns</td><td>0.2441</td><td>-</td><td>12870 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>7,484.919 ns</td><td>145.9063 ns</td><td>121.8384 ns</td><td>0.2136</td><td>0.1526</td><td>6694 B</td>
+</tr><tr><td>&#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>15,909.905 ns</td><td>87.2449 ns</td><td>81.6089 ns</td><td>0.9155</td><td>0.8545</td><td>30095 B</td>
+</tr><tr><td>&#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3.610 ns</td><td>0.0918 ns</td><td>0.0901 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3.969 ns</td><td>0.0207 ns</td><td>0.0193 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>4.229 ns</td><td>0.0232 ns</td><td>0.0217 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>111,762.884 ns</td><td>334.9577 ns</td><td>313.3196 ns</td><td>-</td><td>-</td><td>5688 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3,541.999 ns</td><td>52.3743 ns</td><td>48.9910 ns</td><td>0.0763</td><td>0.0610</td><td>2413 B</td>
+</tr><tr><td>&#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>13,798.023 ns</td><td>62.7076 ns</td><td>52.3637 ns</td><td>0.7935</td><td>0.7324</td><td>24896 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>129,781.530 ns</td><td>415.6983 ns</td><td>388.8444 ns</td><td>-</td><td>-</td><td>7168 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>3,836.320 ns</td><td>45.8085 ns</td><td>40.6080 ns</td><td>0.0916</td><td>0.0763</td><td>3261 B</td>
+</tr><tr><td>&#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>13,810.810 ns</td><td>100.0906 ns</td><td>88.7277 ns</td><td>0.7324</td><td>0.6104</td><td>25621 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>14,206.340 ns</td><td>274.0669 ns</td><td>281.4466 ns</td><td>0.1526</td><td>0.1221</td><td>5150 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3,200.014 ns</td><td>13.6338 ns</td><td>12.7531 ns</td><td>0.0763</td><td>0.0725</td><td>2423 B</td>
+</tr><tr><td>&#39;NCalc: &quot;22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>12,625.320 ns</td><td>37.5091 ns</td><td>35.0860 ns</td><td>0.2899</td><td>0.2747</td><td>9367 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>12,779.589 ns</td><td>100.0403 ns</td><td>93.5778 ns</td><td>0.1221</td><td>0.0916</td><td>4643 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>702.750 ns</td><td>1.7346 ns</td><td>1.5377 ns</td><td>0.0286</td><td>-</td><td>896 B</td>
+</tr><tr><td>&#39;NCalc: &quot;true or not false and (true or false)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>7,542.416 ns</td><td>13.4482 ns</td><td>12.5794 ns</td><td>0.2441</td><td>-</td><td>7704 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>110,360.732 ns</td><td>300.8503 ns</td><td>281.4156 ns</td><td>0.2441</td><td>-</td><td>12870 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>8,202.080 ns</td><td>118.5704 ns</td><td>92.5720 ns</td><td>0.1831</td><td>0.1526</td><td>6613 B</td>
+</tr><tr><td>&#39;NCalc: &quot;A or not B and (C or B)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>19,368.871 ns</td><td>139.6328 ns</td><td>123.7809 ns</td><td>1.0071</td><td>0.9766</td><td>31160 B</td>
+</tr><tr><td>&#39;MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4.114 ns</td><td>0.0561 ns</td><td>0.0497 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4.486 ns</td><td>0.0206 ns</td><td>0.0183 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;NCalc: fn(new BooleanVariables { A = a, B = b, C = c })&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4.077 ns</td><td>0.1013 ns</td><td>0.1126 ns</td><td>0.0008</td><td>-</td><td>24 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>96,268.794 ns</td><td>289.5747 ns</td><td>270.8683 ns</td><td>-</td><td>-</td><td>5688 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>3,947.695 ns</td><td>45.8680 ns</td><td>40.6608 ns</td><td>0.0763</td><td>0.0687</td><td>2415 B</td>
+</tr><tr><td>&#39;NCalc: &quot;Sin(pi/6) + Cos(pi/3)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>17,642.385 ns</td><td>109.6409 ns</td><td>97.1938 ns</td><td>0.7324</td><td>0.6104</td><td>26125 B</td>
+</tr><tr><td>&#39;MathEvaluator: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>111,836.196 ns</td><td>318.0842 ns</td><td>248.3392 ns</td><td>-</td><td>-</td><td>7168 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>4,540.083 ns</td><td>14.0272 ns</td><td>13.1210 ns</td><td>0.0916</td><td>0.0763</td><td>3261 B</td>
+</tr><tr><td>&#39;NCalc: &quot;Sin(a) + Cos(b)&quot;&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>17,568.295 ns</td><td>106.7006 ns</td><td>94.5873 ns</td><td>0.8545</td><td>0.7324</td><td>26856 B</td>
 </tr></tbody></table>
 </body>
 </html>
