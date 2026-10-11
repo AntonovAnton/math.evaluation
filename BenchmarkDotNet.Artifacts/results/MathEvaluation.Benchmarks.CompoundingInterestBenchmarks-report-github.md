@@ -9,21 +9,21 @@ BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9550/25H2/2025Update/HudsonValle
 
 
 ```
-| Method                                                       | Job       | Runtime   | Mean         | Error      | StdDev     | Gen0   | Gen1   | Allocated |
-|------------------------------------------------------------- |---------- |---------- |-------------:|-----------:|-----------:|-------:|-------:|----------:|
-| &#39;MathEvaluator evaluation&#39;                                   | .NET 10.0 | .NET 10.0 |    699.80 ns |   5.024 ns |   4.699 ns | 0.0486 |      - |    1520 B |
-| &#39;NCalc evaluation&#39;                                           | .NET 10.0 | .NET 10.0 | 14,067.08 ns |  40.078 ns |  35.528 ns | 1.0986 |      - |   34208 B |
-| &#39;MathEvaluator compilation&#39;                                  | .NET 10.0 | .NET 10.0 | 88,780.44 ns | 629.728 ns | 525.851 ns | 0.2441 |      - |    7640 B |
-| &#39;MathEvaluator.FastExpressionCompiler compilation&#39;           | .NET 10.0 | .NET 10.0 |  5,254.46 ns |  28.026 ns |  23.403 ns | 0.1831 | 0.1526 |    6079 B |
-| &#39;NCalc compilation&#39;                                          | .NET 10.0 | .NET 10.0 | 20,512.57 ns | 126.779 ns | 118.589 ns | 1.0986 | 0.9766 |   37598 B |
-| &#39;MathEvaluator invoke fn(P, r, n, d)&#39;                        | .NET 10.0 | .NET 10.0 |     20.42 ns |   0.053 ns |   0.042 ns | 0.0013 |      - |      40 B |
-| &#39;MathEvaluator.FastExpressionCompiler invoke fn(P, r, n, d)&#39; | .NET 10.0 | .NET 10.0 |     20.56 ns |   0.087 ns |   0.081 ns | 0.0013 |      - |      40 B |
-| &#39;NCalc invoke fn(P, r, n, d)&#39;                                | .NET 10.0 | .NET 10.0 |     20.54 ns |   0.083 ns |   0.078 ns | 0.0013 |      - |      40 B |
-| &#39;MathEvaluator evaluation&#39;                                   | .NET 8.0  | .NET 8.0  |  1,053.39 ns |   6.652 ns |   5.897 ns | 0.0477 |      - |    1520 B |
-| &#39;NCalc evaluation&#39;                                           | .NET 8.0  | .NET 8.0  | 17,701.62 ns |  48.625 ns |  37.963 ns | 1.1292 |      - |   35472 B |
-| &#39;MathEvaluator compilation&#39;                                  | .NET 8.0  | .NET 8.0  | 73,297.20 ns | 532.310 ns | 497.923 ns | 0.2441 | 0.1221 |    7634 B |
-| &#39;MathEvaluator.FastExpressionCompiler compilation&#39;           | .NET 8.0  | .NET 8.0  |  6,512.36 ns |  20.510 ns |  17.127 ns | 0.1831 | 0.1526 |    5983 B |
-| &#39;NCalc compilation&#39;                                          | .NET 8.0  | .NET 8.0  | 25,808.74 ns | 116.658 ns | 103.414 ns | 1.2207 | 1.0986 |   38768 B |
-| &#39;MathEvaluator invoke fn(P, r, n, d)&#39;                        | .NET 8.0  | .NET 8.0  |     21.72 ns |   0.176 ns |   0.156 ns | 0.0013 |      - |      40 B |
-| &#39;MathEvaluator.FastExpressionCompiler invoke fn(P, r, n, d)&#39; | .NET 8.0  | .NET 8.0  |     21.08 ns |   0.172 ns |   0.161 ns | 0.0013 |      - |      40 B |
-| &#39;NCalc invoke fn(P, r, n, d)&#39;                                | .NET 8.0  | .NET 8.0  |     21.00 ns |   0.153 ns |   0.143 ns | 0.0013 |      - |      40 B |
+| Method                                                       | Job       | Runtime   | Mean         | Error        | StdDev       | Gen0   | Gen1   | Allocated |
+|------------------------------------------------------------- |---------- |---------- |-------------:|-------------:|-------------:|-------:|-------:|----------:|
+| &#39;MathEvaluator evaluation&#39;                                   | .NET 10.0 | .NET 10.0 |    700.21 ns |     1.557 ns |     1.456 ns | 0.0467 |      - |    1456 B |
+| &#39;NCalc evaluation&#39;                                           | .NET 10.0 | .NET 10.0 | 14,125.49 ns |    26.732 ns |    23.697 ns | 1.0986 |      - |   34208 B |
+| &#39;MathEvaluator compilation&#39;                                  | .NET 10.0 | .NET 10.0 | 87,537.83 ns |   341.214 ns |   319.172 ns |      - |      - |    7488 B |
+| &#39;MathEvaluator.FastExpressionCompiler compilation&#39;           | .NET 10.0 | .NET 10.0 |  5,250.11 ns |    25.703 ns |    22.785 ns | 0.1831 | 0.1526 |    5951 B |
+| &#39;NCalc compilation&#39;                                          | .NET 10.0 | .NET 10.0 | 19,784.33 ns |   130.312 ns |   121.894 ns | 1.0986 | 0.9766 |   37598 B |
+| &#39;MathEvaluator invoke fn(P, r, n, d)&#39;                        | .NET 10.0 | .NET 10.0 |     19.72 ns |     0.050 ns |     0.047 ns | 0.0013 |      - |      40 B |
+| &#39;MathEvaluator.FastExpressionCompiler invoke fn(P, r, n, d)&#39; | .NET 10.0 | .NET 10.0 |     19.92 ns |     0.103 ns |     0.086 ns | 0.0013 |      - |      40 B |
+| &#39;NCalc invoke fn(P, r, n, d)&#39;                                | .NET 10.0 | .NET 10.0 |     19.91 ns |     0.086 ns |     0.080 ns | 0.0013 |      - |      40 B |
+| &#39;MathEvaluator evaluation&#39;                                   | .NET 8.0  | .NET 8.0  |    994.75 ns |     4.563 ns |     4.268 ns | 0.0458 |      - |    1456 B |
+| &#39;NCalc evaluation&#39;                                           | .NET 8.0  | .NET 8.0  | 17,272.44 ns |    49.877 ns |    44.215 ns | 1.1292 |      - |   35472 B |
+| &#39;MathEvaluator compilation&#39;                                  | .NET 8.0  | .NET 8.0  | 72,313.82 ns | 1,143.592 ns | 1,069.717 ns | 0.1221 |      - |    7500 B |
+| &#39;MathEvaluator.FastExpressionCompiler compilation&#39;           | .NET 8.0  | .NET 8.0  |  6,403.77 ns |    23.030 ns |    20.416 ns | 0.1831 | 0.1526 |    5855 B |
+| &#39;NCalc compilation&#39;                                          | .NET 8.0  | .NET 8.0  | 24,508.30 ns |    90.467 ns |    80.197 ns | 1.2207 | 1.0986 |   38768 B |
+| &#39;MathEvaluator invoke fn(P, r, n, d)&#39;                        | .NET 8.0  | .NET 8.0  |     20.19 ns |     0.074 ns |     0.066 ns | 0.0013 |      - |      40 B |
+| &#39;MathEvaluator.FastExpressionCompiler invoke fn(P, r, n, d)&#39; | .NET 8.0  | .NET 8.0  |     20.19 ns |     0.050 ns |     0.047 ns | 0.0013 |      - |      40 B |
+| &#39;NCalc invoke fn(P, r, n, d)&#39;                                | .NET 8.0  | .NET 8.0  |     21.53 ns |     0.117 ns |     0.109 ns | 0.0013 |      - |      40 B |
