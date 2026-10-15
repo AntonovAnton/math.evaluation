@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -30,6 +31,7 @@ public class MathContext
     /// <param name="context">An object containing constants and functions.</param>
     /// <exception cref="ArgumentNullException" />
     /// <exception cref="NotSupportedException" />
+    [RequiresUnreferencedCode("Binding context requires reflection to access properties which may be trimmed")]
     public MathContext(object context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -41,9 +43,16 @@ public class MathContext
     /// <param name="context">An object containing constants and functions.</param>
     /// <exception cref="System.ArgumentNullException">parameters</exception>
     /// <exception cref="System.NotSupportedException"></exception>
+    [RequiresUnreferencedCode("Binding context requires reflection to access properties which may be trimmed")]
     public void Bind(object context)
     {
         ArgumentNullException.ThrowIfNull(context);
+
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new PlatformNotSupportedException(
+                "Context reflection is not supported on NativeAOT. Define context explicitly instead.");
+        }
 
         foreach (var propertyInfo in context.GetType().GetReadableProperties())
         {
@@ -258,7 +267,8 @@ public class MathContext
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <exception cref="NotSupportedException"></exception>
-    private void BindProperty(Type propertyType, string key, object? value)
+    [RequiresUnreferencedCode("Binding property requires reflection which may access trimmed members")]
+    private void BindProperty([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] Type propertyType, string key, object? value)
     {
         if (value == null)
             throw new NotSupportedException($"Null values are not supported for '{key}'.");
@@ -321,7 +331,7 @@ public class MathContext
                 break;
             default:
                 {
-                    if (propertyType.IsNumberBaseType())
+                    if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
                     {
                         BindConstant((dynamic)value, key);
                         return;

@@ -1,6 +1,7 @@
 ﻿using MathEvaluation.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Numerics;
 
@@ -87,6 +88,8 @@ internal class MathFunction<T> : MathEntity
     }
 
     /// <inheritdoc />
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
         Expression left)
     {

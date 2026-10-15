@@ -3,8 +3,10 @@ using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace MathEvaluation;
 
@@ -19,18 +21,12 @@ public partial class MathExpression
     internal Dictionary<string, ParameterExpression>? ExpressionVariables { get; set; }
     internal List<Expression>? ExpressionStatements { get; set; }
 
-    /// <inheritdoc cref="Compile{TResult}()" />
-    public Func<double> Compile()
-        => Compile<double>();
-
-    /// <inheritdoc cref="Compile{T, TResult}(T)" />
-    public Func<T, double> Compile<T>(T parameters)
-        => Compile<T, double>(parameters);
-
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
     /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
     /// <returns>A delegate that represents the compiled expression.</returns>
     /// <exception cref="MathExpressionException" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<TResult> Compile<TResult>()
         where TResult : struct, INumberBase<TResult>
     {
@@ -55,6 +51,8 @@ public partial class MathExpression
     /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
     /// <exception cref="ArgumentNullException">parameters</exception>
     /// <exception cref="NotSupportedException">parameters</exception>
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<T, TResult> Compile<T, TResult>(T parameters)
         where TResult : struct, INumberBase<TResult>
     {
@@ -81,9 +79,17 @@ public partial class MathExpression
         }
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters, int depth = 0)
         where TResult : struct, INumberBase<TResult>
     {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new PlatformNotSupportedException(
+                "Dynamic compilation is not supported in this runtime (e.g. NativeAOT).");
+        }
+
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
         _evaluatingStep = 0;
@@ -97,6 +103,8 @@ public partial class MathExpression
         return expression;
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal Expression Build<TResult>(ref int i, int depth, char? separator, char? closingSymbol,
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
         where TResult : struct, INumberBase<TResult>
@@ -253,6 +261,8 @@ public partial class MathExpression
         return expression.Reduce();
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal static Expression BuildMultiplyIfLeftNotDefault<TResult>(Expression left, Expression right)
         where TResult : struct, INumberBase<TResult>
     {
@@ -261,6 +271,8 @@ public partial class MathExpression
             : MathCompatibleOperator.Build<TResult>(OperatorType.Multiply, left, right);
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal Expression BuildOperand<TResult>(ref int i, int depth, char? separator, char? closingSymbol)
         where TResult : struct, INumberBase<TResult>
     {
@@ -272,6 +284,8 @@ public partial class MathExpression
         return expression;
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal Expression BuildExponentiation<TResult>(int start, ref int i, int depth, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, INumberBase<TResult>
     {
@@ -291,6 +305,8 @@ public partial class MathExpression
         return entity.Build<TResult>(this, start, ref i, depth, separator, closingSymbol, left);
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     private Expression Build<TResult>()
         where TResult : struct, INumberBase<TResult>
     {
@@ -305,6 +321,8 @@ public partial class MathExpression
         return expression;
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     private Expression Build<T, TResult>(T parameters)
         where TResult : struct, INumberBase<TResult>
     {

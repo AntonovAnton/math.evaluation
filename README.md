@@ -74,9 +74,9 @@ However, since compilation takes additional time, and MathEvaluator already prov
 
 The compiled delegate can be executed with different parameters, allowing you to pass variables and functions as arguments. This feature is particularly useful for scenarios where the same expression needs to be evaluated with different variable values or functions.
 
-In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `Dictionary<string, TResult>` as a parameter. This allows you to pass variables and their values in a more flexible way, especially when working with dynamic inputs or when the structure of input parameters is not known in advance.
+In version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0) you can also use a `IDictionary<string, TResult>` or `IDictionary<string, object>` as a parameters input type. This allows you to pass variables and their values in a more flexible way, especially when working with dynamic inputs or when the structure of input parameters is not known in advance.
 
-In version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0) support for `ExpandoObject` as a parameter type has been added. This allows for dynamic binding of variables in a more flexible manner, no predefined class structure required.
+In version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0) support for `ExpandoObject` as a parameters input type has been added. This allows for dynamic binding of variables in a more flexible manner, no predefined class structure required.
 
 In version [2.3.1](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.1) added `IExpressionCompiler` interface, which allows you to inject your own compiler. This is useful if you want to use a different compiler or if you want to customize the compilation process in some way.
 
@@ -133,7 +133,7 @@ Examples of passing custom variables and functions as parameters (Support expres
     parameters.BindVariable(x2);
     parameters.BindExpressionVariable(y); // expression-defined variable
     parameters.BindFunction(sqrt);
-    parameters.BindFunction(d => Math.Log(d), "ln");
+    parameters.BindFunction<double>(d => Math.Log(d), "ln");
 
     var value2 = "ln(1/-x1 + sqrt(1/(x2*x2) + 1)) + y"
         .Evaluate(parameters);
@@ -141,8 +141,8 @@ Examples of passing custom variables and functions as parameters (Support expres
 Example of using custom context:
 
     var context = new MathContext();
-    context.BindFunction(Math.Sqrt);
-    context.BindFunction(d => Math.Log(d), "ln");
+    context.BindFunction<double>(Math.Sqrt);
+    context.BindFunction<double>(d => Math.Log(d), "ln");
     context.BindExpressionVariable("x1 * x2", "y"); // expression-defined variable
 
     var value = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1)) + y"
@@ -182,6 +182,17 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 **MathContext** class defines the mathematical "language" available in expressions - what operators, functions, and constants can be used. It's reusable across multiple evaluations and determines syntax rules (e.g., whether to use `^` or `**` for exponentiation, which functions like `sin`, `cos`, `sqrt` are available).
 
 **MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
+
+## AOT (Ahead-of-Time) compilation support
+Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/3.6.0)
+
+MathEvaluator supports Ahead-of-Time (AOT). However, AOT support is limited to evaluation using `Dictionary<string, TResult>`, `Dictionary<string, object>`, and `MathParameters` as a parameters input type.
+
+**NOTE:** When using AOT, ensure you use either:
+- `Dictionary<string, TResult>` to pass variables and their values
+- `Dictionary<string, object>` or `MathParameters` to pass variables and functions as parameters.
+
+Other parameters passing methods (custom classes, `ExpandoObject`, etc.) are not supported in AOT scenarios.
 
 ## How to debug or log
 

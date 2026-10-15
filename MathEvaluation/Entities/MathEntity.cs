@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Numerics;
 
@@ -29,6 +30,8 @@ internal abstract class MathEntity : IMathEntity
         where TResult : struct, INumberBase<TResult>;
 
     /// <inheritdoc />
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     public abstract Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
         Expression left)
         where TResult : struct, INumberBase<TResult>;
@@ -104,6 +107,8 @@ internal abstract class MathEntity : IMathEntity
     /// </typeparam>
     /// <param name="expression">The expression tree.</param>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Using Expression.Property requires unreferenced code as properties may be trimmed")]
+    [RequiresDynamicCode("Building conversion expressions may require dynamic code generation")]
     protected static Expression BuildConvert<TResult>(Expression expression)
         where TResult : INumberBase<TResult>
     {

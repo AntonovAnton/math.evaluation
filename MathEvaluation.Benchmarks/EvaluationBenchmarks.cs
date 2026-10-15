@@ -40,7 +40,7 @@ public class EvaluationBenchmarks
 
     [Benchmark(Description = "MathEvaluator: \"Sin(pi/6) + Cos(pi/3)\"")]
     public double MathExpression_EvaluateSinCos()
-        => "Sin(pi/6) + Cos(pi/3)".Evaluate(null, _scientificContext);
+        => "Sin(pi/6) + Cos(pi/3)".Evaluate(_scientificContext);
 
     [Benchmark(Description = "NCalc: \"Sin(pi/6) + Cos(pi/3)\"")]
     public double NCalc_EvaluateSinCos()

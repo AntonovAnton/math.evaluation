@@ -1,6 +1,8 @@
 ﻿using MathEvaluation.Context;
 using MathEvaluation.Parameters;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 // ReSharper disable UnusedMember.Global
@@ -15,25 +17,53 @@ public static class StringExtensions
     /// <param name="mathString">The math expression string.</param>
     extension(string mathString)
     {
-        /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
+        /// <inheritdoc cref="MathExpression.Evaluate()" />
+        public double Evaluate() => new MathExpression(mathString).Evaluate();
+
+        /// <inheritdoc cref="MathExpression.Evaluate()" />
         public double Evaluate(MathContext? context, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).Evaluate();
 
         /// <inheritdoc cref="MathExpression.Evaluate(object?)" />
-        public double Evaluate(object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public double Evaluate(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).Evaluate(parameters);
+
+        /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
+        public double Evaluate(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).Evaluate(parameters);
+
+        /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
+        public double Evaluate(IDictionary<string, double> parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
         /// <inheritdoc cref="MathExpression.Evaluate(MathParameters?)" />
         public double Evaluate(MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).Evaluate(parameters);
 
-        /// <inheritdoc cref="MathExpression.Evaluate{TResult}(MathParameters?)" />
+        /// <inheritdoc cref="MathExpression.Evaluate{TResult}()" />
+        public TResult Evaluate<TResult>()
+            where TResult : struct, INumberBase<TResult>
+            => new MathExpression(mathString).Evaluate<TResult>();
+
+        /// <inheritdoc cref="MathExpression.Evaluate{TResult}()" />
         public TResult Evaluate<TResult>(MathContext? context, IFormatProvider? provider = null)
             where TResult : struct, INumberBase<TResult>
             => new MathExpression(mathString, context, provider).Evaluate<TResult>();
 
         /// <inheritdoc cref="MathExpression.Evaluate{TResult}(object?)" />
-        public TResult Evaluate<TResult>(object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public TResult Evaluate<TResult>(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where TResult : struct, INumberBase<TResult>
+            => new MathExpression(mathString, context, provider).Evaluate<TResult>(parameters);
+
+        /// <inheritdoc cref="MathExpression.Evaluate{TResult}(MathParameters?)" />
+        public TResult Evaluate<TResult>(IDictionary<string, TResult> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where TResult : struct, INumberBase<TResult>
+            => new MathExpression(mathString, context, provider).Evaluate<TResult>(parameters);
+
+        /// <inheritdoc cref="MathExpression.Evaluate{TResult}(MathParameters?)" />
+        public TResult Evaluate<TResult>(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
             where TResult : struct, INumberBase<TResult>
             => new MathExpression(mathString, context, provider).Evaluate<TResult>(parameters);
 
@@ -42,36 +72,72 @@ public static class StringExtensions
             where TResult : struct, INumberBase<TResult>
             => new MathExpression(mathString, context, provider).Evaluate<TResult>(parameters);
 
-        /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
+        /// <inheritdoc cref="MathExpression.EvaluateDecimal()" />
+        public decimal EvaluateDecimal() => new MathExpression(mathString).EvaluateDecimal();
+
+        /// <inheritdoc cref="MathExpression.EvaluateDecimal()" />
         public decimal EvaluateDecimal(MathContext? context, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateDecimal();
 
         /// <inheritdoc cref="MathExpression.EvaluateDecimal(object?)" />
-        public decimal EvaluateDecimal(object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public decimal EvaluateDecimal(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
+        public decimal EvaluateDecimal(IDictionary<string, decimal> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
+        public decimal EvaluateDecimal(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
         /// <inheritdoc cref="MathExpression.EvaluateDecimal(MathParameters?)" />
         public decimal EvaluateDecimal(MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateDecimal(parameters);
 
-        /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
+        /// <inheritdoc cref="MathExpression.EvaluateBoolean()" />
+        public bool EvaluateBoolean() => new MathExpression(mathString).EvaluateBoolean();
+
+        /// <inheritdoc cref="MathExpression.EvaluateBoolean()" />
         public bool EvaluateBoolean(MathContext? context, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateBoolean();
 
         /// <inheritdoc cref="MathExpression.EvaluateBoolean(object?)" />
-        public bool EvaluateBoolean(object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public bool EvaluateBoolean(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
+        public bool EvaluateBoolean(IDictionary<string, bool> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
+        public bool EvaluateBoolean(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
         /// <inheritdoc cref="MathExpression.EvaluateBoolean(MathParameters?)" />
         public bool EvaluateBoolean(MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateBoolean(parameters);
 
-        /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
+        /// <inheritdoc cref="MathExpression.EvaluateComplex()" />
+        public Complex EvaluateComplex() => new MathExpression(mathString).EvaluateComplex();
+
+        /// <inheritdoc cref="MathExpression.EvaluateComplex()" />
         public Complex EvaluateComplex(MathContext? context, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateComplex();
 
         /// <inheritdoc cref="MathExpression.EvaluateComplex(object?)" />
-        public Complex EvaluateComplex(object? parameters = null, MathContext? context = null, IFormatProvider? provider = null)
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public Complex EvaluateComplex(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
+        public Complex EvaluateComplex(IDictionary<string, Complex> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
+
+        /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
+        public Complex EvaluateComplex(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
         /// <inheritdoc cref="MathExpression.EvaluateComplex(MathParameters?)" />
@@ -79,23 +145,33 @@ public static class StringExtensions
             => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
 
         /// <inheritdoc cref="MathExpression.Compile{T}(T)" />
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, double> Compile<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).Compile(parameters);
 
         /// <inheritdoc cref="MathExpression.Compile{T, TResult}(T)" />
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, TResult> Compile<T, TResult>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             where TResult : struct, INumberBase<TResult>
             => new MathExpression(mathString, context, provider).Compile<T, TResult>(parameters);
 
         /// <inheritdoc cref="MathExpression.CompileDecimal{T}(T)" />
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, decimal> CompileDecimal<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileDecimal(parameters);
 
         /// <inheritdoc cref="MathExpression.CompileBoolean{T}(T)" />
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, bool> CompileBoolean<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileBoolean(parameters);
 
         /// <inheritdoc cref="MathExpression.CompileComplex{T}(T)" />
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, Complex> CompileComplex<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileComplex(parameters);
 

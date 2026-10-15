@@ -14,7 +14,7 @@ public static class StringExtensions
         /// <inheritdoc cref="MathExpression.Compile{T, TResult}(T)" />
         public Func<T, TResult> CompileFast<T, TResult>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             where TResult : struct, INumberBase<TResult>
-            => new MathExpression(mathString, context, provider).Compile<T, TResult>(parameters);
+            => new FastMathExpression(mathString, context, provider).Compile<T, TResult>(parameters);
 
         /// <inheritdoc cref="MathExpression.Compile{T}(T)" />
         public Func<T, double> CompileFast<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)

@@ -53,7 +53,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getConstant, double_it, add });
 
-        var value = "getConstant() + double_it(5) + add(3, 7)".Evaluate<int>(null, context);
+        var value = "getConstant() + double_it(5) + add(3, 7)".Evaluate<int>(context);
 
         Assert.Equal(42 + 10 + 10, value);
     }
@@ -68,7 +68,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getHuge, square, multiply });
 
-        var result = "multiply(square(10), 100)".Evaluate<BigInteger>(null, context);
+        var result = "multiply(square(10), 100)".Evaluate<BigInteger>(context);
 
         Assert.Equal(new BigInteger(10000), result);
     }
@@ -83,7 +83,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getPi, negate, max });
 
-        var result = "max(getPi(), negate(getPi()))".Evaluate<Half>(null, context);
+        var result = "max(getPi(), negate(getPi()))".Evaluate<Half>(context);
 
         Assert.Equal((Half)3.14, result);
     }
@@ -98,7 +98,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getEpsilon, abs, min });
 
-        var result = "min(abs(-5.5), 3.2)".Evaluate<float>(null, context);
+        var result = "min(abs(-5.5), 3.2)".Evaluate<float>(context);
 
         Assert.Equal(3.2f, result, precision: 5);
     }
@@ -113,7 +113,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getMax, halve, subtract });
 
-        var result = "subtract(halve(100), 25)".Evaluate<long>(null, context);
+        var result = "subtract(halve(100), 25)".Evaluate<long>(context);
 
         Assert.Equal(25L, result);
     }
@@ -128,7 +128,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getMax, identity, min });
 
-        var result = "min(identity(100), 50)".Evaluate<byte>(null, context);
+        var result = "min(identity(100), 50)".Evaluate<byte>(context);
 
         Assert.Equal((byte)50, result);
     }
@@ -143,9 +143,9 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { add_int, multiply_long, square_big });
 
-        var result1 = "add_int(10, 20)".Evaluate<int>(null, context);
-        var result2 = "multiply_long(1000000000, 2)".Evaluate<long>(null, context);
-        var result3 = "square_big(1000)".Evaluate<BigInteger>(null, context);
+        var result1 = "add_int(10, 20)".Evaluate<int>(context);
+        var result2 = "multiply_long(1000000000, 2)".Evaluate<long>(context);
+        var result3 = "square_big(1000)".Evaluate<BigInteger>(context);
 
         Assert.Equal(30, result1);
         Assert.Equal(2000000000L, result2);
@@ -167,8 +167,8 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { sum, product });
 
-        var result1 = "sum(1, 2, 3, 4, 5)".Evaluate<int>(null, context);
-        var result2 = "product(10, 20, 30)".Evaluate<BigInteger>(null, context);
+        var result1 = "sum(1, 2, 3, 4, 5)".Evaluate<int>(context);
+        var result2 = "product(10, 20, 30)".Evaluate<BigInteger>(context);
 
         Assert.Equal(15, result1);
         Assert.Equal(new BigInteger(6000), result2);
@@ -182,7 +182,7 @@ public class MathContextTests
         var context = new ProgrammingMathContext();
         context.Bind(new { pow });
 
-        var result = "pow(5, 2) + 10".Evaluate<int>(null, context);
+        var result = "pow(5, 2) + 10".Evaluate<int>(context);
 
         Assert.Equal(25 + 10, result);
     }
@@ -204,7 +204,7 @@ public class MathContextTests
         context.Bind(new { modPow, gcd, n });
 
         // Test modular exponentiation
-        var result = "modPow(123456789, 65537, n)".Evaluate<BigInteger>(null, context);
+        var result = "modPow(123456789, 65537, n)".Evaluate<BigInteger>(context);
         var expected = BigInteger.ModPow(123456789, 65537, n);
 
         Assert.Equal(expected, result);
@@ -220,9 +220,9 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { getInt, floatAbs, bigAdd });
 
-        var intResult = "getInt()".Evaluate<int>(null, context);
-        var floatResult = "floatAbs(-3.14)".Evaluate<float>(null, context);
-        var bigResult = "bigAdd(1000000000000, 2000000000000)".Evaluate<BigInteger>(null, context);
+        var intResult = "getInt()".Evaluate<int>(context);
+        var floatResult = "floatAbs(-3.14)".Evaluate<float>(context);
+        var bigResult = "bigAdd(1000000000000, 2000000000000)".Evaluate<BigInteger>(context);
 
         Assert.Equal(42, intResult);
         Assert.Equal(3.14f, floatResult, precision: 5);
@@ -239,9 +239,9 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { triple_add, quad_multiply, penta_sum });
 
-        var result1 = "triple_add(1, 2, 3)".Evaluate<int>(null, context);
-        var result2 = "quad_multiply(2, 3, 4, 5)".Evaluate<int>(null, context);
-        var result3 = "penta_sum(1, 2, 3, 4, 5)".Evaluate<int>(null, context);
+        var result1 = "triple_add(1, 2, 3)".Evaluate<int>(context);
+        var result2 = "quad_multiply(2, 3, 4, 5)".Evaluate<int>(context);
+        var result3 = "penta_sum(1, 2, 3, 4, 5)".Evaluate<int>(context);
 
         Assert.Equal(6, result1);
         Assert.Equal(120, result2);
@@ -256,9 +256,9 @@ public class MathContextTests
         context.BindConstant(BigInteger.Parse("999999999999999999"), "huge");
         context.BindConstant((Half)3.14, "approxPi");
 
-        var result1 = "meaning * 2".Evaluate<int>(null, context);
-        var result2 = "huge + 1".Evaluate<BigInteger>(null, context);
-        var result3 = "approxPi * 2".Evaluate<Half>(null, context);
+        var result1 = "meaning * 2".Evaluate<int>(context);
+        var result2 = "huge + 1".Evaluate<BigInteger>(context);
+        var result3 = "approxPi * 2".Evaluate<Half>(context);
 
         Assert.Equal(84, result1);
         Assert.Equal(BigInteger.Parse("1000000000000000000"), result2);
@@ -273,8 +273,8 @@ public class MathContextTests
 
         var context = new MathContext(new { square, add });
 
-        var result1 = "square(10)".Evaluate<int>(null, context);
-        var result2 = "add(1000000000000, 2000000000000)".Evaluate<BigInteger>(null, context);
+        var result1 = "square(10)".Evaluate<int>(context);
+        var result2 = "add(1000000000000, 2000000000000)".Evaluate<BigInteger>(context);
 
         Assert.Equal(100, result1);
         Assert.Equal(BigInteger.Parse("3000000000000"), result2);
@@ -289,7 +289,7 @@ public class MathContextTests
         var context = new ScientificMathContext();
         context.Bind(new { min, max });
 
-        var result = "max(min(100, 50), 25) ^ 2".Evaluate<int>(null, context);
+        var result = "max(min(100, 50), 25) ^ 2".Evaluate<int>(context);
 
         Assert.Equal(2500, result);
     }
@@ -310,7 +310,7 @@ public class MathContextTests
         var context = new MathContext();
         context.Bind(new { factorial });
 
-        var result = "factorial(20)".Evaluate<BigInteger>(null, context);
+        var result = "factorial(20)".Evaluate<BigInteger>(context);
         var expected = BigInteger.Parse("2432902008176640000");
 
         Assert.Equal(expected, result);
