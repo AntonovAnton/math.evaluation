@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -17,11 +17,11 @@
         <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile;</PackageTags>
         <PackageReleaseNotes>Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
-Supports `INumberBase` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+Supports `INumberBase` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
-Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
+Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
 .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -52,7 +52,7 @@ Multi-targets .NET 7, .NET 8, .NET 9, and .NET 10 for optimal performance on eac
         <IsAotCompatible>true</IsAotCompatible>
 
         <!-- (Optional) Enables strict trimming checks -->
-        <IsTrimmable>false</IsTrimmable>
+        <IsTrimmable>true</IsTrimmable>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
