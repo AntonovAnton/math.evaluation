@@ -9,6 +9,8 @@ namespace MathEvaluation.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net10_0)]
+[SimpleJob(RuntimeMoniker.NativeAot80)]
+[SimpleJob(RuntimeMoniker.NativeAot10_0)]
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
 public class EvaluationBenchmarks
