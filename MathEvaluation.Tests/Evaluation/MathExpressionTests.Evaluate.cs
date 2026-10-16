@@ -611,7 +611,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
 
         _scientificContext.Bind(new { getX1, getX2 });
 
-        var value = expression.Evaluate(null, _scientificContext, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate(_scientificContext, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value, precision: 5);
     }
@@ -656,7 +656,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
         var context = new MathContext();
         context.Bind(new { min });
 
-        var value = expression.Evaluate(null, context, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate(context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value, precision: 5);
     }

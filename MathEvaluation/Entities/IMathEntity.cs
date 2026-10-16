@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Numerics;
 
 namespace MathEvaluation.Entities;
@@ -46,6 +47,8 @@ internal interface IMathEntity
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <returns></returns>
     /// <param name="left">The expression tree of the left operand.</param>
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol, Expression left)
         where TResult : struct, INumberBase<TResult>;
 }

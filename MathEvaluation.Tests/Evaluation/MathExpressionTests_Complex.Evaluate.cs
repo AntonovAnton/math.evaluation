@@ -510,7 +510,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         _scientificContext.Bind(new { getX1, getX2 });
 
-        var value = expression.EvaluateComplex(null, _scientificContext, CultureInfo.InvariantCulture);
+        var value = expression.EvaluateComplex(_scientificContext, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -555,7 +555,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var context = new MathContext();
         context.Bind(new { min });
 
-        var value = expression.EvaluateComplex(null, context, CultureInfo.InvariantCulture);
+        var value = expression.EvaluateComplex(context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }

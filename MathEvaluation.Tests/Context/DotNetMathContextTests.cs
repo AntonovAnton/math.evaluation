@@ -13,21 +13,21 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_MathAbs_ExpectedValue()
     {
-        var result = "Math.Abs(-42.5)".Evaluate(null, _context);
+        var result = "Math.Abs(-42.5)".Evaluate(_context);
         Assert.Equal(42.5, result);
     }
 
     [Fact]
     public void DotNetMathContext_MathLog2_ExpectedValue()
     {
-        var result = "Math.Log2(8)".Evaluate(null, _context);
+        var result = "Math.Log2(8)".Evaluate(_context);
         Assert.Equal(3.0, result);
     }
 
     [Fact]
     public void DotNetMathContext_MathTau_ExpectedValue()
     {
-        var result = "Math.Tau / 2".Evaluate(null, _context);
+        var result = "Math.Tau / 2".Evaluate(_context);
         Assert.Equal(Math.PI, result, precision: 15);
     }
 
@@ -43,21 +43,21 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_MathCopySign_ExpectedValue()
     {
-        var result = "Math.CopySign(5.0, -1.0)".Evaluate(null, _context);
+        var result = "Math.CopySign(5.0, -1.0)".Evaluate(_context);
         Assert.Equal(-5.0, result);
     }
 
     [Fact]
     public void DotNetMathContext_MathILogB_ExpectedValue()
     {
-        var result = "Math.ILogB(1024)".Evaluate(null, _context);
+        var result = "Math.ILogB(1024)".Evaluate(_context);
         Assert.Equal(10.0, result);
     }
 
     [Fact]
     public void DotNetMathContext_MathScaleB_ExpectedValue()
     {
-        var result = "Math.ScaleB(1.5, 3)".Evaluate(null, _context);
+        var result = "Math.ScaleB(1.5, 3)".Evaluate(_context);
         Assert.Equal(12.0, result); // 1.5 * 2^3 = 12
     }
 
@@ -68,9 +68,9 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_BigIntegerConstants_ExpectedValue()
     {
-        var result1 = "BigInteger.Zero".Evaluate<BigInteger>(null, _context);
-        var result2 = "BigInteger.One".Evaluate<BigInteger>(null, _context);
-        var result3 = "BigInteger.MinusOne".Evaluate<BigInteger>(null, _context);
+        var result1 = "BigInteger.Zero".Evaluate<BigInteger>(_context);
+        var result2 = "BigInteger.One".Evaluate<BigInteger>(_context);
+        var result3 = "BigInteger.MinusOne".Evaluate<BigInteger>(_context);
 
         Assert.Equal(BigInteger.Zero, result1);
         Assert.Equal(BigInteger.One, result2);
@@ -129,9 +129,9 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_HalfConstants_ExpectedValue()
     {
-        var maxValue = "Half.MaxValue".Evaluate<Half>(null, _context);
-        var minValue = "Half.MinValue".Evaluate<Half>(null, _context);
-        var epsilon = "Half.Epsilon".Evaluate<Half>(null, _context);
+        var maxValue = "Half.MaxValue".Evaluate<Half>(_context);
+        var minValue = "Half.MinValue".Evaluate<Half>(_context);
+        var epsilon = "Half.Epsilon".Evaluate<Half>(_context);
 
         Assert.Equal(Half.MaxValue, maxValue);
         Assert.Equal(Half.MinValue, minValue);
@@ -155,9 +155,9 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_Int128Constants_ExpectedValue()
     {
-        var zero = "Int128.Zero".Evaluate<Int128>(null, _context);
-        var one = "Int128.One".Evaluate<Int128>(null, _context);
-        var max = "Int128.MaxValue".Evaluate<Int128>(null, _context);
+        var zero = "Int128.Zero".Evaluate<Int128>(_context);
+        var one = "Int128.One".Evaluate<Int128>(_context);
+        var max = "Int128.MaxValue".Evaluate<Int128>(_context);
 
         Assert.Equal(Int128.Zero, zero);
         Assert.Equal(Int128.One, one);
@@ -167,8 +167,8 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_UInt128Constants_ExpectedValue()
     {
-        var zero = "UInt128.Zero".Evaluate<UInt128>(null, _context);
-        var one = "UInt128.One".Evaluate<UInt128>(null, _context);
+        var zero = "UInt128.Zero".Evaluate<UInt128>(_context);
+        var one = "UInt128.One".Evaluate<UInt128>(_context);
 
         Assert.Equal(UInt128.Zero, zero);
         Assert.Equal(UInt128.One, one);
@@ -191,9 +191,9 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_ComplexConstants_ExpectedValue()
     {
-        var zero = "Complex.Zero".Evaluate<Complex>(null, _context);
-        var one = "Complex.One".Evaluate<Complex>(null, _context);
-        var imaginary = "Complex.ImaginaryOne".Evaluate<Complex>(null, _context);
+        var zero = "Complex.Zero".Evaluate<Complex>(_context);
+        var one = "Complex.One".Evaluate<Complex>(_context);
+        var imaginary = "Complex.ImaginaryOne".Evaluate<Complex>(_context);
 
         Assert.Equal(Complex.Zero, zero);
         Assert.Equal(Complex.One, one);
@@ -229,21 +229,21 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_DefaultHalf_ExpectedValue()
     {
-        var result = "default(Half)".Evaluate<Half>(null, _context);
+        var result = "default(Half)".Evaluate<Half>(_context);
         Assert.Equal((Half)0.0, result);
     }
 
     [Fact]
     public void DotNetMathContext_DefaultBigInteger_ExpectedValue()
     {
-        var result = "default(BigInteger)".Evaluate<BigInteger>(null, _context);
+        var result = "default(BigInteger)".Evaluate<BigInteger>(_context);
         Assert.Equal(BigInteger.Zero, result);
     }
 
     [Fact]
     public void DotNetMathContext_DefaultInt128_ExpectedValue()
     {
-        var result = "default(Int128)".Evaluate<Int128>(null, _context);
+        var result = "default(Int128)".Evaluate<Int128>(_context);
         Assert.Equal(Int128.Zero, result);
     }
 
@@ -264,7 +264,7 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_ComplexExpression_ExpectedValue()
     {
-        var result = "Math.Log2(1024) + Math.Sqrt(16) - Math.Abs(-5)".Evaluate(null, _context);
+        var result = "Math.Log2(1024) + Math.Sqrt(16) - Math.Abs(-5)".Evaluate(_context);
         Assert.Equal(9.0, result); // 10 + 4 - 5
     }
 
@@ -318,22 +318,22 @@ public class DotNetMathContextTests
     [Fact]
     public void DotNetMathContext_MathMaxMagnitude_ExpectedValue()
     {
-        var result = "Math.MaxMagnitude(-5.5, 3.2)".Evaluate(null, _context);
+        var result = "Math.MaxMagnitude(-5.5, 3.2)".Evaluate(_context);
         Assert.Equal(Math.MaxMagnitude(-5.5, 3.2), result);
     }
 
     [Fact]
     public void DotNetMathContext_MathMinMagnitude_ExpectedValue()
     {
-        var result = "Math.MinMagnitude(-5.5, 3.2)".Evaluate(null, _context);
+        var result = "Math.MinMagnitude(-5.5, 3.2)".Evaluate(_context);
         Assert.Equal(Math.MinMagnitude(-5.5, 3.2), result);
     }
 
     [Fact]
     public void DotNetMathContext_HalfConstants_Net9_ExpectedValue()
     {
-        var e = "Half.E".Evaluate<Half>(null, _context);
-        var pi = "Half.Pi".Evaluate<Half>(null, _context);
+        var e = "Half.E".Evaluate<Half>(_context);
+        var pi = "Half.Pi".Evaluate<Half>(_context);
 
         Assert.Equal(Half.E, e);
         Assert.Equal(Half.Pi, pi);

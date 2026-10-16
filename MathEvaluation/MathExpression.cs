@@ -4,6 +4,8 @@ using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -81,20 +83,35 @@ public partial class MathExpression : IDisposable
         _decimalSeparator = _numberFormat.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
     }
 
-    /// <inheritdoc cref="Evaluate(MathParameters?)" />
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public double Evaluate(object? parameters = null)
-        => Evaluate(parameters != null ? new MathParameters(parameters) : null);
-
     /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
-    public double Evaluate(MathParameters? parameters)
-        => Evaluate<double>(parameters);
-
-    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
-    /// <exception cref="NotSupportedException">parameters</exception>
-    public TResult Evaluate<TResult>(object? parameters = null)
+    public TResult Evaluate<TResult>()
         where TResult : struct, INumberBase<TResult>
-        => Evaluate<TResult>(parameters != null ? new MathParameters(parameters) : null);
+        => Evaluate<TResult>((MathParameters?)null);
+
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
+    /// <exception cref="NotSupportedException">parameters</exception>
+    [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+    public TResult Evaluate<TResult>(object parameters)
+        where TResult : struct, INumberBase<TResult>
+        => Evaluate<TResult>(new MathParameters(parameters));
+
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
+    public TResult Evaluate<TResult>(IDictionary<string, TResult> parameters)
+        where TResult : struct, INumberBase<TResult>
+    {
+        var mathParameters = new MathParameters();
+        mathParameters.Bind(parameters);
+        return Evaluate<TResult>(mathParameters);
+    }
+
+    /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
+    public TResult Evaluate<TResult>(IDictionary<string, object> parameters)
+        where TResult : struct, INumberBase<TResult>
+    {
+        var mathParameters = new MathParameters();
+        mathParameters.Bind(parameters);
+        return Evaluate<TResult>(mathParameters);
+    }
 
     /// <summary>Evaluates the <see cref="MathString">math expression string</see>.</summary>
     /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
@@ -121,7 +138,7 @@ public partial class MathExpression : IDisposable
 
     /// <summary> Converts to string.</summary>
     /// <returns>
-    ///     A <see cref="System.String" /> that represents this instance.
+    ///     A <see cref="string" /> that represents this instance.
     /// </returns>
     public override string ToString()
         => $"{nameof(MathString)}: \"{MathString}\", {nameof(Context)}: {Context?.ToString() ?? "null"}, {nameof(Provider)}: {Provider?.ToString() ?? "null"}";
@@ -393,7 +410,9 @@ public partial class MathExpression : IDisposable
             $"The math expression string is nested too deeply, the nesting depth {depth} doesn't fit into the call stack of the current thread. " +
             "Simplify the math expression string, or evaluate it on a thread that has a bigger stack size.",
             i)
-        { NestingDepth = depth };
+        {
+            NestingDepth = depth
+        };
     }
 
     private static MathExpressionException CreateExceptionInvalidToken(ReadOnlySpan<char> span, int invalidTokenPosition)

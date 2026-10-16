@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -86,6 +87,8 @@ internal class MathCompatibleOperator : MathEntity
     }
 
     /// <inheritdoc />
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
         Expression left)
     {
@@ -111,6 +114,8 @@ internal class MathCompatibleOperator : MathEntity
         return expression;
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     internal static Expression Build<TResult>(OperatorType type, Expression left, Expression right)
         where TResult : struct, INumberBase<TResult>
         => left is ConstantExpression l && right is ConstantExpression r
@@ -301,6 +306,8 @@ internal class MathCompatibleOperator : MathEntity
             _ => throw new NotImplementedException()
         };
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     private static Expression BuildNotConstant<TResult>(OperatorType type, Expression left, Expression right)
         where TResult : INumberBase<TResult>
     {
@@ -366,6 +373,8 @@ internal class MathCompatibleOperator : MathEntity
         return BuildConvert<TResult>(expression);
     }
 
+    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
         where TResult : struct, INumberBase<TResult>
     {

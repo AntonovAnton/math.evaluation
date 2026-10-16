@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MathEvaluation;
@@ -6,6 +7,8 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     /// <inheritdoc cref="Compile()" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<bool> CompileBoolean()
     {
         try
@@ -26,6 +29,8 @@ public partial class MathExpression
     }
 
     /// <inheritdoc cref="Compile{T}(T)" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<T, bool> CompileBoolean<T>(T parameters)
     {
         try
