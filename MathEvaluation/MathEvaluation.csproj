@@ -17,7 +17,7 @@
         <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile;</PackageTags>
         <PackageReleaseNotes>Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
-Supports `INumberBase` types (.NET 8+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+Supports `INumberBase` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
 Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
