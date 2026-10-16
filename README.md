@@ -26,7 +26,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 ## Performance
 This math expression evaluator is designed for exceptional performance by leveraging modern .NET features and best practices, which is why it targets .NET Standard 2.1 or higher.
 
-**NOTE:** In version [3.0.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/3.0.0) or higher, minimal .NET 7 is required. For version [3.6.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/3.6.0) or higher, minimal .NET 8.
+**NOTE:** In version [3.0.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/3.0.0) or higher, minimal .NET 7 is required. For version [3.6.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/v3.6.0) or higher, minimal .NET 8.
 
 This high-performance evaluator stands out due to its use of `ReadOnlySpan<char>`, and avoidance of regular expressions. These design choices collectively ensure minimal memory allocation, fast parsing, and efficient execution.
 
@@ -184,7 +184,7 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 **MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
 
 ## AOT (Ahead-of-Time) compilation support
-Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/3.6.0)
+Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.6.0)
 
 MathEvaluator supports Ahead-of-Time (AOT). However, AOT support is limited to evaluation using `Dictionary<string, TResult>`, `Dictionary<string, object>`, and `MathParameters` as a parameters input type.
 
