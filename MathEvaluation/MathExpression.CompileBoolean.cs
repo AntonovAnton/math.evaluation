@@ -1,3 +1,5 @@
+using MathEvaluation.Extensions;
+using MathEvaluation.Parameters;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -14,8 +16,11 @@ public partial class MathExpression
         try
         {
             // double because expression can have not boolean logic inside
-            ExpressionTree = Build<double>();
+            ExpressionTree = Build<double>(null, null);
             ExpressionTree = ConvertToBoolean(ExpressionTree);
+
+            if (VariableAssignments?.Count > 0)
+                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
 
             var lambda = Expression.Lambda<Func<bool>>(ExpressionTree);
             ExpressionTree = lambda;
@@ -33,17 +38,17 @@ public partial class MathExpression
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<T, bool> CompileBoolean<T>(T parameters)
     {
+        ArgumentNullException.ThrowIfNull(parameters);
+
         try
         {
             // double because expression can have not boolean logic inside
-            ExpressionTree = Build<T, double>(parameters);
+            var parameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            ExpressionTree = Build<double>(parameterExpression, new MathParameters(parameters));
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
-            if (ExpressionVariables?.Count > 0)
-            {
-                ExpressionStatements!.Add(ExpressionTree);
-                ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
-            }
+            if (VariableAssignments?.Count > 0)
+                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
 
             var lambda = ParameterExpression == null
                 ? Expression.Lambda<Func<T, bool>>(ExpressionTree)

@@ -1,5 +1,6 @@
 using MathEvaluation.Context;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.ExceptionServices;
 
 namespace MathEvaluation.Tests;
@@ -65,7 +66,7 @@ public class MathExpressionDeepNestingTests(ITestOutputHelper testOutputHelper)
         var mathString = NestInParentheses("2*3+1", depth);
         testOutputHelper.WriteLine($"Nesting depth: {depth}");
 
-        var value = new MathExpression(mathString, null, CultureInfo.InvariantCulture).EvaluateDecimal();
+        var value = new MathExpression(mathString, null, CultureInfo.InvariantCulture).Evaluate<decimal>();
 
         Assert.Equal(7m, value);
     }
@@ -205,7 +206,7 @@ public class MathExpressionDeepNestingTests(ITestOutputHelper testOutputHelper)
         var mathString = NestInParentheses("2*3+1", ExcessiveNestingDepth);
 
         var ex = Record.Exception(() => RunOnThread(
-            () => new MathExpression(mathString, null, CultureInfo.InvariantCulture).EvaluateDecimal(),
+            () => new MathExpression(mathString, null, CultureInfo.InvariantCulture).Evaluate<decimal>(),
             SmallStackSize));
 
         Assert.IsType<MathExpressionException>(ex);
@@ -217,7 +218,7 @@ public class MathExpressionDeepNestingTests(ITestOutputHelper testOutputHelper)
         var mathString = NestInParentheses("2*3+1", ExcessiveNestingDepth);
 
         var ex = Record.Exception(() => RunOnThread(
-            () => new MathExpression(mathString, null, CultureInfo.InvariantCulture).EvaluateComplex(),
+            () => new MathExpression(mathString, null, CultureInfo.InvariantCulture).Evaluate<Complex>(),
             SmallStackSize));
 
         Assert.IsType<MathExpressionException>(ex);

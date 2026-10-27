@@ -7,6 +7,30 @@ namespace MathEvaluation.Tests;
 public class MathContextTests
 {
     [Fact]
+    public void MathContext_BindExpressionVariable_EvaluateWithoutParameters_ExpectedValue()
+    {
+        var context = new MathContext();
+        context.BindExpressionVariable("2 + 3", "y");
+
+        Assert.Equal(26.0, "y * y + 1".Evaluate(context));
+        Assert.Equal(26m, "y * y + 1".Evaluate<decimal>(context));
+        Assert.True("y == 5".EvaluateBoolean(new CompositeMathContext(new DotNetStandardMathContext(), context)));
+    }
+
+    [Fact]
+    public void MathContext_BindExpressionVariable_CompileWithoutParameters_ExpectedValue()
+    {
+        var context = new MathContext();
+        context.BindExpressionVariable("2 + 3", "y");
+
+        var fn = new MathExpression("y * y + 1", context).Compile();
+        var fnBoolean = new MathExpression("y == 5", new CompositeMathContext(new DotNetStandardMathContext(), context)).CompileBoolean();
+
+        Assert.Equal(26.0, fn());
+        Assert.True(fnBoolean());
+    }
+
+    [Fact]
     public void MathContext_Bind_HasNotSupportedCustomSystemFunc_ThrowNotSupportedException()
     {
         Func<double, double, double, double, double, double, double> min = (_, _, _, _, _, _) => 0d;

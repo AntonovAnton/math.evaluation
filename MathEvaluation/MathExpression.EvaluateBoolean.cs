@@ -8,9 +8,6 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     /// <inheritdoc cref="Evaluate(MathParameters?)" />
-    public bool EvaluateBoolean() => EvaluateBoolean((MathParameters?)null);
-
-    /// <inheritdoc cref="Evaluate(MathParameters?)" />
     [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
     public bool EvaluateBoolean(object parameters)
         => EvaluateBoolean(new MathParameters(parameters));
@@ -32,6 +29,6 @@ public partial class MathExpression
     }
 
     /// <inheritdoc cref="Evaluate(MathParameters?)" />
-    public bool EvaluateBoolean(MathParameters? parameters)
+    public bool EvaluateBoolean(MathParameters? parameters = null)
         => Convert.ToBoolean(Evaluate(parameters));
 }

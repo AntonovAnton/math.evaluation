@@ -5,15 +5,15 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
-    /// <inheritdoc cref="Compile{TResult}()" />
+    /// <inheritdoc cref="Compile()" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<decimal> CompileDecimal()
         => Compile<decimal>();
 
-    /// <inheritdoc cref="Compile{T, TResult}(T)" />
+    /// <inheritdoc cref="Compile{T}(T)" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<T, decimal> CompileDecimal<T>(T parameters)
         => Compile<T, decimal>(parameters);
-}
+}

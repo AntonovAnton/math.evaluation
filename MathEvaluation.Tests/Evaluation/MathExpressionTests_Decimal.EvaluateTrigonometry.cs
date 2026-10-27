@@ -14,7 +14,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -27,7 +27,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -74,7 +74,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -106,7 +106,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -147,7 +147,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -184,7 +184,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }

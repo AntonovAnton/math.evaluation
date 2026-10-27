@@ -89,15 +89,15 @@ Examples of using string extentions:
 
     "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate();
 
-    "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".EvaluateDecimal();
+    "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6".Evaluate<decimal>();
 
     "$22,888.32 * 30 / 323.34 / .5 - - 1 / (2 + $22,888.32) * 4 - 6".Evaluate(null, new CultureInfo("en-US"));
 
-    "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".EvaluateDecimal(null, new CultureInfo("de-CH"));
+    "22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6".Evaluate<decimal>(null, new CultureInfo("de-CH"));
 
     "ln(1/-0.5 + √(1/(0.5^2) + 1))".Evaluate(new ScientificMathContext());
     
-    "P * (1 + r/n)^d".EvaluateDecimal(new { P = 10000, r = 0.05, n = 365, d = 31 }, new DecimalScientificMathContext());
+    "P * (1 + r/n)^d".Evaluate<decimal>(new { P = 10000, r = 0.05, n = 365, d = 31 }, new DecimalScientificMathContext());
     
     "2 ** 100".Evaluate<BigInteger>(new ProgrammingMathContext());
     
@@ -107,15 +107,17 @@ Examples of using string extentions:
 
     "¬⊥∧⊤∨¬⊤⇒¬⊤".EvaluateBoolean(new ScientificMathContext());
     
-    "sin(2 + 3i) * arctan(4i)/(1 - 6i)".EvaluateComplex(new ComplexScientificMathContext());
+    "sin(2 + 3i) * arctan(4i)/(1 - 6i)".Evaluate<Complex>(new ComplexScientificMathContext());
 
     "0b1010 * 0o12 / 0xA + 10".Evaluate(); // Mixed numeric systems: 10 * 10 / 10 + 10 = 20
 
+**NOTE:** Starting with version [3.7.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.7.0), `EvaluateDecimal` and `EvaluateComplex` are obsolete. Use the generic `Evaluate<decimal>` and `Evaluate<Complex>` methods instead.
+
 Examples of using an instance of the MathExpression class:
 
-    new MathExpression("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, new CultureInfo("de-CH")).EvaluateDecimal();
+    new MathExpression("22’888.32 CHF * 30 / 323.34 / .5 - - 1 / (2 + 22’888.32 CHF) * 4 - 6", null, new CultureInfo("de-CH")).Evaluate<decimal>();
     
-    new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).EvaluateComplex();
+    new MathExpression("sin(2 + 3i) * arctan(4i)/(1 - 6i)", new ComplexScientificMathContext()).Evaluate<Complex>();
 
 Examples of passing custom variables and functions as parameters (Support expression-defined variables added in version [2.4.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.4.0)):
 
@@ -148,6 +150,14 @@ Example of using custom context:
     var value = "ln(1/-x1 + Math.Sqrt(1/(x2*x2) + 1)) + y"
         .Evaluate(new { x1 = 0.5, x2 = -0.5 }, context);
     
+Example of using composite context (Added in version [3.7.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.7.0)):
+
+    var context = new CompositeMathContext(
+        new ScientificMathContext(), new DotNetMathContext());
+
+    var value = "sin(π/2) + Math.Log(100.0)"
+        .Evaluate(context);
+
 Example of evaluating C# expression:
 
     var value = "-2 * Math.Log(1/0.5f + Math.Sqrt(1/Math.Pow(0.5d, 2) + 1L))"
@@ -180,6 +190,9 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
         .Compile(dict, new DotNetStandardMathContext());
 
 **MathContext** class defines the mathematical "language" available in expressions - what operators, functions, and constants can be used. It's reusable across multiple evaluations and determines syntax rules (e.g., whether to use `^` or `**` for exponentiation, which functions like `sin`, `cos`, `sqrt` are available).
+
+**CompositeMathContext** combines several math contexts into one. You can also bind entities directly to the composite context.
+When the same input matches entities from several contexts, the entity with the longest key wins (e.g. `ab` is preferred over `a`). On a tie, entities bound directly to the composite context win, then the contexts in the order they were added.
 
 **MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
 

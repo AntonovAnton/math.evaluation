@@ -35,7 +35,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value != Complex.Zero);
     }
@@ -63,7 +63,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value == Complex.One);
     }
@@ -124,7 +124,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value == Complex.One);
     }
@@ -141,7 +141,7 @@ public partial class MathExpressionTests_Complex
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var value = expression.EvaluateComplex(new { A = a, B = b, C = getC }, _programmingContext);
+        var value = expression.Evaluate<Complex>(new { A = a, B = b, C = getC }, _programmingContext);
 
         Assert.Equal(expectedValue, value != Complex.Zero);
     }
@@ -159,7 +159,7 @@ public partial class MathExpressionTests_Complex
         var parameters = new MathParameters();
         parameters.BindVariable(a);
 
-        var value = expression.EvaluateComplex(parameters, context);
+        var value = expression.Evaluate<Complex>(parameters, context);
 
         Assert.Equal(expectedValue, value == Complex.One);
     }
@@ -172,7 +172,7 @@ public partial class MathExpressionTests_Complex
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = expression.EvaluateComplex(new { a }, _programmingContext);
+        var value = expression.Evaluate<Complex>(new { a }, _programmingContext);
 
         testOutputHelper.WriteLine($"result: {value}");
 

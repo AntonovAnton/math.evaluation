@@ -743,7 +743,7 @@ public partial class MathExpressionTests(ITestOutputHelper testOutputHelper)
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, null, CultureInfo.InvariantCulture).EvaluateDecimal());
+        var ex = Record.Exception(() => new MathExpression(expression, null, CultureInfo.InvariantCulture).Evaluate<decimal>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);

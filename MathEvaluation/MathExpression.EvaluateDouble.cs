@@ -8,9 +8,6 @@ namespace MathEvaluation;
 public partial class MathExpression
 {
     /// <inheritdoc cref="Evaluate(MathParameters?)" />
-    public double Evaluate() => Evaluate<double>();
-
-    /// <inheritdoc cref="Evaluate(MathParameters?)" />
     /// <exception cref="NotSupportedException">parameters</exception>
     [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
     public double Evaluate(object parameters) => Evaluate<double>(new MathParameters(parameters));
@@ -31,6 +28,10 @@ public partial class MathExpression
         return Evaluate<double>(mathParameters);
     }
 
-    /// <inheritdoc cref="Evaluate(MathParameters?)" />
-    public double Evaluate(MathParameters? parameters) => Evaluate<double>(parameters);
+    /// <summary>Evaluates the <see cref="MathString">math expression string</see>.</summary>
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <returns>Value of the math expression.</returns>
+    /// <exception cref="MathExpressionException" />
+    public double Evaluate(MathParameters? parameters = null)
+        => Evaluate<double>(parameters);
 }
