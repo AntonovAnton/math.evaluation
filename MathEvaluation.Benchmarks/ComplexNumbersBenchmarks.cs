@@ -38,7 +38,7 @@ public class ComplexNumbersBenchmarks
         var parameters = new MathParameters();
         parameters.BindVariable(new Complex(r, i), "a");
 
-        return "sin(a) * arctan(4i)/(1 - 6i)".EvaluateComplex(parameters, _mathContext);
+        return "sin(a) * arctan(4i)/(1 - 6i)".Evaluate<Complex>(parameters, _mathContext);
     }
 
     [Benchmark(Description = "MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)")]

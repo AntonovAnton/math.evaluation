@@ -34,7 +34,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -62,7 +62,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -123,7 +123,7 @@ public partial class MathExpressionTests_Decimal
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -140,7 +140,7 @@ public partial class MathExpressionTests_Decimal
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
         var getC = () => c;
-        var value = expression.EvaluateDecimal(new { A = a, B = b, C = getC }, _programmingContext);
+        var value = expression.Evaluate<decimal>(new { A = a, B = b, C = getC }, _programmingContext);
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -158,7 +158,7 @@ public partial class MathExpressionTests_Decimal
         var parameters = new MathParameters();
         parameters.BindVariable(a);
 
-        var value = expression.EvaluateDecimal(parameters, context);
+        var value = expression.Evaluate<decimal>(parameters, context);
 
         Assert.Equal(expectedValue, value != 0.0m);
     }
@@ -171,7 +171,7 @@ public partial class MathExpressionTests_Decimal
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
 
-        var value = expression.EvaluateDecimal(new { a }, _programmingContext);
+        var value = expression.Evaluate<decimal>(new { a }, _programmingContext);
 
         testOutputHelper.WriteLine($"result: {value}");
 

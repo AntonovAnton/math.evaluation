@@ -20,7 +20,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
@@ -70,7 +70,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -86,7 +86,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -100,7 +100,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -125,7 +125,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, null, cultureInfo);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -144,7 +144,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, context, new CultureInfo(cultureName));
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -158,7 +158,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, cultureInfo);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -177,7 +177,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -203,7 +203,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -219,7 +219,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _programmingContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -238,7 +238,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -258,7 +258,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, null, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -272,7 +272,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -302,7 +302,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -336,7 +336,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -364,7 +364,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -383,7 +383,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -414,7 +414,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -445,7 +445,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -466,7 +466,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -487,7 +487,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var parameters = new MathParameters();
         parameters.BindVariable(varValue, varName);
 
-        var value = expression.EvaluateComplex(parameters, _scientificContext, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<Complex>(parameters, _scientificContext, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -510,7 +510,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
 
         _scientificContext.Bind(new { getX1, getX2 });
 
-        var value = expression.EvaluateComplex(_scientificContext, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<Complex>(_scientificContext, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -528,7 +528,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         Func<double, double> ln = Math.Log;
 
         var context = new MathContext(new { sqrt, ln });
-        var value = expression.EvaluateComplex(new { x1, x2 }, context, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<Complex>(new { x1, x2 }, context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -555,7 +555,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var context = new MathContext();
         context.Bind(new { min });
 
-        var value = expression.EvaluateComplex(context, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<Complex>(context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -568,7 +568,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex(new { x, x1 = 0.5m, x2 = 0.2m });
+        var value = expression.Evaluate<Complex>(new { x, x1 = 0.5m, x2 = 0.2m });
 
         Assert.Equal(0.7 + (Complex)Math.Sin(0.7), value);
     }
@@ -585,7 +585,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         parameters.BindVariable((Complex)0.5, "x1");
         parameters.BindVariable((Complex)0.2, "x2");
         parameters.BindExpressionVariable(x);
-        var value = expression.EvaluateComplex(parameters);
+        var value = expression.Evaluate<Complex>(parameters);
 
         Assert.Equal(Complex.Cos(new Complex(0.7, 1)) + (Complex)Math.Sin(0.7), value);
     }
@@ -596,7 +596,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var expression = "0.2!";
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<ArgumentException>(ex.InnerException);
@@ -614,7 +614,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
@@ -626,7 +626,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
         var expression = "888e3.2";
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<FormatException>(ex.InnerException);
@@ -643,7 +643,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
@@ -657,7 +657,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.Equal(errorMessage, ex.Message);
@@ -669,7 +669,7 @@ public partial class MathExpressionTests_Complex(ITestOutputHelper testOutputHel
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).EvaluateComplex());
+        var ex = Record.Exception(() => new MathExpression(expression, _scientificContext, CultureInfo.InvariantCulture).Evaluate<Complex>());
 
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<InvalidCastException>(ex.InnerException);

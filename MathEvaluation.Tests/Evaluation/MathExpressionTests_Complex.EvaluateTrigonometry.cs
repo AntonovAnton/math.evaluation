@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Numerics;
 
 namespace MathEvaluation.Tests.Evaluation;
 
@@ -26,7 +27,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -48,7 +49,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -104,7 +105,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -143,7 +144,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -214,7 +215,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -306,7 +307,7 @@ public partial class MathExpressionTests_Complex
         using var expression = new MathExpression(mathString, _scientificContext, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);

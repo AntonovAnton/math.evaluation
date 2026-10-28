@@ -12,14 +12,15 @@ namespace MathEvaluation;
 
 public partial class MathExpression
 {
+    private const string ParameterName = "args";
+
     /// <summary>Gets the expression tree.</summary>
     /// <value>The expression tree.</value>
     // ReSharper disable once MemberCanBePrivate.Global
     public Expression? ExpressionTree { get; private set; }
 
-    internal ParameterExpression? ParameterExpression { get; private set; }
-    internal Dictionary<string, ParameterExpression>? ExpressionVariables { get; set; }
-    internal List<Expression>? ExpressionStatements { get; set; }
+    internal ParameterExpression? ParameterExpression { get; set; }
+    internal Dictionary<string, BinaryExpression>? VariableAssignments { get; set; }
 
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
     /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
@@ -32,7 +33,10 @@ public partial class MathExpression
     {
         try
         {
-            ExpressionTree = Build<TResult>();
+            ExpressionTree = Build<TResult>(null);
+
+            if (VariableAssignments?.Count > 0)
+                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
 
             var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
             ExpressionTree = lambda;
@@ -56,15 +60,15 @@ public partial class MathExpression
     public Func<T, TResult> Compile<T, TResult>(T parameters)
         where TResult : struct, INumberBase<TResult>
     {
+        ArgumentNullException.ThrowIfNull(parameters);
+
         try
         {
-            ExpressionTree = Build<T, TResult>(parameters);
+            ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            ExpressionTree = Build<TResult>(new MathParameters(parameters));
 
-            if (ExpressionVariables?.Count > 0)
-            {
-                ExpressionStatements!.Add(ExpressionTree);
-                ExpressionTree = Expression.Block(ExpressionVariables.Values, ExpressionStatements);
-            }
+            if (VariableAssignments?.Count > 0)
+                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
 
             var lambda = ParameterExpression == null
                 ? Expression.Lambda<Func<T, TResult>>(ExpressionTree)
@@ -81,7 +85,7 @@ public partial class MathExpression
 
     [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
-    internal Expression Build<TResult>(ParameterExpression parameterExpression, MathParameters parameters, int depth = 0)
+    internal Expression Build<TResult>(MathParameters? parameters, int depth = 0)
         where TResult : struct, INumberBase<TResult>
     {
         if (!RuntimeFeature.IsDynamicCodeSupported)
@@ -90,8 +94,7 @@ public partial class MathExpression
                 "Dynamic compilation is not supported in this runtime (e.g. NativeAOT).");
         }
 
-        Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-        ParameterExpression = parameterExpression ?? throw new ArgumentNullException(nameof(parameterExpression));
+        Parameters = parameters;
         _evaluatingStep = 0;
 
         var i = 0;
@@ -303,34 +306,5 @@ public partial class MathExpression
             EnsureNestingDepth(depth, i);
 
         return entity.Build<TResult>(this, start, ref i, depth, separator, closingSymbol, left);
-    }
-
-    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
-    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
-    private Expression Build<TResult>()
-        where TResult : struct, INumberBase<TResult>
-    {
-        _evaluatingStep = 0;
-
-        var i = 0;
-        var expression = Build<TResult>(ref i, 0, null, null);
-
-        if (_evaluatingStep == 0)
-            RaiseEvaluatingStep(0, i, expression);
-
-        return expression;
-    }
-
-    [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
-    [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
-    private Expression Build<T, TResult>(T parameters)
-        where TResult : struct, INumberBase<TResult>
-    {
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
-
-        const string parameterName = "args";
-        var parameterExpression = Expression.Parameter(typeof(T), parameterName);
-        return Build<TResult>(parameterExpression, new MathParameters(parameters));
     }
 }

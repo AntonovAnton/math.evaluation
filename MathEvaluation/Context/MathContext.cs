@@ -257,7 +257,7 @@ public class MathContext
     /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
     /// <param name="mathString">The math expression string.</param>
     /// <returns><see cref="IMathEntity" /> instance or null.</returns>
-    internal IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
+    internal virtual IMathEntity? FirstMathEntity(ReadOnlySpan<char> mathString)
         => _trie.FirstMathEntity(mathString);
 
     /// <summary>

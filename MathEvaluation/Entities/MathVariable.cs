@@ -55,13 +55,16 @@ internal class MathVariable<T> : MathEntity
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
         Expression left)
     {
+        if (mathExpression.ParameterExpression == null)
+            throw new InvalidOperationException("ParameterExpression is null. Ensure that the math expression has a parameter expression set before building.");
+
         var tokenPosition = i;
         i += Key.Length;
 
         Expression right;
         if (_isDictionaryItem)
         {
-            var parameterType = mathExpression.ParameterExpression!.Type;
+            var parameterType = mathExpression.ParameterExpression.Type;
 
             // Try to get the default indexer property
             var indexerProperty = parameterType.GetProperties()
@@ -71,7 +74,7 @@ internal class MathVariable<T> : MathEntity
             {
                 // Use the indexer if available
                 var keyExpression = Expression.Constant(Key, typeof(string));
-                right = Expression.MakeIndex(mathExpression.ParameterExpression!, indexerProperty, [keyExpression]);
+                right = Expression.MakeIndex(mathExpression.ParameterExpression, indexerProperty, [keyExpression]);
             }
             else
             {
@@ -104,11 +107,11 @@ internal class MathVariable<T> : MathEntity
                     Expression parameterExpression;
                     if (dictionaryInterface != null)
                     {
-                        parameterExpression = Expression.Convert(mathExpression.ParameterExpression!, dictionaryInterface);
+                        parameterExpression = Expression.Convert(mathExpression.ParameterExpression, dictionaryInterface);
                     }
                     else
                     {
-                        parameterExpression = mathExpression.ParameterExpression!;
+                        parameterExpression = mathExpression.ParameterExpression;
                     }
 
                     var tryGetValueCall = Expression.Call(
@@ -137,7 +140,7 @@ internal class MathVariable<T> : MathEntity
         }
         else
         {
-            right = Expression.Property(mathExpression.ParameterExpression!, Key);
+            right = Expression.Property(mathExpression.ParameterExpression, Key);
         }
 
         right = BuildConvert<TResult>(right);

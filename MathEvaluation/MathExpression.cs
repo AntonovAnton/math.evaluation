@@ -354,6 +354,9 @@ public partial class MathExpression : IDisposable
         return entity.Evaluate(this, start, ref i, depth, separator, closingSymbol, value);
     }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+    [SuppressMessage("ReSharper", "MergeIntoPattern")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
     internal void RaiseEvaluatingStep<T>(
         int start, int i, T value, string? mathString = null, bool isSubExpression = false, bool skipNaN = false)
     {

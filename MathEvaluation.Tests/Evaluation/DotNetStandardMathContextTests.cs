@@ -2,6 +2,7 @@
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System.Globalization;
+using System.Numerics;
 
 // ReSharper disable EqualExpressionComparison
 // ReSharper disable RedundantLogicalConditionalExpressionOperand
@@ -245,7 +246,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -298,7 +299,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -337,7 +338,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -397,7 +398,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }
@@ -449,7 +450,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -504,7 +505,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateComplex();
+        var value = expression.Evaluate<Complex>();
 
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
@@ -614,7 +615,7 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
         var parameters = new MathParameters();
         parameters.BindVariable(varValue, varName);
 
-        var value = expression.EvaluateComplex(parameters, _context, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<Complex>(parameters, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal(expectedValue, value.Real, precision: 5);
     }

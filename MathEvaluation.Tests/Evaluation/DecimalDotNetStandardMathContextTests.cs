@@ -35,7 +35,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -53,7 +53,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         var parameters = new MathParameters();
         parameters.BindVariable(5.0, 'a');
 
-        var value = expression.EvaluateDecimal(parameters, _context);
+        var value = expression.Evaluate<decimal>(parameters, _context);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -71,7 +71,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         var parameters = new MathParameters();
         parameters.BindVariable(5.0, 'a');
 
-        var value = expression.EvaluateDecimal(parameters, _context);
+        var value = expression.Evaluate<decimal>(parameters, _context);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -98,7 +98,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal(expectedValue, value == 1.0m);
     }
@@ -117,7 +117,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal(expectedValue, value, precision: 5);
     }
@@ -130,7 +130,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -142,7 +142,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -176,7 +176,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -196,7 +196,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -211,7 +211,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -230,7 +230,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -245,7 +245,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -267,7 +267,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -288,7 +288,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -315,7 +315,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -343,7 +343,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -361,7 +361,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         using var expression = new MathExpression(mathString, _context, CultureInfo.InvariantCulture);
         expression.Evaluating += SubscribeToEvaluating;
 
-        var value = expression.EvaluateDecimal();
+        var value = expression.Evaluate<decimal>();
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -380,7 +380,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         var parameters = new MathParameters();
         parameters.BindVariable((decimal)varValue, varName);
 
-        var value = expression.EvaluateDecimal(parameters, _context);
+        var value = expression.Evaluate<decimal>(parameters, _context);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -406,7 +406,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
             { "d", (decimal)var_d }
         };
 
-        var value = expression.EvaluateDecimal(dict, _context, CultureInfo.InvariantCulture);
+        var value = expression.Evaluate<decimal>(dict, _context, CultureInfo.InvariantCulture);
 
         Assert.Equal((decimal)expectedValue, value);
     }
@@ -463,7 +463,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
     {
         testOutputHelper.WriteLine($"{expression}");
 
-        var ex = Record.Exception(() => new MathExpression(expression, _context, CultureInfo.InvariantCulture).EvaluateDecimal());
+        var ex = Record.Exception(() => new MathExpression(expression, _context, CultureInfo.InvariantCulture).Evaluate<decimal>());
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<OverflowException>(ex.InnerException);
     }
