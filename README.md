@@ -49,7 +49,7 @@ Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.
 | **MathEvaluator** | .NET 8.0 | **675.0 ns** |   8.97 ns |   8.39 ns | 0.0029 |     **104 B** |
 | NCalc | .NET 8.0 | 9,424.5 ns |  19.20 ns |  17.96 ns | 0.2747 |    9008 B |
 
-**Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~78x less memory allocation**.
+**Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~80x less memory allocation**.
 
 #### More Complex Expressions
 

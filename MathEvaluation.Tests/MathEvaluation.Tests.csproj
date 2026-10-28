@@ -26,6 +26,12 @@
     <ProjectReference Include="..\MathEvaluation\MathEvaluation.csproj" />
   </ItemGroup>
 
+  <!-- Pin ICU so culture data (group/decimal separators, currency symbols) is identical on Windows and Linux CI. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
