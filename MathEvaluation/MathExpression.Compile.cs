@@ -19,7 +19,7 @@ public partial class MathExpression
     // ReSharper disable once MemberCanBePrivate.Global
     public Expression? ExpressionTree { get; private set; }
 
-    internal ParameterExpression? ParameterExpression { get; private set; }
+    internal ParameterExpression? ParameterExpression { get; set; }
     internal Dictionary<string, BinaryExpression>? VariableAssignments { get; set; }
 
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
@@ -33,7 +33,7 @@ public partial class MathExpression
     {
         try
         {
-            ExpressionTree = Build<TResult>(null, null);
+            ExpressionTree = Build<TResult>(null);
 
             if (VariableAssignments?.Count > 0)
                 ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
@@ -64,8 +64,8 @@ public partial class MathExpression
 
         try
         {
-            var parameterExpression = Expression.Parameter(typeof(T), ParameterName);
-            ExpressionTree = Build<TResult>(parameterExpression, new MathParameters(parameters));
+            ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            ExpressionTree = Build<TResult>(new MathParameters(parameters));
 
             if (VariableAssignments?.Count > 0)
                 ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
@@ -85,7 +85,7 @@ public partial class MathExpression
 
     [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
-    internal Expression Build<TResult>(ParameterExpression? parameterExpression, MathParameters? parameters, int depth = 0)
+    internal Expression Build<TResult>(MathParameters? parameters, int depth = 0)
         where TResult : struct, INumberBase<TResult>
     {
         if (!RuntimeFeature.IsDynamicCodeSupported)
@@ -94,9 +94,7 @@ public partial class MathExpression
                 "Dynamic compilation is not supported in this runtime (e.g. NativeAOT).");
         }
 
-        // Both are null when the expression is compiled without parameters, e.g. an expression variable.
         Parameters = parameters;
-        ParameterExpression = parameterExpression;
         _evaluatingStep = 0;
 
         var i = 0;

@@ -16,7 +16,7 @@ public partial class MathExpression
         try
         {
             // double because expression can have not boolean logic inside
-            ExpressionTree = Build<double>(null, null);
+            ExpressionTree = Build<double>(null);
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
             if (VariableAssignments?.Count > 0)
@@ -43,8 +43,8 @@ public partial class MathExpression
         try
         {
             // double because expression can have not boolean logic inside
-            var parameterExpression = Expression.Parameter(typeof(T), ParameterName);
-            ExpressionTree = Build<double>(parameterExpression, new MathParameters(parameters));
+            ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            ExpressionTree = Build<double>(new MathParameters(parameters));
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
             if (VariableAssignments?.Count > 0)

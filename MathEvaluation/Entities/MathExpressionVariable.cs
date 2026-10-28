@@ -74,13 +74,14 @@ internal class MathExpressionVariable : MathEntity
 
         // If the variable is not already in the VariableAssignments dictionary, add it.
         Expression? parameterExpression = null;
-        if ((mathExpression.VariableAssignments?.TryGetValue(Key, out var assignmentExpression)) == true)
+        if (mathExpression.VariableAssignments?.TryGetValue(Key, out var assignmentExpression) == true)
         {
             parameterExpression = assignmentExpression.Left;
         }
         else
         {
             using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
+            varMathExpression.ParameterExpression = mathExpression.ParameterExpression;
             varMathExpression.Evaluating += (_, args) =>
             {
                 // Forward the evaluating event to the math expression.
@@ -89,10 +90,7 @@ internal class MathExpressionVariable : MathEntity
 
             // Build the right-hand side expression (like: 'a + b'),
             // it is built on the same call stack, so it continues the recursion depth of this math expression.
-            var result = varMathExpression.Build<TResult>(
-                mathExpression.ParameterExpression,
-                mathExpression.Parameters,
-                depth);
+            var result = varMathExpression.Build<TResult>(mathExpression.Parameters, depth);
 
             // Declare the variable (like: 'var x')
             parameterExpression = Expression.Variable(typeof(TResult), Key);
