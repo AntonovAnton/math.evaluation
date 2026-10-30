@@ -1,12 +1,13 @@
-﻿using MathEvaluation.Entities;
+﻿using MathEvaluation.Compilation;
+using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace MathEvaluation;
 
@@ -20,7 +21,7 @@ public partial class MathExpression
     public Expression? ExpressionTree { get; private set; }
 
     internal ParameterExpression? ParameterExpression { get; set; }
-    internal Dictionary<string, BinaryExpression>? VariableAssignments { get; set; }
+    internal ExpressionStatements? Statements { get; set; }
 
     /// <summary>Compiles the <see cref="MathString">math expression string</see>.</summary>
     /// <typeparam name="TResult">The type of the return value of the delegate.</typeparam>
@@ -33,10 +34,11 @@ public partial class MathExpression
     {
         try
         {
+            Statements = null;
             ExpressionTree = Build<TResult>(null);
 
-            if (VariableAssignments?.Count > 0)
-                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
+            if (Statements != null)
+                ExpressionTree = Statements.BuildBlock(ExpressionTree);
 
             var lambda = Expression.Lambda<Func<TResult>>(ExpressionTree);
             ExpressionTree = lambda;
@@ -64,15 +66,78 @@ public partial class MathExpression
 
         try
         {
+            Statements = null;
             ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
             ExpressionTree = Build<TResult>(new MathParameters(parameters));
 
-            if (VariableAssignments?.Count > 0)
-                ExpressionTree = ExpressionTree.AssignVariables(VariableAssignments.Values);
+            if (Statements != null)
+                ExpressionTree = Statements.BuildBlock(ExpressionTree);
 
             var lambda = ParameterExpression == null
                 ? Expression.Lambda<Func<T, TResult>>(ExpressionTree)
                 : Expression.Lambda<Func<T, TResult>>(ExpressionTree, ParameterExpression);
+            ExpressionTree = lambda;
+
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
+        }
+        catch (Exception ex)
+        {
+            throw CreateException(ex, parameters);
+        }
+    }
+
+    /// <summary>
+    ///     Compiles the <see cref="MathString">math expression string</see> that can contain async functions.
+    ///     The async functions are awaited one after another before the rest of the math expression is calculated.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the return value of the task.</typeparam>
+    /// <returns>A delegate that represents the compiled expression.</returns>
+    /// <exception cref="MathExpressionException" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+    public Func<ValueTask<TResult>> CompileAsyncFunc<TResult>()
+        where TResult : struct, INumberBase<TResult>
+    {
+        try
+        {
+            Statements = null;
+            ExpressionTree = Build<TResult>(null);
+            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<TResult>(ExpressionTree);
+
+            var lambda = Expression.Lambda<Func<ValueTask<TResult>>>(ExpressionTree);
+            ExpressionTree = lambda;
+
+            return Compiler?.Compile(lambda) ?? lambda.Compile();
+        }
+        catch (Exception ex)
+        {
+            throw CreateException(ex, null);
+        }
+    }
+
+    /// <inheritdoc cref="CompileAsyncFunc{TResult}()" />
+    /// <param name="parameters">The parameters of the <see cref="MathString">math expression string</see>.</param>
+    /// <typeparam name="T">The type of the parameters.</typeparam>
+    /// <typeparam name="TResult">The type of the return value of the task.</typeparam>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException">parameters</exception>
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+    public Func<T, ValueTask<TResult>> CompileAsyncFunc<T, TResult>(T parameters)
+        where TResult : struct, INumberBase<TResult>
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+
+        try
+        {
+            Statements = null;
+            ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            ExpressionTree = Build<TResult>(new MathParameters(parameters));
+            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<TResult>(ExpressionTree);
+
+            var lambda = ParameterExpression == null
+                ? Expression.Lambda<Func<T, ValueTask<TResult>>>(ExpressionTree)
+                : Expression.Lambda<Func<T, ValueTask<TResult>>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();
