@@ -14,6 +14,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Supports `INumberBase<T>` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
+- Compiles math expressions with async functions into an async delegate that returns `ValueTask<TResult>`.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
@@ -195,6 +196,34 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 When the same input matches entities from several contexts, the entity with the longest key wins (e.g. `ab` is preferred over `a`). On a tie, entities bound directly to the composite context win, then the contexts in the order they were added.
 
 **MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
+
+## Async functions
+Added in version [3.8.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.8.0)
+
+Async functions that return `ValueTask<T>` can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
+
+    var context = new MathContext();
+    context.BindAsyncFunction<double>(async id => await priceService.GetPriceAsync(id), "price");
+    context.BindAsyncFunction<double>((amount, rate) => ValueTask.FromResult(amount * rate), "tax");
+
+    var fn = new MathExpression("price(id) * qty + tax(price(id) * qty, 0.2)", context)
+        .CompileAsyncFunc(new { id = 0, qty = 0d });
+
+    var total = await fn(new { id = 42, qty = 3d });
+
+Async functions can also be passed as parameters or used in expression-defined variables:
+
+    Func<double, ValueTask<double>> price = priceService.GetPriceAsync;
+    var subtotal = "price(id) * qty"; // expression-defined variable
+
+    var fn = new MathExpression("subtotal + subtotal * 0.2")
+        .CompileAsyncFunc(new { price, subtotal, id = 0, qty = 0d });
+
+    var total = await fn(new { price, subtotal, id = 42, qty = 3d });
+
+Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
+
+With **MathEvaluator.FastExpressionCompiler**, use `new FastMathExpression(...).CompileAsyncFunc(...)` for faster compilation.
 
 ## AOT (Ahead-of-Time) compilation support
 Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.6.0)

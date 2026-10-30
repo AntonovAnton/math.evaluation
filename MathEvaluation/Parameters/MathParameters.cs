@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -207,6 +208,54 @@ public sealed class MathParameters
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
+
+    /// <summary>Binds the async function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="separator">The parameter separator.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindAsyncFunction<T>(args => fn(args[0]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindAsyncFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T[], ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
 
     #endregion
 
@@ -433,6 +482,24 @@ public sealed class MathParameters
                 return true;
             case Func<T[], T> fns:
                 BindFunction(fns, key);
+                return true;
+            case Func<T, ValueTask<T>> afn1:
+                BindAsyncFunction(afn1, key);
+                return true;
+            case Func<T, T, ValueTask<T>> afn2:
+                BindAsyncFunction(afn2, key);
+                return true;
+            case Func<T, T, T, ValueTask<T>> afn3:
+                BindAsyncFunction(afn3, key);
+                return true;
+            case Func<T, T, T, T, ValueTask<T>> afn4:
+                BindAsyncFunction(afn4, key);
+                return true;
+            case Func<T, T, T, T, T, ValueTask<T>> afn5:
+                BindAsyncFunction(afn5, key);
+                return true;
+            case Func<T[], ValueTask<T>> afns:
+                BindAsyncFunction(afns, key);
                 return true;
             default:
                 return false;

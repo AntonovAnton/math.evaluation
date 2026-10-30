@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace MathEvaluation;
 
@@ -22,4 +23,16 @@ public partial class MathExpression
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
     public Func<T, double> Compile<T>(T parameters)
         => Compile<T, double>(parameters);
+
+    /// <inheritdoc cref="CompileAsyncFunc{TResult}()" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+    public Func<ValueTask<double>> CompileAsyncFunc()
+        => CompileAsyncFunc<double>();
+
+    /// <inheritdoc cref="CompileAsyncFunc{T, TResult}(T)" />
+    [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+    [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+    public Func<T, ValueTask<double>> CompileAsyncFunc<T>(T parameters)
+        => CompileAsyncFunc<T, double>(parameters);
 }

@@ -152,6 +152,7 @@ public partial class MathExpression : IDisposable
         Parameters = null;
         ParameterExpression = null;
         ExpressionTree = null;
+        Statements = null;
     }
 
     /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
