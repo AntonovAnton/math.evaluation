@@ -210,10 +210,6 @@ public static class StringExtensions
             => new MathExpression(mathString, context, provider).Compile<T, Complex>(parameters);
 
         /// <summary>Compiles the math expression string that can contain async functions.</summary>
-        /// <remarks>
-        ///     Await the returned <see cref="ValueTask{TResult}" /> only once. If it has to be awaited several times
-        ///     or passed to <see cref="Task.WhenAll(Task[])" />, call its <c>AsTask()</c> method first.
-        /// </remarks>
         /// <param name="parameters">The parameters of the math expression string.</param>
         /// <param name="context">The math context.</param>
         /// <param name="provider">The specified format provider.</param>

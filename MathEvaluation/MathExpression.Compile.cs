@@ -90,10 +90,6 @@ public partial class MathExpression
     ///     Compiles the <see cref="MathString">math expression string</see> that can contain async functions.
     ///     The async functions are awaited one after another before the rest of the math expression is calculated.
     /// </summary>
-    /// <remarks>
-    ///     Await the returned <see cref="ValueTask{TResult}" /> only once. If it has to be awaited several times
-    ///     or passed to <see cref="Task.WhenAll(Task[])" />, call its <c>AsTask()</c> method first.
-    /// </remarks>
     /// <typeparam name="TResult">The type of the return value of the task.</typeparam>
     /// <returns>A delegate that represents the compiled expression.</returns>
     /// <exception cref="MathExpressionException" />

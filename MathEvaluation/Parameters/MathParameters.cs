@@ -180,28 +180,28 @@ public sealed class MathParameters
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2], args[3]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2], args[3], args[4]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T[], T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
@@ -245,28 +245,28 @@ public sealed class MathParameters
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindAsyncFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2], args[3]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2], args[3], args[4]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T[], ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
