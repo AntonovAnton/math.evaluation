@@ -211,15 +211,14 @@ Async functions that return `ValueTask<T>` can be bound with `BindAsyncFunction`
 
     var total = await fn(new { id = 42, qty = 3d });
 
-Async functions can also be passed as parameters or used in expression-defined variables:
+Expression-defined variables can use async functions too:
 
-    Func<double, ValueTask<double>> price = priceService.GetPriceAsync;
-    var subtotal = "price(id) * qty"; // expression-defined variable
+    context.BindExpressionVariable("price(id) * qty", "subtotal"); // expression-defined variable
 
-    var fn = new MathExpression("subtotal + subtotal * 0.2")
-        .CompileAsyncFunc(new { price, subtotal, id = 0, qty = 0d });
+    var fn = new MathExpression("subtotal + subtotal * 0.2", context)
+        .CompileAsyncFunc(new { id = 0, qty = 0d });
 
-    var total = await fn(new { price, subtotal, id = 42, qty = 3d });
+    var total = await fn(new { id = 42, qty = 3d });
 
 Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
 

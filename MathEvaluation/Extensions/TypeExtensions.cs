@@ -2,40 +2,72 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MathEvaluation.Extensions;
 
-#pragma warning disable IL2111 // Method with parameters or return value with 'DynamicallyAccessedMembers' is accessed via reflection
-#pragma warning disable IL2070 // 'this' argument does not satisfy 'DynamicallyAccessedMembers' in call to 'Type.GetProperties(BindingFlags)'
-
 internal static class TypeExtensions
 {
-    private static readonly Type NumberBaseInterfaceType = typeof(INumberBase<>);
-
     // Thread-safe cache mapping Types to their readable properties
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<PropertyInfo>> _cache = new();
+    private static readonly Type NumberBaseInterfaceType = typeof(INumberBase<>);
 
-    extension([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+    /// <summary>Determines whether the specified type is a number base type.</summary>
+    public static bool IsNumberBaseType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
-        /// <summary>Determines whether the specified type is a number base type.</summary>
-        public bool IsNumberBaseType()
+        // loops are used instead of lambdas, since a lambda inside of the annotated extension is reported as accessed via reflection (IL2111)
+        foreach (var i in type.GetInterfaces())
         {
-            var interfaces = type.GetInterfaces();
-            return interfaces.Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType);
+            if (i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType)
+                return true;
         }
 
-        /// <summary>Gets the readable properties of the specified type, using a thread-safe cache.</summary>
-        public IReadOnlyList<PropertyInfo> GetReadableProperties()
+        return false;
+    }
+
+    /// <summary>Gets the readable properties of the specified type, using a thread-safe cache.</summary>
+    public static IReadOnlyList<PropertyInfo> GetReadableProperties(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type type)
+    {
+        if (_cache.TryGetValue(type, out var properties))
+            return properties;
+
+        var readableProperties = new List<PropertyInfo>();
+        foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            return _cache.GetOrAdd(type, t =>
-                [.. t.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)]
-            );
+            if (property.CanRead)
+                readableProperties.Add(property);
         }
+
+        return _cache.GetOrAdd(type, readableProperties);
+    }
+
+    /// <summary>Creates the exception for the type of a property that can't be bound, with a hint if the type is a function.</summary>
+    /// <param name="type">The type.</param>
+    /// <param name="key">The key.</param>
+    public static NotSupportedException CreateNotSupportedException(this Type type, string key)
+    {
+        if (!type.IsGenericType || type.FullName?.StartsWith("System.Func") != true)
+            return new NotSupportedException($"{type} isn't supported for '{key}'.");
+
+        var returnType = type.GetGenericArguments()[^1];
+        var returnTypeDefinition = returnType.IsGenericType ? returnType.GetGenericTypeDefinition() : null;
+
+        // a Task<T> function is a natural mistake, so it says how to wrap it
+        if (returnTypeDefinition == typeof(Task<>))
+        {
+            return new NotSupportedException(
+                $"{type} isn't supported for '{key}', async functions must return ValueTask<T>, you can wrap the function: x => new ValueTask<T>(f(x)).");
+        }
+
+        if (returnTypeDefinition == typeof(ValueTask<>))
+        {
+            return new NotSupportedException(
+                $"{type} isn't supported for '{key}', the types of the arguments and of the result must be the same, you can use Func<T[], ValueTask<T>> instead.");
+        }
+
+        return new NotSupportedException($"{type} isn't supported for '{key}', you can use Func<T[], T> instead.");
     }
 }
-
-#pragma warning restore IL2070
-#pragma warning restore IL2111

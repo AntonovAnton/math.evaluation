@@ -260,4 +260,73 @@ public partial class MathExpressionTests
         public decimal x { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }
+
+    [Fact]
+    public void MathExpression_CompileAsyncFunc_HasTaskFunctionInParameters_ThrowExceptionWithHowToWrap()
+    {
+        Func<double, Task<double>> f = x => Task.FromResult(x);
+        using var expression = new MathExpression("f(1)", null, CultureInfo.InvariantCulture);
+
+        var ex = Record.Exception(() => expression.CompileAsyncFunc(new { f }));
+
+        var inner = Assert.IsType<NotSupportedException>(Assert.IsType<MathExpressionException>(ex).InnerException);
+        Assert.Contains("'f'", inner.Message);
+        Assert.Contains("ValueTask<T>", inner.Message);
+        Assert.Contains("new ValueTask<T>(f(x))", inner.Message);
+        Assert.DoesNotContain("Func<T[], T>", inner.Message);
+    }
+
+    [Fact]
+    public void MathContext_BindObjectWithAsyncFunctionsOfWrongTypes_ThrowExceptionWithHint()
+    {
+        Func<double, Task<double>> taskFn = x => Task.FromResult(x);
+        Func<int, ValueTask<double>> differentTypesFn = x => ValueTask.FromResult((double)x);
+        Func<int, string> notNumberFn = x => x.ToString();
+
+        var taskEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { taskFn }));
+        Assert.Contains("new ValueTask<T>(f(x))", taskEx.Message);
+
+        var typesEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { differentTypesFn }));
+        Assert.Contains("Func<T[], ValueTask<T>>", typesEx.Message);
+
+        var otherEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { notNumberFn }));
+        Assert.Contains("Func<T[], T>", otherEx.Message);
+
+        var dictionary = new Dictionary<string, object> { ["f"] = taskFn };
+        var dictionaryEx = Record.Exception(() => new MathExpression("f(1)").CompileAsyncFunc(dictionary));
+        Assert.Contains("new ValueTask<T>(f(x))", dictionaryEx?.Message);
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_FunctionIsPassedToDelegate_CompileTimeFunctionIsUsed()
+    {
+        Func<double, ValueTask<double>> a = x => ValueTask.FromResult(x + 100);
+        Func<double, ValueTask<double>> b = x => ValueTask.FromResult(x + 200);
+        using var expression = new MathExpression("f(x)", null, CultureInfo.InvariantCulture);
+
+        var fn = expression.CompileAsyncFunc(new { f = a, x = 0d });
+
+        // the function is taken from the object passed at compile time, only the values of variables are taken from the argument
+        Assert.Equal(101d, await fn(new { f = b, x = 1d }));
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_HasExpressionVariableWithAsyncFunctionInContext_FunctionInvokedOnce()
+    {
+        var calls = 0;
+        var context = new MathContext();
+        context.BindAsyncFunction<double>(async id =>
+        {
+            Interlocked.Increment(ref calls);
+            await Task.Yield();
+            return id * 10;
+        }, "price");
+        context.BindExpressionVariable("price(id) * qty", "subtotal");
+
+        using var expression = new MathExpression("subtotal + subtotal * 0.2", context, CultureInfo.InvariantCulture);
+        var fn = expression.CompileAsyncFunc(new { id = 0, qty = 0d });
+
+        Assert.Equal(42d * 10 * 3 * 1.2, await fn(new { id = 42, qty = 3d }), precision: 5);
+        Assert.Equal(1, calls);
+    }
 }

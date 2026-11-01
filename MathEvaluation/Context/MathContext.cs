@@ -386,10 +386,7 @@ public class MathContext
                         return;
                     }
 
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
-
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+                    throw propertyType.CreateNotSupportedException(key);
                 }
         }
     }
