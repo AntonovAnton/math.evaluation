@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     Base class for a math entity.

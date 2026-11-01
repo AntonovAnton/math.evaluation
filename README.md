@@ -14,6 +14,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Supports `INumberBase<T>` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
+- Compiles math expressions with async functions into an async delegate that returns `ValueTask<TResult>` or `ValueTask<T, TResult>`.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
@@ -40,27 +41,27 @@ Let's compare performance of evaluating the mathematical expression:
 
     22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
 
-Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.1.0):
+Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.3.0):
 
 | Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **521.4 ns** |   1.86 ns |   1.65 ns | 0.0029 |     **104 B** |
-| NCalc | .NET 10.0 | 7,687.5 ns |  32.09 ns |  30.01 ns | 0.2747 |    8744 B |
-| **MathEvaluator** | .NET 8.0 | **675.0 ns** |   8.97 ns |   8.39 ns | 0.0029 |     **104 B** |
-| NCalc | .NET 8.0 | 9,424.5 ns |  19.20 ns |  17.96 ns | 0.2747 |    9008 B |
+| **MathEvaluator** | .NET 10.0 | **517.1 ns** |   2.98 ns |   2.64 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 10.0 | 3,584.9 ns |  8.19 ns |  7.66 ns | 0.1144 |    3592 B |
+| **MathEvaluator** | .NET 8.0 | **643.5 ns** |   5.56 ns |   5.20 ns | 0.0029 |     **112 B** |
+| NCalc | .NET 8.0 | 4,455.0 ns |  20.82 ns |  18.45 ns | 0.1144 |    3592 B |
 
-**Performance gain**: MathEvaluator is **14-15x faster** than NCalc with **~80x less memory allocation**.
+**Performance gain**: MathEvaluator is **~7x faster** than NCalc with **~32x less memory allocation**.
 
 #### More Complex Expressions
 
 | Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
 |------------|---------|-----------|----------|---------|
-| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **347.2 ns** | **399.3 ns** | **31-32x** |
-| | NCalc | 10,402.7 ns | 12,938.1 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **434.6 ns** | **550.3 ns** | **26-27x** |
-| | NCalc | 11,720.6 ns | 14,895.4 ns | |
-| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **827.7 ns** | **960.6 ns** | **15x** |
-| | NCalc | 11,836.5 ns | 14,303.8 ns | |
+| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **351.4 ns** | **416.8 ns** | **8x** |
+| | NCalc | 2,920.2 ns | 3,379.6 ns | |
+| `"A or not B and (C or B)"` | **MathEvaluator** | **464.5 ns** | **587.8 ns** | **6x** |
+| | NCalc | 2,807.8 ns | 3,593.9 ns | |
+| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **863.2 ns** | **1,054.2 ns** | **4.5-4.7x** |
+| | NCalc | 4,021.8 ns | 4,735.8 ns | |
 
 ***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
 
@@ -195,6 +196,33 @@ Example of compilation with a Dictionary as a parameter (Added in version [2.3.0
 When the same input matches entities from several contexts, the entity with the longest key wins (e.g. `ab` is preferred over `a`). On a tie, entities bound directly to the composite context win, then the contexts in the order they were added.
 
 **MathParameters** class provides the actual values and custom implementations for a specific evaluation. It supplies variable values and function delegates that are used when evaluating a particular expression.
+
+## Async functions
+Added in version [3.8.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.8.0)
+
+Async functions that return `ValueTask<T>` and take a `CancellationToken` as the last parameter can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
+
+    var context = new MathContext();
+    context.BindAsyncFunction<double>(async (id, cancellationToken) => await priceService.GetPriceAsync(id, cancellationToken), "price");
+    context.BindAsyncFunction<double>((amount, rate, _) => ValueTask.FromResult(amount * rate), "tax");
+
+    var fn = new MathExpression("price(id) * qty + tax(price(id) * qty, 0.2)", context)
+        .CompileAsyncFunc(new { id = 0, qty = 0d });
+
+    var total = await fn(new { id = 42, qty = 3d }, cancellationToken);
+
+Expression-defined variables can use async functions too:
+
+    context.BindExpressionVariable("price(id) * qty", "subtotal"); // expression-defined variable
+
+    var fn = new MathExpression("subtotal + subtotal * 0.2", context)
+        .CompileAsyncFunc(new { id = 0, qty = 0d });
+
+    var total = await fn(new { id = 42, qty = 3d }, cancellationToken);
+
+Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
+
+With **MathEvaluator.FastExpressionCompiler**, use `new FastMathExpression(...).CompileAsyncFunc(...)` for faster compilation.
 
 ## AOT (Ahead-of-Time) compilation support
 Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.6.0)

@@ -1,9 +1,4 @@
-﻿using MathEvaluation.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace MathEvaluation;
+﻿namespace MathEvaluation;
 
 public partial class MathExpression
 {
@@ -31,4 +26,4 @@ public partial class MathExpression
     [Obsolete("Use Evaluate<decimal>(parameters) instead.")]
     public decimal EvaluateDecimal(MathParameters? parameters)
         => Evaluate<decimal>(parameters);
-}
+}

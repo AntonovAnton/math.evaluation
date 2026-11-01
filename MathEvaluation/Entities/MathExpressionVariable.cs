@@ -1,8 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The math variable uses as a parameter, that should be evaluated as an expression.
@@ -72,16 +68,15 @@ internal class MathExpressionVariable : MathEntity
         var tokenPosition = i;
         i += Key.Length;
 
-        // If the variable is not already in the VariableAssignments dictionary, add it.
-        Expression? parameterExpression = null;
-        if (mathExpression.VariableAssignments?.TryGetValue(Key, out var assignmentExpression) == true)
-        {
-            parameterExpression = assignmentExpression.Left;
-        }
-        else
+        // If the variable is not already assigned by the statements, add it.
+        mathExpression.Statements ??= new();
+        if (!mathExpression.Statements.TryGetVariable(Key, out var parameterExpression))
         {
             using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
             varMathExpression.ParameterExpression = mathExpression.ParameterExpression;
+            varMathExpression.CancellationTokenExpression = mathExpression.CancellationTokenExpression;
+            // Share the statements, so the variables and awaits of the right-hand side are executed before this assignment.
+            varMathExpression.Statements = mathExpression.Statements;
             varMathExpression.Evaluating += (_, args) =>
             {
                 // Forward the evaluating event to the math expression.
@@ -92,15 +87,8 @@ internal class MathExpressionVariable : MathEntity
             // it is built on the same call stack, so it continues the recursion depth of this math expression.
             var result = varMathExpression.Build<TResult>(mathExpression.Parameters, depth);
 
-            // Declare the variable (like: 'var x')
-            parameterExpression = Expression.Variable(typeof(TResult), Key);
-
-            // Create an assignment expression (like: 'x = a + b')
-            assignmentExpression = Expression.Assign(parameterExpression, result);
-
-            // Store the variable for later use
-            mathExpression.VariableAssignments ??= [];
-            mathExpression.VariableAssignments[Key] = assignmentExpression;
+            // Declare the variable and create an assignment expression (like: 'x = a + b')
+            parameterExpression = mathExpression.Statements.AddAssignment(Key, result);
 
             mathExpression.RaiseEvaluatingStep(tokenPosition, i, result);
         }

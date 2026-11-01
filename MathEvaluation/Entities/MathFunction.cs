@@ -1,11 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The function with multiple parameters, so opening, separator, and closing symbol are required.

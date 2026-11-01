@@ -1,6 +1,4 @@
-﻿using System;
-
-#pragma warning disable IDE0130 // Namespace does not match folder structure
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
 // ReSharper disable once CheckNamespace
 namespace MathEvaluation.Context;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
