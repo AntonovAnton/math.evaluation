@@ -21,6 +21,7 @@ public class EvaluationBenchmarks
     private const string Expression3 = "Sin(a) + Cos(b)";
     private const string Expression4 = "A or not B and (C or B)";
     private const string Expression5 = "A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01";
+    private const string NCalcExpression5 = "A != B && !C ** -2.9 >= -12.9 + 0.1 / 0.01";
 
     // ReSharper disable once InconsistentNaming
     private const double a = Math.PI / 6;
@@ -133,13 +134,13 @@ public class EvaluationBenchmarks
         return Expression5.EvaluateBoolean(parameters, new DotNetStandardMathContext(), CultureInfo.InvariantCulture);
     }
 
-    [Benchmark(Description = $"NCalc: {Expression5}")]
+    [Benchmark(Description = $"NCalc: {NCalcExpression5}")]
     public bool NCalc_Evaluate_DotNet()
     {
         _count++;
         var value = _count % 2 == 0; //randomizing values
 
-        var expression = new Expression(Expression5, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
+        var expression = new Expression(NCalcExpression5, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
         {
             Parameters =
             {
