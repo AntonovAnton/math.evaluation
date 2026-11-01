@@ -1,4 +1,5 @@
 using MathEvaluation.Context;
+using MathEvaluation.Extensions;
 using System.Globalization;
 using System.Numerics;
 
@@ -217,5 +218,46 @@ public partial class MathExpressionTests
         var complexFn = complexExpression.CompileComplexAsyncFunc(new { z = Complex.Zero });
         Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }));
         Assert.Equal(new Complex(1, 2), await new MathExpression("rot(2)+1", complexContext, CultureInfo.InvariantCulture).CompileComplexAsyncFunc()());
+    }
+
+    [Fact]
+    public async Task StringExtensions_CompileAsyncFunc_HasAsyncFunction_ExpectedValue()
+    {
+        var context = new ProgrammingMathContext();
+        context.BindAsyncFunction<double>(async x =>
+        {
+            await Task.Yield();
+            return x / 2;
+        }, "f");
+        context.BindAsyncFunction<decimal>(x => ValueTask.FromResult(x * 1.5m), "g");
+        context.BindAsyncFunction<Complex>(async z =>
+        {
+            await Task.Yield();
+            return z * Complex.ImaginaryOne;
+        }, "rot");
+
+        var doubleFn = "f(x) + 1".CompileAsyncFunc(new { x = 0d }, context);
+        Assert.Equal(3.5d, await doubleFn(new { x = 5d }));
+
+        var numberFn = "g(x) + 0.1".CompileAsyncFunc<DecimalVariables, decimal>(new DecimalVariables { x = 0m }, context);
+        Assert.Equal(3.1m, await numberFn(new DecimalVariables { x = 2m }));
+
+        var decimalFn = "g(x) + 0.1".CompileDecimalAsyncFunc(new { x = 0m }, context);
+        Assert.Equal(3.1m, await decimalFn(new { x = 2m }));
+
+        var booleanFn = "f(x) > 2 and not f(0) > 0".CompileBooleanAsyncFunc(new { x = 0d }, context);
+        Assert.True(await booleanFn(new { x = 5d }));
+        Assert.False(await booleanFn(new { x = 4d }));
+
+        var complexFn = "rot(z) + 1".CompileComplexAsyncFunc(new { z = Complex.Zero }, context);
+        Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }));
+    }
+
+    private record DecimalVariables
+    {
+#pragma warning disable IDE1006 // Naming Styles
+        // ReSharper disable once InconsistentNaming
+        public decimal x { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
     }
 }

@@ -14,7 +14,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Supports `INumberBase<T>` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-- Compiles math expressions with async functions into an async delegate that returns `ValueTask<TResult>`.
+- Compiles math expressions with async functions into an async delegate that returns `ValueTask<TResult>` or `ValueTask<T, TResult>`.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
