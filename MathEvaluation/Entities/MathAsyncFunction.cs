@@ -1,4 +1,4 @@
-using MathEvaluation.Extensions;
+﻿using MathEvaluation.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,12 +13,9 @@ namespace MathEvaluation.Entities;
 ///     It is supported only by compiling the math expression into an async delegate.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-internal class MathAsyncFunction<T> : MathEntity
+internal class MathAsyncFunction<T> : MathAsyncEntity<T>
     where T : struct, INumberBase<T>
 {
-    /// <inheritdoc />
-    public override int Precedence => (int)EvalPrecedence.Function;
-
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
     private Func<T[], ValueTask<T>> Fn { get; }
@@ -52,11 +49,6 @@ internal class MathAsyncFunction<T> : MathEntity
     }
 
     /// <inheritdoc />
-    public override TResult Evaluate<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
-        TResult value)
-        => throw new NotSupportedException($"The async function '{Key}' can't be evaluated synchronously, use the CompileAsyncFunc method instead.");
-
-    /// <inheritdoc />
     [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
     public override Expression Build<TResult>(MathExpression mathExpression, int start, ref int i, int depth, char? separator, char? closingSymbol,
@@ -83,19 +75,7 @@ internal class MathAsyncFunction<T> : MathEntity
 
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        // Await the task before the math expression (like: 'await f(a, b)') and use its result
         var task = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args));
-        mathExpression.Statements ??= new();
-        Expression right = mathExpression.Statements.AddAwait(mathExpression.MathString[tokenPosition..i], task);
-        mathExpression.RaiseEvaluatingStep(tokenPosition, i, right);
-
-        right = BuildConvert<TResult>(right);
-        right = mathExpression.BuildExponentiation<TResult>(tokenPosition, ref i, depth, separator, closingSymbol, right);
-        var expression = MathExpression.BuildMultiplyIfLeftNotDefault<TResult>(left, right);
-
-        if (expression != right)
-            mathExpression.RaiseEvaluatingStep(start, i, expression);
-
-        return expression;
+        return BuildAwait<TResult>(mathExpression, start, ref i, depth, separator, closingSymbol, left, tokenPosition, task);
     }
 }

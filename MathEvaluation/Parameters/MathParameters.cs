@@ -1,4 +1,5 @@
-﻿using MathEvaluation.Entities;
+﻿using MathEvaluation.Compilation;
+using MathEvaluation.Entities;
 using MathEvaluation.Extensions;
 using System;
 using System.Collections;
@@ -209,6 +210,30 @@ public sealed class MathParameters
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
 
+    /// <summary>Binds the async getting value function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async getting value function.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<ValueTask<T>> fn, char key)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key.ToString(), fn));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, char)" />
+    public void BindAsyncFunction<T>(Func<ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key, fn));
+
+    /// <summary>Binds the async unary function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async function.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
+
     /// <summary>Binds the async function, it is supported only by the CompileAsyncFunc method.</summary>
     /// <param name="fn">The async function.</param>
     /// <param name="key">The key.</param>
@@ -216,41 +241,34 @@ public sealed class MathParameters
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
-        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
-        char closingSymbol = Constants.DefaultClosingSymbol)
-        where T : struct, INumberBase<T>
-        => BindAsyncFunction<T>(args => fn(args[0]), key, openingSymbol, separator, closingSymbol);
-
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindAsyncFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T, T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => BindAsyncFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, ValueTask{T}}, string?, char, char, char)" />
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
     public void BindAsyncFunction<T>(Func<T[], ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
@@ -276,6 +294,14 @@ public sealed class MathParameters
     /// <inheritdoc cref="BindFunction{T}(Func{T}, string?)" />
     public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, char)" />
+    public void BindAsyncFunction(Func<ValueTask<bool>> fn, char key)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key.ToString(), () => AsyncContinuation.ToDouble(fn())));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, string?)" />
+    public void BindAsyncFunction(Func<ValueTask<bool>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key, () => AsyncContinuation.ToDouble(fn())));
 
     #endregion
 
@@ -354,8 +380,11 @@ public sealed class MathParameters
 
                 BindExpressionVariable(str, key);
                 break;
-            case Func<bool> boolFn1:
-                BindFunction(boolFn1, key);
+            case Func<bool> boolFn:
+                BindFunction(boolFn, key);
+                break;
+            case Func<ValueTask<bool>> boolAsyncFn:
+                BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
                 {
@@ -430,8 +459,11 @@ public sealed class MathParameters
 
                 BindExpressionVariable(str, key);
                 break;
-            case Func<bool> boolFn1:
-                BindFunction(boolFn1, key);
+            case Func<bool> boolFn:
+                BindFunction(boolFn, key);
+                break;
+            case Func<ValueTask<bool>> boolAsyncFn:
+                BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
                 {
@@ -476,6 +508,9 @@ public sealed class MathParameters
                 return true;
             case Func<T[], T> fns:
                 BindFunction(fns, key);
+                return true;
+            case Func<ValueTask<T>> afn0:
+                BindAsyncFunction(afn0, key);
                 return true;
             case Func<T, ValueTask<T>> afn1:
                 BindAsyncFunction(afn1, key);

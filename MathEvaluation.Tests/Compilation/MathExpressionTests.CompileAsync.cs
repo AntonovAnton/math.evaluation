@@ -253,6 +253,104 @@ public partial class MathExpressionTests
         Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }));
     }
 
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncGetValueFunction_ExpectedValue()
+    {
+        var context = new MathContext();
+        context.BindAsyncFunction<double>(async () =>
+        {
+            await Task.Yield();
+            return 5d;
+        }, "five");
+        context.BindAsyncFunction<double>(() => ValueTask.FromResult(7d), 's');
+
+        using var expression = new MathExpression("five * 2 + five() + 2s", context, CultureInfo.InvariantCulture);
+        var fn = expression.CompileAsyncFunc();
+
+        Assert.Equal(5d * 2 + 5 + 2 * 7, await fn());
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncUnaryFunction_ExpectedValue()
+    {
+        var context = new MathContext();
+        context.BindAsyncFunction<double>(async v =>
+        {
+            await Task.Yield();
+            return v * 2;
+        }, "twice");
+        context.BindAsyncFunction<double>(async v =>
+        {
+            await Task.Yield();
+            return Math.Abs(v);
+        }, '[', ']');
+        context.BindAsyncFunction<double>(async v =>
+        {
+            await Task.Yield();
+            return v / 2;
+        }, "half", '<', '>');
+        context.BindAsyncFunction<double>(v => ValueTask.FromResult(v * v), 'q');
+
+        // without brackets, with brackets, nested without brackets, custom symbols, custom symbols with a key, a char key
+        foreach (var (mathString, expectedValue) in new[]
+                 {
+                     ("twice 3 + 1", 7d),
+                     ("twice(3) + 1", 7d),
+                     ("twice twice 2", 8d),
+                     ("twice(1 + 2) * twice 2", 24d),
+                     ("[3 - 5] * 2", 4d),
+                     ("half<8> + 1", 5d),
+                     ("q 3 + 1", 10d)
+                 })
+        {
+            using var expression = new MathExpression(mathString, context, CultureInfo.InvariantCulture);
+            var fn = expression.CompileAsyncFunc();
+
+            Assert.Equal(expectedValue, await fn());
+        }
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncBooleanFunction_ExpectedValue()
+    {
+        var context = new ProgrammingMathContext();
+        context.BindAsyncFunction(async () =>
+        {
+            await Task.Yield();
+            return true;
+        }, "ready");
+        context.BindAsyncFunction(() => ValueTask.FromResult(false), "stopped");
+        context.BindAsyncFunction(() => ValueTask.FromResult(true), 'z');
+
+        using var readyExpression = new MathExpression("ready and not stopped and z", context, CultureInfo.InvariantCulture);
+        Assert.True(await readyExpression.CompileBooleanAsyncFunc()());
+
+        using var stoppedExpression = new MathExpression("ready and stopped", context, CultureInfo.InvariantCulture);
+        Assert.False(await stoppedExpression.CompileBooleanAsyncFunc()());
+
+        // a boolean is a number in a math expression
+        using var numberExpression = new MathExpression("ready + stopped + 1", context, CultureInfo.InvariantCulture);
+        Assert.Equal(2d, await numberExpression.CompileAsyncFunc()());
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncFunctionsInObjects_ExpectedValue()
+    {
+        var five = (Func<ValueTask<double>>)(() => ValueTask.FromResult(5d));
+        var ready = (Func<ValueTask<bool>>)(() => ValueTask.FromResult(true));
+
+        // in parameters
+        using var parametersExpression = new MathExpression("five * 2 + ready", null, CultureInfo.InvariantCulture);
+        var parametersFn = parametersExpression.CompileAsyncFunc(new { five, ready });
+        Assert.Equal(11d, await parametersFn(new { five, ready }));
+
+        // in context
+        var context = new MathContext(new { five, ready });
+        using var contextExpression = new MathExpression("five * x + ready", context, CultureInfo.InvariantCulture);
+        var contextFn = contextExpression.CompileAsyncFunc(new { x = 0d });
+        Assert.Equal(16d, await contextFn(new { x = 3d }));
+    }
+
     private record DecimalVariables
     {
 #pragma warning disable IDE1006 // Naming Styles
