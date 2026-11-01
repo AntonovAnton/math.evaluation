@@ -1,6 +1,4 @@
-﻿using MathEvaluation.Entities;
-using MathTrigonometric;
-using System;
+﻿using MathTrigonometric;
 
 namespace MathEvaluation.Context;
 

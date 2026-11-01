@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MathEvaluation;
+﻿namespace MathEvaluation;
 
 /// <summary>
 ///     Args of the Evaluating event.

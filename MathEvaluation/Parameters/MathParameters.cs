@@ -1,12 +1,4 @@
-﻿using MathEvaluation.Entities;
-using MathEvaluation.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Collections;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -178,28 +170,28 @@ public sealed class MathParameters
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2], args[3]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T, T, T, T, T, T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => BindFunction<T>(args => fn(args[0], args[1], args[2], args[3], args[4]), key, openingSymbol, separator, closingSymbol);
+        => _trie.AddMathEntity(new MathFunction<T>(key, args => fn(args[0], args[1], args[2], args[3], args[4]), openingSymbol, separator, closingSymbol));
 
     /// <inheritdoc cref="BindFunction{T}(Func{T, T, T}, string?, char, char, char)" />
     public void BindFunction<T>(Func<T[], T> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
@@ -207,6 +199,75 @@ public sealed class MathParameters
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
+
+    /// <summary>Binds the async getting value function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async getting value function, its parameter is the cancellation token of the compiled delegate.</param>
+    /// <param name="key">The key.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<CancellationToken, ValueTask<T>> fn, char key)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key.ToString(), fn));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, char)" />
+    public void BindAsyncFunction<T>(Func<CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key, fn));
+
+    /// <summary>Binds the async unary function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char? openingSymbol = null, char? closingSymbol = null)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
+
+    /// <summary>Binds the async function, it is supported only by the CompileAsyncFunc method.</summary>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="openingSymbol">The opening symbol.</param>
+    /// <param name="separator">The parameter separator.</param>
+    /// <param name="closingSymbol">The closing symbol.</param>
+    /// <exception cref="ArgumentNullException" />
+    public void BindAsyncFunction<T>(Func<T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], cancellationToken), openingSymbol, separator,
+            closingSymbol));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], cancellationToken), openingSymbol,
+            separator, closingSymbol));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], args[3], cancellationToken),
+            openingSymbol, separator, closingSymbol));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], args[3], args[4], cancellationToken),
+            openingSymbol, separator, closingSymbol));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T[], CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+        char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
+        char closingSymbol = Constants.DefaultClosingSymbol)
+        where T : struct, INumberBase<T>
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, fn, openingSymbol, separator, closingSymbol));
 
     #endregion
 
@@ -228,6 +289,14 @@ public sealed class MathParameters
     public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
 
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, char)" />
+    public void BindAsyncFunction(Func<CancellationToken, ValueTask<bool>> fn, char key)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key.ToString(), cancellationToken => AsyncContinuation.ToDouble(fn(cancellationToken))));
+
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, string?)" />
+    public void BindAsyncFunction(Func<CancellationToken, ValueTask<bool>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key, cancellationToken => AsyncContinuation.ToDouble(fn(cancellationToken))));
+
     #endregion
 
     /// <summary>Returns the first contextually recognized mathematical entity in the expression string.</summary>
@@ -246,7 +315,8 @@ public sealed class MathParameters
     /// <exception cref="NotSupportedException"></exception>
     [RequiresUnreferencedCode("Binding property requires reflection which may access trimmed members")]
     private void BindProperty(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)]
+        Type? propertyType,
         string key, object? value, bool isDictionaryItem)
     {
         if (value == null)
@@ -305,23 +375,23 @@ public sealed class MathParameters
 
                 BindExpressionVariable(str, key);
                 break;
-            case Func<bool> boolFn1:
-                BindFunction(boolFn1, key);
+            case Func<bool> boolFn:
+                BindFunction(boolFn, key);
+                break;
+            case Func<CancellationToken, ValueTask<bool>> boolAsyncFn:
+                BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
+            {
+                propertyType ??= value.GetType();
+                if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
                 {
-                    propertyType ??= value.GetType();
-                    if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
-                    {
-                        BindVariable(key, (dynamic)value, isDictionaryItem);
-                        return;
-                    }
-
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
-
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
+                    BindVariable(key, (dynamic)value, isDictionaryItem);
+                    return;
                 }
+
+                throw propertyType.CreateNotSupportedException(key);
+            }
         }
     }
 
@@ -384,17 +454,17 @@ public sealed class MathParameters
 
                 BindExpressionVariable(str, key);
                 break;
-            case Func<bool> boolFn1:
-                BindFunction(boolFn1, key);
+            case Func<bool> boolFn:
+                BindFunction(boolFn, key);
+                break;
+            case Func<CancellationToken, ValueTask<bool>> boolAsyncFn:
+                BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
-                {
-                    var propertyType = value.GetType();
-                    if (propertyType.FullName?.StartsWith("System.Func") == true)
-                        throw new NotSupportedException($"{propertyType} isn't supported for '{key}', you can use Func<T[], T> instead.");
-
-                    throw new NotSupportedException($"{propertyType} isn't supported for '{key}'.");
-                }
+            {
+                var propertyType = value.GetType();
+                throw propertyType.CreateNotSupportedException(key);
+            }
         }
     }
 
@@ -433,6 +503,28 @@ public sealed class MathParameters
                 return true;
             case Func<T[], T> fns:
                 BindFunction(fns, key);
+                return true;
+            case Func<CancellationToken, ValueTask<T>> afn0:
+                BindAsyncFunction(afn0, key);
+                return true;
+            case Func<T, CancellationToken, ValueTask<T>> afn1:
+                BindAsyncFunction(afn1, key);
+                return true;
+            case Func<T, T, CancellationToken, ValueTask<T>> afn2:
+                BindAsyncFunction(afn2, key);
+                return true;
+            case Func<T, T, T, CancellationToken, ValueTask<T>> afn3:
+                BindAsyncFunction(afn3, key);
+                return true;
+            case Func<T, T, T, T, CancellationToken, ValueTask<T>> afn4:
+                BindAsyncFunction(afn4, key);
+                return true;
+            case Func<T, T, T, T, T, CancellationToken, ValueTask<T>> afn5:
+                BindAsyncFunction(afn5, key);
+                return true;
+            // ReSharper disable once IdentifierTypo
+            case Func<T[], CancellationToken, ValueTask<T>> afns:
+                BindAsyncFunction(afns, key);
                 return true;
             default:
                 return false;
@@ -533,30 +625,30 @@ public sealed class MathParameters
             switch (pair)
             {
                 case DictionaryEntry dictEntry:
-                    {
-                        if (dictEntry.Key is not string key)
-                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                {
+                    if (dictEntry.Key is not string key)
+                        throw new NotSupportedException("Only string keys are supported in the dictionary.");
 
-                        var propertyType = dictEntry.Value?.GetType();
-                        BindProperty(propertyType, key, dictEntry.Value, true);
-                        break;
-                    }
+                    var propertyType = dictEntry.Value?.GetType();
+                    BindProperty(propertyType, key, dictEntry.Value, true);
+                    break;
+                }
                 default:
-                    {
-                        var pairType = pair.GetType();
-                        var keyProperty = pairType.GetProperty("Key");
-                        var valueProperty = pairType.GetProperty("Value");
-                        if (keyProperty == null || valueProperty == null)
-                            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+                {
+                    var pairType = pair.GetType();
+                    var keyProperty = pairType.GetProperty("Key");
+                    var valueProperty = pairType.GetProperty("Value");
+                    if (keyProperty == null || valueProperty == null)
+                        throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
 
-                        var keyObj = keyProperty.GetValue(pair);
-                        var valueObj = valueProperty.GetValue(pair);
-                        if (keyObj is not string key)
-                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
+                    var keyObj = keyProperty.GetValue(pair);
+                    var valueObj = valueProperty.GetValue(pair);
+                    if (keyObj is not string key)
+                        throw new NotSupportedException("Only string keys are supported in the dictionary.");
 
-                        BindProperty(valueProperty.PropertyType, key, valueObj, true);
-                        break;
-                    }
+                    BindProperty(valueProperty.PropertyType, key, valueObj, true);
+                    break;
+                }
             }
         }
     }

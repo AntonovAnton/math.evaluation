@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MathEvaluation.FastExpressionCompiler\MathEvaluation.FastExpressionCompiler.csproj" />
+    <ProjectReference Include="..\MathEvaluation\MathEvaluation.csproj" />
   </ItemGroup>
 
   <!-- Pin ICU so culture data (group/decimal separators, currency symbols) is identical on Windows and Linux CI. -->

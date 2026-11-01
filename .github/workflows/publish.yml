@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
+      fec_version: ${{ steps.read.outputs.fec_version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,12 +33,8 @@ jobs:
           echo "MathEvaluator version:                       $VERSION"
           echo "MathEvaluator.FastExpressionCompiler version: $FEC_VERSION"
 
-          if [ "$VERSION" != "$FEC_VERSION" ]; then
-            echo "::error::Version mismatch — MathEvaluator=$VERSION, MathEvaluator.FastExpressionCompiler=$FEC_VERSION. Both csproj files must have the same <Version>."
-            exit 1
-          fi
-
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "fec_version=$FEC_VERSION" >> $GITHUB_OUTPUT
 
   # ────────────────────────────────────────────────────────────────────────────
   # 2. Run tests — publishing is blocked if any test fails
@@ -132,10 +129,10 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Check if MathEvaluator.FastExpressionCompiler ${{ needs.read-version.outputs.version }} is already published
+      - name: Check if MathEvaluator.FastExpressionCompiler ${{ needs.read-version.outputs.fec_version }} is already published
         id: check
         env:
-          VERSION: ${{ needs.read-version.outputs.version }}
+          VERSION: ${{ needs.read-version.outputs.fec_version }}
         run: |
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             "https://api.nuget.org/v3-flatcontainer/mathevaluator.fastexpressioncompiler/${VERSION}/mathevaluator.fastexpressioncompiler.${VERSION}.nupkg")
@@ -195,7 +192,7 @@ jobs:
       - name: Publish MathEvaluator.FastExpressionCompiler to NuGet (Trusted Publishing)
         if: steps.check.outputs.skip == 'false'
         env:
-          VERSION: ${{ needs.read-version.outputs.version }}
+          VERSION: ${{ needs.read-version.outputs.fec_version }}
         run: |
           dotnet nuget push "./nupkgs/MathEvaluator.FastExpressionCompiler.${VERSION}.nupkg" \
             --source https://api.nuget.org/v3/index.json \

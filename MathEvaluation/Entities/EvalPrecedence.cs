@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     Enumerating precedence of math evaluation.

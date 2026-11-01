@@ -19,13 +19,14 @@
 Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 Supports `INumberBase` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
 Compiles a math expression string into executable code and produces a delegate that represents the math expression.
+Compiles math expressions with async functions into an async delegate that returns `ValueTask`.
 Provides variable support within math expressions (including expression-defined variables).
 Extensible with custom functions and operators.
 Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
 .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>3.7.0</Version>
+        <Version>3.8.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
         <PackageIcon>logo.png</PackageIcon>
