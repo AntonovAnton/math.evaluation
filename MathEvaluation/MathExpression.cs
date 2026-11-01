@@ -198,6 +198,7 @@ public partial class MathExpression : IDisposable
 
                 if (value is Complex c && c.Imaginary != 0.0)
                     RaiseEvaluatingStep(tokenPosition, i, value);
+
                 continue;
             }
 
@@ -219,6 +220,7 @@ public partial class MathExpression : IDisposable
 
                     if (value != result)
                         RaiseEvaluatingStep(start, i, value, skipNaN: true);
+
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
                     if (isOperand || (precedence >= (int)EvalPrecedence.LowestBasic && !MathString.IsWhiteSpace(start, i)))

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>MathEvaluation.Benchmarks.EvaluateComparisonBenchmarks-20261101-211035</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26300.9818)
+11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 10.0.403
+  [Host]    : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
+  .NET 10.0 : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+  .NET 8.0  : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
+</code></pre>
+<pre><code>Alloc Ratio=NA  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                        </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Ratio</th><th>Rank</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>NCalc.LambdaCompilation</td><td>.NET 10.0</td><td>.NET 10.0</td><td>1.820 ns</td><td>0.98</td><td>1</td><td>-</td><td>-</td>
+</tr><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 10.0</td><td>.NET 10.0</td><td>1.822 ns</td><td>0.98</td><td>1</td><td>-</td><td>-</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 10.0</td><td>.NET 10.0</td><td>1.866 ns</td><td>1.00</td><td>1</td><td>-</td><td>-</td>
+</tr><tr><td>NTDLS.ExpressionParser</td><td>.NET 10.0</td><td>.NET 10.0</td><td>60.252 ns</td><td>32.32</td><td>2</td><td>-</td><td>-</td>
+</tr><tr><td>Flee</td><td>.NET 10.0</td><td>.NET 10.0</td><td>64.919 ns</td><td>34.82</td><td>3</td><td>-</td><td>-</td>
+</tr><tr><td>NoStringEvaluating</td><td>.NET 10.0</td><td>.NET 10.0</td><td>150.928 ns</td><td>80.95</td><td>4</td><td>-</td><td>-</td>
+</tr><tr><td>xFunc</td><td>.NET 10.0</td><td>.NET 10.0</td><td>180.528 ns</td><td>96.83</td><td>5</td><td>0.0090</td><td>288 B</td>
+</tr><tr><td>Jace</td><td>.NET 10.0</td><td>.NET 10.0</td><td>195.311 ns</td><td>104.76</td><td>6</td><td>0.0200</td><td>624 B</td>
+</tr><tr><td>CalcExpr.NET</td><td>.NET 10.0</td><td>.NET 10.0</td><td>315.615 ns</td><td>169.28</td><td>7</td><td>0.0229</td><td>720 B</td>
+</tr><tr><td>NCalc</td><td>.NET 10.0</td><td>.NET 10.0</td><td>665.623 ns</td><td>357.01</td><td>8</td><td>0.0605</td><td>1912 B</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 8.0</td><td>.NET 8.0</td><td>1.788 ns</td><td>1.00</td><td>1</td><td>-</td><td>-</td>
+</tr><tr><td>NCalc.LambdaCompilation</td><td>.NET 8.0</td><td>.NET 8.0</td><td>1.812 ns</td><td>1.01</td><td>1</td><td>-</td><td>-</td>
+</tr><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 8.0</td><td>.NET 8.0</td><td>1.994 ns</td><td>1.12</td><td>2</td><td>-</td><td>-</td>
+</tr><tr><td>NTDLS.ExpressionParser</td><td>.NET 8.0</td><td>.NET 8.0</td><td>67.769 ns</td><td>37.90</td><td>3</td><td>-</td><td>-</td>
+</tr><tr><td>Flee</td><td>.NET 8.0</td><td>.NET 8.0</td><td>72.550 ns</td><td>40.58</td><td>4</td><td>-</td><td>-</td>
+</tr><tr><td>NoStringEvaluating</td><td>.NET 8.0</td><td>.NET 8.0</td><td>190.851 ns</td><td>106.74</td><td>5</td><td>-</td><td>-</td>
+</tr><tr><td>Jace</td><td>.NET 8.0</td><td>.NET 8.0</td><td>227.717 ns</td><td>127.36</td><td>6</td><td>0.0200</td><td>624 B</td>
+</tr><tr><td>xFunc</td><td>.NET 8.0</td><td>.NET 8.0</td><td>245.352 ns</td><td>137.22</td><td>7</td><td>0.0088</td><td>288 B</td>
+</tr><tr><td>CalcExpr.NET</td><td>.NET 8.0</td><td>.NET 8.0</td><td>475.574 ns</td><td>265.98</td><td>8</td><td>0.0225</td><td>720 B</td>
+</tr><tr><td>NCalc</td><td>.NET 8.0</td><td>.NET 8.0</td><td>794.758 ns</td><td>444.49</td><td>9</td><td>0.0605</td><td>1912 B</td>
+</tr></tbody></table>
+</body>
+</html>
