@@ -13,7 +13,7 @@ namespace MathEvaluation.Benchmarks;
 [MemoryDiagnoser]
 public class CompilationBenchmarks
 {
-    private const string ExpressionStrin1 = "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6";
+    private const string ExpressionString1 = "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6";
     private const string ExpressionString2 = "true or not false and (true or false)";
     private const string ExpressionString3 = "A or not B and (C or B)";
     private const string ExpressionString4 = "Sin(pi/6) + Cos(pi/3)";
@@ -52,14 +52,14 @@ public class CompilationBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        NCalcExpression1 = new Expression(ExpressionStrin1, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
+        NCalcExpression1 = new Expression(ExpressionString1, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
         NCalcExpression2 = new Expression(ExpressionString2, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
         NCalcExpression3 = new Expression(ExpressionString3, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
         NCalcExpression4 = new Expression(ExpressionString4, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture) { Parameters = { ["pi"] = Math.PI } };
         NCalcExpression5 = new Expression(ExpressionString5, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
 
-        MathExpression1 = new MathExpression(ExpressionStrin1, null, CultureInfo.InvariantCulture);
-        MathExpression1_Fast = new MathExpression(ExpressionStrin1, null, CultureInfo.InvariantCulture, _fastCompiler);
+        MathExpression1 = new MathExpression(ExpressionString1, null, CultureInfo.InvariantCulture);
+        MathExpression1_Fast = new MathExpression(ExpressionString1, null, CultureInfo.InvariantCulture, _fastCompiler);
 
         MathExpression2 = new MathExpression(ExpressionString2, _programmingContext, CultureInfo.InvariantCulture);
         MathExpression2_Fast = new MathExpression(ExpressionString2, _programmingContext, CultureInfo.InvariantCulture, _fastCompiler);
@@ -81,15 +81,15 @@ public class CompilationBenchmarks
     }
 
 
-    [Benchmark(Description = $"MathEvaluator: {ExpressionStrin1}")]
+    [Benchmark(Description = $"MathEvaluator: {ExpressionString1}")]
     public Func<double> MathExpression_Compile()
         => MathExpression1.Compile();
 
-    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {ExpressionStrin1}")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {ExpressionString1}")]
     public Func<double> MathExpression_FastExpressionCompiler_Compile()
         => MathExpression1_Fast.Compile();
 
-    [Benchmark(Description = $"NCalc: {ExpressionStrin1}")]
+    [Benchmark(Description = $"NCalc: {ExpressionString1}")]
     public Func<double> NCalc_ToLambda()
         => NCalcExpression1.ToLambda<double>();
 
