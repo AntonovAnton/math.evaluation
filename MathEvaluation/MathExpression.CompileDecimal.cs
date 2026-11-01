@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-
-namespace MathEvaluation;
+﻿namespace MathEvaluation;
 
 public partial class MathExpression
 {
@@ -21,12 +17,12 @@ public partial class MathExpression
     /// <inheritdoc cref="CompileAsyncFunc{TResult}()" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<ValueTask<decimal>> CompileDecimalAsyncFunc()
+    public Func<CancellationToken, ValueTask<decimal>> CompileDecimalAsyncFunc()
         => CompileAsyncFunc<decimal>();
 
     /// <inheritdoc cref="CompileAsyncFunc{T, TResult}(T)" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<T, ValueTask<decimal>> CompileDecimalAsyncFunc<T>(T parameters)
+    public Func<T, CancellationToken, ValueTask<decimal>> CompileDecimalAsyncFunc<T>(T parameters)
         => CompileAsyncFunc<T, decimal>(parameters);
-}
+}

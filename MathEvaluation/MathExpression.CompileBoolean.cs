@@ -1,10 +1,3 @@
-using MathEvaluation.Extensions;
-using MathEvaluation.Parameters;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-
 namespace MathEvaluation;
 
 public partial class MathExpression
@@ -17,6 +10,7 @@ public partial class MathExpression
         try
         {
             Statements = null;
+
             // double because expression can have not boolean logic inside
             ExpressionTree = Build<double>(null);
             ExpressionTree = ConvertToBoolean(ExpressionTree);
@@ -45,17 +39,16 @@ public partial class MathExpression
         try
         {
             Statements = null;
-            // double because expression can have not boolean logic inside
             ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+
+            // double because expression can have not boolean logic inside
             ExpressionTree = Build<double>(new MathParameters(parameters));
             ExpressionTree = ConvertToBoolean(ExpressionTree);
 
             if (Statements != null)
                 ExpressionTree = Statements.BuildBlock(ExpressionTree);
 
-            var lambda = ParameterExpression == null
-                ? Expression.Lambda<Func<T, bool>>(ExpressionTree)
-                : Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression);
+            var lambda = Expression.Lambda<Func<T, bool>>(ExpressionTree, ParameterExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();
@@ -69,17 +62,19 @@ public partial class MathExpression
     /// <inheritdoc cref="CompileAsyncFunc{TResult}()" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<ValueTask<bool>> CompileBooleanAsyncFunc()
+    public Func<CancellationToken, ValueTask<bool>> CompileBooleanAsyncFunc()
     {
         try
         {
             Statements = null;
+            CancellationTokenExpression = Expression.Parameter(typeof(CancellationToken), CancellationTokenParameterName);
+
             // double because expression can have not boolean logic inside
             ExpressionTree = Build<double>(null);
             ExpressionTree = ConvertToBoolean(ExpressionTree);
-            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<bool>(ExpressionTree);
+            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<bool>(ExpressionTree, CancellationTokenExpression);
 
-            var lambda = Expression.Lambda<Func<ValueTask<bool>>>(ExpressionTree);
+            var lambda = Expression.Lambda<Func<CancellationToken, ValueTask<bool>>>(ExpressionTree, CancellationTokenExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();
@@ -93,22 +88,22 @@ public partial class MathExpression
     /// <inheritdoc cref="CompileAsyncFunc{T, TResult}(T)" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<T, ValueTask<bool>> CompileBooleanAsyncFunc<T>(T parameters)
+    public Func<T, CancellationToken, ValueTask<bool>> CompileBooleanAsyncFunc<T>(T parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
         try
         {
             Statements = null;
-            // double because expression can have not boolean logic inside
             ParameterExpression = Expression.Parameter(typeof(T), ParameterName);
+            CancellationTokenExpression = Expression.Parameter(typeof(CancellationToken), CancellationTokenParameterName);
+
+            // double because expression can have not boolean logic inside
             ExpressionTree = Build<double>(new MathParameters(parameters));
             ExpressionTree = ConvertToBoolean(ExpressionTree);
-            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<bool>(ExpressionTree);
+            ExpressionTree = (Statements ?? new()).BuildAsyncBlock<bool>(ExpressionTree, CancellationTokenExpression);
 
-            var lambda = ParameterExpression == null
-                ? Expression.Lambda<Func<T, ValueTask<bool>>>(ExpressionTree)
-                : Expression.Lambda<Func<T, ValueTask<bool>>>(ExpressionTree, ParameterExpression);
+            var lambda = Expression.Lambda<Func<T, CancellationToken, ValueTask<bool>>>(ExpressionTree, ParameterExpression, CancellationTokenExpression);
             ExpressionTree = lambda;
 
             return Compiler?.Compile(lambda) ?? lambda.Compile();

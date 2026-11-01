@@ -1,7 +1,4 @@
-﻿using System;
-using MathEvaluation.Entities;
-
-namespace MathEvaluation.Context;
+﻿namespace MathEvaluation.Context;
 
 /// <summary>
 ///     The base programming math context supports floor division '//', uses '**' notation for exponentiation, and '%' for

@@ -1,8 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The math variable uses as a parameter, that should be evaluated as an expression.
@@ -78,6 +74,7 @@ internal class MathExpressionVariable : MathEntity
         {
             using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
             varMathExpression.ParameterExpression = mathExpression.ParameterExpression;
+            varMathExpression.CancellationTokenExpression = mathExpression.CancellationTokenExpression;
             // Share the statements, so the variables and awaits of the right-hand side are executed before this assignment.
             varMathExpression.Statements = mathExpression.Statements;
             varMathExpression.Evaluating += (_, args) =>

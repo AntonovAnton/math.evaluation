@@ -1,11 +1,4 @@
-﻿using MathEvaluation.Compilation;
-using MathEvaluation.Entities;
-using MathEvaluation.Extensions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBeProtected.Global
@@ -235,82 +228,86 @@ public class MathContext
         => _trie.AddMathEntity(new MathOperator<T>(key, fn, precedence));
 
     /// <summary>Binds the async getting value function, it is supported only by the CompileAsyncFunc method.</summary>
-    /// <param name="fn">The async getting value function.</param>
+    /// <param name="fn">The async getting value function, its parameter is the cancellation token of the compiled delegate.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<ValueTask<T>> fn, char key)
+    public void BindAsyncFunction<T>(Func<CancellationToken, ValueTask<T>> fn, char key)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key.ToString(), fn));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, char)" />
-    public void BindAsyncFunction<T>(Func<ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, char)" />
+    public void BindAsyncFunction<T>(Func<CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathAsyncGetValueFunction<T>(key, fn));
 
     /// <summary>Binds the async unary function, it is supported only by the CompileAsyncFunc method.</summary>
-    /// <param name="fn">The async function.</param>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
     /// <param name="key">The key.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, char key)
+    public void BindAsyncFunction<T>(Func<T, CancellationToken, ValueTask<T>> fn, char key)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathAsyncUnaryFunction<T>(key.ToString(), fn));
 
     /// <summary>Binds the async unary function, it is supported only by the CompileAsyncFunc method.</summary>
-    /// <param name="fn">The async function.</param>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, char openingSymbol, char closingSymbol)
+    public void BindAsyncFunction<T>(Func<T, CancellationToken, ValueTask<T>> fn, char openingSymbol, char closingSymbol)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathAsyncUnaryFunction<T>(openingSymbol.ToString(), fn, null, closingSymbol));
 
     /// <summary>Binds the async unary function, it is supported only by the CompileAsyncFunc method.</summary>
-    /// <param name="fn">The async function.</param>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
     /// <param name="key">The key.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    public void BindAsyncFunction<T>(Func<T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char? openingSymbol = null, char? closingSymbol = null)
         where T : struct, INumberBase<T>
         => _trie.AddMathEntity(new MathAsyncUnaryFunction<T>(key, fn, openingSymbol, closingSymbol));
 
     /// <summary>Binds the async function, it is supported only by the CompileAsyncFunc method.</summary>
-    /// <param name="fn">The async function.</param>
+    /// <param name="fn">The async function, its last parameter is the cancellation token of the compiled delegate.</param>
     /// <param name="key">The key.</param>
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public void BindAsyncFunction<T>(Func<T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    public void BindAsyncFunction<T>(Func<T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1]), openingSymbol, separator, closingSymbol));
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], cancellationToken), openingSymbol, separator,
+            closingSymbol));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
-    public void BindAsyncFunction<T>(Func<T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2]), openingSymbol, separator, closingSymbol));
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], cancellationToken), openingSymbol,
+            separator, closingSymbol));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
-    public void BindAsyncFunction<T>(Func<T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2], args[3]), openingSymbol, separator, closingSymbol));
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], args[3], cancellationToken),
+            openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
-    public void BindAsyncFunction<T>(Func<T, T, T, T, T, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T, T, T, T, T, CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
-        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, args => fn(args[0], args[1], args[2], args[3], args[4]), openingSymbol, separator, closingSymbol));
+        => _trie.AddMathEntity(new MathAsyncFunction<T>(key, (args, cancellationToken) => fn(args[0], args[1], args[2], args[3], args[4], cancellationToken),
+            openingSymbol, separator, closingSymbol));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, ValueTask{T}}, string?, char, char, char)" />
-    public void BindAsyncFunction<T>(Func<T[], ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{T, T, CancellationToken, ValueTask{T}}, string?, char, char, char)" />
+    public void BindAsyncFunction<T>(Func<T[], CancellationToken, ValueTask<T>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null,
         char openingSymbol = Constants.DefaultOpeningSymbol, char separator = Constants.DefaultParamsSeparator,
         char closingSymbol = Constants.DefaultClosingSymbol)
         where T : struct, INumberBase<T>
@@ -336,13 +333,13 @@ public class MathContext
     public void BindFunction(Func<bool> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
         => _trie.AddMathEntity(new MathGetValueFunction<double>(key, () => Convert.ToDouble(fn())));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, char)" />
-    public void BindAsyncFunction(Func<ValueTask<bool>> fn, char key)
-        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key.ToString(), () => AsyncContinuation.ToDouble(fn())));
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, char)" />
+    public void BindAsyncFunction(Func<CancellationToken, ValueTask<bool>> fn, char key)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key.ToString(), cancellationToken => AsyncContinuation.ToDouble(fn(cancellationToken))));
 
-    /// <inheritdoc cref="BindAsyncFunction{T}(Func{ValueTask{T}}, string?)" />
-    public void BindAsyncFunction(Func<ValueTask<bool>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
-        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key, () => AsyncContinuation.ToDouble(fn())));
+    /// <inheritdoc cref="BindAsyncFunction{T}(Func{CancellationToken, ValueTask{T}}, string?)" />
+    public void BindAsyncFunction(Func<CancellationToken, ValueTask<bool>> fn, [CallerArgumentExpression(nameof(fn))] string? key = null)
+        => _trie.AddMathEntity(new MathAsyncGetValueFunction<double>(key, cancellationToken => AsyncContinuation.ToDouble(fn(cancellationToken))));
 
     #endregion
 
@@ -360,7 +357,9 @@ public class MathContext
     /// <param name="value">The value.</param>
     /// <exception cref="NotSupportedException"></exception>
     [RequiresUnreferencedCode("Binding property requires reflection which may access trimmed members")]
-    private void BindProperty([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] Type propertyType, string key, object? value)
+    private void BindProperty(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] Type propertyType, string key,
+        object? value)
     {
         if (value == null)
             throw new NotSupportedException($"Null values are not supported for '{key}'.");
@@ -421,19 +420,19 @@ public class MathContext
             case Func<bool> boolFn:
                 BindFunction(boolFn, key);
                 break;
-            case Func<ValueTask<bool>> boolAsyncFn:
+            case Func<CancellationToken, ValueTask<bool>> boolAsyncFn:
                 BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
+            {
+                if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
                 {
-                    if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
-                    {
-                        BindConstant((dynamic)value, key);
-                        return;
-                    }
-
-                    throw propertyType.CreateNotSupportedException(key);
+                    BindConstant((dynamic)value, key);
+                    return;
                 }
+
+                throw propertyType.CreateNotSupportedException(key);
+            }
         }
     }
 
@@ -466,25 +465,26 @@ public class MathContext
             case Func<T[], T> fns:
                 BindFunction(fns, key);
                 return true;
-            case Func<ValueTask<T>> afn0:
+            case Func<CancellationToken, ValueTask<T>> afn0:
                 BindAsyncFunction(afn0, key);
                 return true;
-            case Func<T, ValueTask<T>> afn1:
+            case Func<T, CancellationToken, ValueTask<T>> afn1:
                 BindAsyncFunction(afn1, key);
                 return true;
-            case Func<T, T, ValueTask<T>> afn2:
+            case Func<T, T, CancellationToken, ValueTask<T>> afn2:
                 BindAsyncFunction(afn2, key);
                 return true;
-            case Func<T, T, T, ValueTask<T>> afn3:
+            case Func<T, T, T, CancellationToken, ValueTask<T>> afn3:
                 BindAsyncFunction(afn3, key);
                 return true;
-            case Func<T, T, T, T, ValueTask<T>> afn4:
+            case Func<T, T, T, T, CancellationToken, ValueTask<T>> afn4:
                 BindAsyncFunction(afn4, key);
                 return true;
-            case Func<T, T, T, T, T, ValueTask<T>> afn5:
+            case Func<T, T, T, T, T, CancellationToken, ValueTask<T>> afn5:
                 BindAsyncFunction(afn5, key);
                 return true;
-            case Func<T[], ValueTask<T>> afns:
+            // ReSharper disable once IdentifierTypo
+            case Func<T[], CancellationToken, ValueTask<T>> afns:
                 BindAsyncFunction(afns, key);
                 return true;
             default:

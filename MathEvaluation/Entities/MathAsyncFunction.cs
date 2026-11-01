@@ -1,12 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-using System.Threading.Tasks;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The async function with multiple parameters, so opening, separator, and closing symbol are required.
@@ -18,7 +10,7 @@ internal class MathAsyncFunction<T> : MathAsyncEntity<T>
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
-    private Func<T[], ValueTask<T>> Fn { get; }
+    private Func<T[], CancellationToken, ValueTask<T>> Fn { get; }
 
     /// <summary>Gets the opening symbol.</summary>
     /// <value>The opening symbol.</value>
@@ -39,7 +31,7 @@ internal class MathAsyncFunction<T> : MathAsyncEntity<T>
     /// <param name="separator">The parameter separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public MathAsyncFunction(string? key, Func<T[], ValueTask<T>> fn, char openingSymbol, char separator, char closingSymbol)
+    public MathAsyncFunction(string? key, Func<T[], CancellationToken, ValueTask<T>> fn, char openingSymbol, char separator, char closingSymbol)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
@@ -75,7 +67,7 @@ internal class MathAsyncFunction<T> : MathAsyncEntity<T>
 
         mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol, tokenPosition, ref i);
 
-        var task = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args));
+        var task = Expression.Invoke(Expression.Constant(Fn), Expression.NewArrayInit(typeof(T), args), GetCancellationToken(mathExpression));
         return BuildAwait<TResult>(mathExpression, start, ref i, depth, separator, closingSymbol, left, tokenPosition, task);
     }
 }

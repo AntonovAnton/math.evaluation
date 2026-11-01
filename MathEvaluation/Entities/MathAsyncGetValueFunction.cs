@@ -1,11 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-using System.Threading.Tasks;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The async getting value function, the parentheses are optional.
@@ -17,13 +10,13 @@ internal class MathAsyncGetValueFunction<T> : MathAsyncEntity<T>
 {
     /// <summary>Gets the getting value function.</summary>
     /// <value>The getting value function.</value>
-    private Func<ValueTask<T>> Fn { get; }
+    private Func<CancellationToken, ValueTask<T>> Fn { get; }
 
     /// <summary>Initializes a new instance of the <see cref="MathAsyncGetValueFunction{T}" /> class.</summary>
     /// <param name="key">The key.</param>
     /// <param name="fn">The getting value function.</param>
     /// <exception cref="ArgumentNullException" />
-    public MathAsyncGetValueFunction(string? key, Func<ValueTask<T>> fn)
+    public MathAsyncGetValueFunction(string? key, Func<CancellationToken, ValueTask<T>> fn)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
@@ -39,7 +32,7 @@ internal class MathAsyncGetValueFunction<T> : MathAsyncEntity<T>
         i += Key.Length;
         mathExpression.MathString.SkipParenthesis(ref i);
 
-        var task = Expression.Invoke(Expression.Constant(Fn));
+        var task = Expression.Invoke(Expression.Constant(Fn), GetCancellationToken(mathExpression));
         return BuildAwait<TResult>(mathExpression, start, ref i, depth, separator, closingSymbol, left, tokenPosition, task);
     }
 }

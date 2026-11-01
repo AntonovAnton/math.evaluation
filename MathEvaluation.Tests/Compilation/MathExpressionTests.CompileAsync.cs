@@ -11,7 +11,7 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncFunction_ExpectedValue()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Delay(10);
             return x * 2;
@@ -21,7 +21,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileAsyncFunc(new { x = 0d });
-        var value = await fn(new { x = 3d });
+        var value = await fn(new { x = 3d }, CancellationToken.None);
 
         Assert.Equal(7d, value);
     }
@@ -30,13 +30,13 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasCompletedAsyncFunctions_ExpectedValue()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>((a, b) => ValueTask.FromResult(a + b), "add");
-        context.BindAsyncFunction<double>(args => ValueTask.FromResult(args.Max()), "max");
+        context.BindAsyncFunction<double>((a, b, _) => ValueTask.FromResult(a + b), "add");
+        context.BindAsyncFunction<double>((args, _) => ValueTask.FromResult(args.Max()), "max");
 
         using var expression = new MathExpression("add(1, 2) * max(4, 5, 2) - add(max(1, 3), 1)", context, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc<double>();
-        var value = await fn();
+        var value = await fn(CancellationToken.None);
 
         Assert.Equal(3d * 5 - 4, value);
     }
@@ -45,12 +45,12 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasNestedAsyncFunctions_ExpectedValue()
     {
         var context = new ScientificMathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x + 1;
         }, "f");
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x * 10;
@@ -59,7 +59,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("f(g(x) + f(x)) + sin(f(0))", context, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { x = 0d });
-        var value = await fn(new { x = 2d });
+        var value = await fn(new { x = 2d }, CancellationToken.None);
 
         Assert.Equal(20d + 3 + 1 + Math.Sin(1), value);
     }
@@ -69,7 +69,7 @@ public partial class MathExpressionTests
     {
         var calls = 0;
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             Interlocked.Increment(ref calls);
             await Task.Delay(1);
@@ -80,7 +80,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("y * y + x1", context, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { y, x1 = 0d, x2 = 0d });
-        var value = await fn(new { y, x1 = 1.5d, x2 = 1d });
+        var value = await fn(new { y, x1 = 1.5d, x2 = 1d }, CancellationToken.None);
 
         Assert.Equal(4d * 4 + 1.5, value);
         Assert.Equal(1, calls);
@@ -89,11 +89,11 @@ public partial class MathExpressionTests
     [Fact]
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncFunctionInParameters_ExpectedValue()
     {
-        Func<double, ValueTask<double>> f = x => ValueTask.FromResult(x * x);
+        Func<double, CancellationToken, ValueTask<double>> f = (x, _) => ValueTask.FromResult(x * x);
         using var expression = new MathExpression("f(3) + 1", null, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { f });
-        var value = await fn(new { f });
+        var value = await fn(new { f }, CancellationToken.None);
 
         Assert.Equal(10d, value);
     }
@@ -102,18 +102,18 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_ResultIsDecimalOrComplex_ExpectedValue()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x / 2;
         }, "f");
 
         using var decimalExpression = new MathExpression("f(5) + 0.1", context, CultureInfo.InvariantCulture);
-        var decimalValue = await decimalExpression.CompileAsyncFunc<decimal>()();
+        var decimalValue = await decimalExpression.CompileAsyncFunc<decimal>()(CancellationToken.None);
         Assert.Equal(2.6m, decimalValue);
 
         using var complexExpression = new MathExpression("f(5) + i", context, CultureInfo.InvariantCulture);
-        var complexValue = await complexExpression.CompileAsyncFunc<Complex>()();
+        var complexValue = await complexExpression.CompileAsyncFunc<Complex>()(CancellationToken.None);
         Assert.Equal(new Complex(2.5, 1), complexValue);
     }
 
@@ -124,7 +124,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("x + x1", null, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { x, x1 = 0d });
-        var value = await fn(new { x, x1 = 2d });
+        var value = await fn(new { x, x1 = 2d }, CancellationToken.None);
 
         Assert.Equal(6d, value);
     }
@@ -133,19 +133,19 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_AsyncFunctionThrows_ThrowException()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>((double _) => throw new InvalidOperationException("sync"), "f");
-        context.BindAsyncFunction<double>(async (double _) =>
+        context.BindAsyncFunction<double>((double _, CancellationToken _) => throw new InvalidOperationException("sync"), "f");
+        context.BindAsyncFunction<double>(async (double _, CancellationToken _) =>
         {
             await Task.Yield();
             throw new InvalidOperationException("async");
         }, "g");
 
         using var syncExpression = new MathExpression("1 + f(1)", context, CultureInfo.InvariantCulture);
-        var syncEx = await Record.ExceptionAsync(async () => await syncExpression.CompileAsyncFunc<double>()());
+        var syncEx = await Record.ExceptionAsync(async () => await syncExpression.CompileAsyncFunc<double>()(CancellationToken.None));
         Assert.Equal("sync", Assert.IsType<InvalidOperationException>(syncEx).Message);
 
         using var asyncExpression = new MathExpression("1 + g(1)", context, CultureInfo.InvariantCulture);
-        var asyncEx = await Record.ExceptionAsync(async () => await asyncExpression.CompileAsyncFunc<double>()());
+        var asyncEx = await Record.ExceptionAsync(async () => await asyncExpression.CompileAsyncFunc<double>()(CancellationToken.None));
         Assert.Equal("async", Assert.IsType<InvalidOperationException>(asyncEx).Message);
     }
 
@@ -153,7 +153,7 @@ public partial class MathExpressionTests
     public void MathExpression_CompileOrEvaluate_HasAsyncFunction_ThrowMathExpressionException()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>(x => ValueTask.FromResult(x), "f");
+        context.BindAsyncFunction<double>((x, _) => ValueTask.FromResult(x), "f");
 
         using var expression = new MathExpression("f(1) + 1", context, CultureInfo.InvariantCulture);
 
@@ -169,7 +169,7 @@ public partial class MathExpressionTests
     {
         var calls = 0;
         var context = new MathContext();
-        context.BindAsyncFunction<double>(x =>
+        context.BindAsyncFunction<double>((x, _) =>
         {
             Interlocked.Increment(ref calls);
             return ValueTask.FromResult(x * 2);
@@ -179,7 +179,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("f(1) + f(1) + f_0", context, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { f_0, x1 = 0d });
-        var value = await fn(new { f_0, x1 = 3d });
+        var value = await fn(new { f_0, x1 = 3d }, CancellationToken.None);
 
         Assert.Equal(2d + 2 + 4, value);
         Assert.Equal(2, calls);
@@ -189,26 +189,26 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileTypedAsyncFuncThenInvoke_HasAsyncFunction_ExpectedValue()
     {
         var context = new ProgrammingMathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x / 2;
         }, "f");
-        context.BindAsyncFunction<decimal>(x => ValueTask.FromResult(x * 1.5m), "g");
+        context.BindAsyncFunction<decimal>((x, _) => ValueTask.FromResult(x * 1.5m), "g");
 
         using var booleanExpression = new MathExpression("f(x) > 2 and not f(0) > 0", context, CultureInfo.InvariantCulture);
         var booleanFn = booleanExpression.CompileBooleanAsyncFunc(new { x = 0d });
-        Assert.True(await booleanFn(new { x = 5d }));
-        Assert.False(await booleanFn(new { x = 4d }));
-        Assert.True(await new MathExpression("f(6) = 3", context, CultureInfo.InvariantCulture).CompileBooleanAsyncFunc()());
+        Assert.True(await booleanFn(new { x = 5d }, CancellationToken.None));
+        Assert.False(await booleanFn(new { x = 4d }, CancellationToken.None));
+        Assert.True(await new MathExpression("f(6) = 3", context, CultureInfo.InvariantCulture).CompileBooleanAsyncFunc()(CancellationToken.None));
 
         using var decimalExpression = new MathExpression("g(x) + 0.1", context, CultureInfo.InvariantCulture);
         var decimalFn = decimalExpression.CompileDecimalAsyncFunc(new { x = 0m });
-        Assert.Equal(3.1m, await decimalFn(new { x = 2m }));
-        Assert.Equal(1.6m, await new MathExpression("g(1) + 0.1", context, CultureInfo.InvariantCulture).CompileDecimalAsyncFunc()());
+        Assert.Equal(3.1m, await decimalFn(new { x = 2m }, CancellationToken.None));
+        Assert.Equal(1.6m, await new MathExpression("g(1) + 0.1", context, CultureInfo.InvariantCulture).CompileDecimalAsyncFunc()(CancellationToken.None));
 
         var complexContext = new ComplexScientificMathContext();
-        complexContext.BindAsyncFunction<Complex>(async z =>
+        complexContext.BindAsyncFunction<Complex>(async (z, _) =>
         {
             await Task.Yield();
             return z * Complex.ImaginaryOne;
@@ -216,80 +216,80 @@ public partial class MathExpressionTests
 
         using var complexExpression = new MathExpression("rot(z) + 1", complexContext, CultureInfo.InvariantCulture);
         var complexFn = complexExpression.CompileComplexAsyncFunc(new { z = Complex.Zero });
-        Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }));
-        Assert.Equal(new Complex(1, 2), await new MathExpression("rot(2)+1", complexContext, CultureInfo.InvariantCulture).CompileComplexAsyncFunc()());
+        Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }, CancellationToken.None));
+        Assert.Equal(new Complex(1, 2), await new MathExpression("rot(2)+1", complexContext, CultureInfo.InvariantCulture).CompileComplexAsyncFunc()(CancellationToken.None));
     }
 
     [Fact]
     public async Task StringExtensions_CompileAsyncFunc_HasAsyncFunction_ExpectedValue()
     {
         var context = new ProgrammingMathContext();
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x / 2;
         }, "f");
-        context.BindAsyncFunction<decimal>(x => ValueTask.FromResult(x * 1.5m), "g");
-        context.BindAsyncFunction<Complex>(async z =>
+        context.BindAsyncFunction<decimal>((x, _) => ValueTask.FromResult(x * 1.5m), "g");
+        context.BindAsyncFunction<Complex>(async (z, _) =>
         {
             await Task.Yield();
             return z * Complex.ImaginaryOne;
         }, "rot");
 
         var doubleFn = "f(x) + 1".CompileAsyncFunc(new { x = 0d }, context);
-        Assert.Equal(3.5d, await doubleFn(new { x = 5d }));
+        Assert.Equal(3.5d, await doubleFn(new { x = 5d }, CancellationToken.None));
 
         var numberFn = "g(x) + 0.1".CompileAsyncFunc<DecimalVariables, decimal>(new DecimalVariables { x = 0m }, context);
-        Assert.Equal(3.1m, await numberFn(new DecimalVariables { x = 2m }));
+        Assert.Equal(3.1m, await numberFn(new DecimalVariables { x = 2m }, CancellationToken.None));
 
         var decimalFn = "g(x) + 0.1".CompileDecimalAsyncFunc(new { x = 0m }, context);
-        Assert.Equal(3.1m, await decimalFn(new { x = 2m }));
+        Assert.Equal(3.1m, await decimalFn(new { x = 2m }, CancellationToken.None));
 
         var booleanFn = "f(x) > 2 and not f(0) > 0".CompileBooleanAsyncFunc(new { x = 0d }, context);
-        Assert.True(await booleanFn(new { x = 5d }));
-        Assert.False(await booleanFn(new { x = 4d }));
+        Assert.True(await booleanFn(new { x = 5d }, CancellationToken.None));
+        Assert.False(await booleanFn(new { x = 4d }, CancellationToken.None));
 
         var complexFn = "rot(z) + 1".CompileComplexAsyncFunc(new { z = Complex.Zero }, context);
-        Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }));
+        Assert.Equal(new Complex(-1, 2), await complexFn(new { z = new Complex(2, 2) }, CancellationToken.None));
     }
 
     [Fact]
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncGetValueFunction_ExpectedValue()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async () =>
+        context.BindAsyncFunction<double>(async _ =>
         {
             await Task.Yield();
             return 5d;
         }, "five");
-        context.BindAsyncFunction<double>(() => ValueTask.FromResult(7d), 's');
+        context.BindAsyncFunction<double>(_ => ValueTask.FromResult(7d), 's');
 
         using var expression = new MathExpression("five * 2 + five() + 2s", context, CultureInfo.InvariantCulture);
         var fn = expression.CompileAsyncFunc();
 
-        Assert.Equal(5d * 2 + 5 + 2 * 7, await fn());
+        Assert.Equal(5d * 2 + 5 + 2 * 7, await fn(CancellationToken.None));
     }
 
     [Fact]
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncUnaryFunction_ExpectedValue()
     {
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async v =>
+        context.BindAsyncFunction<double>(async (v, _) =>
         {
             await Task.Yield();
             return v * 2;
         }, "twice");
-        context.BindAsyncFunction<double>(async v =>
+        context.BindAsyncFunction<double>(async (v, _) =>
         {
             await Task.Yield();
             return Math.Abs(v);
         }, '[', ']');
-        context.BindAsyncFunction<double>(async v =>
+        context.BindAsyncFunction<double>(async (v, _) =>
         {
             await Task.Yield();
             return v / 2;
         }, "half", '<', '>');
-        context.BindAsyncFunction<double>(v => ValueTask.FromResult(v * v), 'q');
+        context.BindAsyncFunction<double>((v, _) => ValueTask.FromResult(v * v), 'q');
 
         // without brackets, with brackets, nested without brackets, custom symbols, custom symbols with a key, a char key
         foreach (var (mathString, expectedValue) in new[]
@@ -306,7 +306,7 @@ public partial class MathExpressionTests
             using var expression = new MathExpression(mathString, context, CultureInfo.InvariantCulture);
             var fn = expression.CompileAsyncFunc();
 
-            Assert.Equal(expectedValue, await fn());
+            Assert.Equal(expectedValue, await fn(CancellationToken.None));
         }
     }
 
@@ -314,41 +314,166 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncBooleanFunction_ExpectedValue()
     {
         var context = new ProgrammingMathContext();
-        context.BindAsyncFunction(async () =>
+        context.BindAsyncFunction(async _ =>
         {
             await Task.Yield();
             return true;
         }, "ready");
-        context.BindAsyncFunction(() => ValueTask.FromResult(false), "stopped");
-        context.BindAsyncFunction(() => ValueTask.FromResult(true), 'z');
+        context.BindAsyncFunction(_ => ValueTask.FromResult(false), "stopped");
+        context.BindAsyncFunction(_ => ValueTask.FromResult(true), 'z');
 
         using var readyExpression = new MathExpression("ready and not stopped and z", context, CultureInfo.InvariantCulture);
-        Assert.True(await readyExpression.CompileBooleanAsyncFunc()());
+        Assert.True(await readyExpression.CompileBooleanAsyncFunc()(CancellationToken.None));
 
         using var stoppedExpression = new MathExpression("ready and stopped", context, CultureInfo.InvariantCulture);
-        Assert.False(await stoppedExpression.CompileBooleanAsyncFunc()());
+        Assert.False(await stoppedExpression.CompileBooleanAsyncFunc()(CancellationToken.None));
 
         // a boolean is a number in a math expression
         using var numberExpression = new MathExpression("ready + stopped + 1", context, CultureInfo.InvariantCulture);
-        Assert.Equal(2d, await numberExpression.CompileAsyncFunc()());
+        Assert.Equal(2d, await numberExpression.CompileAsyncFunc()(CancellationToken.None));
     }
 
     [Fact]
     public async Task MathExpression_CompileAsyncFuncThenInvoke_HasAsyncFunctionsInObjects_ExpectedValue()
     {
-        var five = (Func<ValueTask<double>>)(() => ValueTask.FromResult(5d));
-        var ready = (Func<ValueTask<bool>>)(() => ValueTask.FromResult(true));
+        var five = (Func<CancellationToken, ValueTask<double>>)(_ => ValueTask.FromResult(5d));
+        var ready = (Func<CancellationToken, ValueTask<bool>>)(_ => ValueTask.FromResult(true));
 
         // in parameters
         using var parametersExpression = new MathExpression("five * 2 + ready", null, CultureInfo.InvariantCulture);
         var parametersFn = parametersExpression.CompileAsyncFunc(new { five, ready });
-        Assert.Equal(11d, await parametersFn(new { five, ready }));
+        Assert.Equal(11d, await parametersFn(new { five, ready }, CancellationToken.None));
 
         // in context
         var context = new MathContext(new { five, ready });
         using var contextExpression = new MathExpression("five * x + ready", context, CultureInfo.InvariantCulture);
         var contextFn = contextExpression.CompileAsyncFunc(new { x = 0d });
-        Assert.Equal(16d, await contextFn(new { x = 3d }));
+        Assert.Equal(16d, await contextFn(new { x = 3d }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_PassesCancellationTokenToAsyncFunctions()
+    {
+        using var cts = new CancellationTokenSource();
+        var tokens = new List<CancellationToken>();
+        var context = new MathContext();
+        context.BindAsyncFunction<double>(async (x, cancellationToken) =>
+        {
+            tokens.Add(cancellationToken);
+            await Task.Yield();
+            return x;
+        }, "f");
+        context.BindAsyncFunction<double>((a, b, cancellationToken) =>
+        {
+            tokens.Add(cancellationToken);
+            return ValueTask.FromResult(a + b);
+        }, "add");
+        context.BindAsyncFunction<double>(cancellationToken =>
+        {
+            tokens.Add(cancellationToken);
+            return ValueTask.FromResult(1d);
+        }, "one");
+        context.BindExpressionVariable("f(x) + one", "y");
+
+        using var expression = new MathExpression("add(f(x), y)", context, CultureInfo.InvariantCulture);
+        var fn = expression.CompileAsyncFunc(new { x = 0d });
+
+        Assert.Equal(2d + 2 + 1, await fn(new { x = 2d }, cts.Token));
+
+        // f(x), f(x) and one of the expression variable, add
+        Assert.Equal(4, tokens.Count);
+        Assert.All(tokens, token => Assert.Equal(cts.Token, token));
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_TokenIsCancelled_ThrowOperationCanceledExceptionAndFunctionIsNotInvoked()
+    {
+        var calls = 0;
+        var context = new MathContext();
+        context.BindAsyncFunction<double>((x, _) =>
+        {
+            Interlocked.Increment(ref calls);
+            return ValueTask.FromResult(x);
+        }, "f");
+
+        using var expression = new MathExpression("f(1) + 1", context, CultureInfo.InvariantCulture);
+        var fn = expression.CompileAsyncFunc();
+
+        var ex = await Record.ExceptionAsync(async () => await fn(new CancellationToken(true)));
+
+        Assert.IsAssignableFrom<OperationCanceledException>(ex);
+        Assert.Equal(0, calls);
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_TokenIsCancelledBetweenAwaits_NextFunctionIsNotInvoked()
+    {
+        var calls = new List<string>();
+        CancellationTokenSource? cts = null;
+        var context = new MathContext();
+
+        // completes asynchronously, so the token is checked in the continuation after the await
+        context.BindAsyncFunction<double>(async (x, _) =>
+        {
+            calls.Add($"f({x})");
+            await Task.Yield();
+            cts!.Cancel();
+            return x;
+        }, "f");
+
+        // completes synchronously, so the token is checked in the continuation that is invoked immediately
+        context.BindAsyncFunction<double>((x, _) =>
+        {
+            calls.Add($"g({x})");
+            cts!.Cancel();
+            return ValueTask.FromResult(x);
+        }, "g");
+
+        foreach (var (mathString, expectedCalls) in new[] { ("f(1) + f(2)", "f(1)"), ("g(1) + g(2)", "g(1)") })
+        {
+            calls.Clear();
+            cts = new CancellationTokenSource();
+            using var expression = new MathExpression(mathString, context, CultureInfo.InvariantCulture);
+            var fn = expression.CompileAsyncFunc();
+
+            var ex = await Record.ExceptionAsync(async () => await fn(cts.Token));
+
+            Assert.IsAssignableFrom<OperationCanceledException>(ex);
+            Assert.Equal([expectedCalls], calls);
+            cts.Dispose();
+        }
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_FunctionObservesCancellation_ThrowOperationCanceledException()
+    {
+        using var cts = new CancellationTokenSource();
+        var context = new MathContext();
+        context.BindAsyncFunction<double>(async (x, cancellationToken) =>
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return x;
+        }, "wait");
+
+        using var expression = new MathExpression("wait(1) + 1", context, CultureInfo.InvariantCulture);
+        var task = expression.CompileAsyncFunc()(cts.Token).AsTask();
+        await cts.CancelAsync();
+
+        var ex = await Record.ExceptionAsync(() => task);
+
+        Assert.IsAssignableFrom<OperationCanceledException>(ex);
+    }
+
+    [Fact]
+    public async Task MathExpression_CompileAsyncFuncThenInvoke_NoAsyncFunctionsAndTokenIsCancelled_ThrowOperationCanceledException()
+    {
+        using var expression = new MathExpression("x + 1", null, CultureInfo.InvariantCulture);
+        var fn = expression.CompileAsyncFunc(new { x = 0d });
+
+        var ex = await Record.ExceptionAsync(async () => await fn(new { x = 1d }, new CancellationToken(true)));
+
+        Assert.IsAssignableFrom<OperationCanceledException>(ex);
+        Assert.Equal(2d, await fn(new { x = 1d }, CancellationToken.None));
     }
 
     private record DecimalVariables
@@ -378,14 +503,18 @@ public partial class MathExpressionTests
     public void MathContext_BindObjectWithAsyncFunctionsOfWrongTypes_ThrowExceptionWithHint()
     {
         Func<double, Task<double>> taskFn = x => Task.FromResult(x);
-        Func<int, ValueTask<double>> differentTypesFn = x => ValueTask.FromResult((double)x);
+        Func<int, CancellationToken, ValueTask<double>> differentTypesFn = (x, _) => ValueTask.FromResult((double)x);
         Func<int, string> notNumberFn = x => x.ToString();
 
         var taskEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { taskFn }));
         Assert.Contains("new ValueTask<T>(f(x))", taskEx.Message);
 
         var typesEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { differentTypesFn }));
-        Assert.Contains("Func<T[], ValueTask<T>>", typesEx.Message);
+        Assert.Contains("Func<T[], CancellationToken, ValueTask<T>>", typesEx.Message);
+
+        Func<double, ValueTask<double>> noTokenFn = x => ValueTask.FromResult(x);
+        var tokenEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { noTokenFn }));
+        Assert.Contains("CancellationToken as the last parameter", tokenEx.Message);
 
         var otherEx = Assert.Throws<NotSupportedException>(() => new MathContext(new { notNumberFn }));
         Assert.Contains("Func<T[], T>", otherEx.Message);
@@ -398,14 +527,14 @@ public partial class MathExpressionTests
     [Fact]
     public async Task MathExpression_CompileAsyncFuncThenInvoke_FunctionIsPassedToDelegate_CompileTimeFunctionIsUsed()
     {
-        Func<double, ValueTask<double>> a = x => ValueTask.FromResult(x + 100);
-        Func<double, ValueTask<double>> b = x => ValueTask.FromResult(x + 200);
+        Func<double, CancellationToken, ValueTask<double>> a = (x, _) => ValueTask.FromResult(x + 100);
+        Func<double, CancellationToken, ValueTask<double>> b = (x, _) => ValueTask.FromResult(x + 200);
         using var expression = new MathExpression("f(x)", null, CultureInfo.InvariantCulture);
 
         var fn = expression.CompileAsyncFunc(new { f = a, x = 0d });
 
         // the function is taken from the object passed at compile time, only the values of variables are taken from the argument
-        Assert.Equal(101d, await fn(new { f = b, x = 1d }));
+        Assert.Equal(101d, await fn(new { f = b, x = 1d }, CancellationToken.None));
     }
 
     [Fact]
@@ -413,7 +542,7 @@ public partial class MathExpressionTests
     {
         var calls = 0;
         var context = new MathContext();
-        context.BindAsyncFunction<double>(async id =>
+        context.BindAsyncFunction<double>(async (id, _) =>
         {
             Interlocked.Increment(ref calls);
             await Task.Yield();
@@ -424,7 +553,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("subtotal + subtotal * 0.2", context, CultureInfo.InvariantCulture);
         var fn = expression.CompileAsyncFunc(new { id = 0, qty = 0d });
 
-        Assert.Equal(42d * 10 * 3 * 1.2, await fn(new { id = 42, qty = 3d }), precision: 5);
+        Assert.Equal(42d * 10 * 3 * 1.2, await fn(new { id = 42, qty = 3d }, CancellationToken.None), precision: 5);
         Assert.Equal(1, calls);
     }
 }

@@ -1,11 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-using System.Threading.Tasks;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     The async function with one parameter, so opening and closing symbols are optional.
@@ -17,7 +10,7 @@ internal class MathAsyncUnaryFunction<T> : MathAsyncEntity<T>
 {
     /// <summary>Gets the function.</summary>
     /// <value>The function.</value>
-    private Func<T, ValueTask<T>> Fn { get; }
+    private Func<T, CancellationToken, ValueTask<T>> Fn { get; }
 
     /// <summary>Gets the opening symbol.</summary>
     /// <value>The opening symbol.</value>
@@ -33,7 +26,7 @@ internal class MathAsyncUnaryFunction<T> : MathAsyncEntity<T>
     /// <param name="openingSymbol">The opening symbol.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <exception cref="ArgumentNullException" />
-    public MathAsyncUnaryFunction(string? key, Func<T, ValueTask<T>> fn, char? openingSymbol = null, char? closingSymbol = null)
+    public MathAsyncUnaryFunction(string? key, Func<T, CancellationToken, ValueTask<T>> fn, char? openingSymbol = null, char? closingSymbol = null)
         : base(key)
     {
         Fn = fn ?? throw new ArgumentNullException(nameof(fn));
@@ -59,7 +52,7 @@ internal class MathAsyncUnaryFunction<T> : MathAsyncEntity<T>
         if (ClosingSymbol.HasValue)
             mathExpression.MathString.ThrowExceptionIfNotClosed(ClosingSymbol.Value, tokenPosition, ref i);
 
-        var task = Expression.Invoke(Expression.Constant(Fn), arg);
+        var task = Expression.Invoke(Expression.Constant(Fn), arg, GetCancellationToken(mathExpression));
         return BuildAwait<TResult>(mathExpression, start, ref i, depth, separator, closingSymbol, left, tokenPosition, task);
     }
 }

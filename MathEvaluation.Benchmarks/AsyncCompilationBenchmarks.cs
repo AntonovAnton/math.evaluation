@@ -22,23 +22,23 @@ public class AsyncCompilationBenchmarks
     private readonly Func<double, double> _tax = x => x * 0.2;
 
     private readonly Func<Variables, double> _mathEvalCompiledFn;
-    private readonly Func<Variables, ValueTask<double>> _mathEvalAsyncCompiledFn;
-    private readonly Func<Variables, ValueTask<double>> _mathEvalFastAsyncCompiledFn;
-    private readonly Func<Variables, ValueTask<double>> _mathEvalAsyncYieldingCompiledFn;
+    private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalAsyncCompiledFn;
+    private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalFastAsyncCompiledFn;
+    private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalAsyncYieldingCompiledFn;
 
     public AsyncCompilationBenchmarks()
     {
         // completed synchronously, it measures the overhead of the async delegate
-        _context.BindAsyncFunction<double>(x => ValueTask.FromResult(_price(x)), "price");
-        _context.BindAsyncFunction<double>(x => ValueTask.FromResult(_tax(x)), "tax");
+        _context.BindAsyncFunction<double>((x, _) => ValueTask.FromResult(_price(x)), "price");
+        _context.BindAsyncFunction<double>((x, _) => ValueTask.FromResult(_tax(x)), "tax");
 
         // completed asynchronously, it measures the overhead of the continuations
-        _context.BindAsyncFunction<double>(async x =>
+        _context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return _price(x);
         }, "priceAsync");
-        _context.BindAsyncFunction<double>(async x =>
+        _context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return _tax(x);
@@ -60,11 +60,11 @@ public class AsyncCompilationBenchmarks
         => new MathExpression(SyncMathString, _context).Compile(_variables);
 
     [Benchmark(Description = "MathEvaluator: CompileAsyncFunc \"" + MathString + "\"")]
-    public Func<Variables, ValueTask<double>> MathExpression_CompileAsyncFunc()
+    public Func<Variables, CancellationToken, ValueTask<double>> MathExpression_CompileAsyncFunc()
         => new MathExpression(MathString, _context).CompileAsyncFunc(_variables);
 
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: CompileAsyncFunc \"" + MathString + "\"")]
-    public Func<Variables, ValueTask<double>> MathExpression_FastExpressionCompiler_CompileAsyncFunc()
+    public Func<Variables, CancellationToken, ValueTask<double>> MathExpression_FastExpressionCompiler_CompileAsyncFunc()
         => new MathExpression(MathString, _context, null, _fastCompiler).CompileAsyncFunc(_variables);
 
 
@@ -74,15 +74,15 @@ public class AsyncCompilationBenchmarks
 
     [Benchmark(Description = "MathEvaluator: await fn(variables), completed async functions")]
     public ValueTask<double> MathEvaluator_AsyncCompiled_CompletedFunctions()
-        => _mathEvalAsyncCompiledFn(_variables);
+        => _mathEvalAsyncCompiledFn(_variables, CancellationToken.None);
 
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: await fn(variables), completed async functions")]
     public ValueTask<double> MathEvaluator_FastExpressionCompiler_AsyncCompiled_CompletedFunctions()
-        => _mathEvalFastAsyncCompiledFn(_variables);
+        => _mathEvalFastAsyncCompiledFn(_variables, CancellationToken.None);
 
     [Benchmark(Description = "MathEvaluator: await fn(variables), yielding async functions")]
     public ValueTask<double> MathEvaluator_AsyncCompiled_YieldingFunctions()
-        => _mathEvalAsyncYieldingCompiledFn(_variables);
+        => _mathEvalAsyncYieldingCompiledFn(_variables, CancellationToken.None);
 
 
     public record Variables

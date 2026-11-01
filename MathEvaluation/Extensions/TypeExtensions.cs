@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace MathEvaluation.Extensions;
 
@@ -17,7 +12,7 @@ internal static class TypeExtensions
     /// <summary>Determines whether the specified type is a number base type.</summary>
     public static bool IsNumberBaseType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
-        // loops are used instead of lambdas, since a lambda inside of the annotated extension is reported as accessed via reflection (IL2111)
+        // loops are used instead of lambdas, since a lambda inside the annotated extension is reported as accessed via reflection (IL2111)
         foreach (var i in type.GetInterfaces())
         {
             if (i.IsGenericType && i.GetGenericTypeDefinition() == NumberBaseInterfaceType)
@@ -29,7 +24,8 @@ internal static class TypeExtensions
 
     /// <summary>Gets the readable properties of the specified type, using a thread-safe cache.</summary>
     public static IReadOnlyList<PropertyInfo> GetReadableProperties(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type type)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        this Type type)
     {
         if (_cache.TryGetValue(type, out var properties))
             return properties;
@@ -44,7 +40,7 @@ internal static class TypeExtensions
         return _cache.GetOrAdd(type, readableProperties);
     }
 
-    /// <summary>Creates the exception for the type of a property that can't be bound, with a hint if the type is a function.</summary>
+    /// <summary>Creates the exception for the type of property that can't be bound, with a hint if the type is a function.</summary>
     /// <param name="type">The type.</param>
     /// <param name="key">The key.</param>
     public static NotSupportedException CreateNotSupportedException(this Type type, string key)
@@ -59,13 +55,23 @@ internal static class TypeExtensions
         if (returnTypeDefinition == typeof(Task<>))
         {
             return new NotSupportedException(
-                $"{type} isn't supported for '{key}', async functions must return ValueTask<T>, you can wrap the function: x => new ValueTask<T>(f(x)).");
+                $"{type} isn't supported for '{key}', async functions must return ValueTask<T> and take a CancellationToken as the last parameter, " +
+                "you can wrap the function: (x, cancellationToken) => new ValueTask<T>(f(x)).");
         }
 
         if (returnTypeDefinition == typeof(ValueTask<>))
         {
+            var arguments = type.GetGenericArguments();
+            if (arguments.Length < 2 || arguments[^2] != typeof(CancellationToken))
+            {
+                return new NotSupportedException(
+                    $"{type} isn't supported for '{key}', async functions must take a CancellationToken as the last parameter, " +
+                    "for example: (x, cancellationToken) => f(x).");
+            }
+
             return new NotSupportedException(
-                $"{type} isn't supported for '{key}', the types of the arguments and of the result must be the same, you can use Func<T[], ValueTask<T>> instead.");
+                $"{type} isn't supported for '{key}', the types of the arguments and of the result must be the same, " +
+                "you can use Func<T[], CancellationToken, ValueTask<T>> instead.");
         }
 
         return new NotSupportedException($"{type} isn't supported for '{key}', you can use Func<T[], T> instead.");

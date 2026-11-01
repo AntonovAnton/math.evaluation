@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Numerics;
-
-namespace MathEvaluation.Extensions;
+﻿namespace MathEvaluation.Extensions;
 
 internal static class ReadOnlySpanExtensions
 {

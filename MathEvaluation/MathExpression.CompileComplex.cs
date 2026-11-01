@@ -1,8 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using System.Threading.Tasks;
-
 namespace MathEvaluation;
 
 public partial class MathExpression
@@ -22,12 +17,12 @@ public partial class MathExpression
     /// <inheritdoc cref="CompileAsyncFunc{TResult}()" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<ValueTask<Complex>> CompileComplexAsyncFunc()
+    public Func<CancellationToken, ValueTask<Complex>> CompileComplexAsyncFunc()
         => CompileAsyncFunc<Complex>();
 
     /// <inheritdoc cref="CompileAsyncFunc{T, TResult}(T)" />
     [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-    public Func<T, ValueTask<Complex>> CompileComplexAsyncFunc<T>(T parameters)
+    public Func<T, CancellationToken, ValueTask<Complex>> CompileComplexAsyncFunc<T>(T parameters)
         => CompileAsyncFunc<T, Complex>(parameters);
-}
+}

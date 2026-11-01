@@ -8,12 +8,12 @@ public partial class MathExpressionTests
     private static MathContext CreateBooleanAsyncContext(MathContext context)
     {
         // completes asynchronously, so the continuations are tested as well
-        context.BindAsyncFunction<double>(async x =>
+        context.BindAsyncFunction<double>(async (x, _) =>
         {
             await Task.Yield();
             return x;
         }, "f");
-        context.BindAsyncFunction<double>((a, b) => ValueTask.FromResult(Math.Max(a, b)), "max");
+        context.BindAsyncFunction<double>((a, b, _) => ValueTask.FromResult(Math.Max(a, b)), "max");
         return context;
     }
 
@@ -38,7 +38,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBooleanAsyncFunc();
-        var value = await fn();
+        var value = await fn(CancellationToken.None);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -59,7 +59,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBooleanAsyncFunc();
-        var value = await fn();
+        var value = await fn(CancellationToken.None);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -77,7 +77,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBooleanAsyncFunc(new { A = false, B = false, C = false });
-        var value = await fn(new { A = a, B = b, C = c });
+        var value = await fn(new { A = a, B = b, C = c }, CancellationToken.None);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -95,7 +95,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBooleanAsyncFunc(new { a = 0d });
-        var value = await fn(new { a });
+        var value = await fn(new { a }, CancellationToken.None);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -112,7 +112,7 @@ public partial class MathExpressionTests
         expression.Evaluating += SubscribeToEvaluating;
 
         var fn = expression.CompileBooleanAsyncFunc(new { x, x1 = 0d, x2 = 0d });
-        var value = await fn(new { x, x1 = 0.5d, x2 = 0.2d });
+        var value = await fn(new { x, x1 = 0.5d, x2 = 0.2d }, CancellationToken.None);
 
         testOutputHelper.WriteLine($"result: {value}");
 
@@ -123,7 +123,7 @@ public partial class MathExpressionTests
     public async Task MathExpression_CompileBooleanAsyncFuncThenInvoke_AsyncFunctionThrows_ThrowException()
     {
         var context = new ProgrammingMathContext();
-        context.BindAsyncFunction<double>(async (double _) =>
+        context.BindAsyncFunction<double>(async (double _, CancellationToken _) =>
         {
             await Task.Yield();
             throw new InvalidOperationException("async");
@@ -132,7 +132,7 @@ public partial class MathExpressionTests
         using var expression = new MathExpression("g(1) > 0 or true", context, CultureInfo.InvariantCulture);
         var fn = expression.CompileBooleanAsyncFunc();
 
-        var ex = await Record.ExceptionAsync(async () => await fn());
+        var ex = await Record.ExceptionAsync(async () => await fn(CancellationToken.None));
         Assert.Equal("async", Assert.IsType<InvalidOperationException>(ex).Message);
     }
 

@@ -1,10 +1,4 @@
-﻿using MathEvaluation.Context;
-using MathEvaluation.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using System.Threading.Tasks;
+﻿
 
 // ReSharper disable UnusedMember.Global
 
@@ -220,7 +214,7 @@ public static class StringExtensions
         /// <exception cref="NotSupportedException">parameters</exception>
         [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-        public Func<T, ValueTask<double>> CompileAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        public Func<T, CancellationToken, ValueTask<double>> CompileAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileAsyncFunc(parameters);
 
         /// <inheritdoc cref="extension(string).CompileAsyncFunc{T}(T, MathContext?, IFormatProvider?)" />
@@ -228,26 +222,26 @@ public static class StringExtensions
         /// <typeparam name="TResult">The type of the return value of the task.</typeparam>
         [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-        public Func<T, ValueTask<TResult>> CompileAsyncFunc<T, TResult>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        public Func<T, CancellationToken, ValueTask<TResult>> CompileAsyncFunc<T, TResult>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             where TResult : struct, INumberBase<TResult>
             => new MathExpression(mathString, context, provider).CompileAsyncFunc<T, TResult>(parameters);
 
         /// <inheritdoc cref="extension(string).CompileAsyncFunc{T}(T, MathContext?, IFormatProvider?)" />
         [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-        public Func<T, ValueTask<decimal>> CompileDecimalAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        public Func<T, CancellationToken, ValueTask<decimal>> CompileDecimalAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileDecimalAsyncFunc(parameters);
 
         /// <inheritdoc cref="extension(string).CompileAsyncFunc{T}(T, MathContext?, IFormatProvider?)" />
         [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-        public Func<T, ValueTask<bool>> CompileBooleanAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        public Func<T, CancellationToken, ValueTask<bool>> CompileBooleanAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileBooleanAsyncFunc(parameters);
 
         /// <inheritdoc cref="extension(string).CompileAsyncFunc{T}(T, MathContext?, IFormatProvider?)" />
         [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
-        public Func<T, ValueTask<Complex>> CompileComplexAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
+        public Func<T, CancellationToken, ValueTask<Complex>> CompileComplexAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileComplexAsyncFunc(parameters);
 
         #region internal static Methods
@@ -304,4 +298,4 @@ public static class StringExtensions
 
         #endregion
     }
-}
+}

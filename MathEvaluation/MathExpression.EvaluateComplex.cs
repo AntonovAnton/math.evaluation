@@ -1,10 +1,4 @@
-﻿using MathEvaluation.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-
-namespace MathEvaluation;
+﻿namespace MathEvaluation;
 
 public partial class MathExpression
 {
@@ -28,4 +22,4 @@ public partial class MathExpression
     [Obsolete("Use Evaluate<Complex>(parameters) instead.")]
     public Complex EvaluateComplex(MathParameters? parameters = null)
         => Evaluate<Complex>(parameters);
-}
+}

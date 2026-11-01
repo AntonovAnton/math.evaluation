@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 ///     Base class for a math async function. It is supported only by compiling the math expression into an async delegate.
@@ -28,14 +23,23 @@ internal abstract class MathAsyncEntity<T> : MathEntity
         TResult value)
         => throw new NotSupportedException($"The async function '{Key}' can't be evaluated synchronously, use the CompileAsyncFunc method instead.");
 
+    /// <summary>Gets the cancellation token of the compiled async delegate, it is passed to the async function as the last argument.</summary>
+    /// <param name="mathExpression">The math expression.</param>
+    /// <returns>
+    ///     The cancellation token parameter, or <see cref="CancellationToken.None" /> if the math expression isn't compiled
+    ///     into an async delegate (the compilation fails then anyway).
+    /// </returns>
+    protected static Expression GetCancellationToken(MathExpression mathExpression)
+        => mathExpression.CancellationTokenExpression ?? (Expression)Expression.Constant(CancellationToken.None);
+
     /// <summary>
-    ///     Adds the await of the task before the math expression (like: 'await f(a, b)') and builds the expression that uses its result.
+    ///     Adds to await of the task before the math expression (like: 'await f(a, b)') and builds the expression that uses its result.
     /// </summary>
     /// <param name="mathExpression">The math expression.</param>
     /// <param name="start">The start position of the expression in the math expression string.</param>
     /// <param name="i">The current char index, it is just after the function call.</param>
     /// <param name="depth">The recursion depth.</param>
-    /// <param name="separator">The parameters separator.</param>
+    /// <param name="separator">The parameters' separator.</param>
     /// <param name="closingSymbol">The closing symbol.</param>
     /// <param name="left">The left expression.</param>
     /// <param name="tokenPosition">The position of the function call in the math expression string.</param>
@@ -46,7 +50,7 @@ internal abstract class MathAsyncEntity<T> : MathEntity
         Expression left, int tokenPosition, Expression task)
         where TResult : struct, INumberBase<TResult>
     {
-        mathExpression.Statements ??= new();
+        mathExpression.Statements ??= new ExpressionStatements();
         Expression right = mathExpression.Statements.AddAwait(mathExpression.MathString[tokenPosition..i], task);
         mathExpression.RaiseEvaluatingStep(tokenPosition, i, right);
 

@@ -1,17 +1,4 @@
-﻿using MathEvaluation.Compilation;
-using MathEvaluation.Context;
-using MathEvaluation.Entities;
-using MathEvaluation.Extensions;
-using MathEvaluation.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-
-namespace MathEvaluation;
+﻿namespace MathEvaluation;
 
 /// <summary>
 ///     Evaluates and compiles mathematical expressions from strings.
@@ -153,6 +140,7 @@ public partial class MathExpression : IDisposable
         ParameterExpression = null;
         ExpressionTree = null;
         Statements = null;
+        CancellationTokenExpression = null;
     }
 
     /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />

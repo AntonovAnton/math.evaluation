@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-
 namespace MathEvaluation.Compilation;
 
 /// <summary>
@@ -93,26 +86,32 @@ internal sealed class ExpressionStatements
     /// <summary>
     ///     Builds the block that executes the statements and then the body, it awaits each task before the next statements,
     ///     so the rest of the statements are built as a continuation that gets the result of the task as a parameter.
+    ///     The cancellation token is checked before the statements and after each await (before the continuation),
+    ///     so no async function is invoked after the token is cancelled.
     /// </summary>
     /// <param name="body">The math expression.</param>
+    /// <param name="cancellationToken">The cancellation token parameter of the compiled delegate.</param>
     /// <typeparam name="TResult">The type of the return value.</typeparam>
     /// <returns>The block expression that returns a <see cref="ValueTask{TResult}" />.</returns>
     [RequiresUnreferencedCode("Building expressions requires reflection which may access trimmed properties")]
     [RequiresDynamicCode("Building expressions in some cases requires dynamic code generation")]
-    public Expression BuildAsyncBlock<TResult>(Expression body)
+    public Expression BuildAsyncBlock<TResult>(Expression body, Expression cancellationToken)
         where TResult : struct
     {
         var then = typeof(AsyncContinuation).GetMethod(nameof(AsyncContinuation.Then))!;
         body = Expression.New(typeof(ValueTask<TResult>).GetConstructor([typeof(TResult)])!, body);
 
+        // the continuation checks the token after the await
         foreach (var s in Statements.Reverse())
         {
             body = s.IsAwait
-                ? Expression.Call(then.MakeGenericMethod(s.Variable.Type, typeof(TResult)), s.Value, Expression.Lambda(body, s.Variable))
+                ? Expression.Call(then.MakeGenericMethod(s.Variable.Type, typeof(TResult)), s.Value, Expression.Lambda(body, s.Variable),
+                    cancellationToken)
                 : Expression.Block([s.Variable], Expression.Assign(s.Variable, s.Value), body);
         }
 
-        return body;
+        var throwIfCancellationRequested = typeof(AsyncContinuation).GetMethod(nameof(AsyncContinuation.ThrowIfCancellationRequested))!;
+        return Expression.Block(Expression.Call(throwIfCancellationRequested, cancellationToken), body);
     }
 
 #if NET9_0_OR_GREATER

@@ -1,10 +1,4 @@
-﻿using MathEvaluation.Extensions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Numerics;
-
-namespace MathEvaluation.Entities;
+﻿namespace MathEvaluation.Entities;
 
 /// <summary>
 /// The function with one parameter, so opening and closing symbols are optional.

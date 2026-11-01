@@ -200,16 +200,16 @@ When the same input matches entities from several contexts, the entity with the 
 ## Async functions
 Added in version [3.8.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.8.0)
 
-Async functions that return `ValueTask<T>` can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
+Async functions that return `ValueTask<T>` and take a `CancellationToken` as the last parameter can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
 
     var context = new MathContext();
-    context.BindAsyncFunction<double>(async id => await priceService.GetPriceAsync(id), "price");
-    context.BindAsyncFunction<double>((amount, rate) => ValueTask.FromResult(amount * rate), "tax");
+    context.BindAsyncFunction<double>(async (id, cancellationToken) => await priceService.GetPriceAsync(id, cancellationToken), "price");
+    context.BindAsyncFunction<double>((amount, rate, _) => ValueTask.FromResult(amount * rate), "tax");
 
     var fn = new MathExpression("price(id) * qty + tax(price(id) * qty, 0.2)", context)
         .CompileAsyncFunc(new { id = 0, qty = 0d });
 
-    var total = await fn(new { id = 42, qty = 3d });
+    var total = await fn(new { id = 42, qty = 3d }, cancellationToken);
 
 Expression-defined variables can use async functions too:
 
@@ -218,7 +218,7 @@ Expression-defined variables can use async functions too:
     var fn = new MathExpression("subtotal + subtotal * 0.2", context)
         .CompileAsyncFunc(new { id = 0, qty = 0d });
 
-    var total = await fn(new { id = 42, qty = 3d });
+    var total = await fn(new { id = 42, qty = 3d }, cancellationToken);
 
 Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
 
