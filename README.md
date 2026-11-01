@@ -49,15 +49,14 @@ Every call parses a math expression string never seen before (the constant `1000
 
 | Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
 |-----:|---------|----------:|---------:|----------:|---------:|
-| 1 | **MathEvaluator** ² | **684.5 ns** | **843.2 ns** | **896 B** | **1.00x** |
-| 2 | NTDLS.ExpressionParser | 990.4 ns | 1,115.3 ns | 1,208 B | 1.45x |
-| 3 | xFunc | 2,360.7 ns | 2,703.8 ns | 1,960 B | 3.45x |
-| 4 | Mathos Parser ³ | 5,064.4 ns | 6,555.8 ns | 2,766 B | 7.40x |
-| 4 | NCalc | 5,238.3 ns | 6,125.7 ns | 4,328 B | 7.65x |
-| 5 | NoStringEvaluating | 18,021.0 ns | 26,125.8 ns | 3,152 B | 26.3x |
-| 6 | CalcExpr.NET | 333,776.3 ns | 387,482.2 ns | 339,699 B | 488x |
-| 7 | Jace ¹ | 1,373,822.3 ns | 221,379.0 ns | 27,836 B | 2,007x |
-| 8 | Flee ¹ | 3,366,255.5 ns | 173,439.5 ns | 107,647 B | 4,918x |
+| 1 | **MathEvaluator** ² | **687.4 ns** | **842.6 ns** | **896 B** | **1.00x** |
+| 2 | NTDLS.ExpressionParser | 969.1 ns | 1,144.1 ns | 1,208 B | 1.41x |
+| 3 | xFunc | 2,423.3 ns | 2,749.6 ns | 1,960 B | 3.53x |
+| 4 | NCalc | 5,353.6 ns | 6,280.9 ns | 4,328 B | 7.79x |
+| 5 | NoStringEvaluating | 17,171.9 ns | 26,582.3 ns | 3,152 B | 25.0x |
+| 6 | CalcExpr.NET | 337,818.0 ns | 390,161.0 ns | 339,656 B | 491x |
+| 7 | Jace ¹ | 1,396,988.2 ns | 227,006.3 ns | 27,836 B | 2,032x |
+| 8 | Flee ¹ | 3,401,684.8 ns | 177,293.5 ns | 107,647 B | 4,949x |
 
 #### Evaluate one expression many times
 
@@ -65,17 +64,16 @@ Each library parses (or compiles) the expression once, then only the evaluation 
 
 | Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
 |-----:|---------|----------:|---------:|----------:|---------:|
-| 1 | **MathEvaluator** (compiled) | **1.80 ns** | **1.79 ns** | **-** | **1.00x** |
-| 1 | **MathEvaluator.FastExpressionCompiler** (compiled) | **1.80 ns** | **1.78 ns** | **-** | **1.00x** |
-| 1 | NCalc.LambdaCompilation (compiled) | 1.81 ns | 1.79 ns | - | 1.00x |
-| 2 | NTDLS.ExpressionParser | 59.65 ns | 69.09 ns | - | 33.2x |
-| 3 | Flee ¹ | 67.68 ns | 72.36 ns | - | 37.6x |
-| 4 | NoStringEvaluating | 143.35 ns | 192.86 ns | - | 79.7x |
-| 5 | xFunc | 180.75 ns | 246.65 ns | 288 B | 100x |
-| 6 | Jace ¹ | 194.16 ns | 226.15 ns | 624 B | 108x |
-| 7 | CalcExpr.NET | 334.52 ns | 463.45 ns | 720 B | 186x |
-| 8 | NCalc | 671.56 ns | 801.30 ns | 1,912 B | 373x |
-| 9 | Mathos Parser ³ | 4,043.26 ns | 5,294.78 ns | 1,384 B | 2,247x |
+| 1 | **MathEvaluator** (compiled) | **1.87 ns** | **1.79 ns** | **-** | **1.00x** |
+| 1 | **MathEvaluator.FastExpressionCompiler** (compiled) | **1.82 ns** | **1.99 ns** | **-** | **0.98x** |
+| 1 | NCalc.LambdaCompilation (compiled) | 1.82 ns | 1.81 ns | - | 0.98x |
+| 2 | NTDLS.ExpressionParser | 60.25 ns | 67.77 ns | - | 32.3x |
+| 3 | Flee ¹ | 64.92 ns | 72.55 ns | - | 34.8x |
+| 4 | NoStringEvaluating | 150.93 ns | 190.85 ns | - | 81.0x |
+| 5 | xFunc | 180.53 ns | 245.35 ns | 288 B | 96.8x |
+| 6 | Jace ¹ | 195.31 ns | 227.72 ns | 624 B | 105x |
+| 7 | CalcExpr.NET | 315.62 ns | 475.57 ns | 720 B | 169x |
+| 8 | NCalc | 665.62 ns | 794.76 ns | 1,912 B | 357x |
 
 A compiled delegate is a plain .NET method, so the compiling libraries perform the same once compiled; they differ in how long compiling takes.
 
@@ -85,11 +83,11 @@ Only libraries that compile expressions to delegates. **Compile** is the time to
 
 | Rank | Library | Compile<br>.NET 10.0 | Compile<br>.NET 8.0 | Compile + first call<br>.NET 10.0 | Compile + first call<br>.NET 8.0 | Allocated |
 |-----:|---------|----------:|---------:|----------:|---------:|----------:|
-| 1 | **MathEvaluator.FastExpressionCompiler** | **6.1 μs** | **6.6 μs** | **109.6 μs** | **87.9 μs** | **4.3 KB** |
-| 2 | NCalc.LambdaCompilation | 10.2 μs | 12.1 μs | 118.0 μs | 90.7 μs | 4.7 KB |
-| 3 | Flee ¹ | 76.1 μs | 80.6 μs | 3,367.9 μs | 169.6 μs | 105.0 KB |
-| 4 | **MathEvaluator** | **119.0 μs** | **88.0 μs** | **111.5 μs** | **86.4 μs** | **8.4 KB** |
-| 5 | Jace ¹ | 1,377.1 μs | 217.5 μs | 1,360.6 μs | 218.4 μs | 26.4 KB |
+| 1 | **MathEvaluator.FastExpressionCompiler** | **5.8 μs** | **6.6 μs** | **110.1 μs** | **91.1 μs** | **4.1 KB** |
+| 2 | NCalc.LambdaCompilation | 9.6 μs | 11.4 μs | 119.7 μs | 94.3 μs | 4.7 KB |
+| 3 | Flee ¹ | 73.0 μs | 82.5 μs | 3,491.9 μs | 174.8 μs | 105.0 KB |
+| 4 | **MathEvaluator** | **114.7 μs** | **90.4 μs** | **116.1 μs** | **90.2 μs** | **8.4 KB** |
+| 5 | Jace ¹ | 1,391.5 μs | 222.1 μs | 1,368.7 μs | 229.8 μs | 26.4 KB |
 
 MathEvaluator.FastExpressionCompiler gets a delegate **~20x faster** than the built-in `LambdaExpression.Compile()`. Including the first call, the JIT compilation of the generated code takes most of the time, so the compiling libraries end up close.
 
@@ -97,7 +95,6 @@ MathEvaluator.FastExpressionCompiler gets a delegate **~20x faster** than the bu
 
 ¹ Flee and Jace compile every expression to IL, which the JIT compiles before its first run, so every new expression is slow. Jace reuses compiled code for a repeated math expression string even with its cache disabled, which is why every call gets a new one. Both are much slower to compile a new expression on .NET 10.0 than on .NET 8.0.  
 ² For a single evaluation MathEvaluator uses its interpreter, which is much faster than compiling. Compile only when the same expression is evaluated many times.  
-³ MathosParser 2.0.0 is published as a non-optimized (Debug) build.
 
 *Measured with BenchmarkDotNet v0.15.8 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Source: [LibraryComparisonBenchmarks.cs](https://github.com/AntonovAnton/math.evaluation/blob/main/MathEvaluation.Benchmarks/LibraryComparisonBenchmarks.cs). Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
 
@@ -145,8 +142,6 @@ Examples of using string extentions:
     "sin(2 + 3i) * arctan(4i)/(1 - 6i)".Evaluate<Complex>(new ComplexScientificMathContext());
 
     "0b1010 * 0o12 / 0xA + 10".Evaluate(); // Mixed numeric systems: 10 * 10 / 10 + 10 = 20
-
-**NOTE:** Starting with version [3.7.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.7.0), `EvaluateDecimal` and `EvaluateComplex` are obsolete. Use the generic `Evaluate<decimal>` and `Evaluate<Complex>` methods instead.
 
 Examples of using an instance of the MathExpression class:
 

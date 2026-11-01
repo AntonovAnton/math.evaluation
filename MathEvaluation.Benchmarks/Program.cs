@@ -1,12 +1,21 @@
 ﻿using BenchmarkDotNet.Running;
 using MathEvaluation.Benchmarks;
+using System.Globalization;
 using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
 // Checks that every compared library returns the expected result, without benchmarking.
-if (args is ["--verify"])
+// An optional culture name (e.g. --verify de-DE) starts with that culture, to check that the benchmarks pin their own.
+if (args is ["--verify", ..])
 {
+    if (args.Length > 1)
+    {
+        var culture = CultureInfo.GetCultureInfo(args[1]);
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.CurrentCulture = culture;
+    }
+
     new ParseAndEvaluateComparisonBenchmarks().Setup();
     new EvaluateComparisonBenchmarks().Setup();
     new CompileComparisonBenchmarks().Setup();

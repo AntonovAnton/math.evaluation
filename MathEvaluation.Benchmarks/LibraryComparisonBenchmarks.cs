@@ -6,6 +6,7 @@ using MathEvaluation.Compilation;
 using MathEvaluation.Parameters;
 using NCalc.LambdaCompilation;
 using NoStringEvaluating.Models.Values;
+using System.Globalization;
 using CalcNumber = CalcExpr.Expressions.Terminals.Number;
 using XFuncParameters = xFunc.Maths.Expressions.Parameters.ExpressionParameters;
 
@@ -44,6 +45,19 @@ public static class LibraryComparison
             mathStrings[i] = UniqueMathString(1000 + i);
 
         return mathStrings;
+    }
+
+    /// <summary>
+    ///     The math expression strings have decimal numbers, so the culture is pinned to make the results
+    ///     reproducible on machines with a different decimal separator.
+    ///     BenchmarkDotNet runs benchmarks in a separate process, so this is called from each [GlobalSetup].
+    /// </summary>
+    public static void UseInvariantCulture()
+    {
+        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
     }
 
     public static void Verify(string library, double result, double expected)
@@ -87,14 +101,6 @@ public static class LibraryComparison
         return expression;
     }
 
-    /// <summary>
-    ///     MathosParser 2.0.0 is published as a non-optimized (Debug) build, which BenchmarkDotNet rejects by default.
-    /// </summary>
-    public sealed class Config : ManualConfig
-    {
-        public Config() => WithOptions(ConfigOptions.DisableOptimizationsValidator);
-    }
-
     public static NCalc.Expression NewNCalc(string mathString, NCalc.ExpressionOptions options = NCalc.ExpressionOptions.None)
     {
         var expression = new NCalc.Expression(mathString, options);
@@ -109,7 +115,6 @@ public static class LibraryComparison
 ///     Scenario 1: parse + evaluate. Every call parses a math expression string never seen before, sets the variables
 ///     and evaluates it once. Caches of parsed expressions are disabled. Results are per call.
 /// </summary>
-[Config(typeof(LibraryComparison.Config))]
 [SimpleJob(RuntimeMoniker.Net10_0)]
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
@@ -125,24 +130,29 @@ public class ParseAndEvaluateComparisonBenchmarks
     private int _next;
 
     private readonly NTDLS.ExpressionParser.ExpressionOptions _ntdlsOptions = new() { UseCompileCache = false };
-    private readonly Flee.PublicTypes.ExpressionContext _fleeContext = new();
-    private readonly Jace.CalculationEngine _jaceEngine = new(new Jace.JaceOptions { CacheEnabled = false });
-    private readonly xFunc.Maths.Processor _xFuncProcessor = new();
-    private readonly NoStringEvaluating.Contract.INoStringEvaluator _noStringEvaluator = null!;
-    private readonly NoStringEvaluating.Contract.IFormulaParser _noStringParser = null!;
-    private readonly CalcExpr.Parsing.Parser _calcExprParser = new();
-    private readonly Mathos.Parser.MathParser _mathosParser = new();
 
-    public ParseAndEvaluateComparisonBenchmarks()
-    {
-        var facade = NoStringEvaluating.NoStringEvaluator.CreateFacade(_ => { });
-        _noStringEvaluator = facade.Evaluator;
-        _noStringParser = facade.FormulaParser;
-    }
+    // Created in Setup, after the culture is pinned, because some libraries read the culture when they are created.
+    private Flee.PublicTypes.ExpressionContext _fleeContext = null!;
+    private Jace.CalculationEngine _jaceEngine = null!;
+    private xFunc.Maths.Processor _xFuncProcessor = null!;
+    private NoStringEvaluating.Contract.INoStringEvaluator _noStringEvaluator = null!;
+    private NoStringEvaluating.Contract.IFormulaParser _noStringParser = null!;
+    private CalcExpr.Parsing.Parser _calcExprParser = null!;
 
     [GlobalSetup]
     public void Setup()
     {
+        LibraryComparison.UseInvariantCulture();
+
+        _fleeContext = new Flee.PublicTypes.ExpressionContext();
+        _jaceEngine = new Jace.CalculationEngine(new Jace.JaceOptions { CacheEnabled = false });
+        _xFuncProcessor = new xFunc.Maths.Processor();
+        _calcExprParser = new CalcExpr.Parsing.Parser();
+
+        var facade = NoStringEvaluating.NoStringEvaluator.CreateFacade(_ => { });
+        _noStringEvaluator = facade.Evaluator;
+        _noStringParser = facade.FormulaParser;
+
         _mathStrings = LibraryComparison.CreateUniqueMathStrings();
 
         // Each library must produce the right result.
@@ -157,7 +167,6 @@ public class ParseAndEvaluateComparisonBenchmarks
         LibraryComparison.Verify("xFunc", XFunc(mathString), expected);
         LibraryComparison.Verify("NoStringEvaluating", NoString(mathString), expected);
         LibraryComparison.Verify("CalcExpr.NET", CalcExpr(mathString), expected);
-        LibraryComparison.Verify("Mathos Parser", Mathos(mathString), expected);
     }
 
     private string NextMathString()
@@ -241,15 +250,6 @@ public class ParseAndEvaluateComparisonBenchmarks
         return sum;
     }
 
-    [Benchmark(OperationsPerInvoke = CallsPerInvoke, Description = "Mathos Parser")]
-    public double Mathos_ParseAndEvaluate()
-    {
-        var sum = 0d;
-        for (var i = 0; i < CallsPerInvoke; i++)
-            sum += Mathos(NextMathString());
-        return sum;
-    }
-
     /// <summary>For a single evaluation MathEvaluator's interpreter is much faster than compiling.</summary>
     private static double MathEvaluator(string mathString)
     {
@@ -264,7 +264,7 @@ public class ParseAndEvaluateComparisonBenchmarks
         => LibraryComparison.NewNtdls(mathString, _ntdlsOptions).Evaluate() ?? double.NaN;
 
     private static double NCalc(string mathString)
-        => Convert.ToDouble(LibraryComparison.NewNCalc(mathString, global::NCalc.ExpressionOptions.NoCache).Evaluate());
+        => (double)LibraryComparison.NewNCalc(mathString, global::NCalc.ExpressionOptions.NoCache).Evaluate()!;
 
     /// <summary>Flee has no interpreter: every new expression is compiled to IL, which is JIT-compiled on first evaluation.</summary>
     private double Flee(string mathString)
@@ -292,14 +292,6 @@ public class ParseAndEvaluateComparisonBenchmarks
         _calcExprParser.ClearCache();
         return ((CalcNumber)_calcExprParser.Parse(mathString).Evaluate(LibraryComparison.NewCalcExprContext())).Value;
     }
-
-    private double Mathos(string mathString)
-    {
-        _mathosParser.LocalVariables["a"] = LibraryComparison.A;
-        _mathosParser.LocalVariables["b"] = LibraryComparison.B;
-        _mathosParser.LocalVariables["c"] = LibraryComparison.C;
-        return _mathosParser.Parse(mathString);
-    }
 }
 
 /// <summary>
@@ -307,7 +299,6 @@ public class ParseAndEvaluateComparisonBenchmarks
 ///     then only the evaluation is measured. Results are per evaluation; evaluations are looped so that
 ///     a call of a compiled delegate (~1-2 ns) is not lost in the benchmark overhead.
 /// </summary>
-[Config(typeof(LibraryComparison.Config))]
 [SimpleJob(RuntimeMoniker.Net10_0)]
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
@@ -336,12 +327,12 @@ public class EvaluateComparisonBenchmarks
     private NoStringEvaluating.Contract.INoStringEvaluator _noStringEvaluator = null!;
     private NoStringEvaluating.Nodes.Common.FormulaNodes _noStringFormula = null!;
     private CalcExpr.Expressions.IExpression _calcExpr = null!;
-    private Mathos.Parser.MathParser _mathosParser = null!;
-    private System.Collections.ObjectModel.ReadOnlyCollection<string> _mathosTokens = null!;
 
     [GlobalSetup]
     public void Setup()
     {
+        LibraryComparison.UseInvariantCulture();
+
         const string mathString = LibraryComparison.MathString;
 
         _mathEvaluatorFn = new MathExpression(mathString).Compile(_variables);
@@ -366,11 +357,6 @@ public class EvaluateComparisonBenchmarks
 
         _calcExpr = new CalcExpr.Parsing.Parser().Parse(mathString);
 
-        _mathosParser = new Mathos.Parser.MathParser();
-        _mathosParser.LocalVariables["a"] = LibraryComparison.A;
-        _mathosParser.LocalVariables["b"] = LibraryComparison.B;
-        _mathosParser.LocalVariables["c"] = LibraryComparison.C;
-        _mathosTokens = _mathosParser.GetTokens(mathString);
 
         // Each library must produce the right result.
         var expected = LibraryComparison.ExpectedResult * EvaluationsPerInvoke;
@@ -384,7 +370,6 @@ public class EvaluateComparisonBenchmarks
         LibraryComparison.Verify("xFunc", XFunc_Evaluate(), expected);
         LibraryComparison.Verify("NoStringEvaluating", NoString_Evaluate(), expected);
         LibraryComparison.Verify("CalcExpr.NET", CalcExpr_Evaluate(), expected);
-        LibraryComparison.Verify("Mathos Parser", Mathos_Evaluate(), expected);
     }
 
     [Benchmark(OperationsPerInvoke = EvaluationsPerInvoke, Baseline = true, Description = "MathEvaluator")]
@@ -419,7 +404,7 @@ public class EvaluateComparisonBenchmarks
     {
         var sum = 0d;
         for (var i = 0; i < EvaluationsPerInvoke; i++)
-            sum += Convert.ToDouble(_nCalc.Evaluate());
+            sum += (double)_nCalc.Evaluate()!;
         return sum;
     }
 
@@ -476,15 +461,6 @@ public class EvaluateComparisonBenchmarks
             sum += ((CalcNumber)_calcExpr.Evaluate(_calcExprContext)).Value;
         return sum;
     }
-
-    [Benchmark(OperationsPerInvoke = EvaluationsPerInvoke, Description = "Mathos Parser")]
-    public double Mathos_Evaluate()
-    {
-        var sum = 0d;
-        for (var i = 0; i < EvaluationsPerInvoke; i++)
-            sum += _mathosParser.Parse(_mathosTokens);
-        return sum;
-    }
 }
 
 /// <summary>
@@ -492,7 +468,6 @@ public class EvaluateComparisonBenchmarks
 ///     With <see cref="FirstCall" /> the delegate is also evaluated once, which includes JIT-compiling the generated code,
 ///     i.e. the real cost of a compiled expression before it starts paying off. Only libraries that compile are compared.
 /// </summary>
-[Config(typeof(LibraryComparison.Config))]
 [SimpleJob(RuntimeMoniker.Net10_0)]
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
@@ -504,8 +479,10 @@ public class CompileComparisonBenchmarks
 {
     private readonly LibraryComparison.Variables _variables = new();
     private readonly FastMathExpressionCompiler _fastCompiler = new();
-    private readonly Flee.PublicTypes.ExpressionContext _fleeContext = new();
-    private readonly Jace.CalculationEngine _jaceEngine = new(new Jace.JaceOptions { CacheEnabled = false });
+
+    // Created in Setup, after the culture is pinned, because some libraries read the culture when they are created.
+    private Flee.PublicTypes.ExpressionContext _fleeContext = null!;
+    private Jace.CalculationEngine _jaceEngine = null!;
 
     private string[] _mathStrings = null!;
     private int _next;
@@ -517,6 +494,11 @@ public class CompileComparisonBenchmarks
     [GlobalSetup]
     public void Setup()
     {
+        LibraryComparison.UseInvariantCulture();
+
+        _fleeContext = new Flee.PublicTypes.ExpressionContext();
+        _jaceEngine = new Jace.CalculationEngine(new Jace.JaceOptions { CacheEnabled = false });
+
         _mathStrings = LibraryComparison.CreateUniqueMathStrings();
 
         _fleeContext.Variables["a"] = LibraryComparison.A;
