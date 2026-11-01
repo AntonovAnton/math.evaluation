@@ -2,6 +2,7 @@
 using BenchmarkDotNet.Jobs;
 using MathEvaluation.Compilation;
 using MathEvaluation.Context;
+using System.Globalization;
 
 namespace MathEvaluation.Benchmarks;
 
@@ -50,22 +51,22 @@ public class AsyncCompilationBenchmarks
         _mathEvalCompiledFn = MathExpression_Compile_SyncFunctions();
         _mathEvalAsyncCompiledFn = MathExpression_CompileAsyncFunc();
         _mathEvalFastAsyncCompiledFn = MathExpression_FastExpressionCompiler_CompileAsyncFunc();
-        _mathEvalAsyncYieldingCompiledFn = new MathExpression("priceAsync(x) * qty + taxAsync(priceAsync(x))", _context)
+        _mathEvalAsyncYieldingCompiledFn = new MathExpression("priceAsync(x) * qty + taxAsync(priceAsync(x))", _context, CultureInfo.InvariantCulture)
             .CompileAsyncFunc(_variables);
     }
 
 
     [Benchmark(Description = "MathEvaluator: Compile \"" + SyncMathString + "\"")]
     public Func<Variables, double> MathExpression_Compile_SyncFunctions()
-        => new MathExpression(SyncMathString, _context).Compile(_variables);
+        => new MathExpression(SyncMathString, _context, CultureInfo.InvariantCulture).Compile(_variables);
 
     [Benchmark(Description = "MathEvaluator: CompileAsyncFunc \"" + MathString + "\"")]
     public Func<Variables, CancellationToken, ValueTask<double>> MathExpression_CompileAsyncFunc()
-        => new MathExpression(MathString, _context).CompileAsyncFunc(_variables);
+        => new MathExpression(MathString, _context, CultureInfo.InvariantCulture).CompileAsyncFunc(_variables);
 
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: CompileAsyncFunc \"" + MathString + "\"")]
     public Func<Variables, CancellationToken, ValueTask<double>> MathExpression_FastExpressionCompiler_CompileAsyncFunc()
-        => new MathExpression(MathString, _context, null, _fastCompiler).CompileAsyncFunc(_variables);
+        => new MathExpression(MathString, _context, CultureInfo.InvariantCulture, _fastCompiler).CompileAsyncFunc(_variables);
 
 
     [Benchmark(Description = "MathEvaluator: fn(variables), sync functions")]
