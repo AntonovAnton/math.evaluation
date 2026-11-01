@@ -40,7 +40,6 @@
     <PackageReference Include="CalcExpr.NET" Version="1.0.1" />
     <PackageReference Include="Flee" Version="2.0.0" />
     <PackageReference Include="Jace" Version="1.0.0" />
-    <PackageReference Include="MathosParser" Version="2.0.0" />
     <PackageReference Include="NCalc.LambdaCompilation" Version="7.3.0" />
     <PackageReference Include="NCalcSync" Version="7.3.0" />
     <PackageReference Include="NoStringEvaluating" Version="2.6.1" />
