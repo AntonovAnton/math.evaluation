@@ -37,35 +37,69 @@ The evaluator uses a prefix tree, also known as a trie (pronounced "try"), for e
 
 ### Benchmark Results
 
-Let's compare performance of evaluating the mathematical expression:
+MathEvaluator is compared with other popular .NET math expression libraries on the expression:
 
-    22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6
+    (a * b + c) / (a - b) * 2.5 - c / (b + 0.75) + 1000    with a = 5, b = 10, c = 60.5
 
-Below are the results comparing MathEvaluator with the NCalc library (NCalc 7.3.0):
+It uses all four arithmetic operators, operator precedence, nested parentheses, decimal literals and variables, limited to the syntax that every compared library supports. Each library uses its fastest form for each scenario, and every library's result is verified before measuring.
 
-| Method | Runtime | Mean | Error | StdDev | Gen0 | Allocated |
-|--------|---------|------|-------|--------|------|-----------|
-| **MathEvaluator** | .NET 10.0 | **517.1 ns** |   2.98 ns |   2.64 ns | 0.0029 |     **112 B** |
-| NCalc | .NET 10.0 | 3,584.9 ns |  8.19 ns |  7.66 ns | 0.1144 |    3592 B |
-| **MathEvaluator** | .NET 8.0 | **643.5 ns** |   5.56 ns |   5.20 ns | 0.0029 |     **112 B** |
-| NCalc | .NET 8.0 | 4,455.0 ns |  20.82 ns |  18.45 ns | 0.1144 |    3592 B |
+#### Parse + evaluate a new expression every time
 
-**Performance gain**: MathEvaluator is **~7x faster** than NCalc with **~32x less memory allocation**.
+Every call parses a math expression string never seen before (the constant `1000` is replaced with a different number), sets the variables and evaluates it once. Caches of parsed expressions are disabled.
 
-#### More Complex Expressions
+| Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
+|-----:|---------|----------:|---------:|----------:|---------:|
+| 1 | **MathEvaluator** ² | **684.5 ns** | **843.2 ns** | **896 B** | **1.00x** |
+| 2 | NTDLS.ExpressionParser | 990.4 ns | 1,115.3 ns | 1,208 B | 1.45x |
+| 3 | xFunc | 2,360.7 ns | 2,703.8 ns | 1,960 B | 3.45x |
+| 4 | Mathos Parser ³ | 5,064.4 ns | 6,555.8 ns | 2,766 B | 7.40x |
+| 4 | NCalc | 5,238.3 ns | 6,125.7 ns | 4,328 B | 7.65x |
+| 5 | NoStringEvaluating | 18,021.0 ns | 26,125.8 ns | 3,152 B | 26.3x |
+| 6 | CalcExpr.NET | 333,776.3 ns | 387,482.2 ns | 339,699 B | 488x |
+| 7 | Jace ¹ | 1,373,822.3 ns | 221,379.0 ns | 27,836 B | 2,007x |
+| 8 | Flee ¹ | 3,366,255.5 ns | 173,439.5 ns | 107,647 B | 4,918x |
 
-| Expression | Library | .NET 10.0 | .NET 8.0 | Speedup |
-|------------|---------|-----------|----------|---------|
-| `"Sin(pi/6) + Cos(pi/3)"` | **MathEvaluator** | **351.4 ns** | **416.8 ns** | **8x** |
-| | NCalc | 2,920.2 ns | 3,379.6 ns | |
-| `"A or not B and (C or B)"` | **MathEvaluator** | **464.5 ns** | **587.8 ns** | **6x** |
-| | NCalc | 2,807.8 ns | 3,593.9 ns | |
-| `"A != B && !C ^ -2.9 >= -12.9 + 0.1 / 0.01"` | **MathEvaluator** | **863.2 ns** | **1,054.2 ns** | **4.5-4.7x** |
-| | NCalc | 4,021.8 ns | 4,735.8 ns | |
+#### Evaluate one expression many times
 
-***NOTE:** If the evaluation results depend on variable values, compilation is a better alternative for repeated evaluations.*
+Each library parses (or compiles) the expression once, then only the evaluation is measured.
 
-*Measured with BenchmarkDotNet v0.15.8 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
+| Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
+|-----:|---------|----------:|---------:|----------:|---------:|
+| 1 | **MathEvaluator** (compiled) | **1.80 ns** | **1.79 ns** | **-** | **1.00x** |
+| 1 | **MathEvaluator.FastExpressionCompiler** (compiled) | **1.80 ns** | **1.78 ns** | **-** | **1.00x** |
+| 1 | NCalc.LambdaCompilation (compiled) | 1.81 ns | 1.79 ns | - | 1.00x |
+| 2 | NTDLS.ExpressionParser | 59.65 ns | 69.09 ns | - | 33.2x |
+| 3 | Flee ¹ | 67.68 ns | 72.36 ns | - | 37.6x |
+| 4 | NoStringEvaluating | 143.35 ns | 192.86 ns | - | 79.7x |
+| 5 | xFunc | 180.75 ns | 246.65 ns | 288 B | 100x |
+| 6 | Jace ¹ | 194.16 ns | 226.15 ns | 624 B | 108x |
+| 7 | CalcExpr.NET | 334.52 ns | 463.45 ns | 720 B | 186x |
+| 8 | NCalc | 671.56 ns | 801.30 ns | 1,912 B | 373x |
+| 9 | Mathos Parser ³ | 4,043.26 ns | 5,294.78 ns | 1,384 B | 2,247x |
+
+A compiled delegate is a plain .NET method, so the compiling libraries perform the same once compiled; they differ in how long compiling takes.
+
+#### Compile cost
+
+Only libraries that compile expressions to delegates. **Compile** is the time to get a delegate; **Compile + first call** also evaluates it once, which includes JIT-compiling the generated code.
+
+| Rank | Library | Compile<br>.NET 10.0 | Compile<br>.NET 8.0 | Compile + first call<br>.NET 10.0 | Compile + first call<br>.NET 8.0 | Allocated |
+|-----:|---------|----------:|---------:|----------:|---------:|----------:|
+| 1 | **MathEvaluator.FastExpressionCompiler** | **6.1 μs** | **6.6 μs** | **109.6 μs** | **87.9 μs** | **4.3 KB** |
+| 2 | NCalc.LambdaCompilation | 10.2 μs | 12.1 μs | 118.0 μs | 90.7 μs | 4.7 KB |
+| 3 | Flee ¹ | 76.1 μs | 80.6 μs | 3,367.9 μs | 169.6 μs | 105.0 KB |
+| 4 | **MathEvaluator** | **119.0 μs** | **88.0 μs** | **111.5 μs** | **86.4 μs** | **8.4 KB** |
+| 5 | Jace ¹ | 1,377.1 μs | 217.5 μs | 1,360.6 μs | 218.4 μs | 26.4 KB |
+
+MathEvaluator.FastExpressionCompiler gets a delegate **~20x faster** than the built-in `LambdaExpression.Compile()`. Including the first call, the JIT compilation of the generated code takes most of the time, so the compiling libraries end up close.
+
+*Rank and Relative are for .NET 10.0. Times are per call (Rank of the compile table is by Compile time on .NET 10.0).*
+
+¹ Flee and Jace compile every expression to IL, which the JIT compiles before its first run, so every new expression is slow. Jace reuses compiled code for a repeated math expression string even with its cache disabled, which is why every call gets a new one. Both are much slower to compile a new expression on .NET 10.0 than on .NET 8.0.  
+² For a single evaluation MathEvaluator uses its interpreter, which is much faster than compiling. Compile only when the same expression is evaluated many times.  
+³ MathosParser 2.0.0 is published as a non-optimized (Debug) build.
+
+*Measured with BenchmarkDotNet v0.15.8 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Source: [LibraryComparisonBenchmarks.cs](https://github.com/AntonovAnton/math.evaluation/blob/main/MathEvaluation.Benchmarks/LibraryComparisonBenchmarks.cs). Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
@@ -221,8 +255,6 @@ Expression-defined variables can use async functions too:
     var total = await fn(new { id = 42, qty = 3d }, cancellationToken);
 
 Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
-
-With **MathEvaluator.FastExpressionCompiler**, use `new FastMathExpression(...).CompileAsyncFunc(...)` for faster compilation.
 
 ## AOT (Ahead-of-Time) compilation support
 Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.6.0)

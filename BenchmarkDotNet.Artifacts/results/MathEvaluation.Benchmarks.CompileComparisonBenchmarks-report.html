@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>MathEvaluation.Benchmarks.CompileComparisonBenchmarks-20261101-195639</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26300.9818)
+11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 10.0.403
+  [Host]    : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
+  .NET 10.0 : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+  .NET 8.0  : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                        </th><th>Job</th><th>Runtime</th><th>FirstCall</th><th>Mean  </th><th>Ratio</th><th>Rank</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 10.0</td><td>.NET 10.0</td><td>False</td><td>6.102 &mu;s</td><td>0.05</td><td>1</td><td>0.1373</td><td>0.1297</td><td>4.26 KB</td>
+</tr><tr><td>NCalc.LambdaCompilation</td><td>.NET 10.0</td><td>.NET 10.0</td><td>False</td><td>10.213 &mu;s</td><td>0.09</td><td>2</td><td>0.1221</td><td>0.0610</td><td>4.69 KB</td>
+</tr><tr><td>Flee</td><td>.NET 10.0</td><td>.NET 10.0</td><td>False</td><td>76.084 &mu;s</td><td>0.64</td><td>3</td><td>3.4180</td><td>1.4648</td><td>105.03 KB</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 10.0</td><td>.NET 10.0</td><td>False</td><td>119.024 &mu;s</td><td>1.00</td><td>4</td><td>0.2441</td><td>-</td><td>8.43 KB</td>
+</tr><tr><td>Jace</td><td>.NET 10.0</td><td>.NET 10.0</td><td>False</td><td>1,377.062 &mu;s</td><td>11.57</td><td>5</td><td>-</td><td>-</td><td>26.35 KB</td>
+</tr><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 10.0</td><td>.NET 10.0</td><td>True</td><td>109.585 &mu;s</td><td>0.98</td><td>1</td><td>-</td><td>-</td><td>4.08 KB</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 10.0</td><td>.NET 10.0</td><td>True</td><td>111.478 &mu;s</td><td>1.00</td><td>1</td><td>0.2441</td><td>-</td><td>8.43 KB</td>
+</tr><tr><td>NCalc.LambdaCompilation</td><td>.NET 10.0</td><td>.NET 10.0</td><td>True</td><td>117.986 &mu;s</td><td>1.06</td><td>2</td><td>-</td><td>-</td><td>4.67 KB</td>
+</tr><tr><td>Jace</td><td>.NET 10.0</td><td>.NET 10.0</td><td>True</td><td>1,360.582 &mu;s</td><td>12.21</td><td>3</td><td>-</td><td>-</td><td>27.22 KB</td>
+</tr><tr><td>Flee</td><td>.NET 10.0</td><td>.NET 10.0</td><td>True</td><td>3,367.917 &mu;s</td><td>30.21</td><td>4</td><td>-</td><td>-</td><td>105.1 KB</td>
+</tr><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 8.0</td><td>.NET 8.0</td><td>False</td><td>6.649 &mu;s</td><td>0.08</td><td>1</td><td>0.1221</td><td>0.0916</td><td>4.1 KB</td>
+</tr><tr><td>NCalc.LambdaCompilation</td><td>.NET 8.0</td><td>.NET 8.0</td><td>False</td><td>12.098 &mu;s</td><td>0.14</td><td>2</td><td>0.1526</td><td>0.1373</td><td>4.7 KB</td>
+</tr><tr><td>Flee</td><td>.NET 8.0</td><td>.NET 8.0</td><td>False</td><td>80.648 &mu;s</td><td>0.92</td><td>3</td><td>3.4180</td><td>1.2207</td><td>104.6 KB</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 8.0</td><td>.NET 8.0</td><td>False</td><td>88.038 &mu;s</td><td>1.00</td><td>4</td><td>0.2441</td><td>-</td><td>8.43 KB</td>
+</tr><tr><td>Jace</td><td>.NET 8.0</td><td>.NET 8.0</td><td>False</td><td>217.528 &mu;s</td><td>2.47</td><td>5</td><td>0.4883</td><td>-</td><td>26.74 KB</td>
+</tr><tr><td>MathEvaluator</td><td>.NET 8.0</td><td>.NET 8.0</td><td>True</td><td>86.387 &mu;s</td><td>1.00</td><td>1</td><td>0.2441</td><td>-</td><td>8.43 KB</td>
+</tr><tr><td>MathEvaluator.FastExpressionCompiler</td><td>.NET 8.0</td><td>.NET 8.0</td><td>True</td><td>87.914 &mu;s</td><td>1.02</td><td>1</td><td>0.1221</td><td>-</td><td>4.1 KB</td>
+</tr><tr><td>NCalc.LambdaCompilation</td><td>.NET 8.0</td><td>.NET 8.0</td><td>True</td><td>90.657 &mu;s</td><td>1.05</td><td>2</td><td>-</td><td>-</td><td>4.67 KB</td>
+</tr><tr><td>Flee</td><td>.NET 8.0</td><td>.NET 8.0</td><td>True</td><td>169.637 &mu;s</td><td>1.96</td><td>3</td><td>3.4180</td><td>0.9766</td><td>104.62 KB</td>
+</tr><tr><td>Jace</td><td>.NET 8.0</td><td>.NET 8.0</td><td>True</td><td>218.427 &mu;s</td><td>2.53</td><td>4</td><td>0.4883</td><td>-</td><td>27.56 KB</td>
+</tr></tbody></table>
+</body>
+</html>

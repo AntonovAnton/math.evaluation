@@ -37,8 +37,15 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <PackageReference Include="CalcExpr.NET" Version="1.0.1" />
+    <PackageReference Include="Flee" Version="2.0.0" />
+    <PackageReference Include="Jace" Version="1.0.0" />
+    <PackageReference Include="MathosParser" Version="2.0.0" />
     <PackageReference Include="NCalc.LambdaCompilation" Version="7.3.0" />
     <PackageReference Include="NCalcSync" Version="7.3.0" />
+    <PackageReference Include="NoStringEvaluating" Version="2.6.1" />
+    <PackageReference Include="NTDLS.ExpressionParser" Version="1.6.3" />
+    <PackageReference Include="xFunc.Maths" Version="4.4.1" />
   </ItemGroup>
 
   <ItemGroup>
