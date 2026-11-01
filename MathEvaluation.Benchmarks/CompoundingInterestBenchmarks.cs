@@ -7,6 +7,7 @@ using MathEvaluation.Parameters;
 using NCalc;
 using NCalc.LambdaCompilation;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace MathEvaluation.Benchmarks;
 
@@ -16,9 +17,11 @@ namespace MathEvaluation.Benchmarks;
 [MemoryDiagnoser]
 public class CompoundingInterestBenchmarks
 {
+    private const string MathEvaluatorExpression = "P * (1 + r/n)^d";
+    private const string NCalcExpression = "P * (1 + r/n)**d";
+
     private int _count;
 
-    private readonly MathContext _mathContext = new ScientificMathContext();
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
     private readonly Func<CompoundInterestFormulaParams, double> _mathEvalCompiledFn;
@@ -41,7 +44,7 @@ public class CompoundingInterestBenchmarks
 
         var parameters = new MathParameters(new { P = 10000, r = 0.05, n, d });
 
-        return "P * (1 + r/n)^d".Evaluate(parameters, _mathContext);
+        return MathEvaluatorExpression.Evaluate(parameters, new ScientificMathContext(), CultureInfo.InvariantCulture);
     }
 
     [Benchmark(Description = "NCalc evaluation")]
@@ -51,7 +54,7 @@ public class CompoundingInterestBenchmarks
         const int n = 365;
         var d = _count % n + 1; //randomizing values
 
-        var expression = new Expression("P * Pow((1 + r/n), d)", ExpressionOptions.NoCache)
+        var expression = new Expression(NCalcExpression, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
         {
             Parameters =
             {
@@ -62,21 +65,22 @@ public class CompoundingInterestBenchmarks
             }
         };
 
-        return Convert.ToDouble(expression.Evaluate());
+        return (double)expression.Evaluate()!;
     }
 
     [Benchmark(Description = "MathEvaluator compilation")]
     public Func<CompoundInterestFormulaParams, double> MathEvaluator_Compile()
-        => "P * (1 + r/n)^d".Compile(new CompoundInterestFormulaParams(), _mathContext);
+        => MathEvaluatorExpression.Compile(new CompoundInterestFormulaParams(), new ScientificMathContext(), CultureInfo.InvariantCulture);
 
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler compilation")]
     public Func<CompoundInterestFormulaParams, double> MathEvaluator_FastExpressionCompiler_Compile()
-        => new MathExpression("P * (1 + r/n)^d", _mathContext, null, _fastCompiler).Compile(new CompoundInterestFormulaParams());
+        => new MathExpression(MathEvaluatorExpression, new ScientificMathContext(), CultureInfo.InvariantCulture, _fastCompiler)
+            .Compile(new CompoundInterestFormulaParams());
 
     [Benchmark(Description = "NCalc compilation")]
     public Func<CompoundInterestFormulaParams, double> NCalc_ToLambda()
     {
-        var expression = new Expression("P * Pow((1 + r/n), d)", ExpressionOptions.NoCache);
+        var expression = new Expression(NCalcExpression, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture);
 
         return expression.ToLambda<CompoundInterestFormulaParams, double>();
     }

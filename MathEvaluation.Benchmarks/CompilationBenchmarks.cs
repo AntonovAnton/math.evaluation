@@ -5,6 +5,7 @@ using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using NCalc;
 using NCalc.LambdaCompilation;
+using System.Globalization;
 
 namespace MathEvaluation.Benchmarks;
 
@@ -14,6 +15,12 @@ namespace MathEvaluation.Benchmarks;
 [MemoryDiagnoser]
 public class CompilationBenchmarks
 {
+    private const string Expression1 = "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6";
+    private const string Expression2 = "true or not false and (true or false)";
+    private const string Expression3 = "A or not B and (C or B)";
+    private const string Expression4 = "Sin(pi/6) + Cos(pi/3)";
+    private const string Expression5 = "Sin(a) + Cos(b)";
+
     // ReSharper disable once InconsistentNaming
     private const double a = Math.PI / 6;
 
@@ -21,9 +28,6 @@ public class CompilationBenchmarks
     private const double b = Math.PI / 3;
 
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
-
-    private readonly MathContext _scientificContext = new ScientificMathContext();
-    private readonly MathContext _programmingContext = new ProgrammingMathContext();
 
     private readonly Func<BooleanVariables, bool> _mathEvalCompiledFn;
     private readonly Func<BooleanVariables, bool> _mathEvalFastCompiledFn;
@@ -37,60 +41,48 @@ public class CompilationBenchmarks
     }
 
 
-    [Benchmark(Description = "MathEvaluator: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
+    [Benchmark(Description = $"MathEvaluator: {Expression1}")]
     public Func<double> MathExpression_Compile()
-        => new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6").Compile();
+        => new MathExpression(Expression1, null, CultureInfo.InvariantCulture).Compile();
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {Expression1}")]
     public Func<double> MathExpression_FastExpressionCompiler_Compile()
-        => new MathExpression("22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6", null, null, _fastCompiler).Compile();
+        => new MathExpression(Expression1, null, CultureInfo.InvariantCulture, _fastCompiler).Compile();
 
-    [Benchmark(Description = "NCalc: \"22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6\"")]
+    [Benchmark(Description = $"NCalc: {Expression1}")]
     public Func<double> NCalc_ToLambda()
-    {
-        const string str = "22888.32 * 30 / 323.34 / .5 - -1 / (2 + 22888.32) * 4 - 6";
-        var expression = new Expression(str, ExpressionOptions.NoCache);
+        => new Expression(Expression1, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
+            .ToLambda<double>();
 
-        return expression.ToLambda<double>();
-    }
-
-
-    [Benchmark(Description = "MathEvaluator: \"true or not false and (true or false)\"")]
+    [Benchmark(Description = $"MathEvaluator: {Expression2}")]
     public Func<bool> MathExpression_CompileBoolean()
-        => new MathExpression("true or not false and (true or false)", _programmingContext)
-            .CompileBoolean();
+        => new MathExpression(Expression2, new ProgrammingMathContext(), CultureInfo.InvariantCulture).CompileBoolean();
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: \"true or not false and (true or false)\"")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {Expression2}")]
     public Func<bool> MathExpression_FastExpressionCompiler_CompileBoolean()
-        => new MathExpression("true or not false and (true or false)", _programmingContext, null, _fastCompiler)
+        => new MathExpression(Expression2, new ProgrammingMathContext(), CultureInfo.InvariantCulture, _fastCompiler)
             .CompileBoolean();
 
-    [Benchmark(Description = "NCalc: \"true or not false and (true or false)\"")]
+    [Benchmark(Description = $"NCalc: {Expression2}")]
     public Func<bool> NCalc_ToLambdaBoolean()
-    {
-        const string str = "true or not false and (true or false)";
-        var expression = new Expression(str, ExpressionOptions.NoCache);
-        return expression.ToLambda<bool>();
-    }
+     => new Expression(Expression2, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
+        .ToLambda<bool>();
 
 
-    [Benchmark(Description = "MathEvaluator: \"A or not B and (C or B)\"")]
+    [Benchmark(Description = $"MathEvaluator: {Expression3}")]
     public Func<BooleanVariables, bool> MathExpression_CompileBoolean_HasVariables()
-        => "A or not B and (C or B)"
-            .CompileBoolean(new BooleanVariables { A = true, B = false, C = true }, _programmingContext);
-
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: \"A or not B and (C or B)\"")]
-    public Func<BooleanVariables, bool> MathExpression_FastExpressionCompiler_CompileBoolean_HasVariables()
-        => new MathExpression("A or not B and (C or B)", _programmingContext, null, _fastCompiler)
+        => new MathExpression(Expression3, new ProgrammingMathContext(), CultureInfo.InvariantCulture)
             .CompileBoolean(new BooleanVariables { A = true, B = false, C = true });
 
-    [Benchmark(Description = "NCalc: \"A or not B and (C or B)\"")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {Expression3}")]
+    public Func<BooleanVariables, bool> MathExpression_FastExpressionCompiler_CompileBoolean_HasVariables()
+        => new MathExpression(Expression3, new ProgrammingMathContext(), CultureInfo.InvariantCulture, _fastCompiler)
+            .CompileBoolean(new BooleanVariables { A = true, B = false, C = true });
+
+    [Benchmark(Description = $"NCalc: {Expression3}")]
     public Func<BooleanVariables, bool> NCalc_ToLambdaBoolean_HasVariables()
-    {
-        const string str = "A or not B and (C or B)";
-        var expression = new Expression(str, ExpressionOptions.NoCache);
-        return expression.ToLambda<BooleanVariables, bool>();
-    }
+        => new Expression(Expression3, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
+            .ToLambda<BooleanVariables, bool>();
 
 
     [Benchmark(Description = "MathEvaluator: fn(new BooleanVariables { A = a, B = b, C = c })")]
@@ -106,45 +98,38 @@ public class CompilationBenchmarks
         => _nCalcCompiledFn(new BooleanVariables { A = true, B = false, C = true });
 
 
-    [Benchmark(Description = "MathEvaluator: \"Sin(pi/6) + Cos(pi/3)\"")]
+    [Benchmark(Description = $"MathEvaluator: {Expression4}")]
     public Func<double> MathExpression_CompileSinCos()
-        => new MathExpression("Sin(pi/6) + Cos(pi/3)", _scientificContext).Compile();
+        => new MathExpression(Expression4, new ScientificMathContext(), CultureInfo.InvariantCulture).Compile();
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: \"Sin(pi/6) + Cos(pi/3)\"")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler: {Expression4}")]
     public Func<double> MathExpression_FastExpressionCompiler_CompileSinCos()
-        => new MathExpression("Sin(pi/6) + Cos(pi/3)", _scientificContext, null, _fastCompiler).Compile();
+        => new MathExpression(Expression4, new ScientificMathContext(), CultureInfo.InvariantCulture, _fastCompiler).Compile();
 
-    [Benchmark(Description = "NCalc: \"Sin(pi/6) + Cos(pi/3)\"")]
+    [Benchmark(Description = $"NCalc: {Expression4}")]
     public Func<double> NCalc_ToLambdaSinCos()
-    {
-        const string str = "Sin(pi/6) + Cos(pi/3)";
-        var expression = new Expression(str, ExpressionOptions.NoCache)
+        => new Expression(Expression4, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
         {
             Parameters =
             {
                 ["pi"] = Math.PI
             }
-        };
-
-        return expression.ToLambda<double>();
-    }
+        }.ToLambda<double>();
 
 
-    [Benchmark(Description = "MathEvaluator: \"Sin(a) + Cos(b)\"")]
+    [Benchmark(Description = $"MathEvaluator: {Expression5}")]
     public Func<Variables, double> MathExpression_CompileSinCos_HasVariables()
-        => "Sin(a) + Cos(b)".Compile(new Variables { a = a, b = b }, _scientificContext);
+        => Expression5.Compile(new Variables { a = a, b = b }, new ScientificMathContext());
 
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: \"Sin(a) + Cos(b)\"")]
     public Func<Variables, double> MathExpression_FastExpressionCompiler_CompileSinCos_HasVariables()
-        => new MathExpression("Sin(a) + Cos(b)", _scientificContext, null, _fastCompiler).Compile(new Variables { a = a, b = b });
+        => new MathExpression(Expression5, new ScientificMathContext(), CultureInfo.InvariantCulture, _fastCompiler)
+            .Compile(new Variables { a = a, b = b });
 
-    [Benchmark(Description = "NCalc: \"Sin(a) + Cos(b)\"")]
+    [Benchmark(Description = $"NCalc: {Expression5}")]
     public Func<Variables, double> NCalc_ToLambdaSinCos_HasVariables()
-    {
-        const string str = "Sin(a) + Cos(b)";
-        var expression = new Expression(str, ExpressionOptions.NoCache);
-        return expression.ToLambda<Variables, double>();
-    }
+        => new Expression(Expression5, ExpressionOptions.NoCache, null, CultureInfo.InvariantCulture)
+            .ToLambda<Variables, double>();
 
 
     public record Variables

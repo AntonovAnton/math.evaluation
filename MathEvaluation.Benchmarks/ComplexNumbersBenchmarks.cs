@@ -4,6 +4,7 @@ using MathEvaluation.Compilation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
+using System.Globalization;
 using System.Numerics;
 
 namespace MathEvaluation.Benchmarks;
@@ -14,6 +15,8 @@ namespace MathEvaluation.Benchmarks;
 [MemoryDiagnoser]
 public class ComplexNumbersBenchmarks
 {
+    private const string Expression = "sin(a) * arctan(4i)/(1 - 6i)";
+
     private int _count;
 
     private readonly MathContext _mathContext = new ComplexScientificMathContext();
@@ -28,7 +31,7 @@ public class ComplexNumbersBenchmarks
         _mathEvalFastCompiledFn = MathEvaluator_FastExpressionCompiler_Compile();
     }
 
-    [Benchmark(Description = "MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)")]
+    [Benchmark(Description = $"MathEvaluator evaluation: {Expression}")]
     public Complex MathEvaluator_Evaluate()
     {
         _count++;
@@ -38,19 +41,19 @@ public class ComplexNumbersBenchmarks
         var parameters = new MathParameters();
         parameters.BindVariable(new Complex(r, i), "a");
 
-        return "sin(a) * arctan(4i)/(1 - 6i)".Evaluate<Complex>(parameters, _mathContext);
+        return Expression.Evaluate<Complex>(parameters, _mathContext);
     }
 
-    [Benchmark(Description = "MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)")]
+    [Benchmark(Description = $"MathEvaluator compilation: {Expression}")]
     public Func<SinArg, Complex> MathEvaluator_Compile()
     {
-        return "sin(a) * arctan(4i)/(1 - 6i)".CompileComplex(new SinArg(Complex.Zero), _mathContext);
+        return Expression.CompileComplex(new SinArg(Complex.Zero), _mathContext, CultureInfo.InvariantCulture);
     }
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)")]
+    [Benchmark(Description = $"MathEvaluator.FastExpressionCompiler compilation: {Expression}")]
     public Func<SinArg, Complex> MathEvaluator_FastExpressionCompiler_Compile()
     {
-        return new MathExpression("sin(a) * arctan(4i)/(1 - 6i)", _mathContext, null, _fastCompiler)
+        return new MathExpression(Expression, _mathContext, CultureInfo.InvariantCulture, _fastCompiler)
             .CompileComplex(new SinArg(Complex.Zero));
     }
 
