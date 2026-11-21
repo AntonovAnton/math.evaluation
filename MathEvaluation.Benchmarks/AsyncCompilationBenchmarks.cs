@@ -5,8 +5,7 @@ using MathEvaluation.Context;
 
 namespace MathEvaluation.Benchmarks;
 
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net10_0)]
+[SimpleJob(RuntimeMoniker.Net10_0, warmupCount: 3, iterationCount: 10)] // short jobs: they spot regressions, the published results are in LibraryComparisonBenchmarks
 [MemoryDiagnoser]
 public class AsyncCompilationBenchmarks
 {
@@ -23,7 +22,6 @@ public class AsyncCompilationBenchmarks
 
     private readonly Func<Variables, double> _mathEvalCompiledFn;
     private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalAsyncCompiledFn;
-    private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalFastAsyncCompiledFn;
     private readonly Func<Variables, CancellationToken, ValueTask<double>> _mathEvalAsyncYieldingCompiledFn;
 
     public AsyncCompilationBenchmarks()
@@ -49,7 +47,6 @@ public class AsyncCompilationBenchmarks
 
         _mathEvalCompiledFn = MathExpression_Compile_SyncFunctions();
         _mathEvalAsyncCompiledFn = MathExpression_CompileAsyncFunc();
-        _mathEvalFastAsyncCompiledFn = MathExpression_FastExpressionCompiler_CompileAsyncFunc();
         _mathEvalAsyncYieldingCompiledFn = new MathExpression("priceAsync(x) * qty + taxAsync(priceAsync(x))", _context)
             .CompileAsyncFunc(_variables);
     }
@@ -76,9 +73,6 @@ public class AsyncCompilationBenchmarks
     public ValueTask<double> MathEvaluator_AsyncCompiled_CompletedFunctions()
         => _mathEvalAsyncCompiledFn(_variables, CancellationToken.None);
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler: await fn(variables), completed async functions")]
-    public ValueTask<double> MathEvaluator_FastExpressionCompiler_AsyncCompiled_CompletedFunctions()
-        => _mathEvalFastAsyncCompiledFn(_variables, CancellationToken.None);
 
     [Benchmark(Description = "MathEvaluator: await fn(variables), yielding async functions")]
     public ValueTask<double> MathEvaluator_AsyncCompiled_YieldingFunctions()

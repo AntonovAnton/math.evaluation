@@ -258,13 +258,25 @@ public class DotNetStandardMathContextTests(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("Complex.Sinh(0)", 0d)]
+#if NET11_0_OR_GREATER
+    [InlineData("Complex.Sinh(double.PositiveInfinity)", double.PositiveInfinity, 0d)] // .NET 11 returns zero imaginary part
+#else
     [InlineData("Complex.Sinh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+#endif
     [InlineData("Complex.Sinh( -0.48121182505960347)", -0.5d)]
     [InlineData("Complex.Sinh(-0.88137358701954305)", -1d)]
+#if NET11_0_OR_GREATER
+    [InlineData("Complex.Sinh(double.NegativeInfinity)", double.NegativeInfinity, 0d)] // .NET 11 returns zero imaginary part
+#else
     [InlineData("Complex.Sinh(double.NegativeInfinity)", double.NegativeInfinity, double.NaN)]
+#endif
     [InlineData("Complex.Cosh(0)", 1d)]
     [InlineData("Complex.Cosh(1.3169578969248166)", 1.9999999999999998d)]
+#if NET11_0_OR_GREATER
+    [InlineData("Complex.Cosh(double.PositiveInfinity)", double.PositiveInfinity, 0d)] // .NET 11 returns zero imaginary part
+#else
     [InlineData("Complex.Cosh(double.PositiveInfinity)", double.PositiveInfinity, double.NaN)]
+#endif
     [InlineData("Complex.Tanh(0)", 0)]
     [InlineData("Complex.Tanh(double.NegativeInfinity)", -1d)]
 #if NET9_0_OR_GREATER

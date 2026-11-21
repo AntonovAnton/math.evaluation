@@ -124,6 +124,30 @@ internal static class ReadOnlySpanExtensions
             return new Complex(0d, number);
         }
 
+#if NET11_0_OR_GREATER
+        /// <summary>Parses a generic complex number, format: a + bi. The parts are parsed as <typeparamref name="T" />.</summary>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <param name="numberFormat">The number format.</param>
+        /// <param name="i">The current char index.</param>
+        /// <returns>The value.</returns>
+        internal Complex<T> ParseComplexNumber<T>(NumberFormatInfo numberFormat, ref int i)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            if (mathString[i] == 'i')
+            {
+                i++;
+                return Complex<T>.ImaginaryOne;
+            }
+
+            var number = mathString.ParseNumber<T>(numberFormat, ref i);
+            if (mathString.Length <= i || mathString[i] != 'i')
+                return new Complex<T>(number, T.Zero);
+
+            i++;
+            return new Complex<T>(T.Zero, number);
+        }
+#endif
+
         /// <summary>Gets the number string.</summary>
         /// <param name="numberFormat">The number format.</param>
         /// <param name="i">The current char index.</param>

@@ -46,6 +46,11 @@ internal abstract class MathEntity : IMathEntity
         if (conversionType == typeof(T) && value is not null)
             return value;
 
+#if NET11_0_OR_GREATER
+        if (value is not null && TryCreateNumber(value, conversionType, out var number))
+            return number;
+#endif
+
         if (conversionType == typeof(Complex))
             return new Complex(Convert.ToDouble(value), 0d);
 
@@ -61,6 +66,18 @@ internal abstract class MathEntity : IMathEntity
         return result ?? throw new InvalidCastException($"Conversion returned null for value = {value}.");
     }
 
+    /// <summary>Converts the constant value to a number of type <typeparamref name="TResult" />.</summary>
+    protected static TResult ConvertConstant<TResult>(object? value)
+        where TResult : INumberBase<TResult>
+        => value switch
+        {
+            TResult n => n,
+#if NET11_0_OR_GREATER
+            not null when IsGenericComplex(typeof(TResult)) => CreateNumber<TResult>(value),
+#endif
+            _ => (TResult)ChangeType(value, typeof(TResult))
+        };
+
     /// <inheritdoc cref="Convert.ToDouble(object)" />
     protected static double ConvertToDouble<T>(T value)
         => value switch
@@ -69,6 +86,9 @@ internal abstract class MathEntity : IMathEntity
             decimal dec => (double)dec,
             Complex c when c.Imaginary != 0.0 => throw new InvalidCastException($"Cannot convert the Complex number to a Double, value = {value}."),
             Complex c => c.Real,
+#if NET11_0_OR_GREATER
+            Decimal32 or Decimal64 or Decimal128 or BFloat16 or Half => CreateNumber<double>(value),
+#endif
             _ => Convert.ToDouble(value)
         };
 
@@ -110,6 +130,38 @@ internal abstract class MathEntity : IMathEntity
         if (expression.Type == typeof(TResult))
             return expression;
 
+#if NET11_0_OR_GREATER
+        if (IsGenericComplex(typeof(TResult)))
+        {
+            //convert to Complex<T>
+            if (expression is ConstantExpression gc)
+                return Expression.Constant(ConvertConstant<TResult>(gc.Value), typeof(TResult));
+
+            var componentType = typeof(TResult).GetGenericArguments()[0];
+            return expression.Type == typeof(bool)
+                ? Expression.Condition(expression, Expression.Constant(TResult.One, typeof(TResult)), Expression.Constant(TResult.Zero, typeof(TResult)))
+                : Expression.New(typeof(TResult).GetConstructor([componentType, componentType])!,
+                    expression.Type == componentType ? expression : Expression.Convert(expression, componentType),
+                    Expression.Default(componentType));
+        }
+
+        if (IsGenericComplex(expression.Type))
+        {
+            //if Imaginary is zero use Real (T), otherwise throw exception
+            var componentType = expression.Type.GetGenericArguments()[0];
+            var real = Expression.Property(expression, "Real");
+            var imaginary = Expression.Property(expression, "Imaginary");
+
+            var constructorInfo = typeof(InvalidCastException).GetConstructor([typeof(string)]);
+            var message = $"Cannot convert a Complex<{componentType.Name}> number to a {componentType.Name}.";
+            var exceptionExpr = Expression.Throw(Expression.New(constructorInfo!, Expression.Constant(message)), componentType);
+
+            expression = Expression.Condition(Expression.Equal(imaginary, Expression.Default(componentType)), real, exceptionExpr);
+            if (expression.Type == typeof(TResult))
+                return expression;
+        }
+#endif
+
         if (expression is ConstantExpression c)
             return Expression.Constant(ChangeType(c.Value, typeof(TResult)), typeof(TResult));
 
@@ -142,6 +194,76 @@ internal abstract class MathEntity : IMathEntity
 
         return Expression.Convert(expression, typeof(TResult)).Reduce();
     }
+
+#if NET11_0_OR_GREATER
+    /// <summary>Determines whether the type is a generic <see cref="Complex{T}" /> type.</summary>
+    protected static bool IsGenericComplex(Type type)
+        => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Complex<>);
+
+    /// <summary>Creates the <typeparamref name="TTarget" /> number from the boxed number.</summary>
+    /// <exception cref="InvalidCastException">The value isn't a number.</exception>
+    private static TTarget CreateNumber<TTarget>(object value)
+        where TTarget : INumberBase<TTarget>
+        => value switch
+        {
+            TTarget t => t,
+            double v => TTarget.CreateChecked(v),
+            decimal v => TTarget.CreateChecked(v),
+            float v => TTarget.CreateChecked(v),
+            int v => TTarget.CreateChecked(v),
+            long v => TTarget.CreateChecked(v),
+            Half v => TTarget.CreateChecked(v),
+            BFloat16 v => TTarget.CreateChecked(v),
+            Decimal32 v => TTarget.CreateChecked(v),
+            Decimal64 v => TTarget.CreateChecked(v),
+            Decimal128 v => TTarget.CreateChecked(v),
+            uint v => TTarget.CreateChecked(v),
+            ulong v => TTarget.CreateChecked(v),
+            short v => TTarget.CreateChecked(v),
+            ushort v => TTarget.CreateChecked(v),
+            byte v => TTarget.CreateChecked(v),
+            sbyte v => TTarget.CreateChecked(v),
+            char v => TTarget.CreateChecked(v),
+            nint v => TTarget.CreateChecked(v),
+            nuint v => TTarget.CreateChecked(v),
+            Int128 v => TTarget.CreateChecked(v),
+            UInt128 v => TTarget.CreateChecked(v),
+            BigInteger v => TTarget.CreateChecked(v),
+            Complex v => TTarget.CreateChecked(v),
+            bool v => v ? TTarget.One : TTarget.Zero,
+            IConvertible ic => TTarget.CreateChecked(ic.ToDouble(CultureInfo.InvariantCulture)),
+            _ => throw new InvalidCastException($"Cannot convert the {value.GetType().Name} value to a {typeof(TTarget).Name}, value = {value}.")
+        };
+
+    /// <summary>Tries to convert the boxed number to the .NET 11+ numeric type (and back), which doesn't implement <see cref="IConvertible" />.</summary>
+    /// <returns><c>true</c> if the conversion type is a .NET 11+ numeric type; otherwise, <c>false</c>.</returns>
+    private static bool TryCreateNumber(object value, Type conversionType, [NotNullWhen(true)] out object? result)
+    {
+        result = null;
+        if (conversionType == typeof(Decimal64))
+            result = CreateNumber<Decimal64>(value);
+        else if (conversionType == typeof(Decimal128))
+            result = CreateNumber<Decimal128>(value);
+        else if (conversionType == typeof(Decimal32))
+            result = CreateNumber<Decimal32>(value);
+        else if (conversionType == typeof(BFloat16))
+            result = CreateNumber<BFloat16>(value);
+        else if (conversionType == typeof(Half))
+            result = CreateNumber<Half>(value);
+        else if (value is Decimal32 or Decimal64 or Decimal128 or BFloat16 or Half)
+        {
+            // the source doesn't implement IConvertible
+            if (conversionType == typeof(double))
+                result = CreateNumber<double>(value);
+            else if (conversionType == typeof(decimal))
+                result = CreateNumber<decimal>(value);
+            else
+                result = Convert.ChangeType(CreateNumber<double>(value), conversionType, CultureInfo.InvariantCulture);
+        }
+
+        return result != null;
+    }
+#endif
 
     #endregion
 }

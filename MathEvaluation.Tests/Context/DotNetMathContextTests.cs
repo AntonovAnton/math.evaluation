@@ -1,5 +1,6 @@
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
+using System.Globalization;
 using System.Numerics;
 
 namespace MathEvaluation.Tests.Context;
@@ -373,4 +374,124 @@ public class DotNetMathContextTests
         Assert.Equal(UInt128.MaxValue / 2, max);
         Assert.Equal(UInt128.One, min);
     }
+
+#if NET11_0_OR_GREATER
+
+    #region Decimal32/Decimal64/Decimal128 Tests (.NET 11+)
+
+    private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+
+    [Fact]
+    public void DotNetMathContext_Decimal64_AddsDecimalFractionsExactly()
+    {
+        var result = "0.1 + 0.2".Evaluate<Decimal64>(_context, Invariant);
+
+        Assert.Equal(Decimal64.Parse("0.3", Invariant), result);
+    }
+
+    [Fact]
+    public void DotNetMathContext_Decimal128Constants_ExpectedValue()
+    {
+        Assert.Equal(Decimal128.Pi, "Decimal128.Pi".Evaluate<Decimal128>(_context));
+        Assert.Equal(Decimal128.MaxValue, "Decimal128.MaxValue".Evaluate<Decimal128>(_context));
+        Assert.True(Decimal128.IsNaN("Decimal128.NaN".Evaluate<Decimal128>(_context)));
+        Assert.Equal(Decimal64.Zero, "default(Decimal64)".Evaluate<Decimal64>(_context));
+    }
+
+    [Fact]
+    public void DotNetMathContext_Decimal32Round_ExpectedValue()
+    {
+        var result = "Decimal32.Round(x, 2)".Evaluate<Decimal32>(new { x = Decimal32.Parse("3.14159", Invariant) }, _context, Invariant);
+
+        Assert.Equal(Decimal32.Parse("3.14", Invariant), result);
+    }
+
+    [Fact]
+    public void DotNetMathContext_Decimal64Functions_ExpectedValue()
+    {
+        var sqrt = "Decimal64.Sqrt(x)".Evaluate<Decimal64>(new { x = Decimal64.Parse("2.25", Invariant) }, _context, Invariant);
+        var max = "Decimal64.Max(1.5, 2.5)".Evaluate<Decimal64>(_context, Invariant);
+        var quantize = "Decimal64.Quantize(x, 0.01)".Evaluate<Decimal64>(new { x = Decimal64.Parse("1.23456", Invariant) }, _context, Invariant);
+
+        Assert.Equal(Decimal64.Parse("1.5", Invariant), sqrt);
+        Assert.Equal(Decimal64.Parse("2.5", Invariant), max);
+        Assert.Equal(Decimal64.Parse("1.23", Invariant), quantize);
+    }
+
+    [Fact]
+    public void DotNetMathContext_CompileDecimal128Expression_ExpectedValue()
+    {
+        var dict = new Dictionary<string, object>
+        {
+            { "a", Decimal128.Parse("0.1", Invariant) },
+            { "b", Decimal128.Parse("0.2", Invariant) }
+        };
+
+        var fn = "a + b".Compile<Dictionary<string, object>, Decimal128>(dict, _context, Invariant);
+
+        Assert.Equal(Decimal128.Parse("0.3", Invariant), fn(dict));
+    }
+
+    [Fact]
+    public void DotNetMathContext_BFloat16Calculation_ExpectedValue()
+    {
+        var result = "x + y".Evaluate<BFloat16>(new { x = (BFloat16)2.5f, y = (BFloat16)3.5f }, _context);
+
+        Assert.Equal((BFloat16)6f, result);
+    }
+
+    #endregion
+
+    #region Generic Complex<T> Tests (.NET 11+)
+
+    [Fact]
+    public void DotNetMathContext_GenericComplexConstants_ExpectedValue()
+    {
+        Assert.Equal(Complex<float>.ImaginaryOne, "Complex<float>.ImaginaryOne".EvaluateComplex<float>(_context));
+        Assert.Equal(Complex<Decimal64>.One, "Complex<Decimal64>.One".EvaluateComplex<Decimal64>(_context));
+        Assert.Equal(Complex<double>.Zero, "default(Complex<double>)".EvaluateComplex<double>(_context));
+    }
+
+    [Fact]
+    public void DotNetMathContext_NewGenericComplex_ExpectedValue()
+    {
+        var result = "new Complex<double>(1, 2)".EvaluateComplex<double>(_context);
+
+        Assert.Equal(new Complex<double>(1, 2), result);
+    }
+
+    [Fact]
+    public void DotNetMathContext_GenericComplexDecimal64Sqrt_ExpectedValue()
+    {
+        var z = new Complex<Decimal64>(Decimal64.Parse("-4", Invariant), Decimal64.Zero);
+        var result = "Complex<Decimal64>.Sqrt(z)".EvaluateComplex<Decimal64>(new { z }, _context);
+
+        Assert.Equal(0.0, double.CreateChecked(result.Real), precision: 12);
+        Assert.Equal(2.0, double.CreateChecked(result.Imaginary), precision: 12);
+    }
+
+    [Fact]
+    public void DotNetMathContext_GenericComplexPow_ExpectedValue()
+    {
+        var result = "Complex<double>.Pow(Complex<double>.ImaginaryOne, 2)".EvaluateComplex<double>(_context);
+
+        Assert.Equal(-1.0, result.Real, precision: 12);
+        Assert.Equal(0.0, result.Imaginary, precision: 12);
+    }
+
+    [Theory]
+    [InlineData("a < b", 1.0)]
+    [InlineData("a > b", 0.0)]
+    [InlineData("a<b", 1.0)]
+    [InlineData("a>b", 0.0)]
+    public void DotNetMathContext_ComparisonOperators_AreNotAffectedByGenericComplexKeys(string mathString, double expected)
+    {
+        var result = mathString.Evaluate(new { a = 1.0, b = 2.0 }, _context);
+
+        Assert.Equal(expected, result);
+    }
+
+    #endregion
+
+#endif
 }

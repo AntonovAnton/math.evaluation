@@ -37,6 +37,9 @@ internal class MathExpressionVariable : MathEntity
         i += Key.Length;
 
         using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
+#if NET11_0_OR_GREATER
+        varMathExpression.InheritComplexFns(mathExpression);
+#endif
         varMathExpression.Evaluating += (_, args) =>
         {
             // Forward the evaluating event to the math expression.
@@ -53,8 +56,8 @@ internal class MathExpressionVariable : MathEntity
         result = mathExpression.EvaluateExponentiation(tokenPosition, ref i, depth, separator, closingSymbol, result);
         value = value == default ? result : value * result;
 
-        if (value != result && !(value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
-            mathExpression.RaiseEvaluatingStep(start, i, value);
+        if (value != result)
+            mathExpression.RaiseEvaluatingStepIfNotNaN(start, i, value);
 
         return value;
     }
@@ -73,6 +76,9 @@ internal class MathExpressionVariable : MathEntity
         if (!mathExpression.Statements.TryGetVariable(Key, out var parameterExpression))
         {
             using var varMathExpression = new MathExpression(_mathString, mathExpression.Context, mathExpression.Provider);
+#if NET11_0_OR_GREATER
+            varMathExpression.InheritComplexFns(mathExpression);
+#endif
             varMathExpression.ParameterExpression = mathExpression.ParameterExpression;
             varMathExpression.CancellationTokenExpression = mathExpression.CancellationTokenExpression;
             // Share the statements, so the variables and awaits of the right-hand side are executed before this assignment.

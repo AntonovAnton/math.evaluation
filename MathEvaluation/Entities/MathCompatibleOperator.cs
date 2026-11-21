@@ -74,7 +74,14 @@ internal class MathCompatibleOperator : MathEntity
             right = mathExpression.EvaluateExponentiation(startExponentiation, ref i, depth, separator, closingSymbol, right);
         }
 
+#if NET11_0_OR_GREATER
+        //the generic complex numbers don't define the power and modulo in generic math, so they are calculated by the operators of Complex<T>
+        var value = OperatorType is OperatorType.Power or OperatorType.Modulo && mathExpression.GetComplexOperators<TResult>() is { } complexOperators
+            ? (OperatorType == OperatorType.Power ? complexOperators.Pow : complexOperators.Modulo)(left, right)
+            : Calculate(OperatorType, left, right);
+#else
         var value = Calculate(OperatorType, left, right);
+#endif
 
         mathExpression.RaiseEvaluatingStep(start, i, value);
         return value;
@@ -102,7 +109,15 @@ internal class MathCompatibleOperator : MathEntity
             right = mathExpression.BuildExponentiation<TResult>(startExponentiation, ref i, depth, separator, closingSymbol, right);
         }
 
+#if NET11_0_OR_GREATER
+        //the generic complex numbers don't define the power and modulo in generic math, so they are calculated by the operators of Complex<T>
+        var expression = OperatorType is OperatorType.Power or OperatorType.Modulo && mathExpression.GetComplexOperators<TResult>() is { } complexOperators
+            ? Expression.Invoke(Expression.Constant(OperatorType == OperatorType.Power ? complexOperators.Pow : complexOperators.Modulo),
+                BuildConvert<TResult>(left), BuildConvert<TResult>(right))
+            : Build<TResult>(OperatorType, left, right);
+#else
         var expression = Build<TResult>(OperatorType, left, right);
+#endif
 
         mathExpression.RaiseEvaluatingStep(start, i, expression.NodeType == ExpressionType.Convert ? ((UnaryExpression)expression).Operand : expression);
         return expression;
@@ -262,10 +277,16 @@ internal class MathCompatibleOperator : MathEntity
             OperatorType.GreaterThan when left is BigInteger l => l > ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
             OperatorType.GreaterThanOrEqual when left is BigInteger l => l >= ConvertNumber<TResult, BigInteger>(right) ? TResult.One : default,
 
-            OperatorType.LessThan => left is IComparable<TResult> l && l.CompareTo(right) < 0 ? TResult.One : default,
-            OperatorType.LessThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) <= 0 ? TResult.One : default,
-            OperatorType.GreaterThan => left is IComparable<TResult> l && l.CompareTo(right) > 0 ? TResult.One : default,
-            OperatorType.GreaterThanOrEqual => left is IComparable<TResult> l && l.CompareTo(right) >= 0 ? TResult.One : default,
+            OperatorType.LessThan when left is IComparable<TResult> l => l.CompareTo(right) < 0 ? TResult.One : default,
+            OperatorType.LessThanOrEqual when left is IComparable<TResult> l => l.CompareTo(right) <= 0 ? TResult.One : default,
+            OperatorType.GreaterThan when left is IComparable<TResult> l => l.CompareTo(right) > 0 ? TResult.One : default,
+            OperatorType.GreaterThanOrEqual when left is IComparable<TResult> l => l.CompareTo(right) >= 0 ? TResult.One : default,
+
+            //the number isn't comparable, e.g. the generic Complex<T>, so it compares the real numbers
+            OperatorType.LessThan => LessThan(left, right),
+            OperatorType.LessThanOrEqual => LessThanOrEqual(left, right),
+            OperatorType.GreaterThan => GreaterThan(left, right),
+            OperatorType.GreaterThanOrEqual => GreaterThanOrEqual(left, right),
 
             _ => throw new NotImplementedException()
         };
@@ -323,8 +344,26 @@ internal class MathCompatibleOperator : MathEntity
                 left = BuildConvert<Complex>(left);
                 right = BuildConvert<Complex>(right);
                 return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [left.Type, right.Type])!, left, right);
+#if NET11_0_OR_GREATER
+            case OperatorType.LessThan or OperatorType.LessThanOrEqual or OperatorType.GreaterThan or OperatorType.GreaterThanOrEqual
+                when IsGenericComplex(typeof(TResult)):
+            {
+                //it compares the real parts in their own precision, the imaginary parts have to be zero
+                Func<TResult, TResult, TResult> compareFn = type switch
+                {
+                    OperatorType.LessThan => LessThan,
+                    OperatorType.LessThanOrEqual => LessThanOrEqual,
+                    OperatorType.GreaterThan => GreaterThan,
+                    _ => GreaterThanOrEqual
+                };
+                return Expression.Invoke(Expression.Constant(compareFn), BuildConvert<TResult>(left), BuildConvert<TResult>(right));
+            }
+#endif
             case OperatorType.Modulo or OperatorType.LessThan or OperatorType.LessThanOrEqual or OperatorType.GreaterThan or OperatorType.GreaterThanOrEqual
                 when typeof(TResult) == typeof(Complex):
+#if NET11_0_OR_GREATER
+            case OperatorType.Modulo when IsGenericComplex(typeof(TResult)):
+#endif
             case OperatorType.Power:
                 left = BuildConvert<double>(left);
                 right = BuildConvert<double>(right);
@@ -372,12 +411,53 @@ internal class MathCompatibleOperator : MathEntity
     private static Expression BuildConstant<TResult>(OperatorType type, ConstantExpression left, ConstantExpression right)
         where TResult : struct, INumberBase<TResult>
     {
-        var l = left.Value is TResult lr ? lr : (TResult)ChangeType(left.Value, typeof(TResult));
-        var r = right.Value is TResult rr ? rr : (TResult)ChangeType(right.Value, typeof(TResult));
+        var l = ConvertConstant<TResult>(left.Value);
+        var r = ConvertConstant<TResult>(right.Value);
         var value = Calculate(type, l, r);
 
         return BuildConvert<TResult>(Expression.Constant(value, typeof(TResult)));
     }
+
+    /// <summary>
+    ///     Compares the real numbers that don't implement <see cref="IComparable{T}" />, e.g. the generic Complex&lt;T&gt; numbers
+    ///     that the imaginary parts are zero. It compares them in their own precision: the sign of the difference.
+    /// </summary>
+    /// <returns>
+    ///     A negative number if <paramref name="left" /> is less than <paramref name="right" />, zero if they are equal,
+    ///     a positive number if <paramref name="left" /> is greater than <paramref name="right" />, or <c>null</c> if any of them is NaN.
+    /// </returns>
+    /// <exception cref="InvalidCastException">The number isn't a real number.</exception>
+    private static int? CompareRealNumbers<TResult>(TResult left, TResult right)
+        where TResult : INumberBase<TResult>
+    {
+        if (TResult.IsNaN(left) || TResult.IsNaN(right))
+            return null;
+
+        if (!TResult.IsRealNumber(left) || !TResult.IsRealNumber(right))
+            throw new InvalidCastException($"Cannot compare the {typeof(TResult).Name} numbers, left = {left}, right = {right}.");
+
+        if (left == right)
+            return 0;
+
+        var difference = left - right; // it's NaN only for the infinities of the same sign, but they are equal
+        return TResult.IsNegative(difference) ? -1 : 1;
+    }
+
+    private static TResult LessThan<TResult>(TResult left, TResult right)
+        where TResult : INumberBase<TResult>
+        => CompareRealNumbers(left, right) < 0 ? TResult.One : TResult.Zero;
+
+    private static TResult LessThanOrEqual<TResult>(TResult left, TResult right)
+        where TResult : INumberBase<TResult>
+        => CompareRealNumbers(left, right) <= 0 ? TResult.One : TResult.Zero;
+
+    private static TResult GreaterThan<TResult>(TResult left, TResult right)
+        where TResult : INumberBase<TResult>
+        => CompareRealNumbers(left, right) > 0 ? TResult.One : TResult.Zero;
+
+    private static TResult GreaterThanOrEqual<TResult>(TResult left, TResult right)
+        where TResult : INumberBase<TResult>
+        => CompareRealNumbers(left, right) >= 0 ? TResult.One : TResult.Zero;
 
     private static bool ConvertToBoolean(Complex value)
         => ConvertToDouble(value) != 0.0;

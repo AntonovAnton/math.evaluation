@@ -4,14 +4,11 @@ using MathEvaluation.Compilation;
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using MathEvaluation.Parameters;
-using NCalc;
-using NCalc.LambdaCompilation;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MathEvaluation.Benchmarks;
 
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net10_0)]
+[SimpleJob(RuntimeMoniker.Net10_0, warmupCount: 3, iterationCount: 10)] // short jobs: they spot regressions, the published results are in LibraryComparisonBenchmarks
 //[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
 [MemoryDiagnoser]
 public class CompoundingInterestBenchmarks
@@ -23,13 +20,11 @@ public class CompoundingInterestBenchmarks
 
     private readonly Func<CompoundInterestFormulaParams, double> _mathEvalCompiledFn;
     private readonly Func<CompoundInterestFormulaParams, double> _mathEvalFastCompiledFn;
-    private readonly Func<CompoundInterestFormulaParams, double> _nCalcCompiledFn;
 
     public CompoundingInterestBenchmarks()
     {
         _mathEvalCompiledFn = MathEvaluator_Compile();
         _mathEvalFastCompiledFn = MathEvaluator_FastExpressionCompiler_Compile();
-        _nCalcCompiledFn = NCalc_ToLambda();
     }
 
     [Benchmark(Description = "MathEvaluator evaluation")]
@@ -44,27 +39,6 @@ public class CompoundingInterestBenchmarks
         return "P * (1 + r/n)^d".Evaluate(parameters, _mathContext);
     }
 
-    [Benchmark(Description = "NCalc evaluation")]
-    public double NCalc_Evaluate()
-    {
-        _count++;
-        const int n = 365;
-        var d = _count % n + 1; //randomizing values
-
-        var expression = new Expression("P * Pow((1 + r/n), d)", ExpressionOptions.NoCache)
-        {
-            Parameters =
-            {
-                ["P"] = 10000,
-                ["r"] = 0.05,
-                ["n"] = n,
-                ["d"] = d
-            }
-        };
-
-        return Convert.ToDouble(expression.Evaluate());
-    }
-
     [Benchmark(Description = "MathEvaluator compilation")]
     public Func<CompoundInterestFormulaParams, double> MathEvaluator_Compile()
         => "P * (1 + r/n)^d".Compile(new CompoundInterestFormulaParams(), _mathContext);
@@ -72,14 +46,6 @@ public class CompoundingInterestBenchmarks
     [Benchmark(Description = "MathEvaluator.FastExpressionCompiler compilation")]
     public Func<CompoundInterestFormulaParams, double> MathEvaluator_FastExpressionCompiler_Compile()
         => new MathExpression("P * (1 + r/n)^d", _mathContext, null, _fastCompiler).Compile(new CompoundInterestFormulaParams());
-
-    [Benchmark(Description = "NCalc compilation")]
-    public Func<CompoundInterestFormulaParams, double> NCalc_ToLambda()
-    {
-        var expression = new Expression("P * Pow((1 + r/n), d)", ExpressionOptions.NoCache);
-
-        return expression.ToLambda<CompoundInterestFormulaParams, double>();
-    }
 
     [Benchmark(Description = "MathEvaluator invoke fn(P, r, n, d)")]
     public double MathEvaluator_InvokeCompiled()
@@ -103,18 +69,6 @@ public class CompoundingInterestBenchmarks
         var parameters = new CompoundInterestFormulaParams(10000, 0.05, n, d);
 
         return _mathEvalFastCompiledFn(parameters);
-    }
-
-    [Benchmark(Description = "NCalc invoke fn(P, r, n, d)")]
-    public double NCalc_InvokeCompiled()
-    {
-        _count++;
-        const int n = 365;
-        var d = _count % n + 1; //randomizing values
-
-        var parameters = new CompoundInterestFormulaParams(10000, 0.05, n, d);
-
-        return _nCalcCompiledFn(parameters);
     }
 
 #pragma warning disable IDE1006 // Naming Styles

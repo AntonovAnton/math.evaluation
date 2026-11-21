@@ -41,7 +41,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -77,7 +77,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -145,7 +145,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -158,7 +158,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         var fn = expression.CompileDecimal();
         var value = fn();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -194,7 +194,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -217,7 +217,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -235,7 +235,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -257,7 +257,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -275,7 +275,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -300,7 +300,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -324,7 +324,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -354,7 +354,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -385,7 +385,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -406,7 +406,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -421,11 +421,11 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
         var fn = expression.CompileDecimal(new { x = 0.0m, PI = 0.0m }, _context);
-        var value = fn(new { x = (decimal)varValue, PI = (decimal)varValue });
+        var value = fn(new { x = ToDecimal(varValue), PI = ToDecimal(varValue) });
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -443,10 +443,10 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         var dict = new Dictionary<string, decimal>
         {
-            { "a", (decimal)var_a },
-            { "b", (decimal)var_b },
-            { "c", (decimal)var_c },
-            { "d", (decimal)var_d }
+            { "a", ToDecimal(var_a) },
+            { "b", ToDecimal(var_b) },
+            { "c", ToDecimal(var_c) },
+            { "d", ToDecimal(var_d) }
         };
 
         var fn = expression.CompileDecimal(dict, _context, CultureInfo.InvariantCulture);
@@ -454,7 +454,7 @@ public class DecimalDotNetStandardMathContextTests(ITestOutputHelper testOutputH
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]

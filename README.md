@@ -13,12 +13,13 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
 - Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
 - Supports `INumberBase<T>` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+- Supports the .NET 11 types: IEEE 754 decimal `Decimal32`, `Decimal64`, `Decimal128`, `BFloat16`, and generic `Complex<T>`.
 - Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-- Compiles math expressions with async functions into an async delegate that returns `ValueTask<TResult>` or `ValueTask<T, TResult>`.
+- Compiles math expressions with async functions into an async delegate that returns `ValueTask`.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
 - Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
-- Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
+- Multi-targets .NET 8, .NET 9, .NET 10, and .NET 11 for optimal performance on each platform.
 - .NET Standard 2.1 compatible in versions prior to [3.0.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/3.0.0).
 
 ## Articles
@@ -229,7 +230,7 @@ When the same input matches entities from several contexts, the entity with the 
 ## Async functions
 Added in version [3.8.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.8.0)
 
-Async functions that return `ValueTask<T>` and take a `CancellationToken` as the last parameter can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
+Async functions that return `ValueTask` and take a `CancellationToken` as the last parameter can be bound with `BindAsyncFunction` and used in a math expression compiled by the `CompileAsyncFunc` method:
 
     var context = new MathContext();
     context.BindAsyncFunction<double>(async (id, cancellationToken) => await priceService.GetPriceAsync(id, cancellationToken), "price");
@@ -347,6 +348,29 @@ For .NET 7 and higher, MathEvaluator supports any numeric type that implements `
     parameters.a = 100;
     var result = fn(parameters);
     // Result: 1267650600228229401496703205376
+
+## .NET 11 numeric types
+
+Added in version [3.9.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.9.0)
+
+For .NET 11 and higher, MathEvaluator supports the IEEE 754 decimal types `Decimal32`, `Decimal64`, `Decimal128`, and `BFloat16` like any other `INumberBase<T>` type. The decimal types keep decimal fractions exact:
+
+    "0.1 + 0.2".Evaluate<Decimal64>(); // Result: 0.3 (exactly)
+
+The generic `Complex<T>` numbers, for example `Complex<Decimal64>` or `Complex<float>`, are evaluated and compiled by the `EvaluateComplex<T>` and `CompileComplex<T>` methods, where `T` is the type of the real and imaginary parts:
+
+    var context = new ComplexScientificMathContext<Decimal128>();
+
+    var value = "sqrt(-4) + (0.1 - 0.2i) * 3".EvaluateComplex<Decimal128>(context); // Result: <0.3; 1.4>
+
+    var parameters = new Dictionary<string, Complex<Decimal128>> { { "z", new Complex<Decimal128>(1, 2) } };
+    var fn = new MathExpression("z^2 + π", context)
+        .CompileComplex<Dictionary<string, Complex<Decimal128>>, Decimal128>(parameters);
+    var result = fn(parameters);
+
+`ComplexScientificMathContext<T>` supports the same functions as `ComplexScientificMathContext` and calculates them, as well as the constants π, e, and τ, in the precision of `T`. `DotNetMathContext` supports the C# notation of these types, for example `Decimal64.Sqrt(x)`, `Decimal128.Pi`, `new Complex<double>(1, 2)`, or `Complex<Decimal64>.Sqrt(z)`.
+
+**NOTE:** Use `EvaluateComplex<T>` and `CompileComplex<T>` for `Complex<T>`, the `Evaluate<Complex<T>>` and `Compile<Complex<T>>` methods throw `NotSupportedException`.
 
 ## Supported math functions, operators, and constants
 
