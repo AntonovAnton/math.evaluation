@@ -29,7 +29,7 @@
             .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>3.9.0</Version>
+        <Version>3.8.0</Version>
         <PackageId>MathEvaluator.FastExpressionCompiler</PackageId>
         <Product>MathEvaluator.FastExpressionCompiler</Product>
         <PackageIcon>logo.png</PackageIcon>

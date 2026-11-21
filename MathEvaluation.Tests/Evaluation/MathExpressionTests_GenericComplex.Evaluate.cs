@@ -282,8 +282,16 @@ public class MathExpressionTests_GenericComplex(ITestOutputHelper testOutputHelp
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<InvalidCastException>(ex.InnerException);
 
-        var fn = new MathExpression("7i % 4", context, Culture).CompileComplex<double>();
-        Assert.Throws<InvalidCastException>(() => fn());
+        // the operators of constants are calculated when the expression is compiled, as for Complex
+        ex = Record.Exception(() => new MathExpression("7i % 4", context, Culture).CompileComplex<double>());
+        Assert.IsType<MathExpressionException>(ex);
+        Assert.IsType<InvalidCastException>(ex.InnerException);
+
+        // with variables, the compiled delegate throws
+        var parameters = new Dictionary<string, Complex<double>> { { "x", default } };
+        var fn = new MathExpression("x % 4", context, Culture).CompileComplex<Dictionary<string, Complex<double>>, double>(parameters);
+        parameters["x"] = new Complex<double>(0, 7);
+        Assert.Throws<InvalidCastException>(() => fn(parameters));
     }
 }
 #endif

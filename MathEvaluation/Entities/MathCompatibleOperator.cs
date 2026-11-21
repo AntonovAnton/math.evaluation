@@ -111,10 +111,22 @@ internal class MathCompatibleOperator : MathEntity
 
 #if NET11_0_OR_GREATER
         //the generic complex numbers don't define the power and modulo in generic math, so they are calculated by the operators of Complex<T>
-        var expression = OperatorType is OperatorType.Power or OperatorType.Modulo && mathExpression.GetComplexOperators<TResult>() is { } complexOperators
-            ? Expression.Invoke(Expression.Constant(OperatorType == OperatorType.Power ? complexOperators.Pow : complexOperators.Modulo),
-                BuildConvert<TResult>(left), BuildConvert<TResult>(right))
-            : Build<TResult>(OperatorType, left, right);
+        Expression expression;
+        if (OperatorType is OperatorType.Power or OperatorType.Modulo && mathExpression.GetComplexOperators<TResult>() is { } complexOperators)
+        {
+            var fn = OperatorType == OperatorType.Power ? complexOperators.Pow : complexOperators.Modulo;
+            left = BuildConvert<TResult>(left);
+            right = BuildConvert<TResult>(right);
+
+            //the constants are calculated when it's compiled, as by the other operators
+            expression = left is ConstantExpression { Value: TResult l } && right is ConstantExpression { Value: TResult r }
+                ? Expression.Constant(fn(l, r), typeof(TResult))
+                : Expression.Invoke(Expression.Constant(fn), left, right);
+        }
+        else
+        {
+            expression = Build<TResult>(OperatorType, left, right);
+        }
 #else
         var expression = Build<TResult>(OperatorType, left, right);
 #endif

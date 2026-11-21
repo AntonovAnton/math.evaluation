@@ -42,40 +42,6 @@ public class ComplexScientificMathContext<T> : ScientificMathContext
         BindFunction<Complex<T>>(powerFn, "Pow");
         BindFunction<Complex<T>>(powerFn, "POW");
 
-        #region operators
-
-        // the C# compatible operators of the base context aren't defined for Complex<T>, so they are bound in the precision of T
-        BindOperandsOperator<Complex<T>>(powerFn, '^', (int)EvalPrecedence.Exponentiation);
-
-        static Complex<T> modFn(Complex<T> left, Complex<T> right) => new(GetReal(left) % GetReal(right), T.Zero);
-
-        BindOperator<Complex<T>>(modFn, "mod");
-        BindOperator<Complex<T>>(modFn, "Mod");
-        BindOperator<Complex<T>>(modFn, "MOD");
-        BindOperator<Complex<T>>(modFn, "modulo");
-        BindOperator<Complex<T>>(modFn, "Modulo");
-        BindOperator<Complex<T>>(modFn, "MODULO");
-
-        static Complex<T> greaterThanFn(Complex<T> left, Complex<T> right) => GetReal(left) > GetReal(right) ? Complex<T>.One : default;
-
-        BindOperator<Complex<T>>(greaterThanFn, '>', (int)EvalPrecedence.RelationalOperator);
-
-        static Complex<T> lessThanFn(Complex<T> left, Complex<T> right) => GetReal(left) < GetReal(right) ? Complex<T>.One : default;
-
-        BindOperator<Complex<T>>(lessThanFn, '<', (int)EvalPrecedence.RelationalOperator);
-
-        static Complex<T> greaterThanOrEqualFn(Complex<T> left, Complex<T> right) => GetReal(left) >= GetReal(right) ? Complex<T>.One : default;
-
-        BindOperator<Complex<T>>(greaterThanOrEqualFn, '≥', (int)EvalPrecedence.RelationalOperator);
-        BindOperator<Complex<T>>(greaterThanOrEqualFn, '⪰', (int)EvalPrecedence.RelationalOperator);
-
-        static Complex<T> lessThanOrEqualFn(Complex<T> left, Complex<T> right) => GetReal(left) <= GetReal(right) ? Complex<T>.One : default;
-
-        BindOperator<Complex<T>>(lessThanOrEqualFn, '≤', (int)EvalPrecedence.RelationalOperator);
-        BindOperator<Complex<T>>(lessThanOrEqualFn, '⪯', (int)EvalPrecedence.RelationalOperator);
-
-        #endregion
-
         static Complex<T> absFn(Complex<T> v) => new(Complex<T>.Abs(v), T.Zero);
 
         BindFunction<Complex<T>>(absFn, '|', '|');
@@ -369,16 +335,6 @@ public class ComplexScientificMathContext<T> : ScientificMathContext
         BindFunction<Complex<T>>(acothFn, "ACOTH");
 
         #endregion
-    }
-
-    /// <summary>Gets the real part, the imaginary part has to be zero.</summary>
-    /// <exception cref="InvalidCastException">The imaginary part isn't zero.</exception>
-    private static T GetReal(Complex<T> value)
-    {
-        if (value.Imaginary != T.Zero)
-            throw new InvalidCastException($"Cannot convert the Complex<{typeof(T).Name}> number to a {typeof(T).Name}, value = {value}.");
-
-        return value.Real;
     }
 }
 #endif

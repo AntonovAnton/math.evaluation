@@ -252,6 +252,8 @@ Expression-defined variables can use async functions too:
 
 Async calls are awaited one after another in the order of the math expression string, and each call is invoked, even if the same call is repeated. An expression-defined variable is calculated once, after its async functions are awaited. Synchronous methods such as `Evaluate` and `Compile` throw a `MathExpressionException` if the math expression contains an async function.
 
+**NOTE:** MathEvaluator isn't compiled with .NET 11 runtime async. Your async functions use it if your project enables it.
+
 ## AOT (Ahead-of-Time) compilation support
 Added in version [3.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.6.0)
 

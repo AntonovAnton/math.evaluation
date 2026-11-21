@@ -37,11 +37,11 @@ public class ComplexScientificMathContextGenericTests(ITestOutputHelper testOutp
     public void ComplexScientificMathContext_Decimal128_ExpectedValue() => AssertContext<Decimal128>();
 
     [Theory]
-    [InlineData("2i mod 3")]
-    [InlineData("2i < 3")]
-    [InlineData("2 ≥ 3i")]
-    [InlineData("1 ⪯ i")]
-    public void ComplexScientificMathContext_ComparesOrDividesComplexNumber_ThrowsInvalidCastException(string mathString)
+    [InlineData("2i mod 3", "x mod 3")]
+    [InlineData("2i < 3", "x < 3")]
+    [InlineData("2 ≥ 3i", "2 ≥ 1.5x")]
+    [InlineData("1 ⪯ i", "1 ⪯ x")]
+    public void ComplexScientificMathContext_ComparesOrDividesComplexNumber_ThrowsInvalidCastException(string mathString, string mathStringWithVariable)
     {
         var context = new ComplexScientificMathContext<Decimal64>();
 
@@ -49,8 +49,17 @@ public class ComplexScientificMathContextGenericTests(ITestOutputHelper testOutp
         Assert.IsType<MathExpressionException>(ex);
         Assert.IsType<InvalidCastException>(ex.InnerException);
 
-        var fn = new MathExpression(mathString, context, Invariant).CompileComplex<Decimal64>();
-        Assert.Throws<InvalidCastException>(() => fn());
+        // the operators of constants are calculated when the expression is compiled, as for Complex
+        ex = Record.Exception(() => new MathExpression(mathString, context, Invariant).CompileComplex<Decimal64>());
+        Assert.IsType<MathExpressionException>(ex);
+        Assert.IsType<InvalidCastException>(ex.InnerException);
+
+        // with variables, the compiled delegate throws
+        var parameters = new Dictionary<string, Complex<Decimal64>> { { "x", default } };
+        var fn = new MathExpression(mathStringWithVariable, context, Invariant)
+            .CompileComplex<Dictionary<string, Complex<Decimal64>>, Decimal64>(parameters);
+        parameters["x"] = new Complex<Decimal64>(0, 2); // 2i
+        Assert.Throws<InvalidCastException>(() => fn(parameters));
     }
 
     [Fact]
