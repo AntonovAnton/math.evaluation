@@ -1,6 +1,4 @@
-﻿
-
-// ReSharper disable UnusedMember.Global
+﻿// ReSharper disable UnusedMember.Global
 
 namespace MathEvaluation.Context;
 
@@ -65,15 +63,7 @@ public class CompositeMathContext : MathContext
         if (ReferenceEquals(context, target))
             return true;
 
-        if (context is not CompositeMathContext composite)
-            return false;
-
-        foreach (var c in composite._contexts)
-        {
-            if (Contains(c, target))
-                return true;
-        }
-
-        return false;
+        return context is CompositeMathContext composite &&
+               composite._contexts.Any(c => Contains(c, target));
     }
 }

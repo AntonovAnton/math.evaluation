@@ -15,28 +15,6 @@ public class DotNetMathContext : DotNetStandardMathContext
     /// <summary>Initializes a new instance of the <see cref="DotNetMathContext" /> class.</summary>
     public DotNetMathContext()
     {
-        BindConstant(default(float));
-        BindConstant(default(int));
-        BindConstant(default(uint));
-        BindConstant(default(long));
-        BindConstant(default(ulong));
-        BindConstant(default(byte));
-        BindConstant(default(sbyte));
-        BindConstant(default(short));
-        BindConstant(default(ushort));
-        BindConstant(default(char));
-        BindConstant(default(nint));
-        BindConstant(default(nuint));
-        BindConstant(default(Single));
-        BindConstant(default(Int32));
-        BindConstant(default(UInt32));
-        BindConstant(default(Int64));
-        BindConstant(default(UInt64));
-        BindConstant(default(Byte));
-        BindConstant(default(SByte));
-        BindConstant(default(Int16));
-        BindConstant(default(UInt16));
-        BindConstant(default(Char));
         BindConstant(default(IntPtr));
         BindConstant(default(UIntPtr));
 
@@ -44,39 +22,6 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(default(Int128));
         BindConstant(default(UInt128));
         BindConstant(default(BigInteger));
-
-        BindConstant(1f, 'f');
-        BindConstant(1L, 'l');
-        BindConstant(1u, 'u');
-        BindConstant(1ul, "ul");
-        BindConstant(1LU, "lu");
-        BindConstant(1F, 'F');
-        BindConstant(1L, 'L');
-        BindConstant(1Lu, "Lu");
-        BindConstant(1LU, "LU");
-        BindConstant(1U, 'U');
-        BindConstant(1U, "Ul");
-        BindConstant(1U, "UL");
-        BindConstant(1F, "float");
-        BindConstant((short)1, "short");
-        BindConstant((ushort)1, "ushort");
-        BindConstant(1, "int");
-        BindConstant(1u, "uint");
-        BindConstant(1L, "long");
-        BindConstant(1ul, "ulong");
-        BindConstant((byte)1, "byte");
-        BindConstant((sbyte)1, "sbyte");
-        BindConstant((char)1, "char");
-        BindConstant((float)1, "Single");
-        BindConstant((short)1, "Int16");
-        BindConstant((ushort)1, "UInt16");
-        BindConstant(1, "Int32");
-        BindConstant((uint)1, "UInt32");
-        BindConstant((long)1, "Int64");
-        BindConstant((ulong)1, "UInt64");
-        BindConstant((byte)1, "Byte");
-        BindConstant((sbyte)1, "SByte");
-        BindConstant((char)1, "Char");
 
         BindConstant((nint)1, "nint");
         BindConstant((nuint)1, "nuint");
@@ -86,40 +31,6 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(Int128.One, "Int128");
         BindConstant(UInt128.One, "UInt128");
         BindConstant(BigInteger.One, "BigInteger");
-
-        BindConstant(byte.MaxValue);
-        BindConstant(byte.MinValue);
-        BindConstant(sbyte.MaxValue);
-        BindConstant(sbyte.MinValue);
-        BindConstant(short.MaxValue);
-        BindConstant(short.MinValue);
-        BindConstant(ushort.MaxValue);
-        BindConstant(ushort.MinValue);
-        BindConstant(int.MaxValue);
-        BindConstant(int.MinValue);
-        BindConstant(uint.MaxValue);
-        BindConstant(uint.MinValue);
-        BindConstant(long.MaxValue);
-        BindConstant(long.MinValue);
-        BindConstant(ulong.MaxValue);
-        BindConstant(ulong.MinValue);
-
-        BindConstant(Byte.MaxValue);
-        BindConstant(Byte.MinValue);
-        BindConstant(SByte.MaxValue);
-        BindConstant(SByte.MinValue);
-        BindConstant(Int16.MaxValue);
-        BindConstant(Int16.MinValue);
-        BindConstant(UInt16.MaxValue);
-        BindConstant(UInt16.MinValue);
-        BindConstant(Int32.MaxValue);
-        BindConstant(Int32.MinValue);
-        BindConstant(UInt32.MaxValue);
-        BindConstant(UInt32.MinValue);
-        BindConstant(Int64.MaxValue);
-        BindConstant(Int64.MinValue);
-        BindConstant(UInt64.MaxValue);
-        BindConstant(UInt64.MinValue);
 
         // Math.Tau constant (new in .NET 5+)
         BindConstant(Math.Tau);
@@ -1413,4 +1324,4 @@ public class DotNetMathContext : DotNetStandardMathContext
     }
 
 #endif
-}
+}

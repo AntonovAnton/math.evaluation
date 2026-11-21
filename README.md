@@ -18,7 +18,7 @@ MathEvaluator is a .NET library that allows you to evaluate and compile any math
 - Compiles math expressions with async functions into an async delegate that returns `ValueTask`.
 - Provides variable support within math expressions (including expression-defined variables).
 - Extensible with custom functions and operators.
-- Fast and comprehensive. More than 6000 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
+- Fast and comprehensive. More than 6500 tests are passed, including complex math expressions (for example, -3^4sin(-π/2) or sin-3/cos1).
 - Multi-targets .NET 8, .NET 9, .NET 10, and .NET 11 for optimal performance on each platform.
 - .NET Standard 2.1 compatible in versions prior to [3.0.0](https://github.com/AntonovAnton//math.evaluation/releases/tag/3.0.0).
 
@@ -330,6 +330,12 @@ These numeric systems work seamlessly with all mathematical operations and conte
 Added in version [2.6.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.6.0)
 
 For .NET 7 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
+
+The generic math contexts calculate in the precision of the numeric type (added in version [3.9.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.9.0)):
+- `ScientificMathContext<T>` (`T` implements `IFloatingPointIeee754<T>`, for example `double`, `float`, `Half`, or `Decimal128` on .NET 11) calculates all functions, the power, and the constants in `T`. `ScientificMathContext` is `ScientificMathContext<double>`.
+- `ProgrammingMathContext<T>` (`T` implements `IFloatingPoint<T>`, for example `decimal`) calculates the constants, the floor division, the modulo, and the iif function in `T`. `ProgrammingMathContext` is `ProgrammingMathContext<double>`.
+
+    "sqrt(2) + 2^0.5".Evaluate<Decimal128>(new ScientificMathContext<Decimal128>()); // 34 significant digits
 
 ### BigInteger Examples
 
