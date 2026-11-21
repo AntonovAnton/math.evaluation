@@ -1,3 +1,4 @@
+#if NET11_0_OR_GREATER
 using MathEvaluation.Context;
 using MathEvaluation.Extensions;
 using System.Globalization;
@@ -116,3 +117,4 @@ public class MathExpressionTests_GenericComplex(ITestOutputHelper testOutputHelp
         Assert.Equal(D64("5.2"), value.Imaginary);
     }
 }
+#endif

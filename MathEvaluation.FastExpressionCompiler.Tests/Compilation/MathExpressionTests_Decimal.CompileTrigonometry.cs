@@ -19,7 +19,7 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -35,7 +35,7 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -85,7 +85,7 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -121,7 +121,7 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -165,7 +165,7 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -205,6 +205,6 @@ public partial class MathExpressionTests_Decimal
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 }
