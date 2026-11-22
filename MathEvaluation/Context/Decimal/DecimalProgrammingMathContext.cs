@@ -8,6 +8,7 @@ namespace MathEvaluation.Context;
 ///     and '%' for modulo operation. The constants, the floor division, the modulo, and the iif function are calculated in decimal.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.ProgrammingMathContext{T}" />
+[Obsolete("Use ProgrammingMathContext<decimal> instead.")]
 public class DecimalProgrammingMathContext : ProgrammingMathContext<decimal>
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalProgrammingMathContext" /> class.</summary>

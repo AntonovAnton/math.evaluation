@@ -257,7 +257,9 @@ public class GenericMathContextsTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void DecimalProgrammingMathContext_CalculatesInDecimal()
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         var context = new DecimalProgrammingMathContext();
+#pragma warning restore CS0618 // Type or member is obsolete
 
         Assert.Equal(2.5m, "iif(0, 1.25, 2.5)".Evaluate<decimal>(context, Invariant));
         Assert.Equal(3m, "7.5 // 2.5".Evaluate<decimal>(context, Invariant));

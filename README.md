@@ -331,7 +331,7 @@ Added in version [2.6.0](https://github.com/AntonovAnton/math.evaluation/release
 
 For .NET 7 and higher, MathEvaluator supports any numeric type that implements `INumberBase<T>`, providing type-safe mathematical expression evaluation across different numeric representations.
 
-The generic math contexts calculate in the precision of the numeric type (added in version [3.9.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.9.0)):
+The generic math contexts calculate in the precision of the numeric type (added in version [4.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v4.0.0)):
 - `ScientificMathContext<T>` (`T` implements `IFloatingPointIeee754<T>`, for example `double`, `float`, `Half`, or `Decimal128` on .NET 11) calculates all functions, the power, and the constants in `T`. `ScientificMathContext` is `ScientificMathContext<double>`.
 - `ProgrammingMathContext<T>` (`T` implements `IFloatingPoint<T>`, for example `decimal`) calculates the constants, the floor division, the modulo, and the iif function in `T`. `ProgrammingMathContext` is `ProgrammingMathContext<double>`.
 
@@ -359,7 +359,7 @@ The generic math contexts calculate in the precision of the numeric type (added 
 
 ## .NET 11 numeric types
 
-Added in version [3.9.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v3.9.0)
+Added in version [4.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/v4.0.0)
 
 For .NET 11 and higher, MathEvaluator supports the IEEE 754 decimal types `Decimal32`, `Decimal64`, `Decimal128`, and `BFloat16` like any other `INumberBase<T>` type. The decimal types keep decimal fractions exact:
 

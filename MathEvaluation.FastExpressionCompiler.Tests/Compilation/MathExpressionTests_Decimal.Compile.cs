@@ -8,7 +8,7 @@ namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
-    private readonly DecimalProgrammingMathContext _programmingContext = new();
+    private readonly ProgrammingMathContext<decimal> _programmingContext = new();
 
     [Fact]
     public void FastMathExpression_CompileDecimalThenInvoke_DivideByZero_ThrowDivideByZeroException()

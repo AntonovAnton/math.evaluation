@@ -8,7 +8,7 @@ namespace MathEvaluation.Tests.Compilation;
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
-    private readonly DecimalProgrammingMathContext _programmingContext = new();
+    private readonly ProgrammingMathContext<decimal> _programmingContext = new();
 
     [Theory]
     [InlineData("+", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
