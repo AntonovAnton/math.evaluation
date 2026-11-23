@@ -8,7 +8,7 @@ namespace MathEvaluation.FastExpressionCompiler.Tests.Compilation;
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
-    private readonly DecimalProgrammingMathContext _programmingContext = new();
+    private readonly ProgrammingMathContext<decimal> _programmingContext = new();
 
     [Fact]
     public void FastMathExpression_CompileDecimalThenInvoke_DivideByZero_ThrowDivideByZeroException()
@@ -51,7 +51,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -69,7 +69,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -86,7 +86,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -132,7 +132,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -152,7 +152,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -174,7 +174,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -189,7 +189,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -205,7 +205,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -226,7 +226,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -243,7 +243,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -275,7 +275,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -301,7 +301,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -324,7 +324,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -354,7 +354,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -385,7 +385,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -409,7 +409,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -419,17 +419,17 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("200x^- 0.15", 2, 180.25009252216600d)]
     [InlineData("PI", Math.PI, Math.PI)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasVariable_ExpectedValue(string mathString,
-        decimal varValue, double expectedValue)
+        double varValue, double expectedValue)
     {
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"variable value = {varValue}");
 
-        var fn = mathString.CompileDecimalFast(new { x = varValue, PI = varValue }, _scientificContext, CultureInfo.InvariantCulture);
-        var value = fn(new { x = varValue, PI = varValue });
+        var fn = mathString.CompileDecimalFast(new { x = ToDecimal(varValue), PI = ToDecimal(varValue) }, _scientificContext, CultureInfo.InvariantCulture);
+        var value = fn(new { x = ToDecimal(varValue), PI = ToDecimal(varValue) });
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -437,20 +437,20 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("getX1()^2 + 2^getX2^2", 0.5, 3, 0.5 * 0.5 + 512)]
     [InlineData("ln(1/-getX1 + √(1/getX2^2 + 1))", -0.5, 0.5, 1.4436354751788103d)]
     public void FastMathExpression_CompileDecimalThenInvoke_HasGetVariableFns_ExpectedValue(string mathString,
-        decimal x1, decimal x2, double expectedValue)
+        double x1, double x2, double expectedValue)
     {
         testOutputHelper.WriteLine($"{mathString} = {expectedValue}");
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
-        var getX1 = () => x1;
-        var getX2 = () => x2;
+        var getX1 = () => ToDecimal(x1);
+        var getX2 = () => ToDecimal(x2);
 
         var fn = mathString.CompileDecimalFast(new { getX1, getX2 }, _scientificContext);
         var value = fn(new { getX1, getX2 });
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -473,7 +473,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -500,7 +500,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         testOutputHelper.WriteLine($"result: {value}");
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     private void SubscribeToEvaluating(object? sender, EvaluatingEventArgs args)

@@ -2,29 +2,56 @@
 
 /// <summary>
 ///     The base programming math context supports floor division '//', uses '**' notation for exponentiation, and '%' for
-///     modulo operation.
+///     modulo operation. The constants, the floor division, the modulo, and the iif function are calculated in the precision of <see cref="double" />.
 ///     For a complete list of features and supported functions, please refer to the documentation at
 ///     <see href="https://github.com/AntonovAnton/math.evaluation" />.
 /// </summary>
 /// <seealso cref="MathEvaluation.Context.MathContext" />
-public class ProgrammingMathContext : MathContext
+public class ProgrammingMathContext : ProgrammingMathContext<double>
 {
     /// <summary>Initializes a new instance of the <see cref="ProgrammingMathContext" /> class.</summary>
     public ProgrammingMathContext()
     {
-        BindConstant(1d, "true");
-        BindConstant(1d, "True");
-        BindConstant(1d, "TRUE");
+    }
+}
 
-        BindConstant(0d, "false");
-        BindConstant(0d, "False");
-        BindConstant(0d, "FALSE");
+/// <summary>
+///     The base programming math context for the <typeparamref name="T" /> floating-point numbers, such as <see cref="double" />,
+///     <see cref="decimal" />, or the .NET 11 IEEE 754 decimal types. It supports floor division '//', uses '**' notation for exponentiation,
+///     and '%' for modulo operation. The constants, the floor division, the modulo, and the iif function are calculated
+///     in the precision of <typeparamref name="T" />.
+///     For a complete list of features and supported functions, please refer to the documentation at
+///     <see href="https://github.com/AntonovAnton/math.evaluation" />.
+/// </summary>
+/// <typeparam name="T">The type of the numbers.</typeparam>
+/// <seealso cref="MathEvaluation.Context.MathContext" />
+public class ProgrammingMathContext<T> : MathContext
+    where T : struct, IFloatingPoint<T>
+{
+    /// <summary>Initializes a new instance of the <see cref="ProgrammingMathContext{T}" /> class.</summary>
+    public ProgrammingMathContext()
+    {
+        BindConstant(T.One, "true");
+        BindConstant(T.One, "True");
+        BindConstant(T.One, "TRUE");
+
+        BindConstant(T.Zero, "false");
+        BindConstant(T.Zero, "False");
+        BindConstant(T.Zero, "FALSE");
 
         BindOperator('%', OperatorType.Modulo);
 
-        static double floorDivisionFn(double left, double right) => Math.Floor(left / right);
+        if (typeof(T) != typeof(double))
+        {
+            // the C# compatible operator calculates the modulo of not integer numbers in double
+            static T modFn(T left, T right) => left % right;
 
-        BindOperator<double>(floorDivisionFn, "//");
+            BindOperator<T>(modFn, '%');
+        }
+
+        static T floorDivisionFn(T left, T right) => T.Floor(left / right);
+
+        BindOperator<T>(floorDivisionFn, "//");
 
         BindOperator("**", OperatorType.Power);
 
@@ -52,16 +79,16 @@ public class ProgrammingMathContext : MathContext
         BindOperator("Not", OperatorType.LogicalNot);
         BindOperator("NOT", OperatorType.LogicalNot);
 
-        static double iifFn(double[] args) => args[0] != 0.0
-            ? args.Length > 1 ? args[1] : 1d
+        static T iifFn(T[] args) => args[0] != T.Zero
+            ? args.Length > 1 ? args[1] : T.One
             : args.Length > 2
                 ? args[2]
                 : args.Length > 3
                     ? throw new ArgumentOutOfRangeException(nameof(args), "Count of args > 3")
-                    : 0d;
+                    : T.Zero;
 
-        BindFunction<double>(iifFn, "iif");
-        BindFunction<double>(iifFn, "Iif");
-        BindFunction<double>(iifFn, "IIF");
+        BindFunction<T>(iifFn, "iif");
+        BindFunction<T>(iifFn, "Iif");
+        BindFunction<T>(iifFn, "IIF");
     }
 }

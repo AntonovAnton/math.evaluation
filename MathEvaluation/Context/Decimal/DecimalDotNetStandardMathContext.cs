@@ -8,7 +8,6 @@ public class DecimalDotNetStandardMathContext : DotNetStandardMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetStandardMathContext" /> class.</summary>
     public DecimalDotNetStandardMathContext()
-        : base()
     {
         BindConstant(1m, "true");
         BindConstant(0m, "false");
@@ -69,45 +68,5 @@ public class DecimalDotNetStandardMathContext : DotNetStandardMathContext
         static decimal truncateFn(decimal value) => Math.Truncate(value);
 
         BindFunction<decimal>(truncateFn, "Math.Truncate");
-
-        BindConstant(decimal.One);
-        BindConstant(decimal.MinusOne);
-        BindConstant(decimal.Zero);
-        BindConstant(decimal.MaxValue);
-        BindConstant(decimal.MinValue);
-
-        BindConstant((decimal)byte.MaxValue, "byte.MaxValue");
-        BindConstant((decimal)byte.MinValue, "byte.MinValue");
-        BindConstant((decimal)sbyte.MaxValue, "sbyte.MaxValue");
-        BindConstant((decimal)sbyte.MinValue, "sbyte.MinValue");
-        BindConstant((decimal)short.MaxValue, "short.MaxValue");
-        BindConstant((decimal)short.MinValue, "short.MinValue");
-        BindConstant((decimal)ushort.MaxValue, "ushort.MaxValue");
-        BindConstant((decimal)ushort.MinValue, "ushort.MinValue");
-        BindConstant((decimal)int.MaxValue, "int.MaxValue");
-        BindConstant((decimal)int.MinValue, "int.MinValue");
-        BindConstant((decimal)uint.MaxValue, "uint.MaxValue");
-        BindConstant((decimal)uint.MinValue, "uint.MinValue");
-        BindConstant((decimal)long.MaxValue, "long.MaxValue");
-        BindConstant((decimal)long.MinValue, "long.MinValue");
-        BindConstant((decimal)ulong.MaxValue, "ulong.MaxValue");
-        BindConstant((decimal)ulong.MinValue, "ulong.MinValue");
-
-        BindConstant((decimal)byte.MaxValue, "Byte.MaxValue");
-        BindConstant((decimal)byte.MinValue, "Byte.MinValue");
-        BindConstant((decimal)sbyte.MaxValue, "SByte.MaxValue");
-        BindConstant((decimal)sbyte.MinValue, "SByte.MinValue");
-        BindConstant((decimal)short.MaxValue, "Int16.MaxValue");
-        BindConstant((decimal)short.MinValue, "Int16.MinValue");
-        BindConstant((decimal)ushort.MaxValue, "UInt16.MaxValue");
-        BindConstant((decimal)ushort.MinValue, "UInt16.MinValue");
-        BindConstant((decimal)int.MaxValue, "Int32.MaxValue");
-        BindConstant((decimal)int.MinValue, "Int32.MinValue");
-        BindConstant((decimal)uint.MaxValue, "UInt32.MaxValue");
-        BindConstant((decimal)uint.MinValue, "UInt32.MinValue");
-        BindConstant((decimal)long.MaxValue, "Int64.MaxValue");
-        BindConstant((decimal)long.MinValue, "Int64.MinValue");
-        BindConstant((decimal)ulong.MaxValue, "UInt64.MaxValue");
-        BindConstant((decimal)ulong.MinValue, "UInt64.MinValue");
     }
 }

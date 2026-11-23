@@ -75,7 +75,7 @@ internal class MathFunction<T> : MathEntity
         value = value == default ? result : value * result;
 
         if (value != result)
-            mathExpression.RaiseEvaluatingStep(start, i, value, skipNaN: true);
+            mathExpression.RaiseEvaluatingStepIfNotNaN(start, i, value);
 
         return value;
     }

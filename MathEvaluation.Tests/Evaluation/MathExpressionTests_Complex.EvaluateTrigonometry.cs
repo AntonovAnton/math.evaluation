@@ -160,9 +160,9 @@ public partial class MathExpressionTests_Complex
     [InlineData("ASIN(-1)", -Math.PI / 2)]
     [InlineData("ARCSIN(0)", 0)]
     [InlineData("Sin^-11", Math.PI / 2)]
-    [InlineData("arccos(-\u221e)", 3.141592653589793, double.PositiveInfinity)]
-    [InlineData("Cos^-1(\u221e)", 0, double.PositiveInfinity)]
-    [InlineData("COS^-1(-2)", 3.141592653589793, 1.3169578969248166)]
+    [InlineData("arccos(-\u221e)", 3.141592653589793, double.NegativeInfinity)]
+    [InlineData("Cos^-1(\u221e)", 0, double.NegativeInfinity)]
+    [InlineData("COS^-1(-2)", 3.141592653589793, -1.3169578969248166)]
     [InlineData("Arccos(-1)", Math.PI)]
     [InlineData("acos(-1)", Math.PI)]
     [InlineData("Acos(-1)", Math.PI)]
@@ -195,7 +195,7 @@ public partial class MathExpressionTests_Complex
     [InlineData("acsc(-1)", -Math.PI / 2)]
     [InlineData("Acsc(-1)", -Math.PI / 2)]
     [InlineData("ACSC(-1)", -Math.PI / 2)]
-    [InlineData("Arccsc(-1/2)", -1.5707963267948966, 1.3169578969248166)]
+    [InlineData("Arccsc(-1/2)", -1.5707963267948966, -1.3169578969248166)]
     [InlineData("ARCCSC(0)", double.NaN, double.NaN)]
     [InlineData("CSC^-11", Math.PI / 2)]
     [InlineData("arccsc(2)", 0.52359877559829893d)]
@@ -243,16 +243,16 @@ public partial class MathExpressionTests_Complex
     [InlineData("ACOSH(2)", 1.3169578969248166d)]
     [InlineData("ARCOSH(∞)", double.PositiveInfinity)]
     [InlineData("Cosh^-1-1", 0, 3.141592653589793)]
-    [InlineData("arcosh(-2)", -1.3169578969248164, 3.141592653589793)]
-    [InlineData("Cosh^-1(-∞)", double.PositiveInfinity, double.NaN)]
+    [InlineData("arcosh(-2)", 1.3169578969248166, 3.141592653589793)]
+    [InlineData("Cosh^-1(-∞)", double.PositiveInfinity, 3.141592653589793)]
     [InlineData("artanh(0)", 0)]
     [InlineData("tanh^-1(0.5)", 0.54930614433405489d)]
     [InlineData("atanh(0.5)", 0.54930614433405489d)]
     [InlineData("Atanh(0.5)", 0.54930614433405489d)]
     [InlineData("ATANH(0.5)", 0.54930614433405489d)]
     [InlineData("Artanh(1)", double.PositiveInfinity)]
-    [InlineData("Tanh^-1(2)", 0.5493061443340549, -1.5707963267948966)]
-    [InlineData("ARTANH(∞)", 0, -1.5707963267948966)]
+    [InlineData("Tanh^-1(2)", 0.5493061443340549, 1.5707963267948966)]
+    [InlineData("ARTANH(∞)", 0, 1.5707963267948966)]
     [InlineData("TANH^-1 -0.5", -0.54930614433405489d)]
     [InlineData("Tanh^-1-1", double.NegativeInfinity)]
     [InlineData("artanh(-2)", -0.5493061443340549, 1.5707963267948966)]
@@ -275,10 +275,10 @@ public partial class MathExpressionTests_Complex
     [InlineData("Asech(0.5)", 1.3169578969248166d)]
     [InlineData("ASECH(0.5)", 1.3169578969248166d)]
     [InlineData("Arsech(1)", 0)]
-    [InlineData("ARSECH(∞)", 0, 1.5707963267948966)]
-    [InlineData("SECH^-1 -0.5", -1.3169578969248164, 3.141592653589793)]
-    [InlineData("Sech^-1-1", 0, 3.141592653589793)]
-    [InlineData("Sech^-1(-∞)", 0, 1.5707963267948966)]
+    [InlineData("ARSECH(∞)", 0, -1.5707963267948966)]
+    [InlineData("SECH^-1 -0.5", 1.3169578969248166, -3.141592653589793)]
+    [InlineData("Sech^-1-1", 0, -3.141592653589793)]
+    [InlineData("Sech^-1(-∞)", 0, -1.5707963267948966)]
     [InlineData("arcsch(0)", double.NaN, double.NaN)]
     [InlineData("Csch^-1(0.5)", 1.4436354751788103d)]
     [InlineData("acsch(0.5)", 1.4436354751788103d)]
@@ -292,15 +292,15 @@ public partial class MathExpressionTests_Complex
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
     [InlineData("csch^-1(-∞)", 0)]
 #if NET9_0_OR_GREATER
-    [InlineData("arsech(-2)", -1.1102230246251565E-16, 2.0943951023931957)]
+    [InlineData("arsech(-2)", -1.1102230246251565E-16, -2.0943951023931953)]
     [InlineData("COSH^-1 -0.5", -1.1102230246251565E-16, 2.0943951023931957)]
     [InlineData("Cosh^-1(0.5)", -1.1102230246251565E-16, 1.0471975511965976)]
-    [InlineData("Sech^-1(2)", -1.1102230246251565E-16, 1.0471975511965976)]
+    [InlineData("Sech^-1(2)", -1.1102230246251565E-16, -1.0471975511965979)]
 #else
-    [InlineData("arsech(-2)", 0, 2.0943951023931957)]
+    [InlineData("arsech(-2)", 0, -2.0943951023931953)]
     [InlineData("COSH^-1 -0.5", 0, 2.0943951023931957)]
     [InlineData("Cosh^-1(0.5)", 0, 1.0471975511965976)]
-    [InlineData("Sech^-1(2)", 0, 1.0471975511965976)]
+    [InlineData("Sech^-1(2)", 0, -1.0471975511965979)]
 #endif
     public void MathExpression_EvaluateComplex_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedReal, double expectedImaginary = 0)
     {
@@ -312,4 +312,4 @@ public partial class MathExpressionTests_Complex
         Assert.Equal(expectedReal, value.Real, precision: 5);
         Assert.Equal(expectedImaginary, value.Imaginary, precision: 5);
     }
-}
+}

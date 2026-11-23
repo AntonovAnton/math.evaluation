@@ -9,7 +9,7 @@ namespace MathEvaluation.Tests.Evaluation;
 public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHelper)
 {
     private readonly DecimalScientificMathContext _scientificContext = new();
-    private readonly DecimalProgrammingMathContext _programmingContext = new();
+    private readonly ProgrammingMathContext<decimal> _programmingContext = new();
 
     [Theory]
     [InlineData("+", "Error of evaluating the expression. It is not recognizable. Invalid token at position 1.")]
@@ -64,7 +64,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -130,7 +130,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -169,7 +169,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -186,7 +186,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -205,7 +205,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -217,7 +217,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -230,7 +230,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -249,7 +249,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -263,7 +263,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -292,7 +292,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -315,7 +315,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -335,7 +335,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -365,7 +365,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -396,7 +396,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -430,7 +430,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -451,7 +451,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -461,17 +461,17 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("200x^- 0.15", "x", 2, 180.25009252216600d)]
     [InlineData("Math.PI", $"{nameof(Math)}.{nameof(Math.PI)}", Math.PI, Math.PI)]
     public void MathExpression_EvaluateDecimal_HasVariable_ExpectedValue(string expression, string varName,
-        decimal varValue, double expectedValue)
+        double varValue, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"{varName} = {varValue}");
 
         var parameters = new MathParameters();
-        parameters.BindVariable(varValue, varName);
+        parameters.BindVariable(ToDecimal(varValue), varName);
 
         var value = expression.Evaluate<decimal>(parameters, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -479,17 +479,17 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
     [InlineData("getX1()^2 + 2^getX2^2", 0.5, 3, 0.5 * 0.5 + 512)]
     [InlineData("ln(1/-getX1 + √(1/getX2^2 + 1))", -0.5, 0.5, 1.4436354751788103d)]
     public void MathExpression_EvaluateDecimal_HasGetVariableFns_ExpectedValue(string expression,
-        decimal x1, decimal x2, double expectedValue)
+        double x1, double x2, double expectedValue)
     {
         testOutputHelper.WriteLine($"{expression} = {expectedValue}");
         testOutputHelper.WriteLine($"x1 = {x1}, x2 = {x2}");
 
-        var getX1 = () => x1;
-        var getX2 = () => x2;
+        var getX1 = () => ToDecimal(x1);
+        var getX2 = () => ToDecimal(x2);
 
         var value = expression.Evaluate<decimal>(new { getX1, getX2 }, _scientificContext, CultureInfo.InvariantCulture);
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -510,7 +510,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         var value = expression
             .Evaluate<decimal>(parameters);
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -535,7 +535,7 @@ public partial class MathExpressionTests_Decimal(ITestOutputHelper testOutputHel
         var value = expression
             .Evaluate<decimal>(new { min }, null, CultureInfo.InvariantCulture);
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Fact]

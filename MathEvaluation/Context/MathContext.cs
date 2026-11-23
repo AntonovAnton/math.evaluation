@@ -370,43 +370,7 @@ public class MathContext
             return;
         }
 
-        if (TryBind<double>(key, value))
-            return;
-        if (TryBind<decimal>(key, value))
-            return;
-        if (TryBind<Complex>(key, value))
-            return;
-        if (TryBind<float>(key, value))
-            return;
-        if (TryBind<int>(key, value))
-            return;
-        if (TryBind<Half>(key, value))
-            return;
-        if (TryBind<BigInteger>(key, value))
-            return;
-        if (TryBind<char>(key, value))
-            return;
-        if (TryBind<byte>(key, value))
-            return;
-        if (TryBind<sbyte>(key, value))
-            return;
-        if (TryBind<short>(key, value))
-            return;
-        if (TryBind<ushort>(key, value))
-            return;
-        if (TryBind<uint>(key, value))
-            return;
-        if (TryBind<long>(key, value))
-            return;
-        if (TryBind<ulong>(key, value))
-            return;
-        if (TryBind<nint>(key, value))
-            return;
-        if (TryBind<nuint>(key, value))
-            return;
-        if (TryBind<Int128>(key, value))
-            return;
-        if (TryBind<UInt128>(key, value))
+        if (TryBindNumber(key, value))
             return;
 
         switch (value)
@@ -424,17 +388,59 @@ public class MathContext
                 BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
-            {
-                if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
                 {
-                    BindConstant((dynamic)value, key);
-                    return;
-                }
+                    if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
+                    {
+                        BindConstant((dynamic)value, key);
+                        return;
+                    }
 
-                throw propertyType.CreateNotSupportedException(key);
-            }
+                    throw propertyType.CreateNotSupportedException(key);
+                }
         }
     }
+
+    /// <summary>Tries to bind the number, or the function that returns the number.</summary>
+    private bool TryBindNumber(string key, object value)
+        => TryBind<double>(key, value) ||
+           TryBind<decimal>(key, value) ||
+           TryBind<Complex>(key, value) ||
+           TryBind<float>(key, value) ||
+           TryBind<int>(key, value) ||
+           TryBind<Half>(key, value) ||
+           TryBind<BigInteger>(key, value) ||
+           TryBind<char>(key, value) ||
+           TryBind<byte>(key, value) ||
+           TryBind<sbyte>(key, value) ||
+           TryBind<short>(key, value) ||
+           TryBind<ushort>(key, value) ||
+           TryBind<uint>(key, value) ||
+           TryBind<long>(key, value) ||
+           TryBind<ulong>(key, value) ||
+           TryBind<nint>(key, value) ||
+           TryBind<nuint>(key, value) ||
+           TryBind<Int128>(key, value) ||
+           TryBind<UInt128>(key, value)
+#if NET11_0_OR_GREATER
+           || TryBindNet11Types(key, value)
+#endif
+    ;
+
+#if NET11_0_OR_GREATER
+    /// <summary>Tries to bind the .NET 11+ numeric types: Decimal32/64/128, BFloat16, and Complex&lt;T&gt;.</summary>
+    private bool TryBindNet11Types(string key, object value)
+        => TryBind<Decimal64>(key, value) ||
+           TryBind<Decimal128>(key, value) ||
+           TryBind<Decimal32>(key, value) ||
+           TryBind<BFloat16>(key, value) ||
+           TryBind<Complex<double>>(key, value) ||
+           TryBind<Complex<float>>(key, value) ||
+           TryBind<Complex<Half>>(key, value) ||
+           TryBind<Complex<BFloat16>>(key, value) ||
+           TryBind<Complex<Decimal32>>(key, value) ||
+           TryBind<Complex<Decimal64>>(key, value) ||
+           TryBind<Complex<Decimal128>>(key, value);
+#endif
 
     private bool TryBind<T>(string key, object value)
         where T : struct, INumberBase<T>

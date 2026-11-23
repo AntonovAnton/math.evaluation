@@ -23,6 +23,9 @@ public partial class MathExpression
     public Func<TResult> Compile<TResult>()
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        ThrowIfGenericComplex<TResult>(_complexBuild is BuildFn<TResult>, nameof(CompileComplex));
+#endif
         try
         {
             Statements = null;
@@ -53,6 +56,9 @@ public partial class MathExpression
     public Func<T, TResult> Compile<T, TResult>(T parameters)
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        ThrowIfGenericComplex<TResult>(_complexBuild is BuildFn<TResult>, nameof(CompileComplex));
+#endif
         ArgumentNullException.ThrowIfNull(parameters);
 
         try
@@ -89,6 +95,9 @@ public partial class MathExpression
     public Func<CancellationToken, ValueTask<TResult>> CompileAsyncFunc<TResult>()
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        ThrowIfGenericComplex<TResult>(_complexBuild is BuildFn<TResult>, nameof(CompileComplex));
+#endif
         try
         {
             Statements = null;
@@ -118,6 +127,9 @@ public partial class MathExpression
     public Func<T, CancellationToken, ValueTask<TResult>> CompileAsyncFunc<T, TResult>(T parameters)
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        ThrowIfGenericComplex<TResult>(_complexBuild is BuildFn<TResult>, nameof(CompileComplex));
+#endif
         ArgumentNullException.ThrowIfNull(parameters);
 
         try
@@ -168,6 +180,11 @@ public partial class MathExpression
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        //the generic complex numbers are built by BuildComplex<T>, see CompileComplex<T>()
+        if (_complexBuild is BuildFn<TResult> buildComplex)
+            return buildComplex(this, ref i, depth, separator, closingSymbol, precedence, isOperand);
+#endif
         if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
             EnsureNestingDepth(depth, i);
 

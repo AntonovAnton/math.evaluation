@@ -65,9 +65,9 @@ public partial class MathExpression : IDisposable
 
         // Parsers use CurrentCulture when provider is null, so do not set number info for current culture to avoid unnecessary overhead.
         _numberFormat = NumberFormatInfo.GetInstance(provider);
-        Provider = _numberFormat;
-
         _decimalSeparator = _numberFormat.NumberDecimalSeparator.Length > 0 ? _numberFormat.NumberDecimalSeparator[0] : '.';
+
+        Provider = _numberFormat;
     }
 
     /// <inheritdoc cref="Evaluate{TResult}(MathParameters?)" />
@@ -108,6 +108,9 @@ public partial class MathExpression : IDisposable
     public TResult Evaluate<TResult>(MathParameters? parameters)
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        ThrowIfGenericComplex<TResult>(_complexEvaluate is EvaluateFn<TResult>, nameof(EvaluateComplex));
+#endif
         try
         {
             return Evaluate<TResult>(parameters, 0);
@@ -168,6 +171,11 @@ public partial class MathExpression : IDisposable
         int precedence = (int)EvalPrecedence.Unknown, bool isOperand = false)
         where TResult : struct, INumberBase<TResult>
     {
+#if NET11_0_OR_GREATER
+        //the generic complex numbers are evaluated by EvaluateComplex<T>, see EvaluateComplex<T>(MathParameters?)
+        if (_complexEvaluate is EvaluateFn<TResult> evaluateComplex)
+            return evaluateComplex(this, ref i, depth, separator, closingSymbol, precedence, isOperand);
+#endif
         if ((++depth & (NestingDepthProbeInterval - 1)) == 1)
             EnsureNestingDepth(depth, i);
 
@@ -219,7 +227,7 @@ public partial class MathExpression : IDisposable
                     value = value == default ? result : value * result;
 
                     if (value != result)
-                        RaiseEvaluatingStep(start, i, value, skipNaN: true);
+                        RaiseEvaluatingStepIfNotNaN(start, i, value);
 
                     break;
                 case '+' when span.Length == i + 1 || span[i + 1] != '+':
@@ -345,20 +353,16 @@ public partial class MathExpression : IDisposable
         return entity.Evaluate(this, start, ref i, depth, separator, closingSymbol, value);
     }
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-    [SuppressMessage("ReSharper", "MergeIntoPattern")]
-#pragma warning restore IDE0079 // Remove unnecessary suppression
-    internal void RaiseEvaluatingStep<T>(
-        int start, int i, T value, string? mathString = null, bool isSubExpression = false, bool skipNaN = false)
+    /// <summary>Raises the evaluating step if the value isn't NaN (for complex numbers, if neither part is NaN).</summary>
+    internal void RaiseEvaluatingStepIfNotNaN<TResult>(int start, int i, TResult value)
+        where TResult : INumberBase<TResult>
     {
-        if (skipNaN && (value is double d && double.IsNaN(d) ||
-                        value is float f && float.IsNaN(f) ||
-                        value is Half h && Half.IsNaN(h) ||
-                        value is Complex c && (double.IsNaN(c.Real) || double.IsNaN(c.Imaginary))))
-        {
-            return;
-        }
+        if (!TResult.IsNaN(value))
+            RaiseEvaluatingStep(start, i, value);
+    }
 
+    internal void RaiseEvaluatingStep<T>(int start, int i, T value, string? mathString = null, bool isSubExpression = false)
+    {
         _evaluatingStep++;
 
         if (Evaluating == null)

@@ -84,7 +84,7 @@ public class CompositeMathContextTests
 
         var result = "P * (1 + rate)^2".Evaluate<decimal>(new { P = 100m }, context);
 
-        Assert.Equal(110.25m, result);
+        AssertDecimal(110.25, result); // the power is calculated by Math.Pow(double, double)
     }
 
     [Fact]

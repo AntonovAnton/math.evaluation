@@ -8,7 +8,6 @@ public class DecimalDotNetMathContext : DotNetMathContext
 {
     /// <summary>Initializes a new instance of the <see cref="DecimalDotNetMathContext" /> class.</summary>
     public DecimalDotNetMathContext()
-        : base()
     {
         BindConstant(1m, "true");
         BindConstant(0m, "false");

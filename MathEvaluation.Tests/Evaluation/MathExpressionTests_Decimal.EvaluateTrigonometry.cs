@@ -16,7 +16,7 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -29,7 +29,7 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -76,7 +76,7 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -108,7 +108,7 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
@@ -149,16 +149,16 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
 
     [Theory]
     [InlineData("arsinh(0)", 0)]
     [InlineData("sinh^-1(0.5)", 0.48121182505960347d)]
-    [InlineData("Arsinh(1)", 0.88137358701954294d)]
+    [InlineData("Arsinh(1)", 0.881373587019543d)]
     [InlineData("Sinh^-1(2)", 1.4436354751788103d)]
     [InlineData("SINH^-1 -0.5", -0.48121182505960347d)]
-    [InlineData("Sinh^-1-1", -0.88137358701954294d)]
+    [InlineData("Sinh^-1-1", -0.881373587019543d)]
     [InlineData("arsinh(-2)", -1.4436354751788103d)]
     [InlineData("Arcosh(1)", 0)]
     [InlineData("Cosh^-1(2)", 1.3169578969248166d)]
@@ -172,11 +172,11 @@ public partial class MathExpressionTests_Decimal
     [InlineData("Sech^-1(0.5)", 1.3169578969248166d)]
     [InlineData("Arsech(1)", 0)]
     [InlineData("Csch^-1(0.5)", 1.4436354751788103d)]
-    [InlineData("Arcsch(1)", 0.88137358701954294d)]
+    [InlineData("Arcsch(1)", 0.881373587019543d)]
     [InlineData("Csch^-1(2)", 0.48121182505960347d)]
     [InlineData("ARCSCH(∞)", 0)]
     [InlineData("CSCH^-1 -0.5", -1.4436354751788103d)]
-    [InlineData("Csch^-1-1", -0.88137358701954294d)]
+    [InlineData("Csch^-1-1", -0.881373587019543d)]
     [InlineData("arcsch(-2)", -0.48121182505960347d)]
     [InlineData("csch^-1(-∞)", 0)]
     public void MathExpression_EvaluateDecimal_HasInverseHyperbolicFn_ExpectedValue(string mathString, double expectedValue)
@@ -186,6 +186,6 @@ public partial class MathExpressionTests_Decimal
 
         var value = expression.Evaluate<decimal>();
 
-        Assert.Equal((decimal)expectedValue, value);
+        AssertDecimal(expectedValue, value);
     }
-}
+}

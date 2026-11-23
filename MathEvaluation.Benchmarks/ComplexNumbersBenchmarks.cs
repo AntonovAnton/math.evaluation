@@ -8,9 +8,9 @@ using System.Numerics;
 
 namespace MathEvaluation.Benchmarks;
 
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net10_0)]
-//[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
+// short jobs: they spot regressions, the published results are in LibraryComparisonBenchmarks
+[SimpleJob(RuntimeMoniker.Net10_0, warmupCount: 3, iterationCount: 10)]
+[SimpleJob(RuntimeMoniker.Net11_0, warmupCount: 3, iterationCount: 10)]
 [MemoryDiagnoser]
 public class ComplexNumbersBenchmarks
 {
@@ -20,12 +20,10 @@ public class ComplexNumbersBenchmarks
     private readonly IExpressionCompiler _fastCompiler = new FastMathExpressionCompiler();
 
     private readonly Func<SinArg, Complex> _mathEvalCompiledFn;
-    private readonly Func<SinArg, Complex> _mathEvalFastCompiledFn;
 
     public ComplexNumbersBenchmarks()
     {
         _mathEvalCompiledFn = MathEvaluator_Compile();
-        _mathEvalFastCompiledFn = MathEvaluator_FastExpressionCompiler_Compile();
     }
 
     [Benchmark(Description = "MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)")]
@@ -64,15 +62,6 @@ public class ComplexNumbersBenchmarks
         return _mathEvalCompiledFn(new SinArg(new Complex(r, i)));
     }
 
-    [Benchmark(Description = "MathEvaluator.FastExpressionCompiler invoke fn(a)")]
-    public Complex MathEvaluator_FastExpressionCompiler_InvokeCompiled()
-    {
-        _count++;
-        var r = _count % 3; //randomizing values
-        var i = r - 1;
-
-        return _mathEvalFastCompiledFn(new SinArg(new Complex(r, i)));
-    }
 
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable once InconsistentNaming

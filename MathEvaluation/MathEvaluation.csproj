@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -15,25 +15,27 @@
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>math; math-expressions; evaluation; evaluator; math-library; eval; ncalc; expression-evaluator; math-parser; evaluate; math-expression-evaluator; math-expression-parser; expression; csharp-maths; math-evaluator; math-evaluation; complex; matheval; complex-numbers; compilation; compiler; compile;</PackageTags>
-        <PackageReleaseNotes>Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
-Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
-Supports `INumberBase` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
-Compiles a math expression string into executable code and produces a delegate that represents the math expression.
-Compiles math expressions with async functions into an async delegate that returns `ValueTask`.
-Provides variable support within math expressions (including expression-defined variables).
-Extensible with custom functions and operators.
-Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platform.
-.NET Standard 2.1 compatible in versions prior to 3.0.0
+        <PackageReleaseNotes>
+            Supports different mathematical contexts, such as scientific, programming, and other custom contexts.
+            Evaluates Boolean logic, as well as Double, Decimal, and Complex numbers.
+            Supports `INumberBase{T}` types (.NET 7+), including `BigInteger`, `int`, `long`, `float`, `Half`, and other numeric types.
+            Supports the .NET 11 types: IEEE 754 decimal `Decimal32`, `Decimal64`, `Decimal128`, `BFloat16`, and generic `Complex{T}`.
+            Compiles a math expression string into executable code and produces a delegate that represents the math expression.
+            Compiles math expressions with async functions into an async delegate that returns `ValueTask`.
+            Provides variable support within math expressions (including expression-defined variables).
+            Extensible with custom functions and operators.
+            Multi-targets .NET 8, .NET 9, .NET 10, and .NET 11 for optimal performance on each platform.
+            .NET Standard 2.1 compatible in versions prior to 3.0.0
         </PackageReleaseNotes>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>3.8.0</Version>
+        <Version>4.0.0</Version>
         <PackageId>MathEvaluator</PackageId>
         <Product>MathEvaluator</Product>
         <PackageIcon>logo.png</PackageIcon>
-        
+
         <!-- Performance Optimizations for Library (configuration-independent) -->
         <Deterministic>true</Deterministic>
-        
+
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <ProduceReferenceAssemblyInPackage>true</ProduceReferenceAssemblyInPackage>
 
@@ -48,7 +50,7 @@ Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platfo
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-        
+
         <!-- Enforces AOT and Trim compatibility checks during your builds -->
         <IsAotCompatible>true</IsAotCompatible>
 
@@ -58,7 +60,7 @@ Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platfo
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        
+
         <!-- Debug configuration - NO optimizations for better debugging -->
         <Optimize>false</Optimize>
         <DebugType>full</DebugType>
@@ -67,7 +69,7 @@ Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platfo
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        
+
         <!-- Release configuration - Full optimizations -->
         <Optimize>true</Optimize>
         <DebugType>embedded</DebugType>
@@ -87,7 +89,7 @@ Multi-targets .NET 8, .NET 9, and .NET 10 for optimal performance on each platfo
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MathTrigonometric" Version="1.3.0" />
+        <PackageReference Include="MathTrigonometric" Version="2.1.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -306,6 +306,60 @@ public sealed class MathParameters
         => _trie.FirstMathEntity(mathString);
 
     /// <summary>
+    /// Binds variables and functions from a dictionary.
+    /// </summary>
+    /// <param name="parameters">A dictionary containing variables and functions.</param>
+    /// <exception cref="ArgumentNullException">parameters</exception>
+    /// <exception cref="NotSupportedException"></exception>
+    [RequiresUnreferencedCode("Binding parameters requires reflection to access their properties which may be trimmed")]
+    private void Bind(IEnumerable parameters)
+    {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new PlatformNotSupportedException(
+                "Parameter reflection is not supported on NativeAOT. Define parameters explicitly instead.");
+        }
+
+        var type = parameters.GetType();
+        if (!type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
+        {
+            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+        }
+
+        foreach (var pair in parameters)
+        {
+            switch (pair)
+            {
+                case DictionaryEntry dictEntry:
+                    {
+                        if (dictEntry.Key is not string key)
+                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                        var propertyType = dictEntry.Value?.GetType();
+                        BindProperty(propertyType, key, dictEntry.Value, true);
+                        break;
+                    }
+                default:
+                    {
+                        var pairType = pair.GetType();
+                        var keyProperty = pairType.GetProperty("Key");
+                        var valueProperty = pairType.GetProperty("Value");
+                        if (keyProperty == null || valueProperty == null)
+                            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
+
+                        var keyObj = keyProperty.GetValue(pair);
+                        var valueObj = valueProperty.GetValue(pair);
+                        if (keyObj is not string key)
+                            throw new NotSupportedException("Only string keys are supported in the dictionary.");
+
+                        BindProperty(valueProperty.PropertyType, key, valueObj, true);
+                        break;
+                    }
+            }
+        }
+    }
+
+    /// <summary>
     /// Binds the property based on its type and value. It supports various numeric types, boolean values, and expression strings.
     /// </summary>
     /// <param name="propertyType">The type of the property.</param>
@@ -328,43 +382,7 @@ public sealed class MathParameters
             return;
         }
 
-        if (TryBind<double>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<decimal>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Complex>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<float>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<int>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Half>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<BigInteger>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<char>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<byte>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<sbyte>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<short>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<ushort>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<uint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<long>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<ulong>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<nint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<nuint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Int128>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<UInt128>(key, value, isDictionaryItem))
+        if (TryBindNumber(key, value, isDictionaryItem))
             return;
 
         switch (value)
@@ -382,16 +400,16 @@ public sealed class MathParameters
                 BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
-            {
-                propertyType ??= value.GetType();
-                if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
                 {
-                    BindVariable(key, (dynamic)value, isDictionaryItem);
-                    return;
-                }
+                    propertyType ??= value.GetType();
+                    if (RuntimeFeature.IsDynamicCodeSupported && propertyType.IsNumberBaseType())
+                    {
+                        BindVariable(key, (dynamic)value, isDictionaryItem);
+                        return;
+                    }
 
-                throw propertyType.CreateNotSupportedException(key);
-            }
+                    throw propertyType.CreateNotSupportedException(key);
+                }
         }
     }
 
@@ -407,43 +425,7 @@ public sealed class MathParameters
             return;
         }
 
-        if (TryBind<double>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<decimal>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Complex>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<float>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<int>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Half>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<BigInteger>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<char>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<byte>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<sbyte>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<short>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<ushort>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<uint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<long>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<ulong>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<nint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<nuint>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<Int128>(key, value, isDictionaryItem))
-            return;
-        if (TryBind<UInt128>(key, value, isDictionaryItem))
+        if (TryBindNumber(key, value, isDictionaryItem))
             return;
 
         switch (value)
@@ -461,10 +443,10 @@ public sealed class MathParameters
                 BindAsyncFunction(boolAsyncFn, key);
                 break;
             default:
-            {
-                var propertyType = value.GetType();
-                throw propertyType.CreateNotSupportedException(key);
-            }
+                {
+                    var propertyType = value.GetType();
+                    throw propertyType.CreateNotSupportedException(key);
+                }
         }
     }
 
@@ -474,6 +456,108 @@ public sealed class MathParameters
 
     private void BindBoolVariable(string key, bool value, bool isDictionaryItem)
         => _trie.AddMathEntity(new MathVariable<double>(key, Convert.ToDouble(value), isDictionaryItem));
+
+    private bool TryBindDictionary(object parameters)
+    {
+        if (TryBindNumberDictionary(parameters))
+            return true;
+
+        if (parameters is IDictionary<string, bool> boolValuesDict)
+        {
+            Bind(boolValuesDict);
+            return true;
+        }
+
+        if (parameters is IDictionary<string, object> dictionary)
+        {
+            Bind(dictionary);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Tries to bind the number, or the function that returns the number.</summary>
+    private bool TryBindNumber(string key, object value, bool isDictionaryItem)
+        => TryBind<double>(key, value, isDictionaryItem) ||
+           TryBind<decimal>(key, value, isDictionaryItem) ||
+           TryBind<Complex>(key, value, isDictionaryItem) ||
+           TryBind<float>(key, value, isDictionaryItem) ||
+           TryBind<int>(key, value, isDictionaryItem) ||
+           TryBind<Half>(key, value, isDictionaryItem) ||
+           TryBind<BigInteger>(key, value, isDictionaryItem) ||
+           TryBind<char>(key, value, isDictionaryItem) ||
+           TryBind<byte>(key, value, isDictionaryItem) ||
+           TryBind<sbyte>(key, value, isDictionaryItem) ||
+           TryBind<short>(key, value, isDictionaryItem) ||
+           TryBind<ushort>(key, value, isDictionaryItem) ||
+           TryBind<uint>(key, value, isDictionaryItem) ||
+           TryBind<long>(key, value, isDictionaryItem) ||
+           TryBind<ulong>(key, value, isDictionaryItem) ||
+           TryBind<nint>(key, value, isDictionaryItem) ||
+           TryBind<nuint>(key, value, isDictionaryItem) ||
+           TryBind<Int128>(key, value, isDictionaryItem) ||
+           TryBind<UInt128>(key, value, isDictionaryItem)
+#if NET11_0_OR_GREATER
+           || TryBindNet11Types(key, value, isDictionaryItem)
+#endif
+    ;
+
+    /// <summary>Tries to bind the dictionary of the numbers.</summary>
+    private bool TryBindNumberDictionary(object parameters)
+        => TryBindDictionary<double>(parameters) ||
+           TryBindDictionary<decimal>(parameters) ||
+           TryBindDictionary<Complex>(parameters) ||
+           TryBindDictionary<float>(parameters) ||
+           TryBindDictionary<int>(parameters) ||
+           TryBindDictionary<Half>(parameters) ||
+           TryBindDictionary<BigInteger>(parameters) ||
+           TryBindDictionary<char>(parameters) ||
+           TryBindDictionary<byte>(parameters) ||
+           TryBindDictionary<sbyte>(parameters) ||
+           TryBindDictionary<short>(parameters) ||
+           TryBindDictionary<ushort>(parameters) ||
+           TryBindDictionary<uint>(parameters) ||
+           TryBindDictionary<long>(parameters) ||
+           TryBindDictionary<ulong>(parameters) ||
+           TryBindDictionary<nint>(parameters) ||
+           TryBindDictionary<nuint>(parameters) ||
+           TryBindDictionary<Int128>(parameters) ||
+           TryBindDictionary<UInt128>(parameters)
+#if NET11_0_OR_GREATER
+           || TryBindNet11Dictionary(parameters)
+#endif
+    ;
+
+#if NET11_0_OR_GREATER
+    /// <summary>Tries to bind the .NET 11+ numeric types: Decimal32/64/128, BFloat16, and Complex&lt;T&gt;.</summary>
+    private bool TryBindNet11Types(string key, object value, bool isDictionaryItem)
+        => TryBind<Decimal64>(key, value, isDictionaryItem) ||
+           TryBind<Decimal128>(key, value, isDictionaryItem) ||
+           TryBind<Decimal32>(key, value, isDictionaryItem) ||
+           TryBind<BFloat16>(key, value, isDictionaryItem) ||
+           TryBind<Complex<double>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<float>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<Half>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<BFloat16>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<Decimal32>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<Decimal64>>(key, value, isDictionaryItem) ||
+           TryBind<Complex<Decimal128>>(key, value, isDictionaryItem);
+
+    /// <summary>Tries to bind the dictionary of the .NET 11+ numeric types: Decimal32/64/128, BFloat16, and Complex&lt;T&gt;.</summary>
+    private bool TryBindNet11Dictionary(object parameters)
+        => TryBindDictionary<Decimal64>(parameters) ||
+           TryBindDictionary<Decimal128>(parameters) ||
+           TryBindDictionary<Decimal32>(parameters) ||
+           TryBindDictionary<BFloat16>(parameters) ||
+           TryBindDictionary<Complex<double>>(parameters) ||
+           TryBindDictionary<Complex<float>>(parameters) ||
+           TryBindDictionary<Complex<Half>>(parameters) ||
+           TryBindDictionary<Complex<BFloat16>>(parameters) ||
+           TryBindDictionary<Complex<Decimal32>>(parameters) ||
+           TryBindDictionary<Complex<Decimal64>>(parameters) ||
+           TryBindDictionary<Complex<Decimal128>>(parameters);
+#endif
 
     private bool TryBind<T>(string key, object value, bool isDictionaryItem)
         where T : struct, INumberBase<T>
@@ -531,62 +615,6 @@ public sealed class MathParameters
         }
     }
 
-    private bool TryBindDictionary(object parameters)
-    {
-        if (TryBindDictionary<double>(parameters))
-            return true;
-        if (TryBindDictionary<decimal>(parameters))
-            return true;
-        if (TryBindDictionary<Complex>(parameters))
-            return true;
-        if (TryBindDictionary<float>(parameters))
-            return true;
-        if (TryBindDictionary<int>(parameters))
-            return true;
-        if (TryBindDictionary<Half>(parameters))
-            return true;
-        if (TryBindDictionary<BigInteger>(parameters))
-            return true;
-        if (TryBindDictionary<char>(parameters))
-            return true;
-        if (TryBindDictionary<byte>(parameters))
-            return true;
-        if (TryBindDictionary<sbyte>(parameters))
-            return true;
-        if (TryBindDictionary<short>(parameters))
-            return true;
-        if (TryBindDictionary<ushort>(parameters))
-            return true;
-        if (TryBindDictionary<uint>(parameters))
-            return true;
-        if (TryBindDictionary<long>(parameters))
-            return true;
-        if (TryBindDictionary<ulong>(parameters))
-            return true;
-        if (TryBindDictionary<nint>(parameters))
-            return true;
-        if (TryBindDictionary<nuint>(parameters))
-            return true;
-        if (TryBindDictionary<Int128>(parameters))
-            return true;
-        if (TryBindDictionary<UInt128>(parameters))
-            return true;
-
-        if (parameters is IDictionary<string, bool> boolValuesDict)
-        {
-            Bind(boolValuesDict);
-            return true;
-        }
-
-        if (parameters is IDictionary<string, object> dictionary)
-        {
-            Bind(dictionary);
-            return true;
-        }
-
-        return false;
-    }
-
     private bool TryBindDictionary<TValue>(object parameters)
         where TValue : struct, INumberBase<TValue>
     {
@@ -597,59 +625,5 @@ public sealed class MathParameters
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// Binds variables and functions from a dictionary.
-    /// </summary>
-    /// <param name="parameters">A dictionary containing variables and functions.</param>
-    /// <exception cref="ArgumentNullException">parameters</exception>
-    /// <exception cref="NotSupportedException"></exception>
-    [RequiresUnreferencedCode("Binding parameters requires reflection to access their properties which may be trimmed")]
-    private void Bind(IEnumerable parameters)
-    {
-        if (!RuntimeFeature.IsDynamicCodeSupported)
-        {
-            throw new PlatformNotSupportedException(
-                "Parameter reflection is not supported on NativeAOT. Define parameters explicitly instead.");
-        }
-
-        var type = parameters.GetType();
-        if (!type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
-        {
-            throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
-        }
-
-        foreach (var pair in parameters)
-        {
-            switch (pair)
-            {
-                case DictionaryEntry dictEntry:
-                {
-                    if (dictEntry.Key is not string key)
-                        throw new NotSupportedException("Only string keys are supported in the dictionary.");
-
-                    var propertyType = dictEntry.Value?.GetType();
-                    BindProperty(propertyType, key, dictEntry.Value, true);
-                    break;
-                }
-                default:
-                {
-                    var pairType = pair.GetType();
-                    var keyProperty = pairType.GetProperty("Key");
-                    var valueProperty = pairType.GetProperty("Value");
-                    if (keyProperty == null || valueProperty == null)
-                        throw new NotSupportedException("The provided parameters object must implement IDictionary<TKey, TValue> with string keys.");
-
-                    var keyObj = keyProperty.GetValue(pair);
-                    var valueObj = valueProperty.GetValue(pair);
-                    if (keyObj is not string key)
-                        throw new NotSupportedException("Only string keys are supported in the dictionary.");
-
-                    BindProperty(valueProperty.PropertyType, key, valueObj, true);
-                    break;
-                }
-            }
-        }
     }
 }

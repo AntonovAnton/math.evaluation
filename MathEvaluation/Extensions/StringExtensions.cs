@@ -162,6 +162,59 @@ public static class StringExtensions
         public Complex EvaluateComplex(MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).Evaluate<Complex>(parameters);
 
+#if NET11_0_OR_GREATER
+        /// <summary>
+        ///     Evaluates the math expression string as a generic <see cref="Complex{T}">complex</see> number (.NET 11+),
+        ///     for example <c>Complex&lt;Decimal64&gt;</c>. The real and imaginary parts keep the precision of <typeparamref name="T" />.
+        /// </summary>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <returns>Value of the math expression.</returns>
+        /// <exception cref="MathExpressionException" />
+        public Complex<T> EvaluateComplex<T>(MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).EvaluateComplex<T>();
+
+        /// <inheritdoc cref="extension(string).EvaluateComplex{T}(MathContext?, IFormatProvider?)" />
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <exception cref="NotSupportedException">parameters</exception>
+        [RequiresUnreferencedCode("Binding object as parameters requires reflection which may access trimmed members")]
+        public Complex<T> EvaluateComplex<T>(object parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).EvaluateComplex<T>(parameters);
+
+        /// <inheritdoc cref="extension(string).EvaluateComplex{T}(MathContext?, IFormatProvider?)" />
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        public Complex<T> EvaluateComplex<T>(IDictionary<string, Complex<T>> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).EvaluateComplex(parameters);
+
+        /// <inheritdoc cref="extension(string).EvaluateComplex{T}(MathContext?, IFormatProvider?)" />
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        public Complex<T> EvaluateComplex<T>(IDictionary<string, object> parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).EvaluateComplex<T>(parameters);
+
+        /// <inheritdoc cref="extension(string).EvaluateComplex{T}(MathContext?, IFormatProvider?)" />
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        public Complex<T> EvaluateComplex<T>(MathParameters? parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).EvaluateComplex<T>(parameters);
+#endif
+
         /// <summary>Compiles the math expression string.</summary>
         /// <param name="parameters">The parameters of the math expression string.</param>
         /// <param name="context">The math context.</param>
@@ -243,6 +296,41 @@ public static class StringExtensions
         [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
         public Func<T, CancellationToken, ValueTask<Complex>> CompileComplexAsyncFunc<T>(T parameters, MathContext? context = null, IFormatProvider? provider = null)
             => new MathExpression(mathString, context, provider).CompileComplexAsyncFunc(parameters);
+
+#if NET11_0_OR_GREATER
+        /// <summary>Compiles the math expression string that returns a generic <see cref="Complex{T}">complex</see> number (.NET 11+).</summary>
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="TParameters">The type of the parameters.</typeparam>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <returns>A delegate that represents the compiled expression.</returns>
+        /// <exception cref="MathExpressionException" />
+        /// <exception cref="ArgumentNullException">parameters</exception>
+        /// <exception cref="NotSupportedException">parameters</exception>
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+        public Func<TParameters, Complex<T>> CompileComplex<TParameters, T>(TParameters parameters, MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).CompileComplex<TParameters, T>(parameters);
+
+        /// <summary>Compiles the math expression string that can contain async functions and returns a generic <see cref="Complex{T}">complex</see> number (.NET 11+).</summary>
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="TParameters">The type of the parameters.</typeparam>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <returns>A delegate that represents the compiled expression.</returns>
+        /// <exception cref="MathExpressionException" />
+        /// <exception cref="ArgumentNullException">parameters</exception>
+        /// <exception cref="NotSupportedException">parameters</exception>
+        [RequiresUnreferencedCode("Compiling expressions requires reflection which may access trimmed properties")]
+        [RequiresDynamicCode("Compiling expressions may require dynamic code generation")]
+        public Func<TParameters, CancellationToken, ValueTask<Complex<T>>> CompileComplexAsyncFunc<TParameters, T>(TParameters parameters,
+            MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new MathExpression(mathString, context, provider).CompileComplexAsyncFunc<TParameters, T>(parameters);
+#endif
 
         #region internal static Methods
 

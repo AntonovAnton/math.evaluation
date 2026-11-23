@@ -1,5 +1,3 @@
-
-
 // ReSharper disable BuiltInTypeReferenceStyle
 // ReSharper disable PreferConcreteValueOverDefault
 
@@ -17,28 +15,6 @@ public class DotNetMathContext : DotNetStandardMathContext
     /// <summary>Initializes a new instance of the <see cref="DotNetMathContext" /> class.</summary>
     public DotNetMathContext()
     {
-        BindConstant(default(float));
-        BindConstant(default(int));
-        BindConstant(default(uint));
-        BindConstant(default(long));
-        BindConstant(default(ulong));
-        BindConstant(default(byte));
-        BindConstant(default(sbyte));
-        BindConstant(default(short));
-        BindConstant(default(ushort));
-        BindConstant(default(char));
-        BindConstant(default(nint));
-        BindConstant(default(nuint));
-        BindConstant(default(Single));
-        BindConstant(default(Int32));
-        BindConstant(default(UInt32));
-        BindConstant(default(Int64));
-        BindConstant(default(UInt64));
-        BindConstant(default(Byte));
-        BindConstant(default(SByte));
-        BindConstant(default(Int16));
-        BindConstant(default(UInt16));
-        BindConstant(default(Char));
         BindConstant(default(IntPtr));
         BindConstant(default(UIntPtr));
 
@@ -46,39 +22,6 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(default(Int128));
         BindConstant(default(UInt128));
         BindConstant(default(BigInteger));
-
-        BindConstant(1f, 'f');
-        BindConstant(1L, 'l');
-        BindConstant(1u, 'u');
-        BindConstant(1ul, "ul");
-        BindConstant(1LU, "lu");
-        BindConstant(1F, 'F');
-        BindConstant(1L, 'L');
-        BindConstant(1Lu, "Lu");
-        BindConstant(1LU, "LU");
-        BindConstant(1U, 'U');
-        BindConstant(1U, "Ul");
-        BindConstant(1U, "UL");
-        BindConstant(1F, "float");
-        BindConstant((short)1, "short");
-        BindConstant((ushort)1, "ushort");
-        BindConstant(1, "int");
-        BindConstant(1u, "uint");
-        BindConstant(1L, "long");
-        BindConstant(1ul, "ulong");
-        BindConstant((byte)1, "byte");
-        BindConstant((sbyte)1, "sbyte");
-        BindConstant((char)1, "char");
-        BindConstant((float)1, "Single");
-        BindConstant((short)1, "Int16");
-        BindConstant((ushort)1, "UInt16");
-        BindConstant(1, "Int32");
-        BindConstant((uint)1, "UInt32");
-        BindConstant((long)1, "Int64");
-        BindConstant((ulong)1, "UInt64");
-        BindConstant((byte)1, "Byte");
-        BindConstant((sbyte)1, "SByte");
-        BindConstant((char)1, "Char");
 
         BindConstant((nint)1, "nint");
         BindConstant((nuint)1, "nuint");
@@ -88,40 +31,6 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindConstant(Int128.One, "Int128");
         BindConstant(UInt128.One, "UInt128");
         BindConstant(BigInteger.One, "BigInteger");
-
-        BindConstant(byte.MaxValue);
-        BindConstant(byte.MinValue);
-        BindConstant(sbyte.MaxValue);
-        BindConstant(sbyte.MinValue);
-        BindConstant(short.MaxValue);
-        BindConstant(short.MinValue);
-        BindConstant(ushort.MaxValue);
-        BindConstant(ushort.MinValue);
-        BindConstant(int.MaxValue);
-        BindConstant(int.MinValue);
-        BindConstant(uint.MaxValue);
-        BindConstant(uint.MinValue);
-        BindConstant(long.MaxValue);
-        BindConstant(long.MinValue);
-        BindConstant(ulong.MaxValue);
-        BindConstant(ulong.MinValue);
-
-        BindConstant(Byte.MaxValue);
-        BindConstant(Byte.MinValue);
-        BindConstant(SByte.MaxValue);
-        BindConstant(SByte.MinValue);
-        BindConstant(Int16.MaxValue);
-        BindConstant(Int16.MinValue);
-        BindConstant(UInt16.MaxValue);
-        BindConstant(UInt16.MinValue);
-        BindConstant(Int32.MaxValue);
-        BindConstant(Int32.MinValue);
-        BindConstant(UInt32.MaxValue);
-        BindConstant(UInt32.MinValue);
-        BindConstant(Int64.MaxValue);
-        BindConstant(Int64.MinValue);
-        BindConstant(UInt64.MaxValue);
-        BindConstant(UInt64.MinValue);
 
         // Math.Tau constant (new in .NET 5+)
         BindConstant(Math.Tau);
@@ -1249,5 +1158,170 @@ public class DotNetMathContext : DotNetStandardMathContext
         BindFunction<Complex>(Complex.MinMagnitude);
 
         #endregion
+
+#if NET11_0_OR_GREATER
+        #region Decimal32/Decimal64/Decimal128 Type Support (IEEE 754 decimal floating-point, .NET 11+)
+
+        BindFloatingPointIeee754<Decimal32>("Decimal32");
+        BindFloatingPointIeee754<Decimal64>("Decimal64");
+        BindFloatingPointIeee754<Decimal128>("Decimal128");
+
+        BindFunction<Decimal32>(Decimal32.Quantize);
+        BindFunction<Decimal64>(Decimal64.Quantize);
+        BindFunction<Decimal128>(Decimal128.Quantize);
+
+        #endregion
+
+        #region BFloat16 Type Support (.NET 11+)
+
+        BindFloatingPointIeee754<BFloat16>("BFloat16");
+
+        #endregion
+
+        #region Generic Complex<T> Type Support (.NET 11+)
+
+        BindGenericComplex<double>("double");
+        BindGenericComplex<double>("Double");
+        BindGenericComplex<float>("float");
+        BindGenericComplex<float>("Single");
+        BindGenericComplex<Half>("Half");
+        BindGenericComplex<BFloat16>("BFloat16");
+        BindGenericComplex<Decimal32>("Decimal32");
+        BindGenericComplex<Decimal64>("Decimal64");
+        BindGenericComplex<Decimal128>("Decimal128");
+
+        #endregion
+
+#endif
     }
-}
+
+#if NET11_0_OR_GREATER
+
+    /// <summary>
+    ///     Binds the constants and functions of the IEEE 754 floating-point type, e.g. <c>Decimal64.Pi</c>, <c>Decimal64.Sqrt(x)</c>.
+    /// </summary>
+    /// <typeparam name="T">The floating-point type.</typeparam>
+    /// <param name="t">The type name used in the math expression.</param>
+    private void BindFloatingPointIeee754<T>(string t)
+        where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
+        BindConstant(default(T), $"default({t})");
+        BindConstant(T.One, t);
+
+        // constants
+        BindConstant(T.E, $"{t}.E");
+        BindConstant(T.Pi, $"{t}.Pi");
+        BindConstant(T.Tau, $"{t}.Tau");
+        BindConstant(T.Epsilon, $"{t}.Epsilon");
+        BindConstant(T.MaxValue, $"{t}.MaxValue");
+        BindConstant(T.MinValue, $"{t}.MinValue");
+        BindConstant(T.NaN, $"{t}.NaN");
+        BindConstant(T.NegativeInfinity, $"{t}.NegativeInfinity");
+        BindConstant(T.PositiveInfinity, $"{t}.PositiveInfinity");
+        BindConstant(T.NegativeZero, $"{t}.NegativeZero");
+        BindConstant(T.NegativeOne, $"{t}.NegativeOne");
+        BindConstant(T.One, $"{t}.One");
+        BindConstant(T.Zero, $"{t}.Zero");
+
+        // functions
+        BindFunction<T>(static v => T.Abs(v), $"{t}.Abs");
+        BindFunction<T>(static v => T.Acos(v), $"{t}.Acos");
+        BindFunction<T>(static v => T.Acosh(v), $"{t}.Acosh");
+        BindFunction<T>(static v => T.Asin(v), $"{t}.Asin");
+        BindFunction<T>(static v => T.Asinh(v), $"{t}.Asinh");
+        BindFunction<T>(static v => T.Atan(v), $"{t}.Atan");
+        BindFunction<T>(static v => T.Atanh(v), $"{t}.Atanh");
+        BindFunction<T>(static (y, x) => T.Atan2(y, x), $"{t}.Atan2");
+        BindFunction<T>(static v => T.Cbrt(v), $"{t}.Cbrt");
+        BindFunction<T>(static v => T.Ceiling(v), $"{t}.Ceiling");
+        BindFunction<T>(static (value, min, max) => T.Clamp(value, min, max), $"{t}.Clamp");
+        BindFunction<T>(static (x, y) => T.CopySign(x, y), $"{t}.CopySign");
+        BindFunction<T>(static v => T.Cos(v), $"{t}.Cos");
+        BindFunction<T>(static v => T.Cosh(v), $"{t}.Cosh");
+        BindFunction<T>(static v => T.Exp(v), $"{t}.Exp");
+        BindFunction<T>(static v => T.Exp2(v), $"{t}.Exp2");
+        BindFunction<T>(static v => T.Exp10(v), $"{t}.Exp10");
+        BindFunction<T>(static v => T.Floor(v), $"{t}.Floor");
+        BindFunction<T>(static (x, y, z) => T.FusedMultiplyAdd(x, y, z), $"{t}.FusedMultiplyAdd");
+        BindFunction<T>(static (x, y) => T.Hypot(x, y), $"{t}.Hypot");
+        BindFunction<T>(static (x, y) => T.Ieee754Remainder(x, y), $"{t}.Ieee754Remainder");
+        BindFunction<T>(static args => args.Length == 1 ? T.Log(args[0]) : T.Log(args[0], args[1]), $"{t}.Log");
+        BindFunction<T>(static v => T.Log2(v), $"{t}.Log2");
+        BindFunction<T>(static v => T.Log10(v), $"{t}.Log10");
+        BindFunction<T>(static (x, y) => T.Max(x, y), $"{t}.Max");
+        BindFunction<T>(static (x, y) => T.MaxMagnitude(x, y), $"{t}.MaxMagnitude");
+        BindFunction<T>(static (x, y) => T.Min(x, y), $"{t}.Min");
+        BindFunction<T>(static (x, y) => T.MinMagnitude(x, y), $"{t}.MinMagnitude");
+        BindFunction<T>(static (x, y) => T.Pow(x, y), $"{t}.Pow");
+        BindFunction<T>(static (x, n) => T.RootN(x, int.CreateChecked(n)), $"{t}.RootN");
+        BindFunction<T>(static args => args.Length == 1 ? T.Round(args[0]) : T.Round(args[0], int.CreateChecked(args[1])), $"{t}.Round");
+        BindFunction<T>(static (x, n) => T.ScaleB(x, int.CreateChecked(n)), $"{t}.ScaleB");
+        BindFunction<T>(static v => T.CreateChecked(T.Sign(v)), $"{t}.Sign");
+        BindFunction<T>(static v => T.Sin(v), $"{t}.Sin");
+        BindFunction<T>(static v => T.Sinh(v), $"{t}.Sinh");
+        BindFunction<T>(static v => T.Sqrt(v), $"{t}.Sqrt");
+        BindFunction<T>(static v => T.Tan(v), $"{t}.Tan");
+        BindFunction<T>(static v => T.Tanh(v), $"{t}.Tanh");
+        BindFunction<T>(static v => T.Truncate(v), $"{t}.Truncate");
+        BindFunction<T>(static v => T.BitDecrement(v), $"{t}.BitDecrement");
+        BindFunction<T>(static v => T.BitIncrement(v), $"{t}.BitIncrement");
+        BindFunction<T>(static v => T.CreateChecked(v), $"{t}.CreateChecked");
+        BindFunction<T>(static v => T.CreateSaturating(v), $"{t}.CreateSaturating");
+        BindFunction<T>(static v => T.CreateTruncating(v), $"{t}.CreateTruncating");
+    }
+
+    /// <summary>
+    ///     Binds the constants and functions of the generic <see cref="Complex{T}" /> type,
+    ///     e.g. <c>Complex&lt;Decimal64&gt;.ImaginaryOne</c>, <c>new Complex&lt;Decimal64&gt;(1, 2)</c>, <c>Complex&lt;Decimal64&gt;.Sqrt(z)</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of the real and imaginary components.</typeparam>
+    /// <param name="t">The component type name used in the math expression.</param>
+    private void BindGenericComplex<T>(string t)
+        where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
+        var c = $"Complex<{t}>";
+
+        BindConstant(default(Complex<T>), $"default({c})");
+        BindConstant(Complex<T>.One, c);
+
+        // constants
+        BindConstant(Complex<T>.Zero, $"{c}.Zero");
+        BindConstant(Complex<T>.One, $"{c}.One");
+        BindConstant(Complex<T>.ImaginaryOne, $"{c}.ImaginaryOne");
+        BindConstant(Complex<T>.NaN, $"{c}.NaN");
+        BindConstant(Complex<T>.Infinity, $"{c}.Infinity");
+
+        // functions
+        BindFunction<Complex<T>>(static (real, imaginary) => new Complex<T>(real.Real, imaginary.Real), $"new {c}");
+        BindFunction<Complex<T>>(static v => new Complex<T>(Complex<T>.Abs(v), T.Zero), $"{c}.Abs");
+        BindFunction<Complex<T>>(static v => Complex<T>.Acos(v), $"{c}.Acos");
+        BindFunction<Complex<T>>(static v => Complex<T>.Asin(v), $"{c}.Asin");
+        BindFunction<Complex<T>>(static v => Complex<T>.Atan(v), $"{c}.Atan");
+        BindFunction<Complex<T>>(static v => Complex<T>.Cos(v), $"{c}.Cos");
+        BindFunction<Complex<T>>(static v => Complex<T>.Cosh(v), $"{c}.Cosh");
+        BindFunction<Complex<T>>(static v => Complex<T>.Exp(v), $"{c}.Exp");
+        BindFunction<Complex<T>>(static args => args.Length == 1 ? Complex<T>.Log(args[0]) : Complex<T>.Log(args[0], args[1].Real), $"{c}.Log");
+        BindFunction<Complex<T>>(static v => Complex<T>.Log10(v), $"{c}.Log10");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.Pow(x, y), $"{c}.Pow");
+        BindFunction<Complex<T>>(static v => Complex<T>.Sin(v), $"{c}.Sin");
+        BindFunction<Complex<T>>(static v => Complex<T>.Sinh(v), $"{c}.Sinh");
+        BindFunction<Complex<T>>(static v => Complex<T>.Sqrt(v), $"{c}.Sqrt");
+        BindFunction<Complex<T>>(static v => Complex<T>.Tan(v), $"{c}.Tan");
+        BindFunction<Complex<T>>(static v => Complex<T>.Tanh(v), $"{c}.Tanh");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.Add(x, y), $"{c}.Add");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.Subtract(x, y), $"{c}.Subtract");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.Multiply(x, y), $"{c}.Multiply");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.Divide(x, y), $"{c}.Divide");
+        BindFunction<Complex<T>>(static v => Complex<T>.Conjugate(v), $"{c}.Conjugate");
+        BindFunction<Complex<T>>(static v => Complex<T>.Negate(v), $"{c}.Negate");
+        BindFunction<Complex<T>>(static v => Complex<T>.Reciprocal(v), $"{c}.Reciprocal");
+        BindFunction<Complex<T>>(static (magnitude, phase) => Complex<T>.FromPolarCoordinates(magnitude.Real, phase.Real), $"{c}.FromPolarCoordinates");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.MaxMagnitude(x, y), $"{c}.MaxMagnitude");
+        BindFunction<Complex<T>>(static (x, y) => Complex<T>.MinMagnitude(x, y), $"{c}.MinMagnitude");
+        BindFunction<Complex<T>>(static v => Complex<T>.CreateChecked(v), $"{c}.CreateChecked");
+        BindFunction<Complex<T>>(static v => Complex<T>.CreateSaturating(v), $"{c}.CreateSaturating");
+        BindFunction<Complex<T>>(static v => Complex<T>.CreateTruncating(v), $"{c}.CreateTruncating");
+    }
+
+#endif
+}
