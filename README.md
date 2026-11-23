@@ -48,33 +48,33 @@ It uses all four arithmetic operators, operator precedence, nested parentheses, 
 
 Every call parses a math expression string never seen before (the constant `1000` is replaced with a different number), sets the variables and evaluates it once. Caches of parsed expressions are disabled.
 
-| Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
-|-----:|---------|----------:|---------:|----------:|---------:|
-| 1 | **MathEvaluator** ² | **687.4 ns** | **842.6 ns** | **896 B** | **1.00x** |
-| 2 | NTDLS.ExpressionParser | 969.1 ns | 1,144.1 ns | 1,208 B | 1.41x |
-| 3 | xFunc | 2,423.3 ns | 2,749.6 ns | 1,960 B | 3.53x |
-| 4 | NCalc | 5,353.6 ns | 6,280.9 ns | 4,328 B | 7.79x |
-| 5 | NoStringEvaluating | 17,171.9 ns | 26,582.3 ns | 3,152 B | 25.0x |
-| 6 | CalcExpr.NET | 337,818.0 ns | 390,161.0 ns | 339,656 B | 491x |
-| 7 | Jace ¹ | 1,396,988.2 ns | 227,006.3 ns | 27,836 B | 2,032x |
-| 8 | Flee ¹ | 3,401,684.8 ns | 177,293.5 ns | 107,647 B | 4,949x |
+| Rank | Library | .NET 10.0 | .NET 11.0 | Allocated | Relative |
+|-----:|---------|----------:|----------:|----------:|---------:|
+| 1 | **MathEvaluator** ² | **706.4 ns** | **709.5 ns** | **896 B** | **1.00x** |
+| 2 | NTDLS.ExpressionParser | 942.9 ns | 838.1 ns | 1,208 B | 1.34x |
+| 3 | xFunc | 2,391.5 ns | 2,408.3 ns | 1,960 B | 3.39x |
+| 4 | NCalc | 2,947.0 ns | 2,896.0 ns | 4,112 B | 4.17x |
+| 5 | NoStringEvaluating | 18,192.0 ns | 20,664.5 ns | 3,152 B | 25.8x |
+| 6 | CalcExpr.NET | 337,508.0 ns | 331,436.8 ns | 339,704 B | 478x |
+| 7 | Jace ¹ | 1,397,236.5 ns | 1,303,645.4 ns | 27,836 B | 1,978x |
+| 8 | Flee ¹ | 3,433,214.0 ns | 3,424,403.7 ns | 107,647 B | 4,861x |
 
 #### Evaluate one expression many times
 
 Each library parses (or compiles) the expression once, then only the evaluation is measured.
 
-| Rank | Library | .NET 10.0 | .NET 8.0 | Allocated | Relative |
-|-----:|---------|----------:|---------:|----------:|---------:|
-| 1 | **MathEvaluator** (compiled) | **1.87 ns** | **1.79 ns** | **-** | **1.00x** |
-| 1 | **MathEvaluator.FastExpressionCompiler** (compiled) | **1.82 ns** | **1.99 ns** | **-** | **0.98x** |
-| 1 | NCalc.LambdaCompilation (compiled) | 1.82 ns | 1.81 ns | - | 0.98x |
-| 2 | NTDLS.ExpressionParser | 60.25 ns | 67.77 ns | - | 32.3x |
-| 3 | Flee ¹ | 64.92 ns | 72.55 ns | - | 34.8x |
-| 4 | NoStringEvaluating | 150.93 ns | 190.85 ns | - | 81.0x |
-| 5 | xFunc | 180.53 ns | 245.35 ns | 288 B | 96.8x |
-| 6 | Jace ¹ | 195.31 ns | 227.72 ns | 624 B | 105x |
-| 7 | CalcExpr.NET | 315.62 ns | 475.57 ns | 720 B | 169x |
-| 8 | NCalc | 665.62 ns | 794.76 ns | 1,912 B | 357x |
+| Rank | Library | .NET 10.0 | .NET 11.0 | Allocated | Relative |
+|-----:|---------|----------:|----------:|----------:|---------:|
+| 1 | **MathEvaluator** (compiled) | **1.81 ns** | **1.82 ns** | **-** | **1.00x** |
+| 1 | **MathEvaluator.FastExpressionCompiler** (compiled) | **1.82 ns** | **1.81 ns** | **-** | **1.00x** |
+| 1 | NCalc.LambdaCompilation (compiled) | 1.82 ns | 1.87 ns | - | 1.00x |
+| 2 | NTDLS.ExpressionParser | 57.26 ns | 54.22 ns | - | 31.6x |
+| 3 | Flee ¹ | 70.51 ns | 64.83 ns | - | 38.9x |
+| 4 | NoStringEvaluating | 144.10 ns | 162.54 ns | - | 79.6x |
+| 5 | xFunc | 204.83 ns | 192.83 ns | 288 B | 113x |
+| 5 | Jace ¹ | 207.14 ns | 191.44 ns | 624 B | 114x |
+| 6 | CalcExpr.NET | 355.38 ns | 349.45 ns | 720 B | 196x |
+| 7 | NCalc | 754.94 ns | 748.65 ns | 1,912 B | 417x |
 
 A compiled delegate is a plain .NET method, so the compiling libraries perform the same once compiled; they differ in how long compiling takes.
 
@@ -82,22 +82,22 @@ A compiled delegate is a plain .NET method, so the compiling libraries perform t
 
 Only libraries that compile expressions to delegates. **Compile** is the time to get a delegate; **Compile + first call** also evaluates it once, which includes JIT-compiling the generated code.
 
-| Rank | Library | Compile<br>.NET 10.0 | Compile<br>.NET 8.0 | Compile + first call<br>.NET 10.0 | Compile + first call<br>.NET 8.0 | Allocated |
-|-----:|---------|----------:|---------:|----------:|---------:|----------:|
-| 1 | **MathEvaluator.FastExpressionCompiler** | **5.8 μs** | **6.6 μs** | **110.1 μs** | **91.1 μs** | **4.1 KB** |
-| 2 | NCalc.LambdaCompilation | 9.6 μs | 11.4 μs | 119.7 μs | 94.3 μs | 4.7 KB |
-| 3 | Flee ¹ | 73.0 μs | 82.5 μs | 3,491.9 μs | 174.8 μs | 105.0 KB |
-| 4 | **MathEvaluator** | **114.7 μs** | **90.4 μs** | **116.1 μs** | **90.2 μs** | **8.4 KB** |
-| 5 | Jace ¹ | 1,391.5 μs | 222.1 μs | 1,368.7 μs | 229.8 μs | 26.4 KB |
+| Rank | Library | Compile<br>.NET 10.0 | Compile<br>.NET 11.0 | Compile + first call<br>.NET 10.0 | Compile + first call<br>.NET 11.0 | Allocated |
+|-----:|---------|----------:|----------:|----------:|----------:|----------:|
+| 1 | **MathEvaluator.FastExpressionCompiler** | **6.4 μs** | **5.4 μs** | **112.3 μs** | **107.2 μs** | **4.1 KB** |
+| 2 | NCalc.LambdaCompilation | 7.9 μs | 7.2 μs | 116.6 μs | 110.1 μs | 4.5 KB |
+| 3 | Flee ¹ | 74.5 μs | 72.3 μs | 3,461.7 μs | 3,454.8 μs | 105.0 KB |
+| 4 | **MathEvaluator** | **113.8 μs** | **108.2 μs** | **114.1 μs** | **107.5 μs** | **8.4 KB** |
+| 5 | Jace ¹ | 1,421.0 μs | 1,302.1 μs | 1,419.6 μs | 1,302.3 μs | 26.4 KB |
 
-MathEvaluator.FastExpressionCompiler gets a delegate **~20x faster** than the built-in `LambdaExpression.Compile()`. Including the first call, the JIT compilation of the generated code takes most of the time, so the compiling libraries end up close.
+MathEvaluator.FastExpressionCompiler gets a delegate **~18x faster** than the built-in `LambdaExpression.Compile()`. Including the first call, the JIT compilation of the generated code takes most of the time, so the compiling libraries end up close.
 
 *Rank and Relative are for .NET 10.0. Times are per call (Rank of the compile table is by Compile time on .NET 10.0).*
 
-¹ Flee and Jace compile every expression to IL, which the JIT compiles before its first run, so every new expression is slow. Jace reuses compiled code for a repeated math expression string even with its cache disabled, which is why every call gets a new one. Both are much slower to compile a new expression on .NET 10.0 than on .NET 8.0.  
+¹ Flee and Jace compile every expression to IL, which the JIT compiles before its first run, so every new expression is slow. Jace reuses compiled code for a repeated math expression string even with its cache disabled, which is why every call gets a new one.  
 ² For a single evaluation MathEvaluator uses its interpreter, which is much faster than compiling. Compile only when the same expression is evaluated many times.  
 
-*Measured with BenchmarkDotNet v0.15.8 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Source: [LibraryComparisonBenchmarks.cs](https://github.com/AntonovAnton/math.evaluation/blob/main/MathEvaluation.Benchmarks/LibraryComparisonBenchmarks.cs). Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
+*Measured with BenchmarkDotNet v0.16.0-preview.2 on Windows 11, 11th Gen Intel Core i7-11800H 2.30GHz. Source: [LibraryComparisonBenchmarks.cs](https://github.com/AntonovAnton/math.evaluation/blob/main/MathEvaluation.Benchmarks/LibraryComparisonBenchmarks.cs). Full results are available in the [benchmarks](https://github.com/AntonovAnton/math.evaluation/tree/main/BenchmarkDotNet.Artifacts/results).*
 
 ## Compilation
 Added in version [2.0.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.0.0)
