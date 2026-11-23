@@ -73,6 +73,12 @@ Examples of using string extentions:
     var compiledComplex = "x + y * i".CompileComplexFast(new { x = 0, y = 0 });
     Complex complexResult = compiledComplex(new { x = 3, y = 4 }); // Result: 3 + 4i
 
+    // Compile a generic complex expression (.NET 11+), e.g. Complex<Decimal64>
+    var parameters = new Dictionary<string, Complex<Decimal64>> { { "z", new Complex<Decimal64>(Decimal64.Parse("0.1"), Decimal64.Parse("0.2")) } };
+    var compiledGenericComplex = "z * 10 + 0.1 - 0.3i"
+        .CompileComplexFast<Dictionary<string, Complex<Decimal64>>, Decimal64>(parameters, new ComplexScientificMathContext<Decimal64>());
+    Complex<Decimal64> genericComplexResult = compiledGenericComplex(parameters); // Result: 1.1 + 1.7i
+
 Example of compilation with a Dictionary as a parameter (Added in version [2.3.0](https://github.com/AntonovAnton/math.evaluation/releases/tag/2.3.0)):
 
     var dict = new Dictionary<string, double>();

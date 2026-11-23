@@ -79,5 +79,37 @@ public static class StringExtensions
         public Func<T, CancellationToken, ValueTask<Complex>> CompileComplexAsyncFuncFast<T>(T parameters, MathContext? context = null,
             IFormatProvider? provider = null)
             => new FastMathExpression(mathString, context, provider).CompileComplexAsyncFunc(parameters);
+
+#if NET11_0_OR_GREATER
+        /// <summary>Compiles the math expression string that returns a generic <see cref="Complex{T}">complex</see> number (.NET 11+).</summary>
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="TParameters">The type of the parameters.</typeparam>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <returns>A delegate that represents the compiled expression.</returns>
+        /// <exception cref="MathExpressionException" />
+        /// <exception cref="ArgumentNullException">parameters</exception>
+        /// <exception cref="NotSupportedException">parameters</exception>
+        public Func<TParameters, Complex<T>> CompileComplexFast<TParameters, T>(TParameters parameters, MathContext? context = null,
+            IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new FastMathExpression(mathString, context, provider).CompileComplex<TParameters, T>(parameters);
+
+        /// <summary>Compiles the math expression string that can contain async functions and returns a generic <see cref="Complex{T}">complex</see> number (.NET 11+).</summary>
+        /// <param name="parameters">The parameters of the math expression string.</param>
+        /// <param name="context">The math context.</param>
+        /// <param name="provider">The specified format provider.</param>
+        /// <typeparam name="TParameters">The type of the parameters.</typeparam>
+        /// <typeparam name="T">The type of the real and imaginary parts.</typeparam>
+        /// <returns>A delegate that represents the compiled expression.</returns>
+        /// <exception cref="MathExpressionException" />
+        /// <exception cref="ArgumentNullException">parameters</exception>
+        /// <exception cref="NotSupportedException">parameters</exception>
+        public Func<TParameters, CancellationToken, ValueTask<Complex<T>>> CompileComplexAsyncFuncFast<TParameters, T>(TParameters parameters,
+            MathContext? context = null, IFormatProvider? provider = null)
+            where T : struct, IFloatingPointIeee754<T>, IMinMaxValue<T>
+            => new FastMathExpression(mathString, context, provider).CompileComplexAsyncFunc<TParameters, T>(parameters);
+#endif
     }
 }

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ProgrammingMathContext<T>` calculates constants, floor division `//`, modulo `%`, and `iif` in the precision of any `IFloatingPoint<T>` type, including `decimal`.
   - `ComplexScientificMathContext<T>` is the scientific context for generic `Complex<T>` numbers (.NET 11+).
 - **FastExpressionCompiler async compilation:** `CompileAsyncFuncFast`, `CompileDecimalAsyncFuncFast`, `CompileBooleanAsyncFuncFast`, and `CompileComplexAsyncFuncFast` string extensions compile expressions with async functions into a `Func<T, CancellationToken, ValueTask<TResult>>` delegate (#130).
+- **FastExpressionCompiler generic complex compilation (.NET 11+):** `CompileComplexFast<TParameters, T>()` and `CompileComplexAsyncFuncFast<TParameters, T>()` string extensions compile expressions that return a generic `Complex<T>`.
 
 ### Changed
 
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Expressions that mix these constants can produce different result types or precision than in 3.x.
 - `DecimalProgrammingMathContext` now inherits from `ProgrammingMathContext<decimal>`.
+- `MathEvaluator.FastExpressionCompiler` now depends on `MathEvaluator` 4.0.0.
 - `EvaluatingStep` events are no longer raised for NaN constant values, and they now also apply to generic complex values.
 
 ### Deprecated
