@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>MathEvaluation.Benchmarks.ComplexNumbersBenchmarks-20261101-162521</title>
+<title>MathEvaluation.Benchmarks.ComplexNumbersBenchmarks</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,28 +13,28 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.15.8, Windows 11 (10.0.26300.9818)
+BenchmarkDotNet v0.16.0-preview.2, Windows 11 (10.0.26300.10075)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 10.0.403
-  [Host]    : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
-  .NET 10.0 : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
-  .NET 8.0  : .NET 8.0.33 (8.0.33, 8.0.3326.52219), X64 RyuJIT x86-64-v4
+Memory: 31.77 GB Total, 15.97 GB Available
+.NET SDK 11.0.100
+  [Host]     : .NET 11.0.0 (11.0.0, 11.0.26.53018), X64 RyuJIT x86-64-v4
+  Job-WNYEYB : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v4
+  Job-ZJTCNP : .NET 11.0.0 (11.0.0, 11.0.26.53018), X64 RyuJIT x86-64-v4
 </code></pre>
-<pre><code></code></pre>
+<pre><code>IterationCount=10  WarmupCount=3  
+</code></pre>
 
 <table>
-<thead><tr><th>Method                                                                    </th><th>Job</th><th>Runtime</th><th>Mean   </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+<thead><tr><th>Method                                                                    </th><th>Runtime</th><th>Mean   </th><th>Error  </th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>625.88 ns</td><td>4.219 ns</td><td>3.946 ns</td><td>0.0181</td><td>-</td><td>584 B</td>
-</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>397,622.61 ns</td><td>1,595.349 ns</td><td>1,332.188 ns</td><td>-</td><td>-</td><td>8904 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>7,215.44 ns</td><td>140.832 ns</td><td>144.624 ns</td><td>0.2441</td><td>0.2136</td><td>8438 B</td>
-</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>71.49 ns</td><td>0.908 ns</td><td>0.849 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler invoke fn(a)&#39;</td><td>.NET 10.0</td><td>.NET 10.0</td><td>71.20 ns</td><td>0.334 ns</td><td>0.279 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
-</tr><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>748.28 ns</td><td>7.485 ns</td><td>7.002 ns</td><td>0.0181</td><td>-</td><td>584 B</td>
-</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>277,791.18 ns</td><td>1,743.430 ns</td><td>1,630.805 ns</td><td>-</td><td>-</td><td>8904 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>8,859.25 ns</td><td>80.480 ns</td><td>71.344 ns</td><td>0.2441</td><td>0.2136</td><td>8406 B</td>
-</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>69.76 ns</td><td>0.918 ns</td><td>0.858 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
-</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler invoke fn(a)&#39;</td><td>.NET 8.0</td><td>.NET 8.0</td><td>70.09 ns</td><td>0.787 ns</td><td>0.736 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
+</thead><tbody><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>613.34 ns</td><td>10.646 ns</td><td>6.335 ns</td><td>0.0181</td><td>-</td><td>584 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>404,524.75 ns</td><td>2,518.406 ns</td><td>1,498.663 ns</td><td>-</td><td>-</td><td>8904 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 10.0</td><td>7,471.27 ns</td><td>226.933 ns</td><td>135.044 ns</td><td>0.2594</td><td>0.2441</td><td>8439 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 10.0</td><td>66.69 ns</td><td>1.165 ns</td><td>0.770 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
+</tr><tr><td>&#39;MathEvaluator evaluation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 11.0</td><td>594.85 ns</td><td>7.361 ns</td><td>4.869 ns</td><td>0.0191</td><td>-</td><td>608 B</td>
+</tr><tr><td>&#39;MathEvaluator compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 11.0</td><td>849,431.26 ns</td><td>10,748.238 ns</td><td>7,109.294 ns</td><td>-</td><td>-</td><td>8928 B</td>
+</tr><tr><td>&#39;MathEvaluator.FastExpressionCompiler compilation: sin(a) * arctan(4i)/(1 - 6i)&#39;</td><td>.NET 11.0</td><td>7,220.31 ns</td><td>200.472 ns</td><td>132.600 ns</td><td>0.2747</td><td>0.2670</td><td>8648 B</td>
+</tr><tr><td>&#39;MathEvaluator invoke fn(a)&#39;</td><td>.NET 11.0</td><td>68.22 ns</td><td>0.960 ns</td><td>0.502 ns</td><td>0.0010</td><td>-</td><td>32 B</td>
 </tr></tbody></table>
 </body>
 </html>

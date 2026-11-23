@@ -246,3 +246,4 @@ docker-compose.override.yml
 
 # Temporary files
 /tmp 
+/MathEvaluation.Benchmarks/.bdn

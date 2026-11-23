@@ -6,9 +6,11 @@ using MathEvaluation.Parameters;
 
 namespace MathEvaluation.Benchmarks;
 
-[SimpleJob(RuntimeMoniker.Net10_0, warmupCount: 3, iterationCount: 10)] // short jobs: they spot regressions, the published results are in LibraryComparisonBenchmarks
+// short jobs: they spot regressions, the published results are in LibraryComparisonBenchmarks
+[SimpleJob(RuntimeMoniker.Net10_0, warmupCount: 3, iterationCount: 10)]
 [SimpleJob(RuntimeMoniker.NativeAot10_0, warmupCount: 3, iterationCount: 10)]
-//[SimpleJob(BenchmarkDotNet.Engines.RunStrategy.ColdStart, iterationCount: 5)]
+[SimpleJob(RuntimeMoniker.Net11_0, warmupCount: 3, iterationCount: 10)]
+//[SimpleJob(RuntimeMoniker.NativeAot11_0, warmupCount: 3, iterationCount: 10)]
 [MemoryDiagnoser]
 public class EvaluationBenchmarks
 {

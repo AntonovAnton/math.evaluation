@@ -116,7 +116,7 @@ public static class LibraryComparison
 ///     and evaluates it once. Caches of parsed expressions are disabled. Results are per call.
 /// </summary>
 [SimpleJob(RuntimeMoniker.Net10_0)]
-[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net11_0)]
 [MemoryDiagnoser]
 [RankColumn]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -300,7 +300,7 @@ public class ParseAndEvaluateComparisonBenchmarks
 ///     a call of a compiled delegate (~1-2 ns) is not lost in the benchmark overhead.
 /// </summary>
 [SimpleJob(RuntimeMoniker.Net10_0)]
-[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net11_0)]
 [MemoryDiagnoser]
 [RankColumn]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -469,7 +469,7 @@ public class EvaluateComparisonBenchmarks
 ///     i.e. the real cost of a compiled expression before it starts paying off. Only libraries that compile are compared.
 /// </summary>
 [SimpleJob(RuntimeMoniker.Net10_0)]
-[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net11_0)]
 [MemoryDiagnoser]
 [RankColumn]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
